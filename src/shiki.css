@@ -1,0 +1,36 @@
+/* Theme switching for Shiki output.
+ *
+ * `rehypeProseCode` emits `--shiki-light` / `--shiki-dark` on every token span
+ * rather than a fixed colour, so one compiled document serves both themes. These
+ * rules decide which variable wins.
+ *
+ * Deliberately keyed off the inline custom properties, not a class.
+ *
+ * Shiki marks the <pre> with `.shiki` and we can stamp `<code>` via a
+ * transformer, but a host MDX pipeline is free to substitute its own component
+ * for either element and drop the class with it — fumadocs' CodeBlock strips
+ * both. The token spans and their inline variables always survive, because they
+ * are content rather than container. Keying off them means the package styles
+ * code correctly without owning the code-block component.
+ *
+ * Import after tokens.css and after any host framework's own code CSS.
+ */
+[style*="--shiki-light"] {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style, inherit);
+  font-weight: var(--shiki-light-font-weight, inherit);
+}
+
+.dark [style*="--shiki-dark"] {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style, inherit);
+  font-weight: var(--shiki-dark-font-weight, inherit);
+}
+
+[style*="--shiki-light-bg"] {
+  background-color: var(--shiki-light-bg);
+}
+
+.dark [style*="--shiki-dark-bg"] {
+  background-color: var(--shiki-dark-bg);
+}

@@ -1,0 +1,60 @@
+{
+  "name": "@supertype/foundations",
+  "version": "0.1.8",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "src/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./essay": {
+      "types": "./dist/essay/index.d.ts",
+      "default": "./dist/essay/index.js"
+    },
+    "./seo": {
+      "types": "./dist/seo.d.ts",
+      "default": "./dist/seo.js"
+    },
+    "./rehype": {
+      "types": "./dist/rehype.d.ts",
+      "default": "./dist/rehype.js"
+    },
+    "./tokens.css": "./src/tokens.css",
+    "./type.css": "./src/type.css",
+    "./prose.css": "./src/prose.css",
+    "./shiki.css": "./src/shiki.css",
+    "./og": {
+      "types": "./dist/og.d.ts",
+      "default": "./dist/og.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "release": "node scripts/release.mjs"
+  },
+  "dependencies": {
+    "@shikijs/rehype": "^2.3.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "shiki": "^2.3.2",
+    "tailwind-merge": "^3.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.7.0"
+  },
+  "description": "Shared typography, prose, essay and SEO foundations across Supertype projects."
+}

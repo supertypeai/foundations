@@ -1,0 +1,129 @@
+/* @supertype/prose — structural design tokens.
+ *
+ * Import AFTER `@import "tailwindcss"` in the consumer's stylesheet:
+ *
+ *     @import "tailwindcss";
+ *     @import "@supertype/prose/tokens.css";
+ *
+ * Tailwind v4 generates colour utilities only from `@theme`, so registering the
+ * tokens is what makes `bg-card` / `text-muted-foreground` emit CSS at all —
+ * declaring the variables in `:root` alone produces nothing. `inline` keeps the
+ * generated utilities pointing at the raw variable rather than baking its value,
+ * which is what lets `.dark` (and any consumer override) re-point them.
+ *
+ * Consumers override the palette by redeclaring the raw variables — `--card`,
+ * not `--color-card` — in their own `:root` / `.dark`. Brand colours stay in the
+ * consuming app; this file owns structure only.
+ */
+
+/* Bind `dark:` to the `.dark` class.
+ *
+ * Not optional, and its absence is silent. Tailwind v4 defaults the dark variant
+ * to `@media (prefers-color-scheme: dark)`, so without this every `dark:` utility
+ * follows the operating system and ignores the app's theme toggle entirely — the
+ * toggle flips `.dark` on the element and nothing responds. Nothing errors; the
+ * page simply obeys the wrong signal.
+ *
+ * It lives here because this file defines the `.dark` token block just below.
+ * A package that ships class-keyed tokens has to ship the variant that reads
+ * them, or every consumer rediscovers this the hard way.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Status inks. Named for meaning, not hue: a "success" that a project needs to
+     render blue stays `success`, and every call site keeps reading correctly.
+     `danger` is an alias of `destructive` — the two names were already in use
+     across the projects and renaming call sites buys nothing. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warn: var(--warn);
+  --color-warn-foreground: var(--warn-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-danger: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  :root {
+    /* Prose knobs. These are the supported way to retune spacing and rhythm —
+       prose components take no `variant` or `density` props by design. */
+    --prose-measure: 68ch;
+    --prose-leading: 1.75;
+    --prose-gap: 1.25rem;
+
+    --background: hsl(0, 0%, 96%);
+    --foreground: hsl(0, 0%, 3.9%);
+    --card: hsl(0, 0%, 94.7%);
+    --card-foreground: hsl(0, 0%, 3.9%);
+    --popover: hsl(0, 0%, 98%);
+    --popover-foreground: hsl(0, 0%, 15.1%);
+    --primary: hsl(0, 0%, 9%);
+    --primary-foreground: hsl(0, 0%, 98%);
+    --secondary: hsl(0, 0%, 93.1%);
+    --secondary-foreground: hsl(0, 0%, 9%);
+    --muted: hsl(0, 0%, 96.1%);
+    --muted-foreground: hsl(0, 0%, 45.1%);
+    --accent: hsl(0, 0%, 90.1%);
+    --accent-foreground: hsl(0, 0%, 9%);
+    --destructive: hsl(0, 91%, 71%);
+    --destructive-foreground: hsl(0, 91%, 100%);
+    --success: hsl(142, 75%, 31%);
+    --success-foreground: hsl(142, 75%, 96%);
+    --warn: hsl(30, 100%, 52%);
+    --warn-foreground: hsl(22, 85%, 36%);
+    --info: hsl(211, 80%, 43%);
+    --info-foreground: hsl(211, 80%, 96%);
+    --border: hsl(0, 0%, 89.8%);
+    --input: hsl(20, 5.9%, 90%);
+    --ring: hsl(0, 0%, 63.9%);
+  }
+
+  .dark {
+    --background: hsl(0, 0%, 7.04%);
+    --foreground: hsl(0, 0%, 92%);
+    --card: hsl(0, 0%, 9.8%);
+    --card-foreground: hsl(0, 0%, 98%);
+    --popover: hsl(0, 0%, 9.8%);
+    --popover-foreground: hsl(0, 0%, 88%);
+    --primary: hsl(0, 0%, 98%);
+    --primary-foreground: hsl(0, 0%, 9%);
+    --secondary: hsl(0, 0%, 12.9%);
+    --secondary-foreground: hsl(0, 0%, 98%);
+    --muted: hsl(0, 0%, 12.9%);
+    --muted-foreground: hsl(0, 0%, 60.9%);
+    --accent: hsl(0, 0%, 16.9%);
+    --accent-foreground: hsl(0, 0%, 90%);
+    --destructive: hsl(0, 62.8%, 30.6%);
+    --destructive-foreground: hsl(0, 85.7%, 97.3%);
+    --success: hsl(142, 60%, 45%);
+    --success-foreground: hsl(142, 75%, 10%);
+    --warn: hsl(30, 90%, 55%);
+    --warn-foreground: hsl(33, 60%, 72%);
+    --info: hsl(211, 75%, 60%);
+    --info-foreground: hsl(211, 80%, 10%);
+    --border: hsl(0, 0%, 14%);
+    --input: hsl(240, 3.7%, 15.9%);
+    --ring: hsl(0, 0%, 54.9%);
+  }
+}
