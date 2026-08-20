@@ -28,6 +28,15 @@ export interface ArticleAuthor {
   name: string;
   url?: string;
   sameAs?: string[];
+  /** The byline's role, which is the authorship signal a name alone does not carry. */
+  jobTitle?: string;
+}
+
+export interface ArticleOptions {
+  /** Topic tags, emitted as the comma-separated string schema.org expects. */
+  keywords?: string[];
+  /** Reading time in minutes, emitted as an ISO-8601 duration. */
+  readingMinutes?: number;
 }
 
 /** The subset of Next's Metadata this builds. Assignable to it structurally. */
@@ -128,6 +137,7 @@ export function createSeo(config: SeoConfig) {
       datePublished?: string,
       image?: string,
       dateModified?: string,
+      { keywords, readingMinutes }: ArticleOptions = {},
     ) {
       const url = `${baseUrl}/${articleBasePath}/${slug}`;
       return {
@@ -149,8 +159,11 @@ export function createSeo(config: SeoConfig) {
             name: author.name,
             ...(author.url ? { url: absolute(author.url) } : {}),
             ...(author.sameAs?.length ? { sameAs: author.sameAs } : {}),
+            ...(author.jobTitle ? { jobTitle: author.jobTitle } : {}),
           };
         }),
+        ...(keywords?.length ? { keywords: keywords.join(", ") } : {}),
+        ...(readingMinutes ? { timeRequired: `PT${readingMinutes}M` } : {}),
         publisher,
         mainEntityOfPage: { "@type": "WebPage", "@id": url },
       };

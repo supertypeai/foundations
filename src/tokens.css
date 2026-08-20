@@ -83,7 +83,10 @@
     --secondary: hsl(0, 0%, 93.1%);
     --secondary-foreground: hsl(0, 0%, 9%);
     --muted: hsl(0, 0%, 96.1%);
-    --muted-foreground: hsl(0, 0%, 45.1%);
+    /* 42.5%, not shadcn's 45.1%: that measured 4.22:1 on --card and 4.35:1 on
+       --muted, both under AA for body text, and this token is the secondary ink
+       every caption and every meta row is set in. */
+    --muted-foreground: hsl(0, 0%, 42.5%);
     --accent: hsl(0, 0%, 90.1%);
     --accent-foreground: hsl(0, 0%, 9%);
     --destructive: hsl(0, 91%, 71%);
