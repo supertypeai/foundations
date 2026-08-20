@@ -3,7 +3,7 @@
   "version": "0.1.14",
   "private": true,
   "license": "UNLICENSED",
-  "description": "Shared typography, prose, essay, and SEO foundations for Supertype projects.",
+  "description": "Shared typography, prose, essay, and building blocks for Supertype projects.",
   "type": "module",
   "sideEffects": [
     "*.css"
