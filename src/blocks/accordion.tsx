@@ -3,14 +3,9 @@ import { Children, cloneElement, isValidElement, type ComponentProps, type React
 import { cn } from "../cn.js";
 
 /**
- * A disclosure group.
- *
- * Built on `<details>`/`<summary>` rather than a headless primitive: it needs no
- * JavaScript, works before hydration, is keyboard- and screen-reader-correct for
- * free, and — the reason that matters here — it keeps the package free of both
- * Radix and Base UI. Those diverge across the consuming projects, and a shared
- * prose package that picked one would force a migration on the others for the
- * sake of a widget the platform already ships.
+ * `<details>`/`<summary>`, not a headless primitive: no JS, correct before
+ * hydration, and it keeps both Radix and Base UI out of the package — the
+ * consuming projects are split across them.
  */
 export function Accordions({
   className,
@@ -68,21 +63,9 @@ export function Accordions({
 }
 
 /**
- * A stable group name derived from the children's titles.
- *
- * `<details name>` needs siblings to share a name, and the name must be the same
- * on the server and the client and the same across builds. A module-scoped
- * counter satisfies none of those: module scope lives for the life of the Node
- * process, so the number depends on how many accordions happened to render
- * before this one — different on every build, and different again in the browser.
- *
- * Hashing the titles is deterministic and unique to the group's content. Two
- * groups with identical titles on one page would share a name and behave as one;
- * that is remote enough, and visible enough when it happens, to be the better
- * trade against a value that silently differs between server and client.
- *
- * `useId` is the React answer to this and cannot be used here: it is a hook, and
- * this is a server component.
+ * `<details name>` must match across siblings, server and client, and builds — a
+ * module counter fails all three, and `useId` is a hook in a server component.
+ * Hashing the titles is deterministic; identical groups on one page would merge.
  */
 function deriveGroupName(children: ReactNode): string {
   const titles: string[] = [];

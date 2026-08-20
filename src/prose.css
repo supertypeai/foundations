@@ -1,19 +1,6 @@
-/* @supertype/prose — element rules that cannot be components.
- *
- * Import after tokens.css and type.css.
- *
- * Everything here styles an element the MDX map cannot safely target, because
- * distinguishing it needs structure the component never sees.
- *
- * Inline code is the case in point. In an MDX map, `code` fires for BOTH an
- * inline `` `span` `` and the <code> inside a fenced <pre>, and the only way to
- * tell them apart from inside the component is the `language-*` class rehype
- * puts on the fence. That class does not survive: a host is free to substitute
- * its own code-block component and drop it (fumadocs' CodeBlock does), and then
- * every fenced block silently renders with the inline chip painted behind it.
- *
- * A CSS child combinator knows what the component cannot, and cannot be stripped.
- */
+/* `code` fires for both an inline span and the <code> in a fence, and the
+   `language-*` class that tells them apart does not survive a host swapping in
+   its own code block. A child combinator knows what the component cannot. */
 
 :not(pre) > code {
   border-radius: 0.25rem;

@@ -1,33 +1,10 @@
-/* @supertype/prose — structural design tokens.
- *
- * Import AFTER `@import "tailwindcss"` in the consumer's stylesheet:
- *
- *     @import "tailwindcss";
- *     @import "@supertype/prose/tokens.css";
- *
- * Tailwind v4 generates colour utilities only from `@theme`, so registering the
- * tokens is what makes `bg-card` / `text-muted-foreground` emit CSS at all —
- * declaring the variables in `:root` alone produces nothing. `inline` keeps the
- * generated utilities pointing at the raw variable rather than baking its value,
- * which is what lets `.dark` (and any consumer override) re-point them.
- *
- * Consumers override the palette by redeclaring the raw variables — `--card`,
- * not `--color-card` — in their own `:root` / `.dark`. Brand colours stay in the
- * consuming app; this file owns structure only.
- */
+/* Structural design tokens. Import AFTER `@import "tailwindcss"`.
+   `@theme inline` is what makes `bg-card` emit CSS at all, and `inline` keeps the
+   utility pointing at the raw variable so `.dark` can re-point it. */
 
-/* Bind `dark:` to the `.dark` class.
- *
- * Not optional, and its absence is silent. Tailwind v4 defaults the dark variant
- * to `@media (prefers-color-scheme: dark)`, so without this every `dark:` utility
- * follows the operating system and ignores the app's theme toggle entirely — the
- * toggle flips `.dark` on the element and nothing responds. Nothing errors; the
- * page simply obeys the wrong signal.
- *
- * It lives here because this file defines the `.dark` token block just below.
- * A package that ships class-keyed tokens has to ship the variant that reads
- * them, or every consumer rediscovers this the hard way.
- */
+/* Binds `dark:` to the `.dark` class. Not optional, and its absence is silent:
+   Tailwind v4 defaults to `prefers-color-scheme`, so every `dark:` utility would
+   follow the OS and ignore the app's toggle. Ships here with the `.dark` block. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
@@ -48,10 +25,8 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
-  /* Status inks. Named for meaning, not hue: a "success" that a project needs to
-     render blue stays `success`, and every call site keeps reading correctly.
-     `danger` is an alias of `destructive` — the two names were already in use
-     across the projects and renaming call sites buys nothing. */
+  /* Named for meaning, not hue: a `success` a project renders blue still reads
+     correctly. `danger` aliases `destructive` — both names were already in use. */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warn: var(--warn);

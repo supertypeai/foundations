@@ -1,17 +1,9 @@
 "use client";
 import { useEffect, useState, useSyncExternalStore } from "react";
 /**
- * Document reading progress, 0→1, from a single shared listener.
- *
- * `useSyncExternalStore` rather than per-component `useState` because a page
- * typically mounts both the progress bar and the rail. With a hook-local
- * listener that is two scroll subscriptions, two resize subscriptions and two
- * renders per frame; here every consumer reads one store and the browser sees
- * one listener no matter how many components ask.
- *
- * Reads are coalesced to an animation frame: scroll fires far more often than
- * the screen repaints, and `scrollHeight` forces layout, so doing it per event
- * is the expensive part rather than the arithmetic.
+ * Reading progress 0→1 from one shared listener: a page mounts both the bar and
+ * the rail, and hook-local state would double every subscription. Reads coalesce
+ * to a frame — `scrollHeight` forces layout, which is the expensive part.
  */
 let progress = 0;
 let frame = 0;
@@ -55,15 +47,8 @@ export function useReadingProgress() {
     return useSyncExternalStore(subscribe, () => progress, () => 0);
 }
 /**
- * The id of the heading the reader is currently in.
- *
- * One IntersectionObserver across every heading rather than one per heading:
- * the observer already reports which entries changed, so a second, third and
- * fourth observer only add bookkeeping. When several headings are on screen the
- * topmost wins, which is what a reader means by "where I am".
- *
- * viably had two near-identical copies of this — one in its table of contents,
- * one in its reading rail — which is what made it worth extracting.
+ * One IntersectionObserver across all headings, not one each — the observer
+ * already reports what changed. Topmost wins when several are on screen.
  */
 export function useScrollSpy(ids, { rootMargin = "-15% 0px -75% 0px" } = {}) {
     const [active, setActive] = useState("");

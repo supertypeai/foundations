@@ -1,15 +1,7 @@
 /**
- * Structured data and page metadata.
- *
- * Built from ssite's `lib/seo.ts`, which was the better of the two
- * implementations across the projects — the other declared BlogPosting and
- * BreadcrumbList inline in the page component, so the schemas drifted per page
- * and could not be tested.
- *
- * Everything here is a pure function over a site config. No `next` import, not
- * even a type one: `buildMetadata` returns a structurally-compatible object that
- * a consumer assigns straight to Next's `Metadata`, which keeps the package free
- * of a framework dependency for the sake of one interface.
+ * Structured data and page metadata, as pure functions over a site config. No
+ * `next` import, not even a type one: `buildMetadata` returns a structurally
+ * compatible object a consumer assigns straight to `Metadata`.
  */
 
 export interface SeoConfig {
@@ -94,12 +86,9 @@ export function createSeo(config: SeoConfig) {
     WEBSITE_ID,
 
     /**
-     * Page-level metadata with OpenGraph, Twitter card and canonical.
-     *
-     * The canonical is a path, not an absolute URL — Next resolves it against
-     * `metadataBase`. Note that root-layout metadata merges into every page, so
-     * a site must never set a canonical at the root: it would quietly declare
-     * every page a duplicate of the homepage.
+     * The canonical is a path; Next resolves it against `metadataBase`. Never set
+     * one in the root layout — it merges into every page and declares them all
+     * duplicates of the homepage.
      */
     buildMetadata(
       title: string,

@@ -1,53 +1,41 @@
-/* @supertype/prose — type ramp.
- *
- * Import after tokens.css.
- *
- * This is the EDITORIAL ramp: Tailwind's default size scale, untouched. Prose
- * surfaces are read, not operated, and they want the air.
- *
- * It deliberately does NOT ship a dense product ramp. viably runs one — body on
- * 13px, one notch tighter than Tailwind throughout — because it is an instrument
- * panel, and it opts its own marketing and docs subtrees back out to these
- * defaults. Hoisting that ramp here would shrink every `text-sm` and `text-base`
- * in every prose-only consumer by a rung. Density is a product concern and stays
- * with the product; a shared prose package owning it gets the direction backwards.
- *
- * What IS shared: the rungs below Tailwind's floor, the heading-face indirection,
- * and the weight rung.
- */
+/* Editorial ramp: Tailwind's default sizes, untouched. Density is a product
+   concern — viably runs its own dense ramp and opts marketing back out to these. */
 
 @theme {
-  /* Rungs below Tailwind's 12px floor. Dense UI and editorial pages alike need
-     steps here — chart legends, eyebrows, kbd keys, footnote markers — and
-     without them they get written as arbitrary values like `text-[11px]`.
-     These do not grow on any surface: a micro-label is micro everywhere. */
+  /* Below Tailwind's 12px floor. Without them these get written as `text-[11px]`. */
   --text-3xs: 0.625rem;
   --text-3xs--line-height: 1.3;
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1.35;
+
+  /* Plain @theme, never `inline`: inline bakes the family into the utility and
+     `.editorial` could no longer redirect it per subtree.
+     Consumers bind these with `${font.variable}`, never `${font.className}`. */
+  --font-sans: var(--font-ubuntu-sans, ui-sans-serif), system-ui, sans-serif;
+  --font-mono:
+    var(--font-ubuntu-sans-mono, ui-monospace), SFMono-Regular, monospace;
+  --font-heading: var(--font-sans);
 }
 
 @layer base {
   :root {
-    /* The heading face, as indirection rather than a literal family.
-     *
-     * Defaults to the body sans, so a consumer that never sets it reads as one
-     * voice. A consumer with a display face points `--font-heading` at it — and
-     * because `font-heading` resolves the variable at the element rather than
-     * baking it, that swap can be scoped to a subtree instead of the document.
-     *
-     * The package cannot load fonts: next/font is app-level and generates its own
-     * variable names. Consumers assign the family; the package only names the slot.
-     */
-    --font-heading: var(--font-sans);
-
-    /* The heading weight rung, paired with --font-heading and overridden with it.
-     *
-     * A property rather than a literal `font-semibold` in the component, because
-     * a serif drawn at a single weight needs 400 where a variable sans wants 600:
-     * asking a browser to synthesise the difference smears the hairlines, and a
-     * display headline is where that shows worst. A consumer swapping in such a
-     * face drops this rung in the same breath. */
-    --heading-weight: 600;
+    /* 680, not 600: Ubuntu Sans steps 500→600 by 9.3% where Geist stepped 11.9%,
+       and panel titles stopped separating from the labels inside them. */
+    --heading-weight: 680;
   }
+
+  /* Headline serif over deck sans. Body stays sans — Average's 0.456 x-height
+     reads classical at 40px and cramped at reading size. */
+  .editorial {
+    --font-heading: var(--font-average, ui-serif), Georgia, serif;
+    --heading-weight: 400;
+  }
+}
+
+/* Unlayered on purpose: `font-medium` sits in @layer utilities, which outranks
+   any specificity reachable from @layer base. Average has one weight, so a
+   literal 500 anywhere under `.editorial` would be synthesised. */
+.editorial .font-heading,
+.editorial.font-heading {
+  font-weight: var(--heading-weight);
 }

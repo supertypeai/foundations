@@ -22,37 +22,17 @@ import {
 } from "./typography/paragraph.js";
 
 /**
- * The MDX component map.
- *
- * These are the elements MDX renders *automatically* from markdown syntax, and
- * they are the one place the prose system takes no options: no `variant`, no
- * `className`, nothing a call site can reach. There is no call site — the author
- * writes a paragraph, and what it looks like is a decision the design system
- * already made. A knob here would be a knob every consuming project turns
- * differently, which is the drift this package exists to stop.
- *
- * Headings are the exception that proves it: they *do* carry variants, and this
- * map binds them (`essay`) rather than exposing the choice. A document's heading
- * rung belongs to the document, not to each heading in it.
- *
- * Retuning is done in CSS, through `--prose-measure` / `--prose-leading` /
- * `--prose-gap` and the colour tokens.
+ * Rendered from markdown syntax, so there is no call site and no knob — a knob
+ * here is one every project turns differently. Headings carry variants and this
+ * map binds them; retune in CSS via `--prose-measure` / `--prose-leading`.
  */
 export type ProseMdxOptions = {
-  /**
-   * The consuming app's router Link. Internal hrefs route through it; anything
-   * with a scheme renders as a plain anchor that opens away from the app.
-   */
+  /** Internal hrefs route through it; a scheme renders a plain anchor. */
   Link: ProseLinkComponent;
   /**
-   * The app's optimising image component, e.g. `next/image`.
-   *
-   * Optional: without it markdown images render as a plain `<img>`, which is
-   * correct but unoptimised. Injected rather than imported for the usual reason —
-   * the package has no framework dependency — and note that `next/image` needs
-   * intrinsic dimensions, which a markdown `![](…)` does not carry. A remark
-   * plugin that measures the file (fumadocs-mdx ships one) has to supply them,
-   * so the fallback below also covers the case where it has not.
+   * Optional; without it images render as a plain `<img>`. `next/image` needs
+   * intrinsic dimensions a markdown `![](…)` lacks, so the fallback covers a
+   * remark plugin not having supplied them.
    */
   Image?: InjectedComponent;
 };
@@ -103,14 +83,8 @@ export function createProseMdxComponents({ Link, Image }: ProseMdxOptions) {
       <ProseLink href={href}>{children}</ProseLink>
     ),
     /**
-     * A fenced code block.
-     *
-     * Only the frame: the colours are already on the token spans as custom
-     * properties, resolved by shiki.css. Nothing here may set a `color`, or it
-     * would win over the highlighting on every unstyled token.
-     *
-     * `tabIndex` is not decoration — a block that scrolls horizontally must be
-     * reachable by keyboard, or its right-hand side is unreadable without a mouse.
+     * The frame only — never set `color`, or it beats shiki's token spans.
+     * `tabIndex` keeps a horizontally scrolling block reachable by keyboard.
      */
     pre: ({ className, ...props }: ComponentProps<"pre">) => (
       <pre

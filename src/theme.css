@@ -1,0 +1,276 @@
+/* The latte/espresso theme. Import AFTER tokens.css to repaint its neutral
+   palette. Unlayered on purpose: layered, this file's :root would tie with
+   tokens.css's .dark and a light value would win in both themes. */
+
+@theme inline {
+  /* Beyond what tokens.css already registers. */
+  --color-tint-foreground: var(--tint-foreground);
+
+  /* Tertiary ink: placeholders, disabled labels, the "…" in a truncation.
+     Held to 3:1, because nothing load-bearing may be written in it. */
+  --color-subtle-foreground: var(--subtle-foreground);
+
+  /* The accent as *text* on a page surface, as against `--secondary`, which is
+     the fill, and `--secondary-foreground`, the label printed on that fill. */
+  --color-secondary-ink: var(--secondary-ink);
+
+  /* Overrides the alias in tokens.css: there `danger` is another name for
+     `destructive`, here it is a token in its own right — a vivid brick red
+     harmonised toward the terracotta accent rather than a near-black pure red. */
+  --color-danger: var(--danger);
+
+  /* Identity and kind, never state. Fill and ink ship together — fill clears 3:1
+     as an 8px dot, ink 4.5:1 on a 15-20% wash of its own fill. A pale wash of one
+     hue is identical to any other's, so the ink is what tells two swatches apart. */
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-foreground: var(--terracotta-foreground);
+  --color-ochre: var(--ochre);
+  --color-ochre-foreground: var(--ochre-foreground);
+  --color-moss: var(--moss);
+  --color-moss-foreground: var(--moss-foreground);
+  --color-fern: var(--fern);
+  --color-fern-foreground: var(--fern-foreground);
+  --color-sage: var(--sage);
+  --color-sage-foreground: var(--sage-foreground);
+  --color-stone: var(--stone);
+  --color-stone-foreground: var(--stone-foreground);
+  --color-fig: var(--fig);
+  --color-fig-foreground: var(--fig-foreground);
+  --color-cocoa: var(--cocoa);
+  --color-cocoa-foreground: var(--cocoa-foreground);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Only layers that leave the page plane cast a shadow; inline surfaces stay
+     flat. `recessed` is the one inward shadow: a surface things sit *on*, not a
+     card floating on the page. */
+  --shadow-raised: var(--elevation-raised);
+  --shadow-overlay: var(--elevation-overlay);
+  --shadow-recessed: var(--elevation-recessed);
+
+  /* Additive scale off a 10px `lg` — fixed pixel offsets, so no oddball values a
+     multiplicative scale would produce. `rounded-full` stays a pill. */
+  --radius-sm: calc(var(--radius) - 4px); /* 6px */
+  --radius-md: calc(var(--radius) - 2px); /* 8px  — inputs, menus, small controls */
+  --radius-lg: var(--radius); /* 10px — buttons, default control */
+  --radius-xl: calc(var(--radius) + 4px); /* 14px — cards */
+  --radius-2xl: calc(var(--radius) + 8px); /* 18px — marketing feature cards */
+  --radius-3xl: calc(var(--radius) + 12px); /* 22px */
+  --radius-4xl: calc(var(--radius) + 16px); /* 26px */
+}
+
+:root {
+  /* Ink for any tinted surface. Does NOT flip with the theme: a tint is tinted in
+     both, so its label stays light in both. */
+  --tint-foreground: hsl(0, 0%, 100%);
+
+
+  --success: hsl(142, 75%, 31%);
+  --warn: hsl(30 100% 52%);
+  /* Readable text/icon tone for warn surfaces. --warn itself is a signal colour
+     tuned for dots and bars; at body-text size it fails contrast on --background.
+     A saturated burnt-orange — warm but with real urgency, legible on latte (5.4:1). */
+  --warn-foreground: hsl(22 85% 36%);
+  /* Danger as *text*: a vivid brick red, harmonised toward the terracotta accent
+     rather than a near-black pure red. Urgent and legible on latte (5.5:1). */
+  --danger: hsl(5 72% 43%);
+
+  /* Identity and kind, never state — latte-warm greens, clays and stone. Fill and
+     ink ship together: fill 3:1 as an 8px dot, ink 4.5:1 on a wash of its own
+     fill. The ink is the only thing that tells two pale washes apart. */
+  --terracotta: hsl(10 54% 60%);
+  --terracotta-foreground: hsl(10 72% 40%);
+  --ochre: hsl(44 60% 42%);
+  --ochre-foreground: hsl(44 78% 27%);
+  --moss: hsl(68 42% 41%);
+  --moss-foreground: hsl(68 60% 26%);
+  --fern: hsl(133 30% 47%);
+  --fern-foreground: hsl(133 48% 30%);
+  --sage: hsl(168 28% 47%);
+  --sage-foreground: hsl(168 46% 29%);
+  --stone: hsl(202 24% 55%);
+  --stone-foreground: hsl(202 42% 36%);
+  --fig: hsl(332 32% 61%);
+  --fig-foreground: hsl(332 50% 43%);
+  --cocoa: hsl(20 16% 56%);
+  --cocoa-foreground: hsl(20 34% 39%);
+
+  --background: hsl(43 33% 96%); /* #FAF8F3 */
+  /* Near-black keyed to the latte hue, not a neutral #333: grey read cold on
+     surfaces hued at 40-43°, and measured 93.5 Lc where peers sit near 105.
+     98.2 / 103.4 / 92.2 Lc — the headroom is what keeps three ink tiers apart. */
+  --foreground: hsl(30 14% 12%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(30 14% 12%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(30 14% 12%);
+  /* Primary - The Deep Olive Green */
+  --primary: hsl(133 11% 33%); /* #4A5D4E */
+  --primary-foreground: hsl(0 0% 100%);
+  /* Three tokens, because the accent pulls opposite ways: --secondary is the fill,
+     --secondary-foreground its label, --secondary-ink the accent as text. One value
+     cannot be all three — fixing the fill's 3.22:1 sank the ink to 3.34:1. */
+  --secondary: hsl(14, 67%, 72%);
+  --secondary-foreground: hsl(14, 69%, 14%);
+  /* The accent, readable as words: 6.00:1 on --background, 6.46:1 on --card, 5.48 on --muted. */
+  --secondary-ink: hsl(14 67% 38%);
+  --muted: hsl(40 20% 92%); /* #EBE7E0 */
+  /* 34%, warm-keyed: 79.6 / 84.8 / 73.6 Lc (WCAG 6.63 / 7.14 / 6.05). 41% cleared
+     AA but measured 72.5 Lc, and this token's dominant pairing is the 12px rung
+     across ~600 caption sites, where APCA's 75 floor must be beaten, not met. */
+  --muted-foreground: hsl(30 8% 34%);
+  /* Tertiary ink: everything the eye may skip. Held to 3:1 rather than 4.5:1
+     because nothing load-bearing may be written in it. */
+  --subtle-foreground: hsl(0 0% 52%);
+  /* Accent - Interactive hovers */
+  --accent: hsl(133 15% 90%); /* Very light green tint for hovers */
+  --accent-foreground: hsl(133 11% 33%);
+  /* Destructive - Standard red */
+  --destructive: hsl(0, 50%, 36%);
+  --destructive-foreground: hsl(0 0% 98%);
+  /* Borders & Inputs - Soft beige-grey to keep it un-intrusive */
+  --border: hsl(40 15% 88%); /* #E3DFD8 */
+  --input: hsl(40 15% 88%);
+  /* Focus Ring - Using the brand green */
+  --ring: hsl(133 11% 33%);
+  --chart-1: hsl(133 18% 45%);
+  --chart-2: hsl(14 47% 59%);
+  --chart-3: hsl(43 33% 60%);
+  --chart-4: hsl(200 20% 50%);
+  --chart-5: hsl(30 12% 40%);
+  /* A muted teal, the one cool hue the warm chart set leaves open — far enough from
+     contactform's desaturated slate (200) and from the greens to read as its own colour. */
+  --chart-6: hsl(178 35% 40%);
+  --radius: 0.625rem; /* 10px */
+  /* Warm-tinted shadows keyed off the espresso foreground hue, not pure black,
+     so they sit naturally on the latte surfaces. */
+  --elevation-raised:
+    0 1px 2px -1px hsl(30 18% 12% / 0.1), 0 4px 12px -2px hsl(30 18% 12% / 0.1);
+  --elevation-overlay:
+    0 6px 16px -4px hsl(30 18% 12% / 0.14),
+    0 16px 40px -12px hsl(30 18% 12% / 0.22);
+  --elevation-recessed:
+    inset 0 1px 3px hsl(30 18% 12% / 0.07),
+    inset 0 0 0 1px hsl(30 18% 12% / 0.03);
+  --sidebar: hsl(40 25% 94%); /* #F5F2EC */
+  --sidebar-foreground: hsl(0 0% 25%);
+  --sidebar-primary: hsl(133 11% 33%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(133 15% 88%);
+  --sidebar-accent-foreground: hsl(133 11% 25%);
+  --sidebar-border: hsl(40 15% 88%);
+  --sidebar-ring: hsl(133 11% 33%);
+}
+
+.dark {
+  --success: hsl(142, 75%, 31%);
+  --warn: hsl(30 90% 55%);
+  /* Creamy amber on espresso — high legibility (≈9.8:1). */
+  --warn-foreground: hsl(33 60% 72%);
+  /* Soft terracotta-red, lifted well clear of the old value (which failed contrast
+     at ~2.9:1 on the dark surface and read as muddy). Now ≈5.8:1. */
+  --danger: hsl(8 60% 64%);
+
+  /* Categorical palette, espresso twin. Fills darken and inks lift so both sides
+     of each pair keep their thresholds against the dark surfaces. */
+  --terracotta: hsl(10 54% 47%);
+  --terracotta-foreground: hsl(10 66% 66%);
+  --ochre: hsl(44 60% 33%);
+  --ochre-foreground: hsl(44 72% 45%);
+  --moss: hsl(68 42% 32%);
+  --moss-foreground: hsl(68 54% 43%);
+  --fern: hsl(133 30% 37%);
+  --fern-foreground: hsl(133 42% 49%);
+  --sage: hsl(168 28% 37%);
+  --sage-foreground: hsl(168 40% 49%);
+  --stone: hsl(202 24% 42%);
+  --stone-foreground: hsl(202 36% 60%);
+  --fig: hsl(332 32% 49%);
+  --fig-foreground: hsl(332 44% 67%);
+  --cocoa: hsl(20 16% 44%);
+  --cocoa-foreground: hsl(20 28% 62%);
+
+  /* 4 points of lightness at L10 reads flat where the same 4 at L96 reads raised —
+     ssite wrote `bg-card dark:bg-muted` at 109 sites before this moved. The lift
+     goes into --background; --card cannot rise without sinking terracotta's 3:1. */
+  --background: hsl(30 10% 7%);
+  --foreground: hsl(43 20% 92%);
+  /* Unchanged, and now 7 points above the ground rather than 4 — a hair under the
+     8 those 109 sites reached for when they borrowed --muted, and reached without
+     disturbing a single measurement taken on --card. */
+  --card: hsl(30 8% 14%);
+  --card-foreground: hsl(43 20% 92%);
+  --popover: hsl(30 8% 14%);
+  --popover-foreground: hsl(43 20% 92%);
+  /* Primary - Lighter Olive Green for dark mode */
+  --primary: hsl(133 18% 58%); /* #7A9E7E */
+  --primary-foreground: hsl(30 10% 13%);
+  /* Espresso twin. The fill darkens so a white label clears 4.64:1 on it; the ink
+     lifts so the same accent stays legible as text (5.97:1 on --card). */
+  --secondary: hsl(14, 64%, 37%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --secondary-ink: hsl(14 60% 66%);
+  --muted: hsl(30 8% 18%);
+  /* 80%: 76.6 / 75.1 / 73.1 Lc. 62% passed WCAG at 7.06 while measuring 52.1 Lc —
+     the clearest case in this file of the two metrics disagreeing. Stops at 80
+     because --foreground is 91.0 Lc on --muted and the step must stay visible. */
+  --muted-foreground: hsl(43 16% 80%);
+  /* Raised alongside the secondary so the gap survives: 59% gives 47.0 / 45.6 /
+     43.6 Lc where 50% sat at 36.0, a hair over where text stops resolving. */
+  --subtle-foreground: hsl(43 10% 59%);
+  /* Accent - Dark olive tint for hover states */
+  --accent: hsl(133 12% 20%);
+  --accent-foreground: hsl(133 18% 78%);
+  /* Overwhelmingly an ink — sixty `text-destructive` sites, no solid fill carrying
+     text. The light value measured 2.08:1 on espresso: legible as a colour, not as
+     words. Lifted to --danger's register: 5.79:1 on --background, 5.15:1 on --card. */
+  --destructive: hsl(0 65% 67%);
+  /* The ink is now light, so anything printed *on* it must be dark. Nothing does
+     today, but leaving white here would arm a 1.3:1 trap for whoever tries. */
+  --destructive-foreground: hsl(30 10% 10%);
+  /* L22 gave a 1.34:1 hairline on --card, which is where the
+     `dark:border-white/[0.2]` patches came from. L26 lands at 1.57:1 — most of the
+     way to what those sites picked, short of a hairline becoming a rule. */
+  --border: hsl(30 8% 26%);
+  --input: hsl(30 8% 26%);
+  /* Focus Ring */
+  --ring: hsl(133 18% 58%);
+  --chart-1: hsl(133 18% 58%);
+  --chart-2: hsl(14 45% 55%);
+  --chart-3: hsl(43 20% 70%);
+  --chart-4: hsl(200 15% 55%);
+  --chart-5: hsl(30 8% 35%);
+  --chart-6: hsl(178 30% 52%);
+  /* On espresso surfaces a warm tint reads as haze; shadows go to deep black
+     with more spread so floating layers still separate. */
+  --elevation-raised:
+    0 1px 2px -1px hsl(0 0% 0% / 0.4), 0 4px 12px -2px hsl(0 0% 0% / 0.45);
+  --elevation-overlay:
+    0 6px 16px -4px hsl(0 0% 0% / 0.5), 0 16px 40px -12px hsl(0 0% 0% / 0.6);
+  /* A recess in the dark is a well, not a stain: the inner shadow deepens and a
+     hairline of light catches the bottom lip, which is what sells the depth. */
+  --elevation-recessed:
+    inset 0 2px 5px hsl(0 0% 0% / 0.4), inset 0 -1px 0 hsl(43 20% 92% / 0.04);
+  --sidebar: hsl(30 10% 13%);
+  --sidebar-foreground: hsl(43 20% 90%);
+  --sidebar-primary: hsl(133 18% 58%);
+  --sidebar-primary-foreground: hsl(133 20% 10%);
+  --sidebar-accent: hsl(30 8% 19%);
+  --sidebar-accent-foreground: hsl(43 20% 85%);
+  --sidebar-border: hsl(30 8% 20%);
+  --sidebar-ring: hsl(133 18% 58%);
+}

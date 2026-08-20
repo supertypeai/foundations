@@ -3,11 +3,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../cn.js";
 
 /**
- * A numbered walkthrough.
- *
- * The numbers are a CSS counter rather than markup, so an author adding or
- * reordering a step never renumbers anything by hand, and the digits stay out of
- * the accessibility tree and out of copied text.
+ * Numbers are a CSS counter, not markup: reordering renumbers itself, and the
+ * digits stay out of the accessibility tree and out of copied text.
  */
 export function Steps({ className, children, ...props }: ComponentProps<"div">) {
   return (

@@ -37,14 +37,8 @@ export function createProseMdxComponents({ Link, Image }) {
         _jsx(TypographyQuote, { hideQuotemark: true, ...props, children: children })),
         a: ({ href = "", children }) => (_jsx(ProseLink, { href: href, children: children })),
         /**
-         * A fenced code block.
-         *
-         * Only the frame: the colours are already on the token spans as custom
-         * properties, resolved by shiki.css. Nothing here may set a `color`, or it
-         * would win over the highlighting on every unstyled token.
-         *
-         * `tabIndex` is not decoration — a block that scrolls horizontally must be
-         * reachable by keyboard, or its right-hand side is unreadable without a mouse.
+         * The frame only — never set `color`, or it beats shiki's token spans.
+         * `tabIndex` keeps a horizontally scrolling block reachable by keyboard.
          */
         pre: ({ className, ...props }) => (_jsx("pre", { tabIndex: 0, className: cn("my-6 overflow-x-auto rounded-xl border border-border p-4 text-sm leading-relaxed", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", className), ...props })),
         img: ({ alt = "", ...props }) => {

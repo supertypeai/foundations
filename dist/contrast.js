@@ -1,20 +1,11 @@
 /**
- * Token legibility, measured against the cascade rather than the declarations.
- *
- * Reading the `:root` map and the `.dark` map separately measures an intention.
- * A consumer retuning a token on a bare `:root` ties `.dark` on specificity and
- * takes both themes — ssite shipped that, its `.dark` measuring a healthy 15.7:1
- * while the page rendered white on white. So this resolves each property the way
- * the cascade does (layer rank, specificity, source order) and measures what is
- * left standing. Build-time only: strings and numbers, no React, no DOM.
+ * Legibility measured against the cascade, not the declarations: reading `:root`
+ * and `.dark` separately measures an intention, and ssite shipped a `.dark` at a
+ * healthy 15.7:1 while the page rendered white on white. Build-time only.
  */
 /**
- * Selector specificity, counting only what token blocks ever use: classes,
- * pseudo-classes and ids. `:root` is one pseudo-class, `.dark` one class —
- * which is the tie at the heart of the bug above.
- *
- * `:not(...)` contributes its argument's specificity rather than its own, per
- * the spec, so `:root:not(.dark)` scores 2 and outranks a bare `.dark`.
+ * Specificity over what token blocks use. `:root` and `.dark` both score 1 —
+ * the tie above. `:not(…)` contributes its argument's score, per spec.
  */
 export function specificity(selector) {
     const ids = selector.match(/#[\w-]+/g)?.length ?? 0;
@@ -40,12 +31,7 @@ function matches(selector, theme) {
         return !excludesDark;
     return !hasDark;
 }
-/**
- * Every custom property that survives the cascade on the root element.
- *
- * `css` is the consumer's stylesheet with the package's imported ahead of it,
- * concatenated in import order — the same order the browser sees.
- */
+/** Properties surviving the cascade on :root. `css` is concatenated in import order. */
 export function resolveTokens(css, theme) {
     const declarations = [];
     let order = 0;
@@ -154,11 +140,8 @@ export function contrast(a, b) {
 const INKS = ["--foreground", "--muted-foreground", "--card-foreground"];
 const SURFACES = ["--background", "--card", "--muted"];
 /**
- * Every ink measured on every surface it can land on, in both themes.
- *
- * Pairs where either token is missing or is not a literal colour are skipped:
- * a consumer is free to leave one at the package default or to point it at
- * another variable, and neither is a contrast failure.
+ * Every ink on every surface, both themes. Missing or non-literal tokens are
+ * skipped — a default or an aliased variable is not a contrast failure.
  */
 export function checkLegibility(css, { minimum = 4.5, inks = INKS, surfaces = SURFACES, themes = ["light", "dark"], } = {}) {
     const failures = [];

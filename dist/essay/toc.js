@@ -1,10 +1,6 @@
 /**
- * GitHub's heading-slug algorithm, reimplemented rather than depended upon.
- *
- * It has to agree exactly with rehype-slug — which uses github-slugger — or the
- * rail's anchors point at headings that do not exist. Lowercase, strip anything
- * that is not a word character, space or hyphen, then collapse spaces to hyphens.
- * Repeats get a numeric suffix, which is what the counter tracks.
+ * GitHub's slug algorithm, reimplemented. Must agree exactly with rehype-slug or
+ * the rail's anchors point at headings that do not exist.
  */
 export function createSlugger() {
     const seen = new Map();
@@ -20,15 +16,8 @@ export function createSlugger() {
     };
 }
 /**
- * Extracts h2/h3 headings from raw markdown.
- *
- * Fenced code is skipped, because a `# comment` inside a shell block is a
- * comment, not a heading, and a rail that lists it sends the reader nowhere.
- * Inline emphasis and code marks are stripped from the label so it reads as
- * plain text in the rail.
- *
- * Works on the source rather than the rendered tree so it can run wherever the
- * markdown is available, without a DOM or a compiled MDX module.
+ * h2/h3 from raw markdown. Fenced code is skipped — a `# comment` in a shell
+ * block is not a heading. Works on source, so it needs no DOM or compiled MDX.
  */
 export function extractHeadings(markdown) {
     const slug = createSlugger();
@@ -51,14 +40,8 @@ export function extractHeadings(markdown) {
     return headings;
 }
 /**
- * Reading time in whole minutes, never below one.
- *
- * Computed from the text rather than stored alongside it. A hand-declared
- * `readingMinutes: 7` is correct exactly once — the first time it is written —
- * and silently wrong after the next edit.
- *
- * 200 wpm is the usual prose estimate. Code blocks are excluded: nobody reads a
- * config dump at prose speed, and counting it inflates every technical post.
+ * Computed, never stored: a hand-declared `readingMinutes` is correct once.
+ * 200 wpm, code blocks excluded — counting them inflates every technical post.
  */
 export function readingTime(source, wordsPerMinute = 200) {
     const prose = source.replace(/```[\s\S]*?```/g, " ");

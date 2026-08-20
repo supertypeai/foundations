@@ -1,15 +1,8 @@
 import rehypeShiki, { type RehypeShikiOptions } from "@shikijs/rehype";
 /**
- * Languages compiled into the highlighter.
- *
- * Kept explicit rather than pulling Shiki's full grammar set: this runs at build
- * time (MDX is compiled server-side, so no grammar reaches the client bundle),
- * but every extra grammar is still parsing work on every build.
- *
- * Derived from the fences actually present across the consuming repos. Anything
- * not listed falls back to `text` instead of throwing — content routinely uses
- * labels that are not real grammars (`tree`, `spark-defaults`), and a build that
- * dies over a fence label is a bad trade.
+ * Explicit rather than Shiki's full set — every grammar is build-time parsing.
+ * Anything unlisted falls back to `text`: content uses labels that are not real
+ * grammars (`tree`, `spark-defaults`), and dying over a fence label is a bad trade.
  */
 export declare const PROSE_LANGS: readonly ["bash", "csv", "diff", "docker", "json", "python", "sql", "toml", "tsx", "typescript", "javascript", "yaml"];
 export declare const PROSE_THEMES: {
@@ -17,16 +10,9 @@ export declare const PROSE_THEMES: {
     readonly dark: "github-dark";
 };
 /**
- * Shiki rehype plugin, preconfigured for the prose system.
- *
- * `defaultColor: false` makes Shiki emit `--shiki-light` / `--shiki-dark` custom
- * properties on each token rather than a hardcoded colour, which is what lets one
- * compiled document serve both themes. `shiki.css` maps those variables.
- *
- * Exported as a `[plugin, options]` tuple so it drops straight into a
- * `rehypePlugins` array:
- *
- *     rehypePlugins: [rehypeProseCode]
+ * `defaultColor: false` emits `--shiki-light` / `--shiki-dark` per token instead
+ * of a baked colour, so one compiled document serves both themes; `shiki.css`
+ * maps them. A `[plugin, options]` tuple, so it drops into `rehypePlugins`.
  */
 export declare const proseCodeOptions: RehypeShikiOptions;
 export declare const rehypeProseCode: [typeof rehypeShiki, RehypeShikiOptions];

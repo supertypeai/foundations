@@ -3,79 +3,115 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../cn.js";
 import type { ProseLinkComponent } from "../typography/paragraph.js";
 
-/**
- * A grid of cards. Two columns from `sm` up, which is the density that keeps a
- * pair of cards reading as a set rather than as two unrelated panels.
- */
+/** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }: ComponentProps<"div">) {
   return (
-    <div
-      className={cn("my-6 grid gap-4 sm:grid-cols-2", className)}
-      {...props}
-    >
+    <div className={cn("my-6 grid gap-4 sm:grid-cols-2", className)} {...props}>
       {children}
     </div>
   );
 }
 
-type CardBaseProps = {
-  title: ReactNode;
-  description?: ReactNode;
-  icon?: ReactNode;
-  children?: ReactNode;
-  className?: string;
-  /**
-   * Force the off-site treatment. Normally inferred from the href having a
-   * scheme, which is right for almost every case; this is the override for an
-   * absolute URL back to your own site, or a relative one that leaves the app.
-   */
-  external?: boolean;
-};
-
+/**
+ * `ring-1` not `border`: a ring draws outside the box, so a card sits flush in a
+ * grid and `overflow-hidden` clips a bleed image cleanly. Padding is vertical
+ * only — the horizontal inset belongs to the slots, so bands can run edge to edge.
+ */
 const CARD_CLASS =
-  "block rounded-xl border border-border bg-card p-4 text-card-foreground no-underline transition-colors";
+  "group/card flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border " +
+  "has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 " +
+  "data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 " +
+  "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl";
 
-function CardBody({
-  title,
-  description,
-  icon,
-  children,
-}: Pick<CardBaseProps, "title" | "description" | "icon" | "children">) {
+export type CardSize = "default" | "sm";
+
+export function CardHeader({ className, ...props }: ComponentProps<"div">) {
   return (
-    <>
-      {icon ? <div className="mb-2 text-muted-foreground">{icon}</div> : null}
-      <div className="font-semibold text-foreground">{title}</div>
-      {description ? (
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      ) : null}
-      {children ? (
-        <div className="mt-2 text-sm text-muted-foreground">{children}</div>
-      ) : null}
-    </>
+    <div
+      data-slot="card-header"
+      className={cn(
+        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-4",
+        "group-data-[size=sm]/card:px-3",
+        "has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
+        "[.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
+export function CardTitle({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-title"
+      className={cn(
+        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export function CardDescription({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-description"
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  );
+}
+
+/** Top-right slot, placed by the header's grid. */
+export function CardAction({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-action"
+      className={cn("col-start-2 row-span-2 row-start-1 self-start justify-self-end", className)}
+      {...props}
+    />
+  );
+}
+
+export function CardContent({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-content"
+      className={cn("px-4 group-data-[size=sm]/card:px-3", className)}
+      {...props}
+    />
+  );
+}
+
+export function CardFooter({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-footer"
+      className={cn(
+        "flex items-center rounded-b-xl border-t border-border bg-muted/50 p-4 group-data-[size=sm]/card:p-3",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+type CardShorthand = {
+  /** Shorthand header: 52 MDX files use it, and no compiler checks those. */
+  title?: ReactNode;
+  description?: ReactNode;
+  icon?: ReactNode;
+  /** Override the scheme sniff: an absolute URL home, or a relative one away. */
+  external?: boolean;
+  size?: CardSize;
+};
+
 /**
- * Builds the Card component, bound to the consuming app's router Link.
- *
- * Same factory shape as `createProseLink`, for the same reason: a card with an
- * `href` has to route through the app's Link, and the package does not depend on
- * a router. A card without one renders as a plain div, so a Card is not silently
- * a dead link.
- */
-/**
- * Builds the Card component, bound to the consuming app's router Link.
- *
- * Same factory shape as `createProseLink`, for the same reason: a card with an
- * `href` has to route through the app's Link, and the package does not depend on
- * a router. A card without one renders as a plain div, so a Card is not silently
- * a dead link.
- *
- * Unrecognised props pass straight through to the rendered element. Card is one
- * of the few blocks authored by hand in MDX and in page code, and callers
- * legitimately reach for `id`, `width`, `color` and the rest of the HTML surface;
- * enumerating that surface in the type buys nothing and breaks a build every time
- * someone uses an attribute the package had not thought of.
+ * Bound to the app's router Link, since the package cannot depend on one. Takes
+ * either shape: `title`/`href` fills the header, or compose the slots directly.
+ * Unrecognised props pass through — MDX authors reach for the whole HTML surface.
  */
 export function createCard(LinkComponent: ProseLinkComponent) {
   return function Card({
@@ -85,41 +121,55 @@ export function createCard(LinkComponent: ProseLinkComponent) {
     title,
     description,
     icon,
+    size = "default",
     children,
     ...rest
-  }: CardBaseProps & { href?: string } & Omit<
+  }: CardShorthand & { href?: string; children?: ReactNode } & Omit<
       ComponentProps<"a">,
-      keyof CardBaseProps | "href"
+      keyof CardShorthand | "href" | "children"
     >) {
-    const body = <CardBody title={title} description={description} icon={icon}>{children}</CardBody>;
+    const header =
+      title || description || icon ? (
+        <CardHeader>
+          {icon ? <div className="mb-1 text-muted-foreground">{icon}</div> : null}
+          {title ? <CardTitle>{title}</CardTitle> : null}
+          {description ? <CardDescription>{description}</CardDescription> : null}
+        </CardHeader>
+      ) : null;
+
+    // Bare children compose; children under a shorthand header are body copy.
+    const body = header ? (
+      <>
+        {header}
+        {children ? <CardContent>{children}</CardContent> : null}
+      </>
+    ) : (
+      children
+    );
+
+    const shared = { "data-slot": "card", "data-size": size };
 
     if (!href) {
       return (
-        <div className={cn(CARD_CLASS, className)} {...(rest as ComponentProps<"div">)}>
+        <div className={cn(CARD_CLASS, className)} {...shared} {...(rest as ComponentProps<"div">)}>
           {body}
         </div>
       );
     }
 
     const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
-    const classes = cn(CARD_CLASS, "hover:bg-accent", className);
+    const classes = cn(CARD_CLASS, "no-underline transition-colors hover:bg-accent", className);
 
     if (leavesApp) {
       return (
-        <a
-          href={href}
-          className={classes}
-          target="_blank"
-          rel="noopener noreferrer"
-          {...rest}
-        >
+        <a href={href} className={classes} target="_blank" rel="noopener noreferrer" {...shared} {...rest}>
           {body}
         </a>
       );
     }
 
     return (
-      <LinkComponent href={href} className={classes} {...rest}>
+      <LinkComponent href={href} className={classes} {...shared} {...rest}>
         {body}
       </LinkComponent>
     );

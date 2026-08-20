@@ -6,12 +6,7 @@ export declare function TypographyH1({ className, variant, children, ...props }:
 declare const h2Variants: (props?: ({
     variant?: "display" | "default" | "unbordered" | "larger" | "essay" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
-/**
- * The h2 ramp as a class string, for the rare caller that cannot render a
- * `TypographyH2` because it needs its own element (a `motion.h2` whose children
- * are per-word spans, say). Exported so those callers still derive from the ramp
- * instead of typing the rung out by hand, which is how the two drift apart.
- */
+/** The h2 ramp as a class, for a caller that must render its own element. */
 export declare const headingClass: (variant: VariantProps<typeof h2Variants>["variant"]) => string;
 export declare function TypographyH2({ className, variant, children, ...props }: React.ComponentProps<"h2"> & VariantProps<typeof h2Variants>): import("react").JSX.Element;
 declare const h3Variants: (props?: ({

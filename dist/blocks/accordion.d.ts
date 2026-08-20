@@ -1,13 +1,8 @@
 import { type ComponentProps, type ReactNode } from "react";
 /**
- * A disclosure group.
- *
- * Built on `<details>`/`<summary>` rather than a headless primitive: it needs no
- * JavaScript, works before hydration, is keyboard- and screen-reader-correct for
- * free, and — the reason that matters here — it keeps the package free of both
- * Radix and Base UI. Those diverge across the consuming projects, and a shared
- * prose package that picked one would force a migration on the others for the
- * sake of a widget the platform already ships.
+ * `<details>`/`<summary>`, not a headless primitive: no JS, correct before
+ * hydration, and it keeps both Radix and Base UI out of the package — the
+ * consuming projects are split across them.
  */
 export declare function Accordions({ className, children, type, defaultValue, name, ...props }: Omit<ComponentProps<"div">, "defaultValue"> & {
     /** `single` closes siblings when one opens. Defaults to `multiple`. */

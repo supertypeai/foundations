@@ -1,17 +1,8 @@
 import type { ComponentProps, ReactNode } from "react";
 /**
- * The essay's column grid: a measure-constrained centre column with an optional
- * aside beside it.
- *
- * Three tracks rather than two, with the third left empty. A two-track grid
- * pushes the prose off-centre the moment an aside appears, so a page with a rail
- * and a page without would set their body copy on different axes. The empty
- * third column keeps the measure fixed and lets the rail occupy margin that was
- * there either way.
- *
- * The measure grows a little at each breakpoint rather than staying fixed: a
- * comfortable line length is a range, and on a wide display the same 42rem that
- * reads well at 1280px starts to look stranded.
+ * Three tracks with the third empty: two would push the prose off-centre the
+ * moment an aside appeared, setting body copy on a different axis per page.
+ * The measure grows per breakpoint — a comfortable line length is a range.
  */
 export declare function EssayColumns({ aside, children, className, ...props }: ComponentProps<"div"> & {
     aside?: ReactNode;
@@ -25,13 +16,9 @@ export declare function PostMetaRow({ className, children, size, ...props }: Com
     size?: "sm" | "base";
 }): import("react").JSX.Element;
 /**
- * A published date.
- *
- * Renders `<time datetime>` with the machine value alongside the human one, so
- * crawlers and assistive tech get an unambiguous date regardless of how it is
- * formatted for display. Formatting is fixed to `en-US` rather than the
- * visitor's locale: the server and the client must agree on the string or React
- * reports a hydration mismatch, and the server has no access to their locale.
+ * `<time datetime>` carries the machine value beside the human one. Fixed to
+ * `en-US`, not the visitor's locale: server and client must agree or React
+ * reports a hydration mismatch, and the server cannot see their locale.
  */
 export declare function PostDate({ date, format, className, }: {
     date: string | Date;

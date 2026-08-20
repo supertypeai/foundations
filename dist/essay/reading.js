@@ -4,13 +4,9 @@ import { cn } from "../cn.js";
 import { Rail, RailLink } from "./rail.js";
 import { useReadingProgress, useScrollSpy } from "./scroll.js";
 /**
- * Hairline progress bar pinned to the top of the viewport. Always rendered,
- * including where the rail is hidden, so readers keep a sense of place.
- *
- * A CSS transition rather than a spring from an animation library: the value
- * only ever feeds a transform, and a short ease absorbs wheel-jitter as well as
- * a spring does at this fidelity — which keeps the essay layer dependency-free,
- * so a project wanting a reading rail does not inherit an animation runtime.
+ * Hairline progress bar, rendered even where the rail is hidden. A CSS
+ * transition, not a spring: the value only feeds a transform, and this keeps the
+ * essay layer from dragging in an animation runtime.
  */
 export function ReadingProgressBar({ className }) {
     const progress = useReadingProgress();
@@ -23,11 +19,8 @@ function ProgressDonut({ progress }) {
     return (_jsxs("div", { className: "relative grid size-10 place-items-center", children: [_jsxs("svg", { viewBox: "0 0 40 40", className: "size-10 -rotate-90", "aria-hidden": true, children: [_jsx("circle", { cx: "20", cy: "20", r: radius, fill: "none", strokeWidth: "3", className: "stroke-border" }), _jsx("circle", { cx: "20", cy: "20", r: radius, fill: "none", strokeWidth: "3", strokeLinecap: "round", className: "stroke-primary transition-[stroke-dashoffset] duration-150 ease-out", strokeDasharray: circumference, strokeDashoffset: circumference * (1 - progress) })] }), _jsx("span", { className: "absolute font-mono text-3xs font-medium tabular-nums text-muted-foreground", children: Math.round(progress * 100) })] }));
 }
 /**
- * Sticky table-of-contents rail with live scroll-spy.
- *
- * The donut reflects overall progress; the active heading comes from the shared
- * scroll-spy. Both read stores rather than owning listeners, so mounting this
- * beside `ReadingProgressBar` costs one scroll subscription, not two.
+ * Sticky rail with live scroll-spy. Both it and `ReadingProgressBar` read shared
+ * stores, so mounting them together costs one scroll subscription, not two.
  */
 export function ReadingRail({ headings, className, }) {
     const progress = useReadingProgress();

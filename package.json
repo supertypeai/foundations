@@ -29,11 +29,17 @@
       "types": "./dist/contrast.d.ts",
       "default": "./dist/contrast.js"
     },
+    "./eslint": {
+      "types": "./dist/eslint.d.ts",
+      "require": "./dist/cjs/eslint.js",
+      "default": "./dist/eslint.js"
+    },
     "./rehype": {
       "types": "./dist/rehype.d.ts",
       "default": "./dist/rehype.js"
     },
     "./tokens.css": "./src/tokens.css",
+    "./theme.css": "./src/theme.css",
     "./type.css": "./src/type.css",
     "./prose.css": "./src/prose.css",
     "./shiki.css": "./src/shiki.css",
@@ -43,9 +49,11 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/cjs-marker.mjs",
     "dev": "tsc -p tsconfig.json --watch",
-    "release": "node scripts/release.mjs"
+    "release": "node scripts/release.mjs",
+    "sync": "node scripts/sync.mjs",
+    "dev:sync": "node scripts/sync.mjs --watch"
   },
   "dependencies": {
     "@shikijs/rehype": "^2.3.2",

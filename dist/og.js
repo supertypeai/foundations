@@ -1,35 +1,14 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /** Open Graph card dimensions. The 1.91:1 ratio every major network crops to. */
 export const OG_SIZE = { width: 1200, height: 630 };
-/**
- * Character budgets, derived from the rendered card rather than guessed: at 62px
- * the title fits roughly 45 characters per line and the layout has room for
- * three, and the description gets two lines at 28px. Measured against the
- * longest real title in the corpus (101 chars), which renders on three lines.
- */
+/** Measured, not guessed: ~45 chars/line at 62px over three lines, two at 28px. */
 const TITLE_MAX = 135;
 const DESCRIPTION_MAX = 160;
 /**
- * The social card layout, as a React element tree.
- *
- * Returns the tree rather than an image so the package does not import
- * `next/og`: the consumer passes this straight to `new ImageResponse(...)`,
- * which keeps the renderer — and the framework — on their side of the boundary.
- *
- * Everything is inline styles with explicit `display: flex`. This is rendered by
- * satori, not a browser: it supports no stylesheets, no class names, and no
- * default block layout, so a `<div>` with several children and no display set
- * silently stacks them on top of each other.
- *
- * Long text is truncated in JS rather than clamped in CSS. `-webkit-line-clamp`
- * needs `display: -webkit-box`, which contradicts the explicit flex above, and
- * relying on a renderer's support for a vendor-prefixed property to keep a
- * headline inside the card is a guarantee that fails silently — the card still
- * renders, just with the site name pushed off the bottom edge. Counting
- * characters always works and can be tested without a renderer.
- *
- * Scaling text to fit was the alternative and is worse: these are only ever seen
- * at thumbnail size, where shrinking to fit is what makes a headline unreadable.
+ * A tree, not an image, so the package never imports `next/og`. Rendered by
+ * satori: no stylesheets, no classes, no default block layout — hence inline
+ * styles and an explicit `display: flex` on everything. Text is truncated in JS
+ * because `-webkit-line-clamp` needs a display mode that contradicts the flex.
  */
 /** Truncates on a word boundary, so a cut title does not end mid-word. */
 function truncate(text, max) {
