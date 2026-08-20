@@ -44,7 +44,6 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "prepare": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
     "release": "node scripts/release.mjs"
   },
