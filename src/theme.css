@@ -274,3 +274,19 @@
   --sidebar-border: hsl(30 8% 20%);
   --sidebar-ring: hsl(133 18% 58%);
 }
+
+/* The accordion panel's open/close, so the component does not depend on a
+   consumer having imported tw-animate-css. Base UI publishes the measured
+   height as --accordion-panel-height on the panel. */
+@theme {
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--accordion-panel-height, auto); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--accordion-panel-height, auto); }
+    to { height: 0; }
+  }
+}

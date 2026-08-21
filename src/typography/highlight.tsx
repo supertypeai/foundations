@@ -5,14 +5,22 @@ import { cn } from "../cn.js";
 /**
  * Inks only. A fill token (`--secondary`, `--accent`) has no chroma to wash with —
  * at 44% alpha it is invisible, and the `luminosity` blend then strips the text's
- * hue for nothing. Brand hues come in through `--marker` at the call site.
+ * hue for nothing. That is why the earth tones enter as `-foreground`: those are
+ * the ink-grade pair, mixed to hold at text weight in both themes.
+ *
+ * Emphasis, never status. Warn and info and destructive are absent on purpose —
+ * a swipe of red under a phrase says less than the words do.
+ *
+ * The four earth tones are one palette, not a menu: each is a different hue,
+ * because two a reader cannot tell apart are one tone with two names.
  */
 const MARKER_TONES = {
   primary: "var(--primary)",
   success: "var(--success)",
-  warn: "var(--warn)",
-  info: "var(--info)",
-  destructive: "var(--destructive)",
+  ochre: "var(--ochre-foreground)",
+  terracotta: "var(--terracotta-foreground)",
+  sage: "var(--sage-foreground)",
+  fig: "var(--fig-foreground)",
 } as const;
 
 export type HighlightTone = keyof typeof MARKER_TONES;
@@ -97,7 +105,7 @@ const markerFill = (seed: number) => {
  * mask — a mask would shave the glyph tops. `luminosity` lets letters borrow the
  * marker's hue while keeping their own lightness, so contrast holds in both themes.
  */
-export function Highlight({
+export function TypographyHighlight({
   tone = "primary",
   seed = 3,
   className,

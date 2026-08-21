@@ -8,6 +8,26 @@
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1.35;
 
+  /* The heading ladder, and the reason it is four rungs of its own rather than
+     four picks off the body ramp: a heading's size is a RATIO to the body under
+     it, and the two surfaces set body at different rungs — 13px in the product,
+     18px on `.editorial`. A heading pinned to `--text-base` therefore reads one
+     step above body on one surface and two steps BELOW it on the other, which is
+     how h3 and h4 ended up smaller than the paragraphs they introduce and why
+     `larger` and `entry` were added to climb back out. No shared rung can be
+     both 14px and 20px; a rung of the heading's own can.
+
+     Dense values here, editorial below — the same shape `--heading-weight` uses.
+     The ladder off 13px body: 1.08 / 1.23 / 1.38 / 1.69. */
+  --text-h4: 0.875rem; /* 14 — the card / panel title */
+  --text-h4--line-height: 1.35;
+  --text-h3: 1rem; /* 16 */
+  --text-h3--line-height: 1.3;
+  --text-h2: 1.125rem; /* 18 — the section heading */
+  --text-h2--line-height: 1.25;
+  --text-h1: 1.375rem; /* 22 — the page title */
+  --text-h1--line-height: 1.2;
+
   /* Plain @theme, never `inline`: inline bakes the family into the utility and
      `.editorial` could no longer redirect it per subtree.
      Consumers bind these with `${font.variable}`, never `${font.className}`. */
@@ -29,6 +49,18 @@
   .editorial {
     --font-heading: var(--font-average, ui-serif), Georgia, serif;
     --heading-weight: 400;
+
+    /* The same ladder off an 18px reading rung: 1.11 / 1.33 / 1.67 / 2. Every
+       rung clears the body it sits over, which is the contract the product
+       values above keep too and the one the shared rungs could not. */
+    --text-h4: 1.25rem; /* 20 */
+    --text-h4--line-height: 1.4;
+    --text-h3: 1.5rem; /* 24 */
+    --text-h3--line-height: 1.3;
+    --text-h2: 1.875rem; /* 30 */
+    --text-h2--line-height: 1.2;
+    --text-h1: 2.25rem; /* 36 */
+    --text-h1--line-height: 1.1;
   }
 }
 

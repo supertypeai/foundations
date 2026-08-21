@@ -8,6 +8,14 @@ export { Rail, RailLink } from "./rail.js";
 export { TableOfContents } from "./contents.js";
 export {
   createEssay,
+  // The undecorated binding, for a consumer that supplies neither Reveal nor Glow.
+  EssayHeader,
+  EssayLayout,
+  EssaySection,
+  EssayPullQuote,
+  EssayFigure,
+  EssayMovements,
+  EssayDocument,
   type EssayDecorations,
   type EssayIndexEntry,
   type EssayDocSection,
@@ -20,6 +28,8 @@ export {
   MetaDot,
   PostMetaRow,
   PostDate,
+  formatPostDate,
+  type PostDateFormat,
   ReadTime,
   TagPills,
 } from "./layout.js";

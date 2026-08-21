@@ -79,3 +79,47 @@ export declare function createEssay({ Reveal, Glow, }?: EssayDecorations): {
         sections: readonly EssayDocSection[];
     }) => import("react").JSX.Element;
 };
+/**
+ * The undecorated shell, bound once.
+ *
+ * The factory takes an app's motion and gradient, and an app that has neither
+ * still had to call it — at module scope, passing nothing — because there was
+ * no other way to reach the components. These are that call, made here, so a
+ * consumer without decorations imports them by name like the rest of the
+ * package. `createEssay` stays for the consumers that do decorate.
+ *
+ * Module scope is not incidental. The factory defines its components per call,
+ * so one made during a render hands React a new type on every pass and remounts
+ * everything under it.
+ */
+export declare const EssayHeader: ({ eyebrow, title, lede, byline, }: {
+    eyebrow: ReactNode;
+    title: ReactNode;
+    /** The standfirst. Optional: a short piece can open on its title alone. */
+    lede?: ReactNode;
+    /** The signature line under the lede: who wrote it, and who it is written for. */
+    byline?: ReactNode;
+}) => import("react").JSX.Element, EssayLayout: ({ index, children, }: {
+    index: readonly EssayIndexEntry[];
+    children: ReactNode;
+}) => import("react").JSX.Element, EssaySection: ({ id, heading, children, }: {
+    id: string;
+    heading: ReactNode;
+    children: ReactNode;
+}) => import("react").JSX.Element, EssayPullQuote: ({ children }: {
+    children: ReactNode;
+}) => import("react").JSX.Element, EssayFigure: ({ children, caption, }: {
+    children: ReactNode;
+    caption: ReactNode;
+}) => import("react").JSX.Element, EssayMovements: ({ items }: {
+    items: readonly EssayMovement[];
+}) => import("react").JSX.Element, EssayDocument: ({ sections, ...header }: ComponentProps<({ eyebrow, title, lede, byline, }: {
+    eyebrow: ReactNode;
+    title: ReactNode;
+    /** The standfirst. Optional: a short piece can open on its title alone. */
+    lede?: ReactNode;
+    /** The signature line under the lede: who wrote it, and who it is written for. */
+    byline?: ReactNode;
+}) => import("react").JSX.Element> & {
+    sections: readonly EssayDocSection[];
+}) => import("react").JSX.Element;

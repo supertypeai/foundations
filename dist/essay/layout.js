@@ -16,29 +16,45 @@ export function MetaDot({ className }) {
 export function PostMetaRow({ className, children, size = "base", ...props }) {
     return (_jsx("div", { className: cn("flex flex-wrap items-center gap-x-2 text-muted-foreground", size === "sm" ? "text-xs" : "text-sm", className), ...props, children: children }));
 }
+const DATE_FMT = {
+    short: new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    }),
+    long: new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    }),
+};
 /**
- * `<time datetime>` carries the machine value beside the human one. Fixed to
- * `en-US`, not the visitor's locale: server and client must agree or React
- * reports a hydration mismatch, and the server cannot see their locale.
+ * The date string, outside React. An OG image builds one in a plain function and
+ * the index builds one in a component; two formatters is how the two drift.
+ *
+ * Fixed to `en-US`, not the visitor's locale: server and client must agree or
+ * React reports a hydration mismatch, and the server cannot see their locale.
+ * The index abbreviates because its dates sit inside a card's metadata line; an
+ * article spells the month out under a display title.
  */
-export function PostDate({ date, format = "short", className, }) {
+export const formatPostDate = (date, format = "short") => DATE_FMT[format].format(typeof date === "string" ? new Date(date) : date);
+/** `<time datetime>` carries the machine value beside the human one. */
+export function PostDate({ date, format, className, }) {
     const value = typeof date === "string" ? new Date(date) : date;
     if (Number.isNaN(value.getTime()))
         return null;
-    const label = value.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: format === "long" ? "long" : "short",
-        day: "numeric",
-    });
-    return (_jsx("time", { dateTime: value.toISOString(), className: className, children: label }));
+    return (_jsx("time", { dateTime: value.toISOString(), className: className, children: formatPostDate(value, format) }));
 }
-/** Estimated reading time. Pair with `readingTime()` from the toc module. */
-export function ReadTime({ minutes, className, }) {
-    return _jsxs("span", { className: className, children: [minutes, " min read"] });
+/**
+ * Estimated reading time. Pair with `readingTime()` from the toc module.
+ * `icon` is injected, so the package needs no icon set of its own.
+ */
+export function ReadTime({ minutes, icon: Icon, className, }) {
+    return (_jsxs("span", { className: cn("inline-flex items-center gap-1", className), children: [Icon && _jsx(Icon, { className: "size-3.5" }), minutes, " min read"] }));
 }
 /** Topic tags, as quiet pills. */
 export function TagPills({ tags, className, }) {
     if (tags.length === 0)
         return null;
-    return (_jsx("span", { className: cn("flex flex-wrap gap-1.5", className), children: tags.map((tag) => (_jsx("span", { className: "rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground", children: tag }, tag))) }));
+    return (_jsx("span", { className: cn("flex flex-wrap gap-1.5", className), children: tags.map((tag) => (_jsx("span", { className: "rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary", children: tag }, tag))) }));
 }

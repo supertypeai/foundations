@@ -17,6 +17,14 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./blocks": {
+      "types": "./dist/blocks/index.d.ts",
+      "default": "./dist/blocks/index.js"
+    },
+    "./mdx": {
+      "types": "./dist/mdx.d.ts",
+      "default": "./dist/mdx.js"
+    },
     "./essay": {
       "types": "./dist/essay/index.d.ts",
       "default": "./dist/essay/index.js"
@@ -63,11 +71,17 @@
     "tailwind-merge": "^3.0.0"
   },
   "peerDependencies": {
-    "react": ">=19"
+    "react": ">=19",
+    "@base-ui/react": ">=1.4",
+    "next": ">=15",
+    "next-view-transitions": ">=0.3"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "@base-ui/react": "^1.4.1",
+    "next": "^15.5.7",
+    "next-view-transitions": "^0.3.5"
   },
   "author": {
     "name": "Samuel Chan",

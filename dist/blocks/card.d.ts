@@ -1,5 +1,4 @@
 import type { ComponentProps, ReactNode } from "react";
-import type { ProseLinkComponent } from "../typography/paragraph.js";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export declare function Cards({ className, children, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 export type CardSize = "default" | "sm";
@@ -20,12 +19,13 @@ type CardShorthand = {
     size?: CardSize;
 };
 /**
- * Bound to the app's router Link, since the package cannot depend on one. Takes
- * either shape: `title`/`href` fills the header, or compose the slots directly.
- * Unrecognised props pass through — MDX authors reach for the whole HTML surface.
+ * Takes either shape: `title`/`href` fills the header, or compose the slots
+ * directly. Unrecognised props pass through — MDX authors reach for the whole
+ * HTML surface. An href with a scheme leaves the app; the rest route through
+ * the router's Link.
  */
-export declare function createCard(LinkComponent: ProseLinkComponent): ({ href, className, external, title, description, icon, size, children, ...rest }: CardShorthand & {
+export declare function Card({ href, className, external, title, description, icon, size, children, ...rest }: CardShorthand & {
     href?: string;
     children?: ReactNode;
-} & Omit<ComponentProps<"a">, keyof CardShorthand | "href" | "children">) => import("react").JSX.Element;
+} & Omit<ComponentProps<"a">, keyof CardShorthand | "href" | "children">): import("react").JSX.Element;
 export {};

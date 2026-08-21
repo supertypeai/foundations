@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../cn.js";
-import type { ProseLinkComponent } from "../typography/paragraph.js";
+import { Link } from "next-view-transitions";
 
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }: ComponentProps<"div">) {
@@ -109,69 +109,68 @@ type CardShorthand = {
 };
 
 /**
- * Bound to the app's router Link, since the package cannot depend on one. Takes
- * either shape: `title`/`href` fills the header, or compose the slots directly.
- * Unrecognised props pass through — MDX authors reach for the whole HTML surface.
+ * Takes either shape: `title`/`href` fills the header, or compose the slots
+ * directly. Unrecognised props pass through — MDX authors reach for the whole
+ * HTML surface. An href with a scheme leaves the app; the rest route through
+ * the router's Link.
  */
-export function createCard(LinkComponent: ProseLinkComponent) {
-  return function Card({
-    href,
-    className,
-    external,
-    title,
-    description,
-    icon,
-    size = "default",
-    children,
-    ...rest
-  }: CardShorthand & { href?: string; children?: ReactNode } & Omit<
-      ComponentProps<"a">,
-      keyof CardShorthand | "href" | "children"
-    >) {
-    const header =
-      title || description || icon ? (
-        <CardHeader>
-          {icon ? <div className="mb-1 text-muted-foreground">{icon}</div> : null}
-          {title ? <CardTitle>{title}</CardTitle> : null}
-          {description ? <CardDescription>{description}</CardDescription> : null}
-        </CardHeader>
-      ) : null;
+export function Card({
+  href,
+  className,
+  external,
+  title,
+  description,
+  icon,
+  size = "default",
+  children,
+  ...rest
+}: CardShorthand & { href?: string; children?: ReactNode } & Omit<
+    ComponentProps<"a">,
+    keyof CardShorthand | "href" | "children"
+  >) {
+  const header =
+    title || description || icon ? (
+      <CardHeader>
+        {icon ? <div className="mb-1 text-muted-foreground">{icon}</div> : null}
+        {title ? <CardTitle>{title}</CardTitle> : null}
+        {description ? <CardDescription>{description}</CardDescription> : null}
+      </CardHeader>
+    ) : null;
 
-    // Bare children compose; children under a shorthand header are body copy.
-    const body = header ? (
-      <>
-        {header}
-        {children ? <CardContent>{children}</CardContent> : null}
-      </>
-    ) : (
-      children
-    );
+  // Bare children compose; children under a shorthand header are body copy.
+  const body = header ? (
+    <>
+      {header}
+      {children ? <CardContent>{children}</CardContent> : null}
+    </>
+  ) : (
+    children
+  );
 
-    const shared = { "data-slot": "card", "data-size": size };
+  const shared = { "data-slot": "card", "data-size": size };
 
-    if (!href) {
-      return (
-        <div className={cn(CARD_CLASS, className)} {...shared} {...(rest as ComponentProps<"div">)}>
-          {body}
-        </div>
-      );
-    }
-
-    const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
-    const classes = cn(CARD_CLASS, "no-underline transition-colors hover:bg-accent", className);
-
-    if (leavesApp) {
-      return (
-        <a href={href} className={classes} target="_blank" rel="noopener noreferrer" {...shared} {...rest}>
-          {body}
-        </a>
-      );
-    }
-
+  if (!href) {
     return (
-      <LinkComponent href={href} className={classes} {...shared} {...rest}>
+      <div className={cn(CARD_CLASS, className)} {...shared} {...(rest as ComponentProps<"div">)}>
         {body}
-      </LinkComponent>
+      </div>
     );
-  };
+  }
+
+  const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
+  const classes = cn(CARD_CLASS, "no-underline transition-colors hover:bg-accent", className);
+
+  if (leavesApp) {
+    return (
+      <a href={href} className={classes} target="_blank" rel="noopener noreferrer" {...shared} {...rest}>
+        {body}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={classes} {...shared} {...rest}>
+      {body}
+    </Link>
+  );
 }

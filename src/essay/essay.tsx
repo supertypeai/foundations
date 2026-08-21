@@ -166,7 +166,7 @@ export function createEssay({
     return (
       <section id={id} className="scroll-mt-24">
         <Reveal className="flex flex-col gap-5">
-          <TypographyH2 variant="essay" className="text-balance">
+          <TypographyH2 className="text-balance">
             {heading}
           </TypographyH2>
           {children}
@@ -182,7 +182,7 @@ export function createEssay({
         {/* Takes the rung off `headingClass` rather than restating the face. */}
         <blockquote
           className={cn(
-            headingClass("essay"),
+            headingClass(),
             "text-balance border-l-2 border-primary/40 py-1 pl-6 leading-snug",
           )}
         >
@@ -226,7 +226,7 @@ export function createEssay({
               {String(i + 1).padStart(2, "0")}
             </TypographyCaption>
             <div className="flex flex-col gap-3">
-              <TypographyH3 variant="essay">{title}</TypographyH3>
+              <TypographyH3>{title}</TypographyH3>
               {body}
             </div>
           </li>
@@ -279,3 +279,26 @@ export function createEssay({
     EssayDocument,
   };
 }
+
+/**
+ * The undecorated shell, bound once.
+ *
+ * The factory takes an app's motion and gradient, and an app that has neither
+ * still had to call it — at module scope, passing nothing — because there was
+ * no other way to reach the components. These are that call, made here, so a
+ * consumer without decorations imports them by name like the rest of the
+ * package. `createEssay` stays for the consumers that do decorate.
+ *
+ * Module scope is not incidental. The factory defines its components per call,
+ * so one made during a render hands React a new type on every pass and remounts
+ * everything under it.
+ */
+export const {
+  EssayHeader,
+  EssayLayout,
+  EssaySection,
+  EssayPullQuote,
+  EssayFigure,
+  EssayMovements,
+  EssayDocument,
+} = createEssay();

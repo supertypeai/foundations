@@ -2,11 +2,14 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Children, cloneElement, isValidElement } from "react";
 import { cn } from "../cn.js";
 /**
- * `<details>`/`<summary>`, not a headless primitive: no JS, correct before
- * hydration, and it keeps both Radix and Base UI out of the package — the
- * consuming projects are split across them.
+ * A disclosure group: `<details>`/`<summary>`, no JS, correct before hydration.
+ *
+ * Named for what it is rather than `Accordion`, which is the interactive Base UI
+ * component next door. The two are not variants of each other — this one is a
+ * server component an MDX author gets for free, that one animates and manages
+ * state. Sharing a name is how a call site ends up with the wrong one.
  */
-export function Accordions({ className, children, type = "multiple", defaultValue, name, ...props }) {
+export function DisclosureGroup({ className, children, type = "multiple", defaultValue, name, ...props }) {
     // Single-open comes from the shared `name` attribute, which browsers implement
     // natively and which degrades to all-open where they do not — a fine failure
     // for a disclosure group, and far cheaper than shipping state for it.
@@ -51,6 +54,6 @@ function deriveGroupName(children) {
     }
     return `accordion-${(hash >>> 0).toString(36)}`;
 }
-export function Accordion({ title, children, className, ...props }) {
+export function Disclosure({ title, children, className, ...props }) {
     return (_jsxs("details", { className: cn("group bg-card", className), ...props, children: [_jsxs("summary", { className: "flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-foreground marker:hidden hover:bg-accent [&::-webkit-details-marker]:hidden", children: [title, _jsx("svg", { "aria-hidden": "true", className: "h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: "m6 9 6 6 6-6" }) })] }), _jsx("div", { className: "px-4 pb-4 text-sm text-muted-foreground", children: children })] }));
 }

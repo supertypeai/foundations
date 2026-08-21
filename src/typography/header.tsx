@@ -2,28 +2,39 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "../cn.js";
 
-// Canonical heading primitives: size, weight and tracking live here, never at a
-// call site. The rung is a font-weight utility rather than an arbitrary property
-// so tailwind-merge can replace it. Tailwind scans comments — never spell a class
-// out here or it becomes a real utility.
+/**
+ * The heading ladder. Four levels, one rung each.
+ *
+ * A heading does not pick its size — `--text-h1`…`--text-h4` in type.css do, and
+ * `.editorial` retunes all four together. That is the whole design: size is a
+ * property of the SURFACE, and level is the only thing a call site knows. When
+ * the rungs were shared with body copy the call site had to know both, which is
+ * how `larger` and `entry` appeared — variants whose entire job was to climb out
+ * of a rung that read fine in the product and landed under the paragraph on a
+ * marketing page. Retuning a surface now means editing two lines of CSS.
+ *
+ * `display` is the one exception, and it is a role rather than a size: the
+ * heading on a landing page that has to outrank the same level in the docs. It
+ * is spelled in shared rungs on purpose — it is only ever seen on `.editorial`.
+ *
+ * Tailwind scans comments — never spell a class out here or it becomes a real
+ * utility.
+ */
 
-const h1Variants = cva(
-  "scroll-m-20 font-heading font-[number:var(--heading-weight)] text-foreground",
-  {
-    variants: {
-      variant: {
-        /** Marketing hero titles. Large enough that tight tracking reads as craft. */
-        hero: "text-2xl tracking-tight md:text-3xl",
-        /** A variant, not a per-page override: a className winning at `sm` still
-         * loses to `hero`'s `md` rung. */
-        display: "text-4xl tracking-tight sm:text-5xl",
-        /** A page title in a denser surface — the top of a panel, not a headline. */
-        page: "text-xl tracking-[-0.015em]",
-      },
+const HEADING_BASE =
+  "scroll-m-20 font-heading font-[number:var(--heading-weight)] text-foreground";
+
+const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
+  variants: {
+    variant: {
+      /** The page title: 22px in the product, 36 on an editorial surface. */
+      default: "text-h1",
+      /** A landing hero, drawn to be seen from the top of a scroll. */
+      display: "text-4xl sm:text-5xl",
     },
-    defaultVariants: { variant: "hero" },
   },
-);
+  defaultVariants: { variant: "default" },
+});
 
 export function TypographyH1({
   className,
@@ -38,86 +49,71 @@ export function TypographyH1({
   );
 }
 
-const h2Variants = cva(
-  "scroll-m-20 font-heading font-[number:var(--heading-weight)] tracking-[-0.01em] text-foreground first:mt-0",
-  {
-    variants: {
-      variant: {
-        default: "w-fit border-b pb-2 text-lg",
-        unbordered: "text-lg",
-        larger: "text-xl leading-tight",
-        /** The section heading one rung under a landing page's `display` h1. */
-        display: "text-3xl tracking-tight sm:text-4xl",
-        /** Interrupts prose without stopping it, where `display` is drawn to be
-         * seen from the top of a scroll. */
-        essay: "text-2xl tracking-tight sm:text-3xl",
-      },
+const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em] first:mt-0`, {
+  variants: {
+    variant: {
+      /** The section heading: 18px in the product, 30 on an editorial surface. */
+      default: "text-h2",
+      /** A landing page's section heading, one step over the docs equivalent. */
+      display: "text-3xl sm:text-4xl",
     },
-    defaultVariants: { variant: "default" },
   },
-);
+  defaultVariants: { variant: "default" },
+});
 
 /** The h2 ramp as a class, for a caller that must render its own element. */
 export const headingClass = (
-  variant: VariantProps<typeof h2Variants>["variant"],
+  variant?: VariantProps<typeof h2Variants>["variant"],
 ) => h2Variants({ variant });
 
+/**
+ * `divider` is a rule under the heading, not a size — it used to ride the size
+ * axis as `default` vs `unbordered`, which made every call site state a border
+ * it had no opinion about in order to reach the size it wanted.
+ */
 export function TypographyH2({
   className,
   variant,
+  divider,
   children,
   ...props
-}: React.ComponentProps<"h2"> & VariantProps<typeof h2Variants>) {
+}: React.ComponentProps<"h2"> &
+  VariantProps<typeof h2Variants> & { divider?: boolean }) {
   return (
-    <h2 className={cn(h2Variants({ variant }), className)} {...props}>
+    <h2
+      className={cn(
+        h2Variants({ variant }),
+        divider && "w-fit border-b pb-2",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </h2>
   );
 }
 
-const h3Variants = cva(
-  "scroll-m-20 font-heading font-[number:var(--heading-weight)] text-foreground",
-  {
-    variants: {
-      variant: {
-        default: "text-base",
-        /** One entry in a timeline: leads its body copy without reading as a break. */
-        entry: "text-lg",
-        /** The subhead inside an essay section, paired with h2's `essay` rung. */
-        essay: "text-xl tracking-tight sm:text-2xl",
-      },
-    },
-    defaultVariants: { variant: "default" },
-  },
-);
-
+/** The subhead: 16px in the product, 24 on an editorial surface. */
 export function TypographyH3({
   className,
-  variant,
   children,
   ...props
-}: React.ComponentProps<"h3"> & VariantProps<typeof h3Variants>) {
+}: React.ComponentProps<"h3">) {
   return (
-    <h3 className={cn(h3Variants({ variant }), className)} {...props}>
+    <h3 className={cn(HEADING_BASE, "text-h3", className)} {...props}>
       {children}
     </h3>
   );
 }
 
-/** The card / panel title: the workhorse heading of a dense surface. */
+/** The card / panel title: 14px in the product, 20 on an editorial surface. */
 export function TypographyH4({
   className,
   children,
   ...props
 }: React.ComponentProps<"h4">) {
   return (
-    <h4
-      className={cn(
-        "scroll-m-20 font-heading text-base font-[number:var(--heading-weight)] text-foreground",
-        className,
-      )}
-      {...props}
-    >
+    <h4 className={cn(HEADING_BASE, "text-h4", className)} {...props}>
       {children}
     </h4>
   );

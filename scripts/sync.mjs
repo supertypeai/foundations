@@ -30,8 +30,8 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 
 /** Where the package lands in each consumer. Override by passing paths as args. */
 const DEFAULT_TARGETS = [
-  join(homedir(), "Work/ssite"),
-  join(homedir(), "Work/viably/on_next"),
+  join(homedir(), "fun/ssite"),
+  join(homedir(), "fun/viably/on_next"),
 ];
 
 /**

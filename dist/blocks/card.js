@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { cn } from "../cn.js";
+import { Link } from "next-view-transitions";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }) {
     return (_jsx("div", { className: cn("my-6 grid gap-4 sm:grid-cols-2", className), ...props, children: children }));
@@ -33,24 +34,23 @@ export function CardFooter({ className, ...props }) {
     return (_jsx("div", { "data-slot": "card-footer", className: cn("flex items-center rounded-b-xl border-t border-border bg-muted/50 p-4 group-data-[size=sm]/card:p-3", className), ...props }));
 }
 /**
- * Bound to the app's router Link, since the package cannot depend on one. Takes
- * either shape: `title`/`href` fills the header, or compose the slots directly.
- * Unrecognised props pass through — MDX authors reach for the whole HTML surface.
+ * Takes either shape: `title`/`href` fills the header, or compose the slots
+ * directly. Unrecognised props pass through — MDX authors reach for the whole
+ * HTML surface. An href with a scheme leaves the app; the rest route through
+ * the router's Link.
  */
-export function createCard(LinkComponent) {
-    return function Card({ href, className, external, title, description, icon, size = "default", children, ...rest }) {
-        const header = title || description || icon ? (_jsxs(CardHeader, { children: [icon ? _jsx("div", { className: "mb-1 text-muted-foreground", children: icon }) : null, title ? _jsx(CardTitle, { children: title }) : null, description ? _jsx(CardDescription, { children: description }) : null] })) : null;
-        // Bare children compose; children under a shorthand header are body copy.
-        const body = header ? (_jsxs(_Fragment, { children: [header, children ? _jsx(CardContent, { children: children }) : null] })) : (children);
-        const shared = { "data-slot": "card", "data-size": size };
-        if (!href) {
-            return (_jsx("div", { className: cn(CARD_CLASS, className), ...shared, ...rest, children: body }));
-        }
-        const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
-        const classes = cn(CARD_CLASS, "no-underline transition-colors hover:bg-accent", className);
-        if (leavesApp) {
-            return (_jsx("a", { href: href, className: classes, target: "_blank", rel: "noopener noreferrer", ...shared, ...rest, children: body }));
-        }
-        return (_jsx(LinkComponent, { href: href, className: classes, ...shared, ...rest, children: body }));
-    };
+export function Card({ href, className, external, title, description, icon, size = "default", children, ...rest }) {
+    const header = title || description || icon ? (_jsxs(CardHeader, { children: [icon ? _jsx("div", { className: "mb-1 text-muted-foreground", children: icon }) : null, title ? _jsx(CardTitle, { children: title }) : null, description ? _jsx(CardDescription, { children: description }) : null] })) : null;
+    // Bare children compose; children under a shorthand header are body copy.
+    const body = header ? (_jsxs(_Fragment, { children: [header, children ? _jsx(CardContent, { children: children }) : null] })) : (children);
+    const shared = { "data-slot": "card", "data-size": size };
+    if (!href) {
+        return (_jsx("div", { className: cn(CARD_CLASS, className), ...shared, ...rest, children: body }));
+    }
+    const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
+    const classes = cn(CARD_CLASS, "no-underline transition-colors hover:bg-accent", className);
+    if (leavesApp) {
+        return (_jsx("a", { href: href, className: classes, target: "_blank", rel: "noopener noreferrer", ...shared, ...rest, children: body }));
+    }
+    return (_jsx(Link, { href: href, className: classes, ...shared, ...rest, children: body }));
 }

@@ -39,11 +39,11 @@ export function createEssay({ Reveal = PlainReveal, Glow = NoGlow, } = {}) {
     }
     /** The heading carries the anchor, offset so it lands under the sticky nav. */
     function EssaySection({ id, heading, children, }) {
-        return (_jsx("section", { id: id, className: "scroll-mt-24", children: _jsxs(Reveal, { className: "flex flex-col gap-5", children: [_jsx(TypographyH2, { variant: "essay", className: "text-balance", children: heading }), children] }) }));
+        return (_jsx("section", { id: id, className: "scroll-mt-24", children: _jsxs(Reveal, { className: "flex flex-col gap-5", children: [_jsx(TypographyH2, { className: "text-balance", children: heading }), children] }) }));
     }
     /** One per essay: a page with three of them has decided nothing. */
     function EssayPullQuote({ children }) {
-        return (_jsx(Reveal, { children: _jsx("blockquote", { className: cn(headingClass("essay"), "text-balance border-l-2 border-primary/40 py-1 pl-6 leading-snug"), children: children }) }));
+        return (_jsx(Reveal, { children: _jsx("blockquote", { className: cn(headingClass(), "text-balance border-l-2 border-primary/40 py-1 pl-6 leading-snug"), children: children }) }));
     }
     /** Generic on purpose: a page hands it anything; this decides only the fit. */
     function EssayFigure({ children, caption, }) {
@@ -54,7 +54,7 @@ export function createEssay({ Reveal = PlainReveal, Glow = NoGlow, } = {}) {
        * An ordered list says that without an arrow — the ordinal is the ornament.
        */
     function EssayMovements({ items }) {
-        return (_jsx("ol", { className: "flex flex-col", children: items.map(({ title, body }, i) => (_jsxs("li", { className: "border-t border-border/60 py-8 first:border-t-0 first:pt-0 last:pb-0 sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-6", children: [_jsx(TypographyCaption, { className: "block pt-2 font-mono tabular-nums text-primary max-sm:mb-2", children: String(i + 1).padStart(2, "0") }), _jsxs("div", { className: "flex flex-col gap-3", children: [_jsx(TypographyH3, { variant: "essay", children: title }), body] })] }, title))) }));
+        return (_jsx("ol", { className: "flex flex-col", children: items.map(({ title, body }, i) => (_jsxs("li", { className: "border-t border-border/60 py-8 first:border-t-0 first:pt-0 last:pb-0 sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-6", children: [_jsx(TypographyCaption, { className: "block pt-2 font-mono tabular-nums text-primary max-sm:mb-2", children: String(i + 1).padStart(2, "0") }), _jsxs("div", { className: "flex flex-col gap-3", children: [_jsx(TypographyH3, { children: title }), body] })] }, title))) }));
     }
     /**
      * A reference document as data: the index derives from the sections, so a
@@ -76,3 +76,17 @@ export function createEssay({ Reveal = PlainReveal, Glow = NoGlow, } = {}) {
         EssayDocument,
     };
 }
+/**
+ * The undecorated shell, bound once.
+ *
+ * The factory takes an app's motion and gradient, and an app that has neither
+ * still had to call it — at module scope, passing nothing — because there was
+ * no other way to reach the components. These are that call, made here, so a
+ * consumer without decorations imports them by name like the rest of the
+ * package. `createEssay` stays for the consumers that do decorate.
+ *
+ * Module scope is not incidental. The factory defines its components per call,
+ * so one made during a render hands React a new type on every pass and remounts
+ * everything under it.
+ */
+export const { EssayHeader, EssayLayout, EssaySection, EssayPullQuote, EssayFigure, EssayMovements, EssayDocument, } = createEssay();

@@ -3,14 +3,22 @@ import { cn } from "../cn.js";
 /**
  * Inks only. A fill token (`--secondary`, `--accent`) has no chroma to wash with —
  * at 44% alpha it is invisible, and the `luminosity` blend then strips the text's
- * hue for nothing. Brand hues come in through `--marker` at the call site.
+ * hue for nothing. That is why the earth tones enter as `-foreground`: those are
+ * the ink-grade pair, mixed to hold at text weight in both themes.
+ *
+ * Emphasis, never status. Warn and info and destructive are absent on purpose —
+ * a swipe of red under a phrase says less than the words do.
+ *
+ * The four earth tones are one palette, not a menu: each is a different hue,
+ * because two a reader cannot tell apart are one tone with two names.
  */
 const MARKER_TONES = {
     primary: "var(--primary)",
     success: "var(--success)",
-    warn: "var(--warn)",
-    info: "var(--info)",
-    destructive: "var(--destructive)",
+    ochre: "var(--ochre-foreground)",
+    terracotta: "var(--terracotta-foreground)",
+    sage: "var(--sage-foreground)",
+    fig: "var(--fig-foreground)",
 };
 /** Wash density at a fraction of the theme's base alpha. */
 const ink = (weight) => `color-mix(in srgb, var(--marker) calc(var(--marker-alpha) * ${weight}), transparent)`;
@@ -81,7 +89,7 @@ const markerFill = (seed) => {
  * mask — a mask would shave the glyph tops. `luminosity` lets letters borrow the
  * marker's hue while keeping their own lightness, so contrast holds in both themes.
  */
-export function Highlight({ tone = "primary", seed = 3, className, style, children, ...props }) {
+export function TypographyHighlight({ tone = "primary", seed = 3, className, style, children, ...props }) {
     return (_jsx("span", { className: cn("isolate inline px-[0.3em] py-[0.06em]", "[-webkit-box-decoration-break:clone] [box-decoration-break:clone]", "[--marker-alpha:44%] dark:[--marker-alpha:58%]", className), style: {
             "--marker": MARKER_TONES[tone],
             backgroundImage: markerFill(seed),

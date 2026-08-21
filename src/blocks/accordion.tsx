@@ -3,11 +3,14 @@ import { Children, cloneElement, isValidElement, type ComponentProps, type React
 import { cn } from "../cn.js";
 
 /**
- * `<details>`/`<summary>`, not a headless primitive: no JS, correct before
- * hydration, and it keeps both Radix and Base UI out of the package — the
- * consuming projects are split across them.
+ * A disclosure group: `<details>`/`<summary>`, no JS, correct before hydration.
+ *
+ * Named for what it is rather than `Accordion`, which is the interactive Base UI
+ * component next door. The two are not variants of each other — this one is a
+ * server component an MDX author gets for free, that one animates and manages
+ * state. Sharing a name is how a call site ends up with the wrong one.
  */
-export function Accordions({
+export function DisclosureGroup({
   className,
   children,
   type = "multiple",
@@ -35,7 +38,7 @@ export function Accordions({
   // Cloned rather than passed through context: a Provider would have to be a
   // client component, and this whole block exists to stay off that boundary.
   const items = Children.map(children, (child) => {
-    if (!isValidElement<AccordionProps>(child)) return child;
+    if (!isValidElement<DisclosureProps>(child)) return child;
     // defaultValue matches on the title, so it can only match a string one. A
     // JSX title stringifies to "[object Object]" and would match nothing while
     // looking like it should.
@@ -70,7 +73,7 @@ export function Accordions({
 function deriveGroupName(children: ReactNode): string {
   const titles: string[] = [];
   Children.forEach(children, (child) => {
-    if (isValidElement<AccordionProps>(child) && typeof child.props.title === "string") {
+    if (isValidElement<DisclosureProps>(child) && typeof child.props.title === "string") {
       titles.push(child.props.title);
     }
   });
@@ -84,17 +87,17 @@ function deriveGroupName(children: ReactNode): string {
   return `accordion-${(hash >>> 0).toString(36)}`;
 }
 
-type AccordionProps = Omit<ComponentProps<"details">, "title"> & {
+type DisclosureProps = Omit<ComponentProps<"details">, "title"> & {
   title: ReactNode;
   name?: string;
 };
 
-export function Accordion({
+export function Disclosure({
   title,
   children,
   className,
   ...props
-}: AccordionProps) {
+}: DisclosureProps) {
   return (
     <details className={cn("group bg-card", className)} {...props}>
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-foreground marker:hidden hover:bg-accent [&::-webkit-details-marker]:hidden">
