@@ -21,8 +21,15 @@ import { cn } from "../cn.js";
  * utility.
  */
 
-const HEADING_BASE =
-  "scroll-m-20 font-heading font-[number:var(--heading-weight)] text-foreground";
+/**
+ * The heading face, stated once. Anything wearing it composes this rather than
+ * respelling it: a second literal here is a level (or a deck) that forked, and a
+ * literal weight beside the face survives into `.editorial` and synthesises the
+ * single-weight serif. viably asserts there is exactly one of these strings.
+ */
+const HEADING_FACE = "font-heading font-[number:var(--heading-weight)]";
+
+const HEADING_BASE = `scroll-m-20 ${HEADING_FACE} text-foreground`;
 
 const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
   variants: {
@@ -30,7 +37,7 @@ const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
       /** The page title: 22px in the product, 36 on an editorial surface. */
       default: "text-h1",
       /** A landing hero, drawn to be seen from the top of a scroll. */
-      display: "text-4xl sm:text-5xl",
+      display: "heading-display text-4xl sm:text-5xl",
     },
   },
   defaultVariants: { variant: "default" },
@@ -55,7 +62,7 @@ const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em] first:mt-0`, {
       /** The section heading: 18px in the product, 30 on an editorial surface. */
       default: "text-h2",
       /** A landing page's section heading, one step over the docs equivalent. */
-      display: "text-3xl sm:text-4xl",
+      display: "heading-display text-3xl sm:text-4xl",
     },
   },
   defaultVariants: { variant: "default" },
@@ -93,14 +100,30 @@ export function TypographyH2({
   );
 }
 
-/** The subhead: 16px in the product, 24 on an editorial surface. */
+const h3Variants = cva(HEADING_BASE, {
+  variants: {
+    variant: {
+      /** The subhead: 16px in the product, 24 on an editorial surface. */
+      default: "text-h3",
+      /**
+       * The lead card in a grid — a featured post, a pinned series. Present at
+       * this rung and not below it: h4 is a panel title, and a panel title that
+       * reaches for a display size is a section heading wearing the wrong tag.
+       */
+      display: "heading-display text-2xl sm:text-3xl",
+    },
+  },
+  defaultVariants: { variant: "default" },
+});
+
 export function TypographyH3({
   className,
+  variant,
   children,
   ...props
-}: React.ComponentProps<"h3">) {
+}: React.ComponentProps<"h3"> & VariantProps<typeof h3Variants>) {
   return (
-    <h3 className={cn(HEADING_BASE, "text-h3", className)} {...props}>
+    <h3 className={cn(h3Variants({ variant }), className)} {...props}>
       {children}
     </h3>
   );
@@ -116,6 +139,54 @@ export function TypographyH4({
     <h4 className={cn(HEADING_BASE, "text-h4", className)} {...props}>
       {children}
     </h4>
+  );
+}
+
+const deckVariants = cva(
+  `${HEADING_FACE} heading-display text-foreground`,
+  {
+    variants: {
+      size: {
+        /** Under a section heading. */
+        sm: "text-base lg:text-lg",
+        /** The page-title deck: the default, and the only one most pages need. */
+        md: "text-lg lg:text-xl",
+        /** A hero that carries the deck instead of body copy beneath it. */
+        lg: "text-lg lg:text-xl xl:text-2xl",
+      },
+    },
+    defaultVariants: { size: "md" },
+  },
+);
+
+/**
+ * The deck: the line of standfirst that sits with a page title and finishes the
+ * thought the title started.
+ *
+ * It belongs to the heading layer rather than the paragraph's, even though it
+ * renders a paragraph element — it takes the surface's heading family, weight
+ * and slant, which is what every hand-rolled copy of it restated by hand, down
+ * to a literal weight that `.editorial` was already overriding to 400.
+ *
+ * The box shrink-wraps its text by default, because a deck is usually painted:
+ * a gradient clipped to the glyphs, a marker behind them. A full-width box
+ * paints the line's empty remainder too. The trailing padding goes with it —
+ * an italic's last glyph overhangs its advance width, and a box shrunk to that
+ * advance clips the overhang out of whatever is doing the painting.
+ */
+export function TypographyDeck({
+  className,
+  size,
+  children,
+  ...props
+}: React.ComponentProps<"p"> & VariantProps<typeof deckVariants>) {
+  return (
+    <p
+      className={cn(deckVariants({ size }), "w-fit pr-2", className)}
+      {...props}
+    >
+      {children}
+    </p>
   );
 }
 
@@ -135,16 +206,42 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
   defaultVariants: { tone: "heading" },
 });
 
-/** An all-caps micro-label above a stat or a group of controls. */
+/**
+ * The eyebrow's ramp as a class, for a caller that cannot render our element —
+ * a dialog title primitive, a motion element. Same escape hatch as
+ * `headingClass`, and it exists so that a consumer needing the class does not
+ * hand-roll a second copy of it that then drifts from the component.
+ */
+export const eyebrowClass = (
+  tone?: VariantProps<typeof eyebrowVariants>["tone"],
+) => eyebrowVariants({ tone });
+
+/**
+ * An all-caps micro-label above a stat or a group of controls.
+ *
+ * `as` exists for the one case the span cannot serve: an eyebrow that is also
+ * the section's heading. A surface that labels its sections this way still owes
+ * a screen reader the outline, and the alternative — a hand-rolled `<h2>`
+ * wearing these classes — is how the label drifts from the ones beside it.
+ * The classes do not change with the element, so it is an element choice
+ * rather than a second component, the same call `TypographyCaption` makes.
+ */
 export function TypographyEyebrow({
   className,
   tone,
+  as = "span",
   children,
   ...props
-}: React.ComponentProps<"span"> & VariantProps<typeof eyebrowVariants>) {
+}: React.ComponentProps<"span"> &
+  VariantProps<typeof eyebrowVariants> & {
+    as?: "span" | "p" | "div" | "h1" | "h2" | "h3" | "h4";
+  }) {
+  // Every accepted tag shares the attribute surface used here; narrowing the
+  // ref per tag would need a generic no call site asks for.
+  const As = as as "span";
   return (
-    <span className={cn(eyebrowVariants({ tone }), className)} {...props}>
+    <As className={cn(eyebrowVariants({ tone }), className)} {...props}>
       {children}
-    </span>
+    </As>
   );
 }

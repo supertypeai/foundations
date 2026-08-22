@@ -8,7 +8,7 @@ import type { ComponentProps, ReactNode } from "react";
  * Anything that was a separate component for one class is a preset below.
  */
 declare const pVariants: (props?: ({
-    variant?: "ui" | "prose" | null | undefined;
+    variant?: "ui" | "prose" | "lead" | null | undefined;
     tone?: "default" | "muted" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type ParagraphVariants = VariantProps<typeof pVariants>;
@@ -17,6 +17,8 @@ export declare function TypographyP({ className, variant, tone, children, ...pro
 export declare function TypographyMuted(props: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
 /** Reading-size body copy. `TypographyMuted` is the same ink one rung down. */
 export declare function TypographyProse(props: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
+/** The deck's body-copy counterpart: the intro paragraph under a page title. */
+export declare function TypographyLead(props: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
 /** A list at the prose rung, so it reads as body copy and not an aside. */
 export declare function TypographyProseList({ className, children, ordered, ...props }: ComponentProps<"ul"> & {
     ordered?: boolean;
@@ -40,7 +42,7 @@ export declare function TypographyProseList({ className, children, ordered, ...p
  * container that sets a size for you sets a weight too.
  */
 declare const captionVariants: (props?: ({
-    size?: "inherit" | "sm" | "xs" | "2xs" | null | undefined;
+    size?: "sm" | "inherit" | "xs" | "2xs" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type CaptionVariants = VariantProps<typeof captionVariants>;
 /**
@@ -61,8 +63,16 @@ export declare function TypographySmall(props: ComponentProps<"span"> & CaptionV
 /**
  * The label role: a form label, a column header, the key a reader scans for.
  * 500 is the only weight bump a dense surface needs below a heading.
+ *
+ * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
+ * names its sections at this size, and those names are the page's outline. The
+ * alternative a consumer reaches for is a hand-rolled `<h2>` wearing these two
+ * classes, which is how a label drifts from the ones beside it. The classes do
+ * not change with the element.
  */
-export declare function TypographyLabel({ className, children, ...props }: ComponentProps<"span">): import("react").JSX.Element;
+export declare function TypographyLabel({ className, as, children, ...props }: ComponentProps<"span"> & {
+    as?: "span" | "p" | "div" | "label" | "h1" | "h2" | "h3" | "h4";
+}): import("react").JSX.Element;
 /**
  * A numeric readout. Size and colour ride in via className per use.
  *

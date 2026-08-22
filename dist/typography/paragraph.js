@@ -19,6 +19,15 @@ const pVariants = cva("", {
         variant: {
             ui: "text-sm",
             prose: "text-pretty text-lg leading-relaxed",
+            /**
+             * The intro under a page title, and the only rung that steps with the
+             * viewport. `prose` is a rung and holds still; this one is a ROLE, and the
+             * role is "the paragraph a reader meets before the page has earned any
+             * scrolling" — reading size on a phone, one step up once there is a column
+             * to set it in. Every hand-rolled copy of it spelled exactly that pair of
+             * sizes and nothing else.
+             */
+            lead: "text-pretty text-base leading-relaxed md:text-lg",
         },
         tone: {
             default: "text-foreground",
@@ -37,6 +46,10 @@ export function TypographyMuted(props) {
 /** Reading-size body copy. `TypographyMuted` is the same ink one rung down. */
 export function TypographyProse(props) {
     return _jsx(TypographyP, { variant: "prose", tone: "muted", ...props });
+}
+/** The deck's body-copy counterpart: the intro paragraph under a page title. */
+export function TypographyLead(props) {
+    return _jsx(TypographyP, { variant: "lead", tone: "muted", ...props });
 }
 /** The reading rung as a class, so the list below composes it instead of restating it. */
 const proseClass = pVariants({ variant: "prose", tone: "muted" });
@@ -97,9 +110,16 @@ export function TypographySmall(props) {
 /**
  * The label role: a form label, a column header, the key a reader scans for.
  * 500 is the only weight bump a dense surface needs below a heading.
+ *
+ * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
+ * names its sections at this size, and those names are the page's outline. The
+ * alternative a consumer reaches for is a hand-rolled `<h2>` wearing these two
+ * classes, which is how a label drifts from the ones beside it. The classes do
+ * not change with the element.
  */
-export function TypographyLabel({ className, children, ...props }) {
-    return (_jsx("span", { className: cn("text-sm font-medium text-foreground", className), ...props, children: children }));
+export function TypographyLabel({ className, as = "span", children, ...props }) {
+    const As = as;
+    return (_jsx(As, { className: cn("text-sm font-medium text-foreground", className), ...props, children: children }));
 }
 /**
  * A numeric readout. Size and colour ride in via className per use.
