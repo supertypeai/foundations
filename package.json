@@ -1,6 +1,6 @@
 {
   "name": "@supertype/foundations",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "private": true,
   "license": "UNLICENSED",
   "description": "Shared typography, prose, essay, and building blocks for Supertype projects.",
