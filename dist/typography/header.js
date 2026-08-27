@@ -1,6 +1,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { cva } from "class-variance-authority";
 import { cn } from "../cn.js";
+import { TextAs } from "./as.js";
 /**
  * The heading ladder. Four levels, one rung each.
  *
@@ -12,17 +13,17 @@ import { cn } from "../cn.js";
  * of a rung that read fine in the product and landed under the paragraph on a
  * marketing page. Retuning a surface now means editing two lines of CSS.
  *
- * `display` is the one exception, and it is a role rather than a size: the
- * heading on a landing page that has to outrank the same level in the docs. It
- * is spelled in shared rungs on purpose — it is only ever seen on `.editorial`.
+ * `display` is a role rather than a size: the landing-page heading that has to
+ * outrank the same level in the docs. Size is all it changes — the slant it once
+ * carried turned out to be unwanted on every surface.
  *
  * Tailwind scans comments — never spell a class out here or it becomes a real
  * utility.
  */
 /**
  * The heading face, stated once. Anything wearing it composes this rather than
- * respelling it: a second literal here is a level (or a deck) that forked, and a
- * literal weight beside the face survives into `.editorial` and synthesises the
+ * respelling it: a second literal here is a level that forked, and a literal
+ * weight beside the face survives into `.editorial` and synthesises the
  * single-weight serif. viably asserts there is exactly one of these strings.
  */
 const HEADING_FACE = "font-heading font-[number:var(--heading-weight)]";
@@ -33,7 +34,7 @@ const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
             /** The page title: 22px in the product, 36 on an editorial surface. */
             default: "text-h1",
             /** A landing hero, drawn to be seen from the top of a scroll. */
-            display: "heading-display text-4xl sm:text-5xl",
+            display: "text-4xl sm:text-5xl",
         },
     },
     defaultVariants: { variant: "default" },
@@ -47,7 +48,7 @@ const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em] first:mt-0`, {
             /** The section heading: 18px in the product, 30 on an editorial surface. */
             default: "text-h2",
             /** A landing page's section heading, one step over the docs equivalent. */
-            display: "heading-display text-3xl sm:text-4xl",
+            display: "text-3xl sm:text-4xl",
         },
     },
     defaultVariants: { variant: "default" },
@@ -72,7 +73,7 @@ const h3Variants = cva(HEADING_BASE, {
              * this rung and not below it: h4 is a panel title, and a panel title that
              * reaches for a display size is a section heading wearing the wrong tag.
              */
-            display: "heading-display text-2xl sm:text-3xl",
+            display: "text-2xl sm:text-3xl",
         },
     },
     defaultVariants: { variant: "default" },
@@ -83,37 +84,6 @@ export function TypographyH3({ className, variant, children, ...props }) {
 /** The card / panel title: 14px in the product, 20 on an editorial surface. */
 export function TypographyH4({ className, children, ...props }) {
     return (_jsx("h4", { className: cn(HEADING_BASE, "text-h4", className), ...props, children: children }));
-}
-const deckVariants = cva(`${HEADING_FACE} heading-display text-foreground`, {
-    variants: {
-        size: {
-            /** Under a section heading. */
-            sm: "text-base lg:text-lg",
-            /** The page-title deck: the default, and the only one most pages need. */
-            md: "text-lg lg:text-xl",
-            /** A hero that carries the deck instead of body copy beneath it. */
-            lg: "text-lg lg:text-xl xl:text-2xl",
-        },
-    },
-    defaultVariants: { size: "md" },
-});
-/**
- * The deck: the line of standfirst that sits with a page title and finishes the
- * thought the title started.
- *
- * It belongs to the heading layer rather than the paragraph's, even though it
- * renders a paragraph element — it takes the surface's heading family, weight
- * and slant, which is what every hand-rolled copy of it restated by hand, down
- * to a literal weight that `.editorial` was already overriding to 400.
- *
- * The box shrink-wraps its text by default, because a deck is usually painted:
- * a gradient clipped to the glyphs, a marker behind them. A full-width box
- * paints the line's empty remainder too. The trailing padding goes with it —
- * an italic's last glyph overhangs its advance width, and a box shrunk to that
- * advance clips the overhang out of whatever is doing the painting.
- */
-export function TypographyDeck({ className, size, children, ...props }) {
-    return (_jsx("p", { className: cn(deckVariants({ size }), "w-fit pr-2", className), ...props, children: children }));
 }
 const eyebrowVariants = cva("block uppercase tracking-wider", {
     variants: {
@@ -138,18 +108,12 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
  */
 export const eyebrowClass = (tone) => eyebrowVariants({ tone });
 /**
- * An all-caps micro-label above a stat or a group of controls.
+ * An all-caps micro-label above a stat or a group of controls, and — since the
+ * deck was folded into it — the standfirst that sits with a page title.
  *
- * `as` exists for the one case the span cannot serve: an eyebrow that is also
- * the section's heading. A surface that labels its sections this way still owes
- * a screen reader the outline, and the alternative — a hand-rolled `<h2>`
- * wearing these classes — is how the label drifts from the ones beside it.
- * The classes do not change with the element, so it is an element choice
- * rather than a second component, the same call `TypographyCaption` makes.
+ * `as` covers the case the span cannot: an eyebrow that is also the section's
+ * heading. See `TypographyTag` in as.tsx for why the classes hold across tags.
  */
-export function TypographyEyebrow({ className, tone, as = "span", children, ...props }) {
-    // Every accepted tag shares the attribute surface used here; narrowing the
-    // ref per tag would need a generic no call site asks for.
-    const As = as;
-    return (_jsx(As, { className: cn(eyebrowVariants({ tone }), className), ...props, children: children }));
+export function TypographyEyebrow({ className, tone, as, children, ...props }) {
+    return (_jsx(TextAs, { as: as, className: cn(eyebrowVariants({ tone }), className), ...props, children: children }));
 }

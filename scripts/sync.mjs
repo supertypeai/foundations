@@ -28,11 +28,21 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 
-/** Where the package lands in each consumer. Override by passing paths as args. */
-const DEFAULT_TARGETS = [
-  join(homedir(), "fun/ssite"),
-  join(homedir(), "fun/viably/on_next"),
-];
+/**
+ * Where the package lands in each consumer. The two machines this runs on keep
+ * the repos under different roots, so each consumer is looked up in both and
+ * the one that exists wins. Override by passing paths as args.
+ */
+const CONSUMER_ROOTS = ["Work", "fun"].map((dir) => join(homedir(), dir));
+const CONSUMER_PATHS = ["ssite", "viably/on_next"];
+
+/** First root that actually holds this consumer, or its path under the first root. */
+const locate = (rel) => {
+  const found = CONSUMER_ROOTS.map((base) => join(base, rel)).find((dir) => existsSync(dir));
+  return found ?? join(CONSUMER_ROOTS[0], rel);
+};
+
+const DEFAULT_TARGETS = CONSUMER_PATHS.map(locate);
 
 /**
  * Everything a consumer resolves: dist/ for the exports map, src/ for the CSS

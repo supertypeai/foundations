@@ -15,26 +15,48 @@ not resolve React at all.
 
 | import | contains | notes |
 |---|---|---|
-| `@supertype/foundations` | typography, blocks, MDX map, `cn` | server-safe except `Tabs` |
+| `@supertype/foundations` | typography, `cn` | blocks and the MDX map are deliberately **not** here — see below |
+| `@supertype/foundations/blocks` | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | `Tabs` and `Accordion` are client (Base UI) |
+| `@supertype/foundations/mdx` | `proseMdxComponents` — the MDX element map | pulls `next/image` |
 | `@supertype/foundations/essay` | `EssayColumns`, `ReadingRail`, post meta, TOC + reading time | reading components are client |
+| `@supertype/foundations/eslint` | `colourRules`, `typographyRules`, and friends | plain data, ESM + CJS builds |
 | `@supertype/foundations/seo` | `createSeo(...)` — metadata + JSON-LD | pure functions, no framework |
 | `@supertype/foundations/rehype` | `rehypeProseCode` (Shiki) | **build-time only** — never import from a component |
 | `@supertype/foundations/contrast` | `resolveTokens`, `checkLegibility`, `formatFailures` | build-time only — strings and numbers, no React, no DOM |
 | `@supertype/foundations/og` | `ogCard`, `OG_SIZE` | returns an element for `next/og`; the app owns the `ImageResponse` |
 | `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer | import in this order; `theme.css` is optional |
 
-`/rehype` is separate because `source.config.ts` and friends run in bare Node,
-where React is not resolvable. Re-exporting it from the root entry drags the
-components in and breaks the build with `Cannot find package 'react'`.
+A barrel's transitive dependencies are paid by every name it exports, which is
+why the root entry is typography and nothing else. `mdx.tsx` imports
+`next/image`, and a bare subpath like that does not resolve from inside
+`node_modules` under a plain Node ESM loader — the loader a consumer's test
+runner uses. Re-exporting it made every test that so much as touched a
+Typography component fail to import. `blocks/` carries the same hazard one
+dependency further out: `tabs.tsx` and `interactive-accordion.tsx` pull
+`@base-ui/react`, so re-exporting them made a bare `import { TypographyH2 }`
+resolve Base UI.
+
+`/rehype` is separate for the mirror-image reason: `source.config.ts` and
+friends run in bare Node, where React is not resolvable at all.
+
+What the split does **not** buy is a plain-Node-importable root. Measured, not
+assumed — `node -e "import('@supertype/foundations')"` from a consumer still
+fails on `ERR_MODULE_NOT_FOUND` for `next/link`, because `TypographyLink`
+imports `next-view-transitions`, which imports `next/link`. The blocks entry
+fails identically through `card.tsx`. This is survivable because the runner
+that matters resolves it: both consumers' vitest suites import typography
+freely and pass.
 
 ## Consuming
 
-React >=19 is a peer dependency; the package brings its own Shiki and styling
-utilities and deliberately has no `next` dependency.
+Peer dependencies are React >=19, Next >=15, `next-view-transitions` >=0.3 and
+`@base-ui/react` >=1.4. The package brings its own Shiki and styling utilities.
+Every project on this package is a Next app, and the peers say so — see
+**Linking** below for why that is a decision rather than an accident.
 
 ```jsonc
 // package.json
-"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.15"
+"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.18"
 ```
 
 Pin a tag, never `#main`. yarn records the commit the tag pointed at, so a tag
@@ -61,20 +83,31 @@ an unreleased change, commit it on a branch and point a consumer at that ref.
 The `@source` line is required. Without it Tailwind never scans the package and
 every class it ships is purged.
 
-Anything that links takes the app's router by injection, since the package has
-no `next` dependency. Bind once, in one module, and import from there:
+### Linking
+
+Import `TypographyLink` and `Card` by name. There is no binding step:
 
 ```tsx
-// components/foundations.tsx
-import { Link } from "next-view-transitions";
-import { createCard, createProseLink } from "@supertype/foundations";
-
-export const Card = createCard(Link);
-export const TypographyLink = createProseLink(Link);
-export * from "@supertype/foundations";
+import { TypographyLink } from "@supertype/foundations";
+import { Card } from "@supertype/foundations/blocks";
 ```
 
-`createProseMdxComponents({ Link, Image })` is the same pattern for the MDX map.
+Both import the router directly from `next-view-transitions`, which is a peer
+dependency. This replaced a `createProseLink(Link)` / `createCard(Link)`
+injection pair, and the swap was not a simplification for its own sake: a
+factory bought router-agnosticism nobody used, at the price of a component that
+could not be imported by name — which is how one call site ended up on the
+unbound export and silently lost its link decoration. **Do not reinstate
+injection.** `paragraph.tsx` documents the call site it cost.
+
+Each component decides internal versus external from the `href` itself, never
+at the call site: an href with a scheme renders a plain anchor and opens away
+with `rel="noopener noreferrer"`; everything else routes through the router's
+`Link`.
+
+The MDX map is a plain object for the same reason — `proseMdxComponents` from
+`@supertype/foundations/mdx`, not a factory.
+
 Build tooling imports `/rehype` directly — `source.config.ts` runs in bare Node,
 so it must not reach a module that resolves React:
 
@@ -91,13 +124,21 @@ import { rehypeProseCode } from "@supertype/foundations/rehype";
 2. **No variant props on the MDX map.** Elements MDX renders automatically take
    no options — there is no call site to make the choice. Components you invoke
    by hand may carry variants.
-3. **No interactive primitives.** `<details>` over a headless library. The
-   consuming projects are split between Radix and Base UI; picking one would
-   force a migration on the others for a widget the platform already ships.
+3. **The platform first, a library only where it cannot reach.** `Disclosure`
+   is `<details>`/`<summary>`: no JS, correct before hydration, free to an MDX
+   author. `Accordion` and `Tabs` are Base UI, because animation and managed
+   selection are past what the platform ships. The two are not variants of each
+   other and no longer share a name — that is what a call site reaching for the
+   wrong one used to cost.
 4. **No brand colours.** Structural tokens only. Brand stays in the app.
 5. **Structure belongs in CSS, not the component map.** A host framework may
    substitute its own element and strip classes; a child combinator cannot be
    stripped. Both the Shiki theming and the inline-code rule work this way.
+6. **A preset cannot be un-set.** `TypographyMuted` is `TypographyP` with the
+   ink decided, and the axis it decides leaves its prop type — pass the pinned
+   object to `Preset<Base, typeof PINS>` and spread that same object last. A
+   preset that still accepts the prop it exists to settle is not a preset; it is
+   a default with a longer name.
 
 ## Type
 
@@ -129,6 +170,36 @@ editorial throughout and wears it on `<html>`. The roles stay plain `@theme` and
 never `@theme inline`, because `inline` bakes the family into the utility and the
 subtree swap stops resolving.
 
+## Rendering your own element
+
+Two mechanisms, and the split is about what you are handing the classes to.
+
+**A different tag** — `as`, on `TypographyEyebrow`, `TypographyCaption` and
+`TypographyLabel`. One shared union (`TypographyTag`), because the classes do
+not change with the tag:
+
+```tsx
+<TypographyEyebrow as="h2">Pricing</TypographyEyebrow>
+```
+
+A section named at eyebrow or label size is still the page's outline and still
+owes a screen reader a heading. The alternative a consumer reaches for is a
+hand-rolled `<h2 className="text-sm font-medium">`, which is the same thing
+spelled by hand and free to drift from every label beside it.
+
+**A different component** — `headingClass()` and `eyebrowClass()`, which return
+the ramp as a string for a caller that cannot render one of our tags at all:
+
+```tsx
+<motion.h2 layoutId={id} className={cn(headingClass(), "text-2xl")}>
+```
+
+That is the case `as` cannot serve, and it is the majority of these call sites:
+`motion.h2`, a dialog title primitive, a class constant a design system exports.
+Reach for `as` when you want a tag and the function when you want a component —
+and do not invent a third way, which is how five hand-rolled copies of the
+heading ramp appeared the first time.
+
 ## The essay shell
 
 `@supertype/foundations/essay` carries the long-form reading surface — any page a
@@ -139,10 +210,11 @@ export const { EssayHeader, EssayLayout, EssaySection, EssayPullQuote,
                EssayFigure, EssayMovements, EssayDocument } = createEssay();
 ```
 
-`createEssay({ Reveal, Glow })` is the same injection idiom as `createProseLink`
-and `createCard`, for a related reason: motion and gradient belong to an app's
-visual language, and hard-coding either would drag framer-motion into every
-consumer or force one house style on all of them. Both default to nothing, so an
+`createEssay({ Reveal, Glow })` is the one factory left, and it earns its keep
+where the link and card factories did not: motion and gradient belong to an
+app's visual language, so the injected values genuinely differ per consumer.
+Hard-coding either would drag framer-motion into every consumer or force one
+house style on all of them. Both default to nothing, so an
 app that supplies neither gets identical markup, statically rendered. viably
 passes its two; ssite passes none.
 

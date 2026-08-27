@@ -1,28 +1,43 @@
 import { type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ReactNode } from "react";
-/**
- * The body layer: one paragraph, one caption, one link.
- *
- * Two axes and no more. A paragraph picks a rung (interface copy or reading
- * copy) and an ink; a caption is always the secondary ink and picks a size.
- * Anything that was a separate component for one class is a preset below.
- */
+import { type WithAs } from "./as.js";
+/** The body layer: two axes and no more. A paragraph picks a rung and an ink; a
+ * caption is always secondary ink and picks a size. `lead` was a third rung a
+ * breakpoint away from `prose`, and its standfirst role is now the eyebrow's. */
 declare const pVariants: (props?: ({
-    variant?: "ui" | "prose" | "lead" | null | undefined;
+    variant?: "ui" | "prose" | null | undefined;
     tone?: "default" | "muted" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type ParagraphVariants = VariantProps<typeof pVariants>;
 export declare function TypographyP({ className, variant, tone, children, ...props }: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
+/** A preset's props: its base's, minus the axes it has decided. `keyof Pins` reads
+ * the exclusion off the pinned object the preset also spreads, so the two cannot
+ * drift — `<TypographyMuted tone="default">` used to compile and un-mute it. */
+type Preset<Base, Pins> = Omit<Base, keyof Pins>;
+type ParagraphProps = ComponentProps<"p"> & ParagraphVariants;
 /** The UI rung in the secondary ink. */
-export declare function TypographyMuted(props: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
+declare const MUTED: {
+    readonly tone: "muted";
+};
+export declare function TypographyMuted(props: Preset<ParagraphProps, typeof MUTED>): import("react").JSX.Element;
 /** Reading-size body copy. `TypographyMuted` is the same ink one rung down. */
-export declare function TypographyProse(props: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
-/** The deck's body-copy counterpart: the intro paragraph under a page title. */
-export declare function TypographyLead(props: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
-/** A list at the prose rung, so it reads as body copy and not an aside. */
-export declare function TypographyProseList({ className, children, ordered, ...props }: ComponentProps<"ul"> & {
+declare const PROSE: {
+    readonly variant: "prose";
+    readonly tone: "muted";
+};
+export declare function TypographyProse(props: Preset<ParagraphProps, typeof PROSE>): import("react").JSX.Element;
+export type ListProps = ComponentProps<"ul"> & Pick<ParagraphVariants, "variant"> & {
     ordered?: boolean;
-}): import("react").JSX.Element;
+};
+export declare function TypographyList({ className, children, ordered, variant, ...props }: ListProps): import("react").JSX.Element;
+/**
+ * The reading rung, pinned. The name predates the axis and keeps every call site
+ * that already had it; `Preset` stops one re-opening the rung it names.
+ */
+declare const PROSE_LIST: {
+    readonly variant: "prose";
+};
+export declare function TypographyProseList(props: Preset<ListProps, typeof PROSE_LIST>): import("react").JSX.Element;
 /**
  * Meta beside content: timestamps, counts, bylines, the key in a key-value row.
  *
@@ -42,48 +57,54 @@ export declare function TypographyProseList({ className, children, ordered, ...p
  * container that sets a size for you sets a weight too.
  */
 declare const captionVariants: (props?: ({
-    size?: "sm" | "inherit" | "xs" | "2xs" | null | undefined;
+    size?: "inherit" | "sm" | "xs" | "2xs" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type CaptionVariants = VariantProps<typeof captionVariants>;
 /**
  * `as` covers the one thing that genuinely differs between call sites: whether
- * the run is inline beside its subject or a block under it. The classes do not
- * change with it, so it is an element choice rather than a second component.
+ * the run is inline beside its subject or a block under it.
  */
-export declare function TypographyCaption({ className, size, as, children, ...props }: ComponentProps<"span"> & CaptionVariants & {
-    as?: "span" | "p" | "small";
-}): import("react").JSX.Element;
+export declare function TypographyCaption({ className, size, as, children, ...props }: WithAs<CaptionVariants>): import("react").JSX.Element;
 /**
  * Small print set as a block: a note under the thing it annotates, rather than
  * an aside inline with it. Same rung and same ink as the caption — small print
  * is small because it is muted, and dropping it a rung as well is what made
  * both apps hand-roll their own.
  */
-export declare function TypographySmall(props: ComponentProps<"span"> & CaptionVariants): import("react").JSX.Element;
+declare const BLOCK: {
+    readonly as: "p";
+};
+export declare function TypographySmall(props: Preset<WithAs<CaptionVariants>, typeof BLOCK>): import("react").JSX.Element;
 /**
  * The label role: a form label, a column header, the key a reader scans for.
  * 500 is the only weight bump a dense surface needs below a heading.
  *
+ * The rungs are the caption's, deliberately. A label and a caption are one pair
+ * — the key and the value, the name and the note — and a pair that cannot be set
+ * at one size is not a pair. Pinning the label to `sm` while the caption had an
+ * axis is what sent a key next to an `xs` value out to `font-medium text-xs` in
+ * a className, which then had the weight arguing with the rung it landed on.
+ *
  * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
- * names its sections at this size, and those names are the page's outline. The
- * alternative a consumer reaches for is a hand-rolled `<h2>` wearing these two
- * classes, which is how a label drifts from the ones beside it. The classes do
- * not change with the element.
+ * names its sections at this size, and those names are the page's outline.
  */
-export declare function TypographyLabel({ className, as, children, ...props }: ComponentProps<"span"> & {
-    as?: "span" | "p" | "div" | "label" | "h1" | "h2" | "h3" | "h4";
-}): import("react").JSX.Element;
+declare const labelVariants: (props?: ({
+    size?: "inherit" | "sm" | "xs" | "2xs" | null | undefined;
+} & import("class-variance-authority/types").ClassProp) | undefined) => string;
+export type LabelVariants = VariantProps<typeof labelVariants>;
+export declare function TypographyLabel({ className, size, as, children, ...props }: WithAs<LabelVariants>): import("react").JSX.Element;
 /**
  * A numeric readout. Size and colour ride in via className per use.
  *
- * Tabular is right in a column and wrong in a headline: even advances are what
- * stop a value jittering as it refreshes, and they cost a headline figure the
- * spacing its designer drew, since a lone 1 carries the side bearings of an 8.
- * Keep `tabular` anywhere a value updates in place.
+ * Tabular is right in a column and wrong in a headline, which is why it is an
+ * axis and not a constant. Keep `tabular` anywhere a value updates in place.
  */
-export declare function TypographyStat({ className, figures, children, ...props }: ComponentProps<"span"> & {
-    figures?: "tabular" | "proportional";
-}): import("react").JSX.Element;
+declare const statVariants: (props?: ({
+    size?: "inherit" | "display" | "card" | "panel" | "page" | null | undefined;
+    figures?: "tabular" | "proportional" | null | undefined;
+} & import("class-variance-authority/types").ClassProp) | undefined) => string;
+export type StatVariants = VariantProps<typeof statVariants>;
+export declare function TypographyStat({ className, size, figures, children, ...props }: ComponentProps<"span"> & StatVariants): import("react").JSX.Element;
 /**
  * A run of code inside a sentence: a command, a field name, a trigger.
  *

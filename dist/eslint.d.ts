@@ -29,5 +29,18 @@ export interface TypographyOptions {
     weights?: boolean;
     /** The rungs, named in the message, since they differ per consumer. */
     ramp?: string;
+    /**
+     * Flag a `ui` paragraph standing over a prose list. Off by default: it is the
+     * one rule here that reads shape rather than a value, and a consumer has to
+     * have migrated its dense-card lists to `TypographyList variant="ui"` before
+     * it can pass. Turn it on once that is done.
+     */
+    pairing?: boolean;
+    /**
+     * Flag a size class on a primitive that already owns a size axis. Off by
+     * default for the same reason as `pairing`: it fails until the consumer has
+     * migrated, and the migration is the point.
+     */
+    axis?: boolean;
 }
-export declare function typographyRules({ weights, ramp, }?: TypographyOptions): RestrictedSyntax[];
+export declare function typographyRules({ weights, ramp, pairing, axis, }?: TypographyOptions): RestrictedSyntax[];

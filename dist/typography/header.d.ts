@@ -1,4 +1,5 @@
 import { type VariantProps } from "class-variance-authority";
+import { type WithAs } from "./as.js";
 declare const h1Variants: (props?: ({
     variant?: "default" | "display" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
@@ -22,25 +23,6 @@ declare const h3Variants: (props?: ({
 export declare function TypographyH3({ className, variant, children, ...props }: React.ComponentProps<"h3"> & VariantProps<typeof h3Variants>): import("react").JSX.Element;
 /** The card / panel title: 14px in the product, 20 on an editorial surface. */
 export declare function TypographyH4({ className, children, ...props }: React.ComponentProps<"h4">): import("react").JSX.Element;
-declare const deckVariants: (props?: ({
-    size?: "sm" | "md" | "lg" | null | undefined;
-} & import("class-variance-authority/types").ClassProp) | undefined) => string;
-/**
- * The deck: the line of standfirst that sits with a page title and finishes the
- * thought the title started.
- *
- * It belongs to the heading layer rather than the paragraph's, even though it
- * renders a paragraph element — it takes the surface's heading family, weight
- * and slant, which is what every hand-rolled copy of it restated by hand, down
- * to a literal weight that `.editorial` was already overriding to 400.
- *
- * The box shrink-wraps its text by default, because a deck is usually painted:
- * a gradient clipped to the glyphs, a marker behind them. A full-width box
- * paints the line's empty remainder too. The trailing padding goes with it —
- * an italic's last glyph overhangs its advance width, and a box shrunk to that
- * advance clips the overhang out of whatever is doing the painting.
- */
-export declare function TypographyDeck({ className, size, children, ...props }: React.ComponentProps<"p"> & VariantProps<typeof deckVariants>): import("react").JSX.Element;
 declare const eyebrowVariants: (props?: ({
     tone?: "label" | "heading" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
@@ -52,16 +34,11 @@ declare const eyebrowVariants: (props?: ({
  */
 export declare const eyebrowClass: (tone?: VariantProps<typeof eyebrowVariants>["tone"]) => string;
 /**
- * An all-caps micro-label above a stat or a group of controls.
+ * An all-caps micro-label above a stat or a group of controls, and — since the
+ * deck was folded into it — the standfirst that sits with a page title.
  *
- * `as` exists for the one case the span cannot serve: an eyebrow that is also
- * the section's heading. A surface that labels its sections this way still owes
- * a screen reader the outline, and the alternative — a hand-rolled `<h2>`
- * wearing these classes — is how the label drifts from the ones beside it.
- * The classes do not change with the element, so it is an element choice
- * rather than a second component, the same call `TypographyCaption` makes.
+ * `as` covers the case the span cannot: an eyebrow that is also the section's
+ * heading. See `TypographyTag` in as.tsx for why the classes hold across tags.
  */
-export declare function TypographyEyebrow({ className, tone, as, children, ...props }: React.ComponentProps<"span"> & VariantProps<typeof eyebrowVariants> & {
-    as?: "span" | "p" | "div" | "h1" | "h2" | "h3" | "h4";
-}): import("react").JSX.Element;
+export declare function TypographyEyebrow({ className, tone, as, children, ...props }: WithAs<VariantProps<typeof eyebrowVariants>>): import("react").JSX.Element;
 export {};

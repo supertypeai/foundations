@@ -42,18 +42,9 @@
     /* 680, not 600: Ubuntu Sans steps 500→600 by 9.3% where Geist stepped 11.9%,
        and panel titles stopped separating from the labels inside them. */
     --heading-weight: 680;
-
-    /* Display headings take the surface's word on slant, the same way they take
-       its word on family and weight. A product surface says nothing and gets an
-       upright headline; `.editorial` answers `italic`, because the serif it
-       switches to carries a true cut there rather than a synthesised oblique.
-       A rung cannot decide this — `display` is one variant and the two surfaces
-       want two answers from it, which is how five call sites ended up restating
-       both the slant and the heading family by hand. */
-    --heading-display-style: normal;
   }
 
-  /* Headline serif over deck sans. Body stays sans — Average's 0.456 x-height
+  /* Headline serif over sans body copy. Body stays sans — Average's 0.456 x-height
      reads classical at 40px and cramped at reading size. */
   .editorial {
     --font-heading: var(--font-average, ui-serif), Georgia, serif;
@@ -70,8 +61,6 @@
     --text-h2--line-height: 1.2;
     --text-h1: 2.25rem; /* 36 */
     --text-h1--line-height: 1.1;
-
-    --heading-display-style: italic;
   }
 }
 
@@ -81,13 +70,4 @@
 .editorial .font-heading,
 .editorial.font-heading {
   font-weight: var(--heading-weight);
-}
-
-/* The slant a display heading inherits from its surface. In @layer base, unlike
-   the weight rule above, and for the opposite reason: utilities outrank base, so
-   a call site that means to stay upright can still override it and win. */
-@layer base {
-  .heading-display {
-    font-style: var(--heading-display-style, normal);
-  }
 }

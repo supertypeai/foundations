@@ -2,13 +2,10 @@ import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-run
 import { Link } from "next-view-transitions";
 import { cva } from "class-variance-authority";
 import { cn } from "../cn.js";
-/**
- * The body layer: one paragraph, one caption, one link.
- *
- * Two axes and no more. A paragraph picks a rung (interface copy or reading
- * copy) and an ink; a caption is always the secondary ink and picks a size.
- * Anything that was a separate component for one class is a preset below.
- */
+import { TextAs } from "./as.js";
+/** The body layer: two axes and no more. A paragraph picks a rung and an ink; a
+ * caption is always secondary ink and picks a size. `lead` was a third rung a
+ * breakpoint away from `prose`, and its standfirst role is now the eyebrow's. */
 const pVariants = cva("", {
     variants: {
         /**
@@ -19,15 +16,6 @@ const pVariants = cva("", {
         variant: {
             ui: "text-sm",
             prose: "text-pretty text-lg leading-relaxed",
-            /**
-             * The intro under a page title, and the only rung that steps with the
-             * viewport. `prose` is a rung and holds still; this one is a ROLE, and the
-             * role is "the paragraph a reader meets before the page has earned any
-             * scrolling" — reading size on a phone, one step up once there is a column
-             * to set it in. Every hand-rolled copy of it spelled exactly that pair of
-             * sizes and nothing else.
-             */
-            lead: "text-pretty text-base leading-relaxed md:text-lg",
         },
         tone: {
             default: "text-foreground",
@@ -40,23 +28,44 @@ export function TypographyP({ className, variant, tone, children, ...props }) {
     return (_jsx("p", { className: cn(pVariants({ variant, tone }), className), ...props, children: children }));
 }
 /** The UI rung in the secondary ink. */
+const MUTED = { tone: "muted" };
 export function TypographyMuted(props) {
-    return _jsx(TypographyP, { tone: "muted", ...props });
+    return _jsx(TypographyP, { ...props, ...MUTED });
 }
 /** Reading-size body copy. `TypographyMuted` is the same ink one rung down. */
+const PROSE = { variant: "prose", tone: "muted" };
 export function TypographyProse(props) {
-    return _jsx(TypographyP, { variant: "prose", tone: "muted", ...props });
+    return _jsx(TypographyP, { ...props, ...PROSE });
 }
-/** The deck's body-copy counterpart: the intro paragraph under a page title. */
-export function TypographyLead(props) {
-    return _jsx(TypographyP, { variant: "lead", tone: "muted", ...props });
-}
-/** The reading rung as a class, so the list below composes it instead of restating it. */
-const proseClass = pVariants({ variant: "prose", tone: "muted" });
-/** A list at the prose rung, so it reads as body copy and not an aside. */
-export function TypographyProseList({ className, children, ordered, ...props }) {
+/**
+ * A list, on the same rung axis as the paragraph beside it.
+ *
+ * The rung composes `pVariants` rather than restating one, which is the property
+ * the old `proseClass` held for the prose rung alone — a list cannot drift from
+ * the copy it sits under.
+ *
+ * `variant` is here because a list is not always reading copy. A tier card or a
+ * bento cell sets its paragraphs in `ui`, and a list pinned to `prose` inside one
+ * lands two rungs above the sentence introducing it, with no prop to say so. Call
+ * sites answered that by hand-rolling `<ul className="list-disc text-sm">`, which
+ * is the shape this replaces.
+ *
+ * Tone stays pinned to `muted`: a list is body copy, secondary for the same
+ * reason the paragraph presets are, and a weight-or-ink argument at the marker
+ * is not a thing a call site should be able to start.
+ */
+const listClass = (variant, ordered) => cn("my-4 flex flex-col gap-1 pl-6 [&>li]:pl-1.5", ordered ? "list-decimal" : "list-disc", pVariants({ variant, tone: "muted" }));
+export function TypographyList({ className, children, ordered, variant, ...props }) {
     const List = ordered ? "ol" : "ul";
-    return (_jsx(List, { className: cn("my-4 flex flex-col gap-1 pl-6 [&>li]:pl-1.5", ordered ? "list-decimal" : "list-disc", proseClass, className), ...props, children: children }));
+    return (_jsx(List, { className: cn(listClass(variant, ordered), className), ...props, children: children }));
+}
+/**
+ * The reading rung, pinned. The name predates the axis and keeps every call site
+ * that already had it; `Preset` stops one re-opening the rung it names.
+ */
+const PROSE_LIST = { variant: "prose" };
+export function TypographyProseList(props) {
+    return _jsx(TypographyList, { ...props, ...PROSE_LIST });
 }
 /**
  * Meta beside content: timestamps, counts, bylines, the key in a key-value row.
@@ -89,14 +98,10 @@ const captionVariants = cva("text-muted-foreground", {
 });
 /**
  * `as` covers the one thing that genuinely differs between call sites: whether
- * the run is inline beside its subject or a block under it. The classes do not
- * change with it, so it is an element choice rather than a second component.
+ * the run is inline beside its subject or a block under it.
  */
-export function TypographyCaption({ className, size, as = "span", children, ...props }) {
-    // The three elements share every attribute; only the ref's element type
-    // differs, and narrowing it per tag would need a generic for no call site.
-    const As = as;
-    return (_jsx(As, { className: cn(captionVariants({ size }), className), ...props, children: children }));
+export function TypographyCaption({ className, size, as, children, ...props }) {
+    return (_jsx(TextAs, { as: as, className: cn(captionVariants({ size }), className), ...props, children: children }));
 }
 /**
  * Small print set as a block: a note under the thing it annotates, rather than
@@ -104,33 +109,75 @@ export function TypographyCaption({ className, size, as = "span", children, ...p
  * is small because it is muted, and dropping it a rung as well is what made
  * both apps hand-roll their own.
  */
+const BLOCK = { as: "p" };
 export function TypographySmall(props) {
-    return _jsx(TypographyCaption, { as: "p", ...props });
+    return _jsx(TypographyCaption, { ...props, ...BLOCK });
 }
 /**
  * The label role: a form label, a column header, the key a reader scans for.
  * 500 is the only weight bump a dense surface needs below a heading.
  *
+ * The rungs are the caption's, deliberately. A label and a caption are one pair
+ * — the key and the value, the name and the note — and a pair that cannot be set
+ * at one size is not a pair. Pinning the label to `sm` while the caption had an
+ * axis is what sent a key next to an `xs` value out to `font-medium text-xs` in
+ * a className, which then had the weight arguing with the rung it landed on.
+ *
  * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
- * names its sections at this size, and those names are the page's outline. The
- * alternative a consumer reaches for is a hand-rolled `<h2>` wearing these two
- * classes, which is how a label drifts from the ones beside it. The classes do
- * not change with the element.
+ * names its sections at this size, and those names are the page's outline.
  */
-export function TypographyLabel({ className, as = "span", children, ...props }) {
-    const As = as;
-    return (_jsx(As, { className: cn("text-sm font-medium text-foreground", className), ...props, children: children }));
+const labelVariants = cva("font-medium text-foreground", {
+    variants: {
+        size: {
+            sm: "text-sm",
+            xs: "text-xs",
+            "2xs": "text-2xs",
+            /** Inside a heading or a chip, where the container has already set one. */
+            inherit: "",
+        },
+    },
+    defaultVariants: { size: "sm" },
+});
+export function TypographyLabel({ className, size, as, children, ...props }) {
+    return (_jsx(TextAs, { as: as, className: cn(labelVariants({ size }), className), ...props, children: children }));
 }
 /**
  * A numeric readout. Size and colour ride in via className per use.
  *
- * Tabular is right in a column and wrong in a headline: even advances are what
- * stop a value jittering as it refreshes, and they cost a headline figure the
- * spacing its designer drew, since a lone 1 carries the side bearings of an 8.
- * Keep `tabular` anywhere a value updates in place.
+ * Tabular is right in a column and wrong in a headline, which is why it is an
+ * axis and not a constant. Keep `tabular` anywhere a value updates in place.
  */
-export function TypographyStat({ className, figures = "tabular", children, ...props }) {
-    return (_jsx("span", { className: cn("font-semibold tracking-tight", figures === "proportional" ? "proportional-nums" : "tabular-nums", className), ...props, children: children }));
+const statVariants = cva("font-semibold tracking-tight", {
+    variants: {
+        /**
+         * Named rungs, because the ramp was reachable only by spelling a class. The
+         * three here are the ones call sites actually converged on: `display` is the
+         * figure a section is built around, `page` and `panel` ride the heading
+         * ladder so a stat and the heading beside it step together — and therefore
+         * retune together on an editorial surface, which a literal never would.
+         *
+         * `inherit` is the default and writes nothing: a stat inside a heading, a
+         * chip or a sentence takes the size that set it, and every existing call
+         * site keeps the size it passed.
+         */
+        size: {
+            inherit: "",
+            card: "text-h4",
+            panel: "text-h3",
+            page: "text-h1",
+            display: "text-6xl font-black",
+        },
+        figures: {
+            /** Even advances stop a value jittering as it refreshes. */
+            tabular: "tabular-nums",
+            /** A headline figure wants its drawn spacing: a lone 1 is not an 8. */
+            proportional: "proportional-nums",
+        },
+    },
+    defaultVariants: { size: "inherit", figures: "tabular" },
+});
+export function TypographyStat({ className, size, figures, children, ...props }) {
+    return (_jsx("span", { className: cn(statVariants({ size, figures }), className), ...props, children: children }));
 }
 /**
  * A run of code inside a sentence: a command, a field name, a trigger.

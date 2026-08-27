@@ -95,11 +95,26 @@ export interface TypographyOptions {
   weights?: boolean;
   /** The rungs, named in the message, since they differ per consumer. */
   ramp?: string;
+  /**
+   * Flag a `ui` paragraph standing over a prose list. Off by default: it is the
+   * one rule here that reads shape rather than a value, and a consumer has to
+   * have migrated its dense-card lists to `TypographyList variant="ui"` before
+   * it can pass. Turn it on once that is done.
+   */
+  pairing?: boolean;
+  /**
+   * Flag a size class on a primitive that already owns a size axis. Off by
+   * default for the same reason as `pairing`: it fails until the consumer has
+   * migrated, and the migration is the point.
+   */
+  axis?: boolean;
 }
 
 export function typographyRules({
   weights = false,
   ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up",
+  pairing = false,
+  axis = false,
 }: TypographyOptions = {}): RestrictedSyntax[] {
   return [
     // Alpha ink composites against whatever surface it lands on, so its
@@ -115,6 +130,50 @@ export function typographyRules({
       "/(^| )text-\\[\\d+px\\]/",
       `Arbitrary font sizes bypass the type ramp. Use a rung (${ramp}).`,
     ),
+    // A primitive that owns a size axis, reached past for a class that does the
+    // same thing. The class wins on the page, so nothing looks wrong — what is
+    // lost is everything else the axis carries: `TypographyCaption` pins leading
+    // per rung because a wrapped caption sets cramped at the ramp's own setting,
+    // and `TypographyStat` pairs its rungs with the heading ladder so a figure
+    // and the heading beside it retune together on an editorial surface. A
+    // literal gets the size and silently drops the rest.
+    //
+    // Matching the class node INSIDE the attribute, rather than the className
+    // string on its own, is what lets this name the component; it reaches into
+    // `cn()` for free, since the argument sits in the same subtree.
+    ...(axis
+      ? [
+          // Both node kinds, for the same reason `classString` above covers both: a
+          // class list assembled in a template literal is the shape a call site
+          // reaches for precisely when it is doing something conditional, which
+          // is where a stray rung is most likely to be hiding.
+          ...["Literal[value", "TemplateElement[value.raw"].map((node) => ({
+            selector:
+              `JSXOpeningElement[name.name=/^Typography(Small|Caption|Stat|Eyebrow)$/] JSXAttribute[name.name="className"] ${node}=/(^| )text-(3xs|2xs|xs|sm|base|lg|xl|[2-9]xl|h[1-4])( |$)/]`,
+            message:
+              "This primitive owns its size: pass the axis (TypographySmall/Caption size=, TypographyStat size=, TypographyEyebrow tone=) rather than a text-* class, which takes the size and drops the leading and ladder that come with the rung.",
+          })),
+        ]
+      : []),
+    // Two valid primitives forming an invalid pair, which the value rules above
+    // cannot see: `<TypographyP>` is the 14px interface rung, and the list under
+    // it reads at the prose rung, so one passage lands two rungs apart.
+    //
+    // `~` and never `+`: JSX puts a whitespace text node between sibling
+    // elements, and an adjacent-sibling selector will not cross it — measured,
+    // `+` matches nothing at all here. The cost of `~` is that it means "any
+    // later sibling", so it can reach past an intervening paragraph; on a corpus
+    // of 168 files it fired four times and was right four times.
+    ...(pairing
+      ? [
+          {
+            selector:
+              'JSXElement:has(>JSXOpeningElement[name.name="TypographyP"]) ~ JSXElement > JSXOpeningElement[name.name="TypographyProseList"]',
+            message:
+              "A ui paragraph over a prose list splits one passage across two rungs. Promote the paragraph with TypographyProse, or drop the list to the paragraph's rung with TypographyList variant=\"ui\".",
+          },
+        ]
+      : []),
     ...(weights
       ? rule(
           "/(^| )font-(bold|extrabold|black)( |$)/",
