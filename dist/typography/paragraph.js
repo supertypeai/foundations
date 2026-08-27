@@ -192,14 +192,12 @@ export function TypographyInlineCode({ className, children, ...props }) {
 /**
  * A statement about the surface, not the link: `foreground` inside a paragraph,
  * `primary` when the link is the point of the line, `secondary` for a note
- * beneath a hero where `primary` would compete with the CTA beside it, `muted`
- * for a link that sits under one.
+ * beneath a hero where `primary` would compete with the CTA beside it.
  */
 const LINK_TONES = {
     foreground: "font-medium text-foreground",
     primary: "font-medium text-primary",
     secondary: "text-secondary-ink",
-    muted: "text-muted-foreground",
 };
 const LINK_DECORATION = "underline decoration-dotted decoration-1 decoration-muted-foreground decoration-skip-ink-none underline-offset-2 hover:decoration-solid hover:decoration-current/70";
 const linkClass = (tone = "foreground", className) => cn(LINK_TONES[tone], LINK_DECORATION, className);

@@ -34,6 +34,4 @@ export const SEGMENT = {
     activeSurface: "bg-card ring-1 ring-border",
     /** `activeSurface`, for an engine that marks its own trigger with `data-active`. */
     dataActiveSurface: "data-active:bg-card data-active:text-foreground data-active:ring-1 data-active:ring-border",
-    /** `idle`'s hover, for the same. */
-    dataIdleHover: "not-data-active:hover:bg-muted/60",
 };

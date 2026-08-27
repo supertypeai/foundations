@@ -42,6 +42,4 @@ export const SEGMENT = {
   dataActiveSurface:
     "data-active:bg-card data-active:text-foreground data-active:ring-1 data-active:ring-border",
 
-  /** `idle`'s hover, for the same. */
-  dataIdleHover: "not-data-active:hover:bg-muted/60",
 } as const;

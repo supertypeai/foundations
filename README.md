@@ -1,11 +1,144 @@
 # @supertype/foundations
 
-Shared design foundations across the Supertype projects — typography, prose
-rendering, the essay layer, and structured data.
+The shared design layer behind the Supertype projects: typography primitives,
+content blocks, the long-form essay shell, the token/theme CSS, and the
+build-time tooling (SEO, OG cards, lint rules, contrast checks) that keeps them
+honest.
 
-Named for what it is rather than what it started as: the first cut was
+Named for what it is rather than what it started as — the first cut was
 typography only, and `prose` stopped describing it the moment it grew a reading
 rail and a JSON-LD builder.
+
+**Start here:** [Install](#install) → [Your first page](#your-first-page).
+
+**Reference:** [Typography](docs/typography.md) · [Blocks](docs/blocks.md) ·
+[The essay shell](docs/essay.md) · [Build-time tooling](docs/tooling.md)
+
+---
+
+## Install
+
+### 1. Add the package
+
+```jsonc
+// package.json — pin a tag, never `#main`
+"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.19"
+```
+
+`dist/` is committed, so a consumer clones a package that is already built:
+no `prepare` step, no install-time compile. Peers are React >=19, Next >=15,
+`next-view-transitions` >=0.3 and `@base-ui/react` >=1.4 — every project on this
+package is a Next app, and the peers say so deliberately.
+
+### 2. Import the CSS, in this order
+
+```css
+/* app/global.css */
+@import "tailwindcss";
+@import "@supertype/foundations/tokens.css";  /* structural tokens + dark variant */
+@import "@supertype/foundations/theme.css";   /* the house palette */
+@import "@supertype/foundations/type.css";    /* the type ramp + font roles */
+@import "@supertype/foundations/prose.css";   /* inline-code rule */
+@import "@supertype/foundations/shiki.css";   /* only if you render code fences */
+
+@source '../node_modules/@supertype/foundations/dist/**/*.js';
+```
+
+**The `@source` line is required.** Without it Tailwind never scans the package
+and every class it ships is purged — the components render with no styles at all.
+
+**`theme.css` is not as optional as it looks.** It is the only file that defines
+`--secondary-ink`, `--subtle-foreground`, the four earth tones the marker
+highlight paints with, and the `accordion-down` / `accordion-up` keyframes. Skip
+it and `<TypographyHighlight tone="sage">`, `<TypographyLink tone="secondary">`
+and the interactive `<Accordion>` all degrade silently. Import it unless you are
+deliberately supplying your own palette for every one of those names.
+
+### 3. Bind the fonts
+
+The package cannot load faces — `next/font` is app-level and mints hashed
+variable names at build time. Each consumer loads the three and binds them to
+the roles `type.css` names:
+
+```tsx
+// app/layout.tsx
+import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
+
+const sans = Ubuntu_Sans({ variable: "--font-ubuntu-sans", subsets: ["latin"] });
+const mono = Ubuntu_Sans_Mono({ variable: "--font-ubuntu-sans-mono", subsets: ["latin"] });
+const serif = Average({ variable: "--font-average", weight: "400", subsets: ["latin"] });
+
+<html className={`${sans.variable} ${mono.variable} ${serif.variable} font-sans`}>
+```
+
+**Bind with `.variable`, never `.className`.** A className sets `font-family` on
+the element and leaves the roles resolving to their generic tails, so the page
+renders one face while every `font-sans` and `font-heading` utility on it renders
+another. ssite shipped that way for months: Inter on `<html>`, system-ui on
+anything that asked for a role.
+
+---
+
+## Your first page
+
+```tsx
+import {
+  TypographyH1,
+  TypographyH2,
+  TypographyProse,
+  TypographyEyebrow,
+  TypographyLink,
+  TypographyCaption,
+} from "@supertype/foundations";
+import { Card, Cards, Callout } from "@supertype/foundations/blocks";
+
+export default function Page() {
+  return (
+    <main className="mx-auto max-w-3xl px-6 py-16">
+      <TypographyEyebrow>Guides</TypographyEyebrow>
+      <TypographyH1 variant="display" className="mt-2 text-balance">
+        Getting data out of Postgres
+      </TypographyH1>
+      <TypographyProse className="mt-4">
+        Three approaches, ordered by how much of your schema they need to know.
+      </TypographyProse>
+
+      <TypographyH2 divider className="mt-12">Approaches</TypographyH2>
+
+      <Cards>
+        <Card
+          href="/notes/logical-replication"
+          title="Logical replication"
+          description="Row-level changes, no schema coupling."
+        />
+        <Card
+          href="https://www.postgresql.org/docs/current/sql-copy.html"
+          title="COPY"
+          description="Fastest bulk path. Leaves the app."
+        />
+      </Cards>
+
+      <Callout tone="warn" title="Before you start" className="mt-8">
+        Replication slots hold WAL until they are consumed. An abandoned slot
+        fills the disk — see <TypographyLink href="/ops/slots" addArrow>slot hygiene</TypographyLink>.
+      </Callout>
+
+      <TypographyCaption as="p" className="mt-8">Last reviewed March 2026</TypographyCaption>
+    </main>
+  );
+}
+```
+
+Two rules that explain most of the API:
+
+- **Never spell a type style by hand.** `<p className="text-sm text-muted-foreground">`
+  is `<TypographyMuted>`. The primitives exist so that a size and an ink cannot
+  drift apart across two hundred call sites.
+- **Retune through CSS variables, not classes.** The package owns its final
+  classnames; you change `--prose-measure`, `--heading-weight`, or a colour
+  token, and everything moves together.
+
+---
 
 ## Entry points
 
@@ -13,108 +146,68 @@ Split by dependency profile, not by taste. A project that wants typography
 should not resolve the essay layer's client components, and build tooling must
 not resolve React at all.
 
-| import | contains | notes |
+| import | contains | docs |
 |---|---|---|
-| `@supertype/foundations` | typography, `cn` | blocks and the MDX map are deliberately **not** here — see below |
-| `@supertype/foundations/blocks` | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | `Tabs` and `Accordion` are client (Base UI) |
-| `@supertype/foundations/mdx` | `proseMdxComponents` — the MDX element map | pulls `next/image` |
-| `@supertype/foundations/essay` | `EssayColumns`, `ReadingRail`, post meta, TOC + reading time | reading components are client |
-| `@supertype/foundations/eslint` | `colourRules`, `typographyRules`, and friends | plain data, ESM + CJS builds |
-| `@supertype/foundations/seo` | `createSeo(...)` — metadata + JSON-LD | pure functions, no framework |
-| `@supertype/foundations/rehype` | `rehypeProseCode` (Shiki) | **build-time only** — never import from a component |
-| `@supertype/foundations/contrast` | `resolveTokens`, `checkLegibility`, `formatFailures` | build-time only — strings and numbers, no React, no DOM |
-| `@supertype/foundations/og` | `ogCard`, `OG_SIZE` | returns an element for `next/og`; the app owns the `ImageResponse` |
-| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer | import in this order; `theme.css` is optional |
+| `@supertype/foundations` | all typography primitives, `cn` | [Typography](docs/typography.md) |
+| `@supertype/foundations/blocks` | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md) |
+| `@supertype/foundations/mdx` | `proseMdxComponents` — the MDX element map | [In MDX](docs/blocks.md#in-mdx) |
+| `@supertype/foundations/essay` | the long-form shell, TOC, reading rail, post meta | [Essay](docs/essay.md) |
+| `@supertype/foundations/seo` | `createSeo(...)` — metadata + JSON-LD | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype/foundations/og` | `ogCard`, `OG_SIZE` — an element for `next/og` | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype/foundations/eslint` | the design rules as ESLint selectors | [Tooling](docs/tooling.md#lint-rules) |
+| `@supertype/foundations/rehype` | `rehypeProseCode` — **build-time only** | [In MDX](docs/blocks.md#in-mdx) |
+| `@supertype/foundations/contrast` | token resolution + legibility checks, build-time only | [Tooling](docs/tooling.md#contrast-checks) |
+| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer | [Tokens and theming](#tokens-and-theming) |
 
-A barrel's transitive dependencies are paid by every name it exports, which is
-why the root entry is typography and nothing else. `mdx.tsx` imports
-`next/image`, and a bare subpath like that does not resolve from inside
-`node_modules` under a plain Node ESM loader — the loader a consumer's test
-runner uses. Re-exporting it made every test that so much as touched a
-Typography component fail to import. `blocks/` carries the same hazard one
-dependency further out: `tabs.tsx` and `interactive-accordion.tsx` pull
-`@base-ui/react`, so re-exporting them made a bare `import { TypographyH2 }`
-resolve Base UI.
+Blocks and the MDX map are deliberately absent from the root barrel — see
+[Why the entry points are split](#why-the-entry-points-are-split) under Design
+rules.
 
-`/rehype` is separate for the mirror-image reason: `source.config.ts` and
-friends run in bare Node, where React is not resolvable at all.
+---
 
-What the split does **not** buy is a plain-Node-importable root. Measured, not
-assumed — `node -e "import('@supertype/foundations')"` from a consumer still
-fails on `ERR_MODULE_NOT_FOUND` for `next/link`, because `TypographyLink`
-imports `next-view-transitions`, which imports `next/link`. The blocks entry
-fails identically through `card.tsx`. This is survivable because the runner
-that matters resolves it: both consumers' vitest suites import typography
-freely and pass.
+## Tokens and theming
 
-## Consuming
+`tokens.css` names the structural roles — `--background`, `--foreground`,
+`--card`, `--muted`, `--primary`, `--border`, `--ring`, plus the status set
+(`--success`, `--warn`, `--info`, `--destructive`, with `danger` aliasing the
+last). Named for meaning, not hue: a `success` a project renders blue still reads
+correctly. It also binds the `dark:` variant to the `.dark` class — not optional,
+and its absence is silent, since Tailwind v4 would otherwise follow the OS and
+ignore your toggle.
 
-Peer dependencies are React >=19, Next >=15, `next-view-transitions` >=0.3 and
-`@base-ui/react` >=1.4. The package brings its own Shiki and styling utilities.
-Every project on this package is a Next app, and the peers say so — see
-**Linking** below for why that is a decision rather than an accident.
+`theme.css` paints those roles with the house latte/espresso palette and adds the
+editorial inks (`--secondary-ink`, `--subtle-foreground`, the ochre / terracotta
+/ sage / fig pairs) and the elevation shadows.
 
-```jsonc
-// package.json
-"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.18"
-```
-
-Pin a tag, never `#main`. yarn records the commit the tag pointed at, so a tag
-that moves later leaves two consumers on two different builds under one version
-— which is how ssite and viably once ended up three versions apart. `dist/` is
-committed, so a consumer clones a package that is already built: there is no
-`prepare` step and no install-time compile.
-
-Do not `yarn link` for local work either. Turbopack resolves the symlink to a
-path outside the project root and the dev server dies on the CSS import. To test
-an unreleased change, commit it on a branch and point a consumer at that ref.
+**No brand colours in the package.** Structural tokens only; brand stays in the
+app. To repaint, override the raw variables after the imports — never patch the
+utilities:
 
 ```css
-/* app/global.css — order matters */
-@import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/theme.css";   /* optional: the house palette */
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
-@import "@supertype/foundations/shiki.css";  /* only if you render code blocks */
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+:root  { --primary: hsl(24 60% 42%); }
+.dark  { --primary: hsl(24 70% 62%); }
 ```
 
-The `@source` line is required. Without it Tailwind never scans the package and
-every class it ships is purged.
+### `.editorial`
 
-### Linking
-
-Import `TypographyLink` and `Card` by name. There is no binding step:
+`type.css` names three font roles — `--font-sans`, `--font-mono`, `--font-heading`
+— and the weight rung that travels with the heading face. `.editorial` hands the
+heading role to the serif and drops the weight to 400, because Average has
+exactly one:
 
 ```tsx
-import { TypographyLink } from "@supertype/foundations";
-import { Card } from "@supertype/foundations/blocks";
+<div className="editorial">…</div>   {/* or on <html> for an editorial site */}
 ```
 
-Both import the router directly from `next-view-transitions`, which is a peer
-dependency. This replaced a `createProseLink(Link)` / `createCard(Link)`
-injection pair, and the swap was not a simplification for its own sake: a
-factory bought router-agnosticism nobody used, at the price of a component that
-could not be imported by name — which is how one call site ended up on the
-unbound export and silently lost its link decoration. **Do not reinstate
-injection.** `paragraph.tsx` documents the call site it cost.
+It also retunes the whole heading ladder, which is the point: a heading's size is
+a *ratio* to the body under it, and the two surfaces set body at different rungs
+(13px in the product, 18px on `.editorial`). viably scopes it to marketing and
+docs and keeps its product on the sans; ssite is editorial throughout.
 
-Each component decides internal versus external from the `href` itself, never
-at the call site: an href with a scheme renders a plain anchor and opens away
-with `rel="noopener noreferrer"`; everything else routes through the router's
-`Link`.
+The roles stay plain `@theme` and never `@theme inline` — `inline` bakes the
+family into the utility and the subtree swap stops resolving.
 
-The MDX map is a plain object for the same reason — `proseMdxComponents` from
-`@supertype/foundations/mdx`, not a factory.
-
-Build tooling imports `/rehype` directly — `source.config.ts` runs in bare Node,
-so it must not reach a module that resolves React:
-
-```ts
-// source.config.ts
-import { rehypeProseCode } from "@supertype/foundations/rehype";
-```
+---
 
 ## Design rules
 
@@ -124,195 +217,107 @@ import { rehypeProseCode } from "@supertype/foundations/rehype";
 2. **No variant props on the MDX map.** Elements MDX renders automatically take
    no options — there is no call site to make the choice. Components you invoke
    by hand may carry variants.
-3. **The platform first, a library only where it cannot reach.** `Disclosure`
-   is `<details>`/`<summary>`: no JS, correct before hydration, free to an MDX
+3. **The platform first, a library only where it cannot reach.** `Disclosure` is
+   `<details>`/`<summary>`: no JS, correct before hydration, free to an MDX
    author. `Accordion` and `Tabs` are Base UI, because animation and managed
-   selection are past what the platform ships. The two are not variants of each
-   other and no longer share a name — that is what a call site reaching for the
-   wrong one used to cost.
+   selection are past what the platform ships.
 4. **No brand colours.** Structural tokens only. Brand stays in the app.
 5. **Structure belongs in CSS, not the component map.** A host framework may
    substitute its own element and strip classes; a child combinator cannot be
    stripped. Both the Shiki theming and the inline-code rule work this way.
-6. **A preset cannot be un-set.** `TypographyMuted` is `TypographyP` with the
-   ink decided, and the axis it decides leaves its prop type — pass the pinned
-   object to `Preset<Base, typeof PINS>` and spread that same object last. A
-   preset that still accepts the prop it exists to settle is not a preset; it is
-   a default with a longer name.
+6. **A preset cannot be un-set.** `TypographyMuted` is `TypographyP` with the ink
+   decided, and the axis it decides leaves its prop type — pass the pinned object
+   to `Preset<Base, typeof PINS>` and spread that same object last. A preset that
+   still accepts the prop it exists to settle is not a preset; it is a default
+   with a longer name.
+7. **A variant earns its place at a call site.** Anything with no call sites in
+   either consumer is dead weight and gets removed, not kept "in case" — the
+   `size` axis on `Card` and the vertical orientation on `Tabs` both went that
+   way.
 
-## Type
+### No injection
 
-`type.css` names three roles — `--font-sans`, `--font-mono`, `--font-heading` —
-and the weight rung that travels with the heading face. Both apps resolve the
-same stack from them: Ubuntu Sans, Ubuntu Sans Mono, and Average for editorial
-display headings.
-
-The package cannot load the faces. `next/font` is app-level and mints hashed
-variable names at build time, so each consumer loads the three and binds them to
-the slots:
+Import `TypographyLink` and `Card` by name. There is no binding step:
 
 ```tsx
-const ubuntuSans = Ubuntu_Sans({ variable: "--font-ubuntu-sans", subsets: ["latin"] });
-// …then, on <html>:
-className={`${ubuntuSans.variable} ${ubuntuSansMono.variable} ${average.variable} font-sans`}
+import { TypographyLink } from "@supertype/foundations";
+import { Card } from "@supertype/foundations/blocks";
 ```
 
-**Bind with `.variable`, never `.className`.** A className sets `font-family` on
-the element and leaves the roles resolving to their generic tails, so the page
-renders one face while every `font-sans` and `font-heading` utility on it renders
-another. ssite shipped that way for months: Inter on `<html>`, system-ui on
-anything that asked for a role.
+Both import the router directly from `next-view-transitions`, a peer dependency.
+This replaced a `createProseLink(Link)` / `createCard(Link)` injection pair, and
+the swap was not a simplification for its own sake: a factory bought
+router-agnosticism nobody used, at the price of a component that could not be
+imported by name — which is how one call site ended up on the unbound export and
+silently lost its link decoration. **Do not reinstate injection.**
+`paragraph.tsx` documents the call site it cost.
 
-`.editorial` hands the heading role to the serif and drops the weight to 400,
-because Average has exactly one. Put it wherever the display face belongs — viably
-scopes it to marketing and docs and keeps its product on the sans; ssite is
-editorial throughout and wears it on `<html>`. The roles stay plain `@theme` and
-never `@theme inline`, because `inline` bakes the family into the utility and the
-subtree swap stops resolving.
+### Why the entry points are split
 
-## Rendering your own element
+A barrel's transitive dependencies are paid by every name it exports, which is
+why the root entry is typography and nothing else. `mdx.tsx` imports
+`next/image`, and a bare subpath like that does not resolve from inside
+`node_modules` under a plain Node ESM loader — the loader a consumer's test
+runner uses. Re-exporting it made every test that so much as touched a Typography
+component fail to import. `blocks/` carries the same hazard one dependency
+further out: `tabs.tsx` and `interactive-accordion.tsx` pull `@base-ui/react`, so
+re-exporting them made a bare `import { TypographyH2 }` resolve Base UI.
 
-Two mechanisms, and the split is about what you are handing the classes to.
+`/rehype` is separate for the mirror-image reason: `source.config.ts` and friends
+run in bare Node, where React is not resolvable at all.
 
-**A different tag** — `as`, on `TypographyEyebrow`, `TypographyCaption` and
-`TypographyLabel`. One shared union (`TypographyTag`), because the classes do
-not change with the tag:
+What the split does **not** buy is a plain-Node-importable root. Measured, not
+assumed — `node -e "import('@supertype/foundations')"` from a consumer still
+fails on `ERR_MODULE_NOT_FOUND` for `next/link`, because `TypographyLink` imports
+`next-view-transitions`, which imports `next/link`. The blocks entry fails
+identically through `card.tsx`. This is survivable because the runner that
+matters resolves it: both consumers' vitest suites import typography freely and
+pass.
 
-```tsx
-<TypographyEyebrow as="h2">Pricing</TypographyEyebrow>
-```
+---
 
-A section named at eyebrow or label size is still the page's outline and still
-owes a screen reader a heading. The alternative a consumer reaches for is a
-hand-rolled `<h2 className="text-sm font-medium">`, which is the same thing
-spelled by hand and free to drift from every label beside it.
+## Working on the package
 
-**A different component** — `headingClass()` and `eyebrowClass()`, which return
-the ramp as a string for a caller that cannot render one of our tags at all:
+### Local iteration
 
-```tsx
-<motion.h2 layoutId={id} className={cn(headingClass(), "text-2xl")}>
-```
-
-That is the case `as` cannot serve, and it is the majority of these call sites:
-`motion.h2`, a dialog title primitive, a class constant a design system exports.
-Reach for `as` when you want a tag and the function when you want a component —
-and do not invent a third way, which is how five hand-rolled copies of the
-heading ramp appeared the first time.
-
-## The essay shell
-
-`@supertype/foundations/essay` carries the long-form reading surface — any page a
-reader arrives at to read from the top rather than to scan for one thing:
-
-```tsx
-export const { EssayHeader, EssayLayout, EssaySection, EssayPullQuote,
-               EssayFigure, EssayMovements, EssayDocument } = createEssay();
-```
-
-`createEssay({ Reveal, Glow })` is the one factory left, and it earns its keep
-where the link and card factories did not: motion and gradient belong to an
-app's visual language, so the injected values genuinely differ per consumer.
-Hard-coding either would drag framer-motion into every consumer or force one
-house style on all of them. Both default to nothing, so an
-app that supplies neither gets identical markup, statically rendered. viably
-passes its two; ssite passes none.
-
-`EssayHeader` sets its own measure and is deliberately full-bleed, so the opening
-can carry a backdrop edge to edge while the prose stays in column. A page puts it
-*above* its `EssayColumns`, not inside.
-
-`EssayDocument` is for a page whose sections are just heading and prose — the
-margin index is derived from the sections rather than hand-kept beside them,
-which is how a retitled section used to leave the rail scrolling to nothing. An
-MDX article does not use it: its sections come from the markdown headings, so it
-composes `EssayHeader` over `EssayColumns` with a `ReadingRail` instead.
-
-## Lint rules
-
-`@supertype/foundations/eslint` ships the design rules as ESLint selectors, so
-both apps enforce one set:
-
-```js
-import { colourRules, typographyRules } from "@supertype/foundations/eslint";
-
-rules: {
-  "no-restricted-syntax": [
-    "error",
-    ...colourRules({ accents: "the brand tints" }),
-    ...typographyRules({ weights: true, ramp: "text-xs 12 / text-sm 13 / ..." }),
-  ],
-}
-```
-
-It exports plain data — no plugin, no ESLint dependency — and ships an ESM build
-plus a CommonJS one under `dist/cjs`, so a flat config's `import` and an
-`.eslintrc.cjs`'s `require` both resolve without depending on Node's
-require(ESM). Only the parts that genuinely differ per app
-are arguments: the accent names in the message, the rungs, and `weights`, which
-holds a file to a three-weight ramp and is off by default because 700 is a real
-headline register on an editorial surface.
-
-They live here because the split is what failed. Each app held a private copy;
-the colour half stayed in step by hand and the typography half never crossed over
-at all, so ssite grew 78 arbitrary font sizes against rules its sibling had been
-blocked by for months.
-
-`themeOverrideRules()` and `surfaceAsInkRules()` sit alongside them and take no
-arguments — what they forbid is not negotiable per app.
-
-Three things to know before adding a rule:
-
-- **Write regex escapes as `\x2f`, never a literal `/`.** The esquery bundled
-  with ESLint 8 ends a selector's pattern at the first slash it sees, however it
-  is escaped or enclosed, and hands `RegExp` the truncated half.
-- **One `no-restricted-syntax` entry per file scope.** Flat config replaces a
-  rule's options rather than merging them, so two blocks over overlapping files
-  silently discard the first one's rules.
-
-- **Restrict the solid form, not the alpha.** `dark:bg-card` is a claim that the
-  token is wrong; `dark:bg-destructive/20` against a `/10` in light is the same
-  token at the density a darker ground needs. Only the first is a defect.
-
-What these rules cannot see is the shape of a class list. `text-xs
-text-foreground leading-tight` is three legal utilities, and no selector knows a
-primitive already renders it. Only a component people reach for first fixes that.
-
-## Local iteration
-
-Consumers pin a git tag, which is right for anything that ships and wrong for
-the ten-minute loop of nudging a value and looking at it. `yarn sync` closes
-that loop without a tag:
+Consumers pin a git tag, which is right for anything that ships and wrong for the
+ten-minute loop of nudging a value and looking at it. `yarn sync` closes that
+loop without a tag:
 
 ```sh
 yarn sync        # build, then copy into each consumer's node_modules
 yarn dev:sync    # same, on every save under src/
 ```
 
-It writes to `node_modules/@supertype/foundations` in `~/Work/ssite` and
-`~/Work/viably/on_next` (pass paths as arguments for anywhere else). Nothing
-else is touched: their `package.json` still names the tag, their lockfile still
-resolves it, and CI and production install exactly what they did before. The
-one place a sync exists is a directory yarn will overwrite on its next install —
-so a synced build cannot leave the machine it was made on, and re-running
-`yarn install` in a consumer is how you undo it.
+It writes to `node_modules/@supertype/foundations` in `ssite` and
+`viably/on_next`, looked up under `~/Work` then `~/fun` (pass paths as arguments
+for anywhere else). Nothing else is touched: their `package.json` still names the
+tag, their lockfile still resolves it, and CI and production install exactly what
+they did before. The one place a sync exists is a directory yarn will overwrite
+on its next install — so a synced build cannot leave the machine it was made on,
+and re-running `yarn install` in a consumer is how you undo it.
 
-Restart the consumer's dev server after a sync. Next caches `node_modules`
-under both bundlers and will keep serving the previous build otherwise.
+Restart the consumer's dev server after a sync. Next caches `node_modules` under
+both bundlers and will keep serving the previous build otherwise.
+
+Do not `yarn link`. Turbopack resolves the symlink to a path outside the project
+root and the dev server dies on the CSS import; it also puts a second React on
+the resolution path for a package with React as a peer, which surfaces as an
+invalid-hook-call at runtime.
 
 Sync is for iterating. Once a change is settled, release it — a consumer whose
 behaviour depends on an unreleased sync is broken for everyone else.
 
-## Releasing
+### Releasing
 
 ```sh
 yarn release   # bump -> build -> commit -> tag -> push
 ```
 
-It refuses to run on a dirty tree, so commit your work first. The bump is part
-of releasing rather than a step to remember: consumers pin a tag and yarn
-records the commit behind it, so shipping new code under an existing tag leaves
-them on whatever they resolved the first time.
+It refuses to run on a dirty tree, so commit your work first. The bump is part of
+releasing rather than a step to remember: consumers pin a tag and yarn records
+the commit behind it, so shipping new code under an existing tag leaves them on
+whatever they resolved the first time.
 
 `dist/` is tracked on purpose. The alternative — a `prepare` script that builds
 on the consumer's side — makes every install spawn a nested `yarn install` that

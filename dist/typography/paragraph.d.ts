@@ -116,14 +116,12 @@ export declare function TypographyInlineCode({ className, children, ...props }: 
 /**
  * A statement about the surface, not the link: `foreground` inside a paragraph,
  * `primary` when the link is the point of the line, `secondary` for a note
- * beneath a hero where `primary` would compete with the CTA beside it, `muted`
- * for a link that sits under one.
+ * beneath a hero where `primary` would compete with the CTA beside it.
  */
 declare const LINK_TONES: {
     readonly foreground: "font-medium text-foreground";
     readonly primary: "font-medium text-primary";
     readonly secondary: "text-secondary-ink";
-    readonly muted: "text-muted-foreground";
 };
 export type LinkTone = keyof typeof LINK_TONES;
 type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & {

@@ -33,7 +33,7 @@ function Tabs({
 // reader who meets the picker on a docs page and again on the usage dashboard should not
 // have to learn it twice. Layout stays local, since only this one has orientation to serve.
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center text-muted-foreground group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list inline-flex h-8 w-fit items-center justify-center text-muted-foreground data-[variant=line]:rounded-none",
   {
     variants: {
       variant: {
@@ -72,8 +72,8 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "rounded-md text-muted-foreground hover:text-foreground",
         // A trigger fills its share of the track and may carry an icon, neither of which a
         // standalone picker button has to do.
-        "h-[calc(100%-1px)] flex-1 justify-center px-1.5 py-0.5 text-sm whitespace-nowrap group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        // SEGMENT.dataIdleHover, scoped to the boxed variant. Spelled out rather than
+        "h-[calc(100%-1px)] flex-1 justify-center px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        // The idle hover, scoped to the boxed variant. Spelled out rather than
         // interpolated: an interpolated class is invisible to Tailwind's scanner and would
         // compile to nothing at all.
         "group-data-[variant=default]/tabs-list:not-data-active:hover:bg-muted/60",
@@ -81,7 +81,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent group-data-[variant=line]/tabs-list:data-active:ring-0",
         // That underline carries the accent rather than plain ink, so it reads as the
         // brand's marker and not as a bold rule.
-        "after:absolute after:bg-primary after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "after:absolute after:inset-x-0 after:bottom-[-5px] after:h-0.5 after:bg-primary after:opacity-0 after:transition-opacity group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
         className
       )}
       {...props}
@@ -143,4 +143,4 @@ export function Tab({ children }: { value?: string; children: ReactNode }) {
   return <>{children}</>
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }
+export { Tabs, TabsList, TabsTrigger, TabsContent }

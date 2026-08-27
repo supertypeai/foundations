@@ -4,10 +4,7 @@ export {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardAction,
   CardContent,
-  CardFooter,
-  type CardSize,
 } from "./card.js";
 export { Disclosure, DisclosureGroup } from "./accordion.js";
 export {
@@ -22,7 +19,6 @@ export {
   TabsList,
   TabsTrigger,
   TabsContent,
-  tabsListVariants,
   TabGroup,
   Tab,
 } from "./tabs.js";

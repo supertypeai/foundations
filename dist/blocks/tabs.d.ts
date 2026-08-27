@@ -29,4 +29,4 @@ export declare function Tab({ children }: {
     value?: string;
     children: ReactNode;
 }): import("react").JSX.Element;
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants };
+export { Tabs, TabsList, TabsTrigger, TabsContent };

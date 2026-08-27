@@ -30,4 +30,4 @@ export * from "./typography/index.js";
 //
 // The Shiki plugin has build-time consumers (source.config.ts, next.config) that
 // run in bare Node where React is not resolvable. Import it from
-// "@supertype/prose/rehype".
+// "@supertype/foundations/rehype".

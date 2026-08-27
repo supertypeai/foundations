@@ -316,14 +316,12 @@ export function TypographyInlineCode({
 /**
  * A statement about the surface, not the link: `foreground` inside a paragraph,
  * `primary` when the link is the point of the line, `secondary` for a note
- * beneath a hero where `primary` would compete with the CTA beside it, `muted`
- * for a link that sits under one.
+ * beneath a hero where `primary` would compete with the CTA beside it.
  */
 const LINK_TONES = {
   foreground: "font-medium text-foreground",
   primary: "font-medium text-primary",
   secondary: "text-secondary-ink",
-  muted: "text-muted-foreground",
 } as const;
 
 const LINK_DECORATION =
