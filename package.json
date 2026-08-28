@@ -9,9 +9,14 @@
     "*.css"
   ],
   "files": [
+    "bin",
     "dist",
+    "llms.txt",
     "src/*.css"
   ],
+  "bin": {
+    "foundations": "./bin/foundations.mjs"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -57,11 +62,17 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/cjs-marker.mjs",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/cjs-marker.mjs && node scripts/check-llms.mjs",
     "dev": "tsc -p tsconfig.json --watch",
+    "test": "yarn build && vitest run",
+    "test:watch": "vitest",
+    "check:llms": "node scripts/check-llms.mjs",
     "release": "node scripts/release.mjs",
     "sync": "node scripts/sync.mjs",
-    "dev:sync": "node scripts/sync.mjs --watch"
+    "dev:sync": "node scripts/sync.mjs --watch",
+    "example": "node scripts/sync.mjs examples/site && yarn --cwd examples/site dev",
+    "example:install": "yarn --cwd examples/site install",
+    "example:build": "node scripts/sync.mjs examples/site && yarn --cwd examples/site build"
   },
   "dependencies": {
     "@shikijs/rehype": "^2.3.2",
@@ -71,17 +82,19 @@
     "tailwind-merge": "^3.0.0"
   },
   "peerDependencies": {
-    "react": ">=19",
     "@base-ui/react": ">=1.4",
     "next": ">=15",
-    "next-view-transitions": ">=0.3"
+    "next-view-transitions": ">=0.3",
+    "react": ">=19"
   },
   "devDependencies": {
-    "@types/react": "^19.0.0",
-    "typescript": "^5.7.0",
     "@base-ui/react": "^1.4.1",
+    "@types/react": "^19.0.0",
     "next": "^15.5.7",
-    "next-view-transitions": "^0.3.5"
+    "next-view-transitions": "^0.3.5",
+    "react": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "4.1.11"
   },
   "author": {
     "name": "Samuel Chan",

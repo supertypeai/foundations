@@ -1,0 +1,10 @@
+/* The install block from the README, unedited. If this file drifts from what
+   the README documents, the README is wrong — this app is what proves it. */
+@import "tailwindcss";
+@import "@supertype/foundations/tokens.css";
+@import "@supertype/foundations/theme.css";
+@import "@supertype/foundations/type.css";
+@import "@supertype/foundations/prose.css";
+@import "@supertype/foundations/shiki.css";
+
+@source '../node_modules/@supertype/foundations/dist/**/*.js';

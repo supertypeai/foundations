@@ -99,3 +99,32 @@ export function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2x
             : []),
     ];
 }
+/**
+ * Every rule in one flat-config entry, ready to spread into eslint.config.js:
+ *
+ *   import { designConfig } from "@supertype/foundations/eslint";
+ *   export default [ ...designConfig({ accents: "the brand tints" }) ];
+ *
+ * One entry is not a detail. Flat config replaces a rule's options rather than
+ * merging them, so two blocks covering overlapping files leave only the last
+ * one's rules in effect. Combining them here is what stops a consumer losing
+ * half the set by accident. If you need a second scope, call this again with a
+ * different `files` and no overlap.
+ */
+export function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], accents, weights, ramp, pairing, axis, } = {}) {
+    return [
+        {
+            name: "@supertype/foundations/design",
+            files,
+            rules: {
+                "no-restricted-syntax": [
+                    "error",
+                    ...colourRules({ accents }),
+                    ...typographyRules({ weights, ramp, pairing, axis }),
+                    ...themeOverrideRules(),
+                    ...surfaceAsInkRules(),
+                ],
+            },
+        },
+    ];
+}

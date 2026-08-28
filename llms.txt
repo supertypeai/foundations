@@ -1,0 +1,125 @@
+# @supertype/foundations
+
+The shared design layer for Supertype's Next apps: typography primitives,
+content blocks, a long-form essay shell, token and theme CSS, and build-time
+tooling for SEO, OG cards, lint rules and contrast checks.
+
+This file is for coding agents working in an app that consumes the package. It
+covers what to import and the mistakes that do not produce an error. Full
+reference: https://github.com/supertypeai/foundations
+
+## Rules
+
+1. **Never write type styles by hand.** If you are about to write `text-sm`,
+   `text-xs`, `font-medium`, `leading-tight`, `text-muted-foreground` or similar
+   on a text element, there is a primitive for it. Use that instead.
+2. **Retune with CSS variables, not classes.** The package owns its classnames.
+   Change `--prose-measure`, `--prose-leading`, `--heading-weight` or a colour
+   token. Do not override the package's utilities.
+3. **Import from the right entry point.** `blocks`, `essay`, `mdx`, `seo`, `og`,
+   `eslint`, `rehype` and `contrast` are subpaths, not part of the root barrel.
+4. **Use colour tokens, never literal colours.** `bg-card`, `text-foreground`,
+   `border-border`. No hex values, no `bg-zinc-800`, no `dark:` overrides that
+   swap one token for another.
+
+## Which component
+
+| you want | use | from |
+|---|---|---|
+| a page title | `TypographyH1` (add `variant="display"` on marketing pages) | root |
+| a section heading | `TypographyH2` (add `divider` for a rule under it) | root |
+| a subheading | `TypographyH3`, `TypographyH4` | root |
+| a kicker above a heading | `TypographyEyebrow` | root |
+| interface copy, 13px | `TypographyP` | root |
+| the same, secondary ink | `TypographyMuted` | root |
+| reading copy, 18px | `TypographyProse` | root |
+| a bulleted or numbered list | `TypographyList`, `TypographyProseList` | root |
+| a timestamp, count or value | `TypographyCaption` | root |
+| a form label or column header | `TypographyLabel` | root |
+| small print as a block | `TypographySmall` | root |
+| a number or metric | `TypographyStat` | root |
+| inline code | `TypographyInlineCode` | root |
+| a link | `TypographyLink` | root |
+| a highlighted phrase | `TypographyHighlight` | root |
+| a link card, or a grid of them | `Card`, `Cards` | `/blocks` |
+| an aside, warning or note | `Callout` | `/blocks` |
+| numbered instructions | `Steps`, `Step` | `/blocks` |
+| an FAQ or collapsible, no JS | `Disclosure`, `DisclosureGroup` | `/blocks` |
+| an animated accordion | `Accordion` (client) | `/blocks` |
+| tabbed content | `Tabs` or `TabGroup` (client) | `/blocks` |
+| a long-form article page | `EssayHeader` + `EssayLayout` + `EssaySection` | `/essay` |
+| a post meta row (date, read time, tags) | `PostMetaRow` and friends | `/essay` |
+| a table of contents | `TableOfContents`, `ReadingRail` | `/essay` |
+| page metadata and JSON-LD | `createSeo` | `/seo` |
+| an OG image | `ogCard`, `OG_SIZE` | `/og` |
+| to merge classnames | `cn` | root |
+
+## Entry points
+
+| import | exports |
+|---|---|
+| `@supertype/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyProseList`, `TypographyCaption`, `TypographySmall`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `headingClass`, `eyebrowClass`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `LinkTone`, `HighlightTone` |
+| `@supertype/foundations/blocks` | `Cards`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `Callout`, `Steps`, `Step`, `Disclosure`, `DisclosureGroup`, `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`, `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `TabGroup`, `Tab`, `SEGMENT` |
+| `@supertype/foundations/mdx` | `proseMdxComponents` |
+| `@supertype/foundations/essay` | `createEssay`, `EssayHeader`, `EssayLayout`, `EssaySection`, `EssayPullQuote`, `EssayFigure`, `EssayMovements`, `EssayDocument`, `EssayColumns`, `TableOfContents`, `ReadingRail`, `ReadingProgressBar`, `Rail`, `RailLink`, `PostMetaRow`, `PostDate`, `ReadTime`, `TagPills`, `MetaDot`, `formatPostDate`, `extractHeadings`, `readingTime`, `createSlugger`, `useReadingProgress`, `useScrollSpy`. Types: `TocHeading`, `EssayDecorations`, `EssayIndexEntry`, `EssayDocSection`, `EssayMovement`, `PostDateFormat` |
+| `@supertype/foundations/seo` | `createSeo`. Types: `SeoConfig`, `ArticleAuthor`, `ArticleOptions`, `PageMetadata` |
+| `@supertype/foundations/og` | `ogCard`, `OG_SIZE`. Types: `OgCardOptions` |
+| `@supertype/foundations/eslint` | `designConfig` (the whole set as one flat-config entry), plus `colourRules`, `typographyRules`, `themeOverrideRules`, `surfaceAsInkRules` for building your own. Types: `FlatConfigEntry`, `DesignConfigOptions`, `RestrictedSyntax`, `ColourOptions`, `TypographyOptions` |
+| `@supertype/foundations/rehype` | `rehypeProseCode`, `proseCodeOptions`, `PROSE_LANGS`, `PROSE_THEMES`. Build-time only, must not resolve React |
+| `@supertype/foundations/contrast` | `checkLegibility`, `resolveTokens`, `formatFailures`, `specificity`, `parseColor`, `luminance`, `contrast`. Types: `Rgb`, `Theme`, `LegibilityFailure`. Build-time only |
+
+## Props worth knowing
+
+- `TypographyH1`, `TypographyH3`: `variant?: "default" | "display"`.
+- `TypographyH2`: `variant?`, plus `divider?: boolean` for a rule underneath.
+- `TypographyP`: `variant?: "ui" | "prose"` (default `ui`), `tone?: "default" | "muted"`.
+- `TypographyMuted`, `TypographyProse`, `TypographyProseList` are presets. The
+  prop each one pins is removed from its type, so passing it will not compile.
+- `TypographyCaption`, `TypographyLabel`, `TypographySmall`: `size?: "sm" | "xs" | "2xs" | "inherit"`, `as?`.
+- `TypographyEyebrow`: `tone?: "heading" | "label"`, `as?`.
+- `TypographyStat`: `size?: "inherit" | "card" | "panel" | "page" | "display"`, `figures?: "tabular" | "proportional"`. Keep tabular where a value updates in place.
+- `TypographyLink`: `href` (required), `tone?: "foreground" | "primary" | "secondary"`, `addArrow?`, `newTab?`. Internal versus external is decided from the href.
+- `TypographyHighlight`: `tone?: "primary" | "success" | "ochre" | "terracotta" | "sage" | "fig"`, `seed?: number`.
+- `Card`: `href`, `title`, `description`, `icon`, `external`. An href makes the whole card a link.
+- `Callout`: `tone?: "muted" | "destructive" | "warn" | "accent"`, `density?: "compact" | "editorial"`, `title`, `icon`, `action`.
+- `DisclosureGroup`: `type?: "multiple" | "single"`, `defaultValue` (matches the title string).
+- `TabsList`: `variant?: "default" | "line"`.
+
+## Common mistakes
+
+- `<p className="text-sm text-muted-foreground">` — use `<TypographyMuted>`.
+- `<h2 className="text-lg font-semibold">` — use `<TypographyH2>`, or
+  `headingClass()` if you must pass classes to someone else's component.
+- Importing `Card` or `Callout` from `@supertype/foundations`. They live in
+  `@supertype/foundations/blocks`.
+- `<TypographyMuted tone="default">` — a type error. Use `TypographyP`.
+- Binding fonts with `font.className` instead of `font.variable`. The className
+  form sets `font-family` on the element and leaves the roles unresolved.
+- Omitting `@source '../node_modules/@supertype/foundations/dist/**/*.js'` from
+  the CSS entry. Tailwind then purges every class the package ships.
+- Omitting `@import "@supertype/foundations/theme.css"`. The marker tones, the
+  secondary link colour and the accordion keyframes all stop working.
+- Using `Accordion` for a static FAQ. `Disclosure` needs no JavaScript.
+- Adding a second `@custom-variant dark`. `tokens.css` already binds it.
+
+Run `npx foundations doctor` in the app to check the last four.
+
+## Surfaces
+
+Two classes change how everything renders, and both go on `<html>` or a subtree:
+
+- `.dark` re-points every colour token. It is bound by `tokens.css`, not by the
+  OS setting.
+- `.editorial` gives the heading role to the serif at weight 400 and retunes the
+  whole heading ladder against an 18px body, instead of the product's 13px.
+
+## Docs
+
+Read from `node_modules`, so these are absolute:
+
+- README: https://github.com/supertypeai/foundations#readme
+- Typography: https://github.com/supertypeai/foundations/blob/main/docs/typography.md
+- Blocks and MDX: https://github.com/supertypeai/foundations/blob/main/docs/blocks.md
+- The essay shell: https://github.com/supertypeai/foundations/blob/main/docs/essay.md
+- Build-time tooling: https://github.com/supertypeai/foundations/blob/main/docs/tooling.md
+- The CLI: https://github.com/supertypeai/foundations/blob/main/docs/cli.md

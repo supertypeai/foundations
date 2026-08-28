@@ -47,7 +47,8 @@ if (capture("git", ["tag", "--list", tag])) {
 
 // Compile before committing: dist/ ships in the tag, so a stale or broken build
 // is what consumers would install, and they would find out at their own runtime.
-run("yarn", ["build"]);
+// `yarn test` builds first, then runs the suite against the output that ships.
+run("yarn", ["test"]);
 
 // Tarballs are leftovers from the file: protocol. An unreferenced artifact in
 // the repo root is an invitation to install a version nobody is publishing.

@@ -1,34 +1,56 @@
 # @supertype/foundations
 
 The shared design layer behind the Supertype projects: typography primitives,
-content blocks, the long-form essay shell, the token/theme CSS, and the
-build-time tooling (SEO, OG cards, lint rules, contrast checks) that keeps them
-honest.
-
-Named for what it is rather than what it started as — the first cut was
-typography only, and `prose` stopped describing it the moment it grew a reading
-rail and a JSON-LD builder.
+content blocks, the long-form essay shell, the token and theme CSS, and the
+build-time tooling that checks it all (SEO, OG cards, lint rules, contrast
+checks).
 
 **Start here:** [Install](#install) → [Your first page](#your-first-page).
 
 **Reference:** [Typography](docs/typography.md) · [Blocks](docs/blocks.md) ·
-[The essay shell](docs/essay.md) · [Build-time tooling](docs/tooling.md)
+[The essay shell](docs/essay.md) · [Build-time tooling](docs/tooling.md) ·
+[The CLI](docs/cli.md)
+
+**Working on the package itself:** [Contributing](docs/contributing.md), for
+local iteration against a consumer and for releasing.
+
+## See it running
+
+```sh
+yarn example:install   # once, to install Next, the peers and the package
+yarn example           # then open http://localhost:3000
+```
+
+[`examples/site`](examples/site) renders every component next to the source that
+produced it, carries whole-page [recipes](examples/site/app/_recipes) to copy,
+and puts the `dark` and `.editorial` surfaces on a switch. It is also where
+documentation changes get checked, so start here if you are improving the docs.
 
 ---
 
 ## Install
 
+Get step 2 or 3 wrong and nothing throws an error; the components just render
+unstyled, or in the wrong typeface. So the package ships a CLI that writes the
+CSS for you and checks the rest:
+
+```sh
+npx foundations init      # writes the CSS block, prints the font binding
+npx foundations doctor    # checks this app against everything below
+```
+
+The steps are written out below anyway. `init` is a shortcut through them, not
+a replacement for knowing what it changed. See [the CLI](docs/cli.md).
+
 ### 1. Add the package
 
 ```jsonc
 // package.json — pin a tag, never `#main`
-"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.19"
+"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.20"
 ```
 
-`dist/` is committed, so a consumer clones a package that is already built:
-no `prepare` step, no install-time compile. Peers are React >=19, Next >=15,
-`next-view-transitions` >=0.3 and `@base-ui/react` >=1.4 — every project on this
-package is a Next app, and the peers say so deliberately.
+`dist/` is committed, so there is no install-time build step. Peers are React
+>=19, Next >=15, `next-view-transitions` >=0.3 and `@base-ui/react` >=1.4.
 
 ### 2. Import the CSS, in this order
 
@@ -44,21 +66,22 @@ package is a Next app, and the peers say so deliberately.
 @source '../node_modules/@supertype/foundations/dist/**/*.js';
 ```
 
-**The `@source` line is required.** Without it Tailwind never scans the package
-and every class it ships is purged — the components render with no styles at all.
+**The `@source` line is required.** Tailwind does not scan `node_modules` by
+default, so without it every class the package ships is purged and the components
+render with no styles at all.
 
-**`theme.css` is not as optional as it looks.** It is the only file that defines
+**`theme.css` is less optional than it looks.** It is the only file that defines
 `--secondary-ink`, `--subtle-foreground`, the four earth tones the marker
-highlight paints with, and the `accordion-down` / `accordion-up` keyframes. Skip
-it and `<TypographyHighlight tone="sage">`, `<TypographyLink tone="secondary">`
-and the interactive `<Accordion>` all degrade silently. Import it unless you are
-deliberately supplying your own palette for every one of those names.
+highlight uses, and the `accordion-down` and `accordion-up` keyframes. Without
+it, `<TypographyHighlight tone="sage">`, `<TypographyLink tone="secondary">` and
+the interactive `<Accordion>` all render wrong with no error. Import it unless
+you are supplying your own palette for every one of those names.
 
 ### 3. Bind the fonts
 
-The package cannot load faces — `next/font` is app-level and mints hashed
-variable names at build time. Each consumer loads the three and binds them to
-the roles `type.css` names:
+The package cannot load the typefaces for you. `next/font` runs in your app and
+generates hashed variable names at build time, so each app loads the three fonts
+and binds them to the roles `type.css` expects:
 
 ```tsx
 // app/layout.tsx
@@ -72,10 +95,20 @@ const serif = Average({ variable: "--font-average", weight: "400", subsets: ["la
 ```
 
 **Bind with `.variable`, never `.className`.** A className sets `font-family` on
-the element and leaves the roles resolving to their generic tails, so the page
-renders one face while every `font-sans` and `font-heading` utility on it renders
-another. ssite shipped that way for months: Inter on `<html>`, system-ui on
-anything that asked for a role.
+the element itself and leaves the roles unresolved, so the page renders one
+typeface while every `font-sans` and `font-heading` utility on it renders
+another.
+
+### 4. Check the wiring
+
+```sh
+npx foundations doctor
+```
+
+It reads your CSS entry, your root layout and the installed tree, then reports
+on import order, the `@source` path, the font bindings and the peer versions. It
+exits non-zero on a real problem, so it works as a CI step too. Every check and
+what it catches is listed in [the CLI](docs/cli.md).
 
 ---
 
@@ -129,22 +162,53 @@ export default function Page() {
 }
 ```
 
-Two rules that explain most of the API:
+Two rules cover most of the API:
 
-- **Never spell a type style by hand.** `<p className="text-sm text-muted-foreground">`
-  is `<TypographyMuted>`. The primitives exist so that a size and an ink cannot
-  drift apart across two hundred call sites.
-- **Retune through CSS variables, not classes.** The package owns its final
-  classnames; you change `--prose-measure`, `--heading-weight`, or a colour
-  token, and everything moves together.
+- **Do not write type styles by hand.** A paragraph carrying
+  `text-sm text-muted-foreground` is `<TypographyMuted>`. Using the primitives
+  keeps a size and a colour from drifting apart across a few hundred call sites.
+- **Retune with CSS variables, not classes.** The package owns its own
+  classnames. Change `--prose-measure`, `--heading-weight` or a colour token and
+  everything moves together.
+
+---
+
+## The example site
+
+`yarn example` (above) builds the package, syncs it in and starts the dev
+server. `yarn example:build` is what CI would run.
+
+It installs the package from a git tag and updates it with `yarn sync`, the same
+way `ssite` and `viably` do, with no workspace and no symlink. Its `global.css`
+and `layout.tsx` are the blocks above, unchanged, so an install instruction that
+stops being true breaks the site.
+
+`/recipes` holds whole pages rather than single components: a marketing hero, a
+metrics panel, pricing tiers, a docs page, an article index, and the three files
+that wire up MDX. Each one lives in
+[`app/_recipes/`](examples/site/app/_recipes) as a complete file that imports
+only from this package, so you can paste it into your app and it compiles.
+`yarn example:build` fails if a recipe reaches for a local helper.
+
+---
+
+## For coding agents
+
+The package ships an `llms.txt` with the public API, the rules, and the mistakes
+that do not produce an error. Point your agent at it once and it stops
+hand-writing `text-sm text-muted-foreground` where a primitive exists:
+
+```md
+<!-- CLAUDE.md, AGENTS.md, or your agent's equivalent -->
+@node_modules/@supertype/foundations/llms.txt
+```
+
+`yarn build` fails if an export is missing from it, so it cannot fall behind the
+package.
 
 ---
 
 ## Entry points
-
-Split by dependency profile, not by taste. A project that wants typography
-should not resolve the essay layer's client components, and build tooling must
-not resolve React at all.
 
 | import | contains | docs |
 |---|---|---|
@@ -158,30 +222,38 @@ not resolve React at all.
 | `@supertype/foundations/rehype` | `rehypeProseCode` — **build-time only** | [In MDX](docs/blocks.md#in-mdx) |
 | `@supertype/foundations/contrast` | token resolution + legibility checks, build-time only | [Tooling](docs/tooling.md#contrast-checks) |
 | `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer | [Tokens and theming](#tokens-and-theming) |
+| `foundations` (bin) | `init` and `doctor` | [The CLI](docs/cli.md) |
 
-Blocks and the MDX map are deliberately absent from the root barrel — see
-[Why the entry points are split](#why-the-entry-points-are-split) under Design
-rules.
+The entries are split by what they pull in. Blocks and the MDX map stay out of
+the root barrel so that importing a heading does not resolve `@base-ui/react` or
+`next/image`, and `/rehype` and `/contrast` stay out of both so they can run in
+bare Node, where React cannot be resolved.
+
+None of the entry points can be imported from plain Node, though: typography
+reaches `next/link` through `next-view-transitions`. Import them from a Next app,
+or from a test runner that resolves Next — both consumers' vitest suites do.
 
 ---
 
 ## Tokens and theming
 
-`tokens.css` names the structural roles — `--background`, `--foreground`,
-`--card`, `--muted`, `--primary`, `--border`, `--ring`, plus the status set
-(`--success`, `--warn`, `--info`, `--destructive`, with `danger` aliasing the
-last). Named for meaning, not hue: a `success` a project renders blue still reads
-correctly. It also binds the `dark:` variant to the `.dark` class — not optional,
-and its absence is silent, since Tailwind v4 would otherwise follow the OS and
-ignore your toggle.
+`tokens.css` names the structural roles: `--background`, `--foreground`,
+`--card`, `--muted`, `--primary`, `--border` and `--ring`, plus the status set
+(`--success`, `--warn`, `--info` and `--destructive`, with `danger` as an alias
+for the last). They are named for meaning rather than hue, so a project that
+renders `success` in blue still reads correctly.
 
-`theme.css` paints those roles with the house latte/espresso palette and adds the
-editorial inks (`--secondary-ink`, `--subtle-foreground`, the ochre / terracotta
-/ sage / fig pairs) and the elevation shadows.
+`tokens.css` also binds the `dark:` variant to the `.dark` class. Do not skip
+that import: Tailwind v4 otherwise follows the OS setting and quietly ignores
+your toggle.
 
-**No brand colours in the package.** Structural tokens only; brand stays in the
-app. To repaint, override the raw variables after the imports — never patch the
-utilities:
+`theme.css` gives those roles the house latte and espresso palette, and adds the
+editorial inks (`--secondary-ink`, `--subtle-foreground`, and the ochre,
+terracotta, sage and fig pairs) along with the elevation shadows.
+
+**No brand colours in the package.** Structural tokens only, with brand colours
+left to the app. To repaint, override the raw variables after the imports rather
+than patching the utilities:
 
 ```css
 :root  { --primary: hsl(24 60% 42%); }
@@ -190,144 +262,38 @@ utilities:
 
 ### `.editorial`
 
-`type.css` names three font roles — `--font-sans`, `--font-mono`, `--font-heading`
-— and the weight rung that travels with the heading face. `.editorial` hands the
-heading role to the serif and drops the weight to 400, because Average has
-exactly one:
+`type.css` names three font roles (`--font-sans`, `--font-mono` and
+`--font-heading`) and the weight that goes with the heading face. `.editorial`
+gives the heading role to the serif and drops the weight to 400, since Average
+only has one:
 
 ```tsx
 <div className="editorial">…</div>   {/* or on <html> for an editorial site */}
 ```
 
-It also retunes the whole heading ladder, which is the point: a heading's size is
-a *ratio* to the body under it, and the two surfaces set body at different rungs
-(13px in the product, 18px on `.editorial`). viably scopes it to marketing and
-docs and keeps its product on the sans; ssite is editorial throughout.
-
-The roles stay plain `@theme` and never `@theme inline` — `inline` bakes the
-family into the utility and the subtree swap stops resolving.
+It also retunes the whole heading ladder, which is most of what it is for.
+Heading sizes are a *ratio* to the body text under them, and the two surfaces set
+body at different sizes: 13px in the product, 18px on `.editorial`. Scope the
+class to whichever surfaces should be editorial, whether that is a marketing and
+docs section or the whole site.
 
 ---
 
 ## Design rules
 
-1. **The package owns final classnames.** Consumers retune through CSS custom
-   properties (`--prose-measure`, `--prose-leading`, `--heading-weight`, the
-   colour tokens), never by patching classes.
-2. **No variant props on the MDX map.** Elements MDX renders automatically take
-   no options — there is no call site to make the choice. Components you invoke
-   by hand may carry variants.
-3. **The platform first, a library only where it cannot reach.** `Disclosure` is
-   `<details>`/`<summary>`: no JS, correct before hydration, free to an MDX
-   author. `Accordion` and `Tabs` are Base UI, because animation and managed
-   selection are past what the platform ships.
-4. **No brand colours.** Structural tokens only. Brand stays in the app.
-5. **Structure belongs in CSS, not the component map.** A host framework may
-   substitute its own element and strip classes; a child combinator cannot be
-   stripped. Both the Shiki theming and the inline-code rule work this way.
-6. **A preset cannot be un-set.** `TypographyMuted` is `TypographyP` with the ink
-   decided, and the axis it decides leaves its prop type — pass the pinned object
-   to `Preset<Base, typeof PINS>` and spread that same object last. A preset that
-   still accepts the prop it exists to settle is not a preset; it is a default
-   with a longer name.
-7. **A variant earns its place at a call site.** Anything with no call sites in
-   either consumer is dead weight and gets removed, not kept "in case" — the
-   `size` axis on `Card` and the vertical orientation on `Tabs` both went that
-   way.
-
-### No injection
-
-Import `TypographyLink` and `Card` by name. There is no binding step:
-
-```tsx
-import { TypographyLink } from "@supertype/foundations";
-import { Card } from "@supertype/foundations/blocks";
-```
-
-Both import the router directly from `next-view-transitions`, a peer dependency.
-This replaced a `createProseLink(Link)` / `createCard(Link)` injection pair, and
-the swap was not a simplification for its own sake: a factory bought
-router-agnosticism nobody used, at the price of a component that could not be
-imported by name — which is how one call site ended up on the unbound export and
-silently lost its link decoration. **Do not reinstate injection.**
-`paragraph.tsx` documents the call site it cost.
-
-### Why the entry points are split
-
-A barrel's transitive dependencies are paid by every name it exports, which is
-why the root entry is typography and nothing else. `mdx.tsx` imports
-`next/image`, and a bare subpath like that does not resolve from inside
-`node_modules` under a plain Node ESM loader — the loader a consumer's test
-runner uses. Re-exporting it made every test that so much as touched a Typography
-component fail to import. `blocks/` carries the same hazard one dependency
-further out: `tabs.tsx` and `interactive-accordion.tsx` pull `@base-ui/react`, so
-re-exporting them made a bare `import { TypographyH2 }` resolve Base UI.
-
-`/rehype` is separate for the mirror-image reason: `source.config.ts` and friends
-run in bare Node, where React is not resolvable at all.
-
-What the split does **not** buy is a plain-Node-importable root. Measured, not
-assumed — `node -e "import('@supertype/foundations')"` from a consumer still
-fails on `ERR_MODULE_NOT_FOUND` for `next/link`, because `TypographyLink` imports
-`next-view-transitions`, which imports `next/link`. The blocks entry fails
-identically through `card.tsx`. This is survivable because the runner that
-matters resolves it: both consumers' vitest suites import typography freely and
-pass.
-
----
-
-## Working on the package
-
-### Local iteration
-
-Consumers pin a git tag, which is right for anything that ships and wrong for the
-ten-minute loop of nudging a value and looking at it. `yarn sync` closes that
-loop without a tag:
-
-```sh
-yarn sync        # build, then copy into each consumer's node_modules
-yarn dev:sync    # same, on every save under src/
-```
-
-It writes to `node_modules/@supertype/foundations` in `ssite` and
-`viably/on_next`, looked up under `~/Work` then `~/fun` (pass paths as arguments
-for anywhere else). Nothing else is touched: their `package.json` still names the
-tag, their lockfile still resolves it, and CI and production install exactly what
-they did before. The one place a sync exists is a directory yarn will overwrite
-on its next install — so a synced build cannot leave the machine it was made on,
-and re-running `yarn install` in a consumer is how you undo it.
-
-Restart the consumer's dev server after a sync. Next caches `node_modules` under
-both bundlers and will keep serving the previous build otherwise.
-
-Do not `yarn link`. Turbopack resolves the symlink to a path outside the project
-root and the dev server dies on the CSS import; it also puts a second React on
-the resolution path for a package with React as a peer, which surfaces as an
-invalid-hook-call at runtime.
-
-Sync is for iterating. Once a change is settled, release it — a consumer whose
-behaviour depends on an unreleased sync is broken for everyone else.
-
-### Releasing
-
-```sh
-yarn release   # bump -> build -> commit -> tag -> push
-```
-
-It refuses to run on a dirty tree, so commit your work first. The bump is part of
-releasing rather than a step to remember: consumers pin a tag and yarn records
-the commit behind it, so shipping new code under an existing tag leaves them on
-whatever they resolved the first time.
-
-`dist/` is tracked on purpose. The alternative — a `prepare` script that builds
-on the consumer's side — makes every install spawn a nested `yarn install` that
-shares one cache with the install that spawned it; the two race on any package
-both need, which corrupted the cache and failed CI. Do not re-add `dist/` to
-`.gitignore`. `yarn release` always rebuilds before staging, so the committed
-output cannot drift from source as long as releases go through it.
-
-Then repoint each consumer and commit its lockfile:
-
-```sh
-yarn add "@supertype/foundations@https://github.com/supertypeai/foundations.git#v<version>"
-```
+1. **The package owns its final classnames.** Retune with CSS custom properties
+   (`--prose-measure`, `--prose-leading`, `--heading-weight`, the colour tokens)
+   rather than by patching classes.
+2. **No variant props on the MDX map.** Elements that MDX renders automatically
+   take no options, because there is no call site to make the choice. Components
+   you invoke by hand can have variants.
+3. **Use the platform first, and a library only where it falls short.**
+   `Disclosure` is a `<details>`/`<summary>` pair: no JavaScript, correct before
+   hydration, and available to an MDX author. `Accordion` and `Tabs` use Base UI,
+   since animation and managed selection are beyond what the platform gives you.
+4. **No brand colours.** Structural tokens only, with brand colours left to the
+   app.
+5. **Put structure in CSS rather than the component map.** A host framework can
+   substitute its own element and strip the classes off it, but it cannot strip a
+   child combinator. Both the Shiki theming and the inline-code rule rely on
+   this.

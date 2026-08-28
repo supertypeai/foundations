@@ -379,7 +379,7 @@ export function TypographyLink({
       {addArrow && (
         <svg
           aria-hidden="true"
-          className="ml-1 inline size-3.5 align-baseline"
+          className="ml-1 inline size-3.5 align-middle"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

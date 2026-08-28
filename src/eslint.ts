@@ -182,3 +182,52 @@ export function typographyRules({
       : []),
   ];
 }
+
+/** A flat-config entry, described structurally so the package needs no ESLint dependency. */
+export interface FlatConfigEntry {
+  name: string;
+  files: string[];
+  rules: Record<string, unknown>;
+}
+
+export interface DesignConfigOptions extends ColourOptions, TypographyOptions {
+  /** What the rules apply to. Narrow it to exclude generated or vendored code. */
+  files?: string[];
+}
+
+/**
+ * Every rule in one flat-config entry, ready to spread into eslint.config.js:
+ *
+ *   import { designConfig } from "@supertype/foundations/eslint";
+ *   export default [ ...designConfig({ accents: "the brand tints" }) ];
+ *
+ * One entry is not a detail. Flat config replaces a rule's options rather than
+ * merging them, so two blocks covering overlapping files leave only the last
+ * one's rules in effect. Combining them here is what stops a consumer losing
+ * half the set by accident. If you need a second scope, call this again with a
+ * different `files` and no overlap.
+ */
+export function designConfig({
+  files = ["**/*.{ts,tsx,js,jsx}"],
+  accents,
+  weights,
+  ramp,
+  pairing,
+  axis,
+}: DesignConfigOptions = {}): FlatConfigEntry[] {
+  return [
+    {
+      name: "@supertype/foundations/design",
+      files,
+      rules: {
+        "no-restricted-syntax": [
+          "error",
+          ...colourRules({ accents }),
+          ...typographyRules({ weights, ramp, pairing, axis }),
+          ...themeOverrideRules(),
+          ...surfaceAsInkRules(),
+        ],
+      },
+    },
+  ];
+}

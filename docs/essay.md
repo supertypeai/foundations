@@ -1,14 +1,13 @@
-[← README](../README.md) · [Typography](typography.md) · [Blocks](blocks.md) · [Build-time tooling](tooling.md)
+[← README](../README.md) · [Typography](typography.md) · [Blocks](blocks.md) · [Build-time tooling](tooling.md) · [The CLI](cli.md)
 
 ---
 
 # The essay shell
 
-`@supertype/foundations/essay` — the long-form reading surface, and the pieces
-an MDX article composes instead.
-
-`@supertype/foundations/essay` carries the long-form reading surface — any page a
-reader arrives at to read from the top rather than to scan for one thing.
+`@supertype/foundations/essay` holds the long-form reading surface: any page
+someone arrives at to read from the top rather than to scan for one thing. It
+also exports the individual pieces, which is what an MDX article composes
+instead.
 
 ```tsx
 // lib/essay.ts
@@ -20,12 +19,12 @@ export const {
 } = createEssay({ Reveal, Glow });   // both optional
 ```
 
-`createEssay` is the one factory left, and it earns its keep where the link and
-card factories did not: motion and gradient belong to an app's visual language,
-so the injected values genuinely differ per consumer. Both default to nothing, so
-an app that supplies neither gets identical markup, statically rendered. viably
-passes its two; ssite passes none — and the undecorated bindings are exported
-directly if you want them without calling the factory.
+`createEssay` is the one factory left in the package. Motion and gradient belong
+to an app's visual language, so the injected values really do differ per
+consumer: viably passes its two, ssite passes none. Both default to nothing, so
+an app that supplies neither gets identical markup, rendered statically. If you
+have no decorations, skip the factory — the undecorated bindings are exported
+directly.
 
 ## A hand-built essay
 
@@ -47,9 +46,9 @@ directly if you want them without calling the factory.
 </article>
 ```
 
-`EssayHeader` sets its own measure and is deliberately full-bleed, so the opening
-can carry a backdrop edge to edge while the prose stays in column. Put it *above*
-`EssayLayout`, not inside.
+`EssayHeader` sets its own measure and runs full-bleed, so the opening can carry
+a backdrop edge to edge while the prose stays in its column. Put it *above*
+`EssayLayout`, not inside it.
 
 ## A reference document
 
@@ -64,15 +63,18 @@ can carry a backdrop edge to edge while the prose stays in column. Put it *above
 />
 ```
 
-The margin index derives from the sections rather than being hand-kept beside
-them — which is how a retitled section used to leave the rail scrolling to
-nothing. Anchors are slugified with apostrophes dropped, so "What we don't
-collect" lands at `what-we-dont-collect`, and duplicates are suffixed. Pass an
-explicit `id` only when the anchor has to outlive a retitling; it is a public URL.
+The margin index is derived from the sections rather than kept in a list beside
+them, so renaming a section cannot leave the rail pointing at an anchor that no
+longer exists.
+
+Anchors are slugified with apostrophes dropped, so "What we don't collect" lands
+at `what-we-dont-collect`, and duplicates get a numeric suffix. Pass an explicit
+`id` when an anchor has to survive a retitling, since it is a public URL.
 
 ## An MDX article
 
-Its sections come from the markdown headings, so it composes the pieces instead:
+Its sections come from the markdown headings, so it composes the pieces rather
+than using the whole shell:
 
 ```tsx
 import { extractHeadings, readingTime, EssayColumns, ReadingRail,
@@ -95,13 +97,13 @@ const minutes = readingTime(source);        // words / 200, rounded up
 ```
 
 Also exported: `TableOfContents` (the static margin index), `ReadingProgressBar`,
-`Rail`/`RailLink` (the rail's own primitives), `formatPostDate` (the same
-formatter outside React, so an OG image and a card cannot disagree),
-`createSlugger`, and the `useReadingProgress` / `useScrollSpy` hooks. `ReadingRail`
-and `ReadingProgressBar` read shared stores, so mounting both costs one scroll
-subscription, not two.
+`Rail` and `RailLink` (the rail's own primitives), `formatPostDate` (the same
+formatter outside React, so an OG image and a card cannot print different dates),
+`createSlugger`, and the `useReadingProgress` and `useScrollSpy` hooks.
 
-`EssayColumns` is three tracks with the third empty: two would push the prose
-off-centre the moment an aside appeared, setting body copy on a different axis
-per page.
+`ReadingRail` and `ReadingProgressBar` read from shared stores, so mounting both
+costs one scroll subscription rather than two.
 
+`EssayColumns` is three tracks with the third left empty. With two, the prose
+would shift off-centre as soon as a page had an aside, which sets body copy on a
+different axis from one page to the next.

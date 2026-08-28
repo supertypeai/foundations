@@ -220,7 +220,7 @@ const linkClass = (tone = "foreground", className) => cn(LINK_TONES[tone], LINK_
 export function TypographyLink({ href, children, tone = "foreground", newTab, addArrow, className, ...props }) {
     const style = linkClass(tone, className);
     const external = /^[a-z][a-z0-9+.-]*:/i.test(href);
-    const body = (_jsxs(_Fragment, { children: [children, addArrow && (_jsx("svg", { "aria-hidden": "true", className: "ml-1 inline size-3.5 align-baseline", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7" }) }))] }));
+    const body = (_jsxs(_Fragment, { children: [children, addArrow && (_jsx("svg", { "aria-hidden": "true", className: "ml-1 inline size-3.5 align-middle", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7" }) }))] }));
     if (external) {
         const away = newTab ?? href.startsWith("http");
         return (_jsx("a", { href: href, className: style, ...(away ? { target: "_blank", rel: "noopener noreferrer" } : {}), ...props, children: body }));

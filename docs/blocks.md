@@ -1,18 +1,19 @@
-[← README](../README.md) · [Typography](typography.md) · [The essay shell](essay.md) · [Build-time tooling](tooling.md)
+[← README](../README.md) · [Typography](typography.md) · [The essay shell](essay.md) · [Build-time tooling](tooling.md) · [The CLI](cli.md)
 
 ---
 
 # Blocks
 
-Content blocks, from `@supertype/foundations/blocks` — plus the MDX map that
-makes them authorable in markdown.
+Content blocks from `@supertype/foundations/blocks`, plus the MDX map that makes
+them available in markdown.
 
-From `@supertype/foundations/blocks`. `Tabs` and `Accordion` are client
-components (Base UI); everything else renders on the server.
+`Tabs` and `Accordion` are client components (Base UI); everything else renders
+on the server.
 
 ## Card
 
-Two shapes, one component. Shorthand fills the header; bare children compose.
+Two shapes, one component. Pass `title` and `description` for the common case, or
+compose the slots yourself when you need more.
 
 ```tsx
 {/* Shorthand — what MDX authors write */}
@@ -48,14 +49,15 @@ Two shapes, one component. Shorthand fills the header; bare children compose.
 | `title` / `description` / `icon` | `ReactNode` | the shorthand header |
 | everything else | anchor/div props | passed through |
 
-An href with a scheme leaves the app (`target="_blank"`, `rel="noopener
-noreferrer"`); the rest route through the router's `Link`. Exported slots are
-`CardHeader`, `CardTitle`, `CardDescription`, `CardContent`. `Cards` is a
+An href with a scheme leaves the app, with `target="_blank"` and
+`rel="noopener noreferrer"`; the rest route through the router's `Link`. The
+exported slots are
+`CardHeader`, `CardTitle`, `CardDescription` and `CardContent`, and `Cards` is a
 two-column grid from `sm` up.
 
-`CardTitle` deliberately wears no heading face: a card is chrome, not prose, so
-on an `.editorial` surface it stays in the body sans rather than turning serif
-and losing the weight that separates it from the description.
+`CardTitle` does not use the heading face. A card is chrome rather than prose, so
+on an `.editorial` surface it stays in the body sans instead of turning serif and
+losing the weight that separates it from the description.
 
 ## Callout
 
@@ -79,19 +81,21 @@ and losing the weight that separates it from the description.
 | `action` | `ReactNode` | a link or buttons under the body |
 | `bodyClassName` | `string` | for the one body that is not prose |
 
-`compact` is the product form (12px title over 12px body). `editorial` is the
-docs form: body copy at reading size and a 3px accent rail, so the surface itself
-can stay quiet. Deliberately not a shadcn `Alert` — these are permanent
-explanations inside a panel, and must not announce themselves to a screen reader
-every time a sheet opens.
+`compact` is the product form, with a 12px title over 12px body. `editorial` is
+the docs form: body copy at reading size and a 3px accent rail, so the surface
+around it can stay quiet.
+
+This is not a shadcn `Alert`. These are permanent explanations inside a panel,
+and they should not announce themselves to a screen reader every time a sheet
+opens.
 
 ## Disclosure and Accordion
 
-Two components, not two variants — and they no longer share a name, because a
-call site reaching for the wrong one used to cost real bugs.
+Two components rather than two variants, with different names, because call sites
+reaching for the wrong one used to cause real bugs.
 
-**`Disclosure` / `DisclosureGroup`** — `<details>`/`<summary>`. No JS, correct
-before hydration, free to an MDX author:
+**`Disclosure` / `DisclosureGroup`** — a `<details>`/`<summary>` pair. No
+JavaScript, correct before hydration, and available to an MDX author:
 
 ```tsx
 <DisclosureGroup type="single" defaultValue="Retries">
@@ -100,11 +104,11 @@ before hydration, free to an MDX author:
 </DisclosureGroup>
 ```
 
-`type`: `multiple` (default) | `single`. Single-open comes from the shared
-`name` attribute browsers implement natively, so it costs no state. `defaultValue`
-matches on the title string.
+`type` is `multiple` (default) or `single`. Single-open mode uses the shared
+`name` attribute browsers implement natively, so it costs no state.
+`defaultValue` matches on the title string.
 
-**`Accordion`** — Base UI, animated, client:
+**`Accordion`** — Base UI, animated, client-side:
 
 ```tsx
 "use client";
@@ -116,7 +120,7 @@ matches on the title string.
 </Accordion>
 ```
 
-Needs `theme.css` for its open/close keyframes.
+It needs `theme.css` for its open and close keyframes.
 
 ## Tabs
 
@@ -132,11 +136,11 @@ Needs `theme.css` for its open/close keyframes.
 </Tabs>
 ```
 
-`TabsList` takes `variant`: `default` (a boxed segmented track) or `line` (no
-surface — an accent underline is the whole signal).
+`TabsList` takes a `variant`: `default` draws a boxed segmented track, `line`
+drops the surface and marks the active tab with an accent underline.
 
-`TabGroup` is the declarative shorthand, and what an MDX author writes as
-`<Tabs>`: children pair with `items` **by position**.
+`TabGroup` is the shorthand, and what an MDX author writes as `<Tabs>`. Children
+pair with `items` **by position**:
 
 ```tsx
 <TabGroup items={["npm", "pnpm", "yarn"]}>
@@ -155,13 +159,14 @@ surface — an accent underline is the whole signal).
 </Steps>
 ```
 
-Numbers are a CSS counter, not markup: reordering renumbers itself, and the
-digits stay out of the accessibility tree and out of copied text.
+The numbers come from a CSS counter rather than markup, so reordering the steps
+renumbers them, and the digits stay out of the accessibility tree and out of
+anything you copy.
 
 ## SEGMENT
 
-The segmented picker as one set of surfaces, for a consumer building its own
-control that must not drift from `TabsList`:
+The segmented picker as a set of class strings, for building your own control
+that needs to match `TabsList`:
 
 ```tsx
 import { SEGMENT } from "@supertype/foundations/blocks";
@@ -170,7 +175,7 @@ import { SEGMENT } from "@supertype/foundations/blocks";
   <button className={cn(SEGMENT.item, active ? SEGMENT.activeSurface : SEGMENT.idle)}>
 ```
 
-Keys: `track`, `item`, `active`, `idle`, `activeSurface`, and
+The keys are `track`, `item`, `active`, `idle`, `activeSurface`, and
 `dataActiveSurface` for an engine that marks its own trigger with `data-active`.
 
 ---
@@ -187,8 +192,8 @@ export function useMDXComponents(): MDXComponents {
 }
 ```
 
-A plain object, not a factory — the router and the image component are the
-package's now, so there is nothing left to inject.
+It is a plain object rather than a factory, since the router and the image
+component come from the package and there is nothing left to inject.
 
 It binds the markdown elements (`h1`–`h4`, `p`, `ul`/`ol`, `blockquote`, `a`,
 `pre`, `img`, `table`…) and exposes these for authors to call by hand:
@@ -196,13 +201,14 @@ It binds the markdown elements (`h1`–`h4`, `p`, `ul`/`ol`, `blockquote`, `a`,
 | in MDX | renders |
 |---|---|
 | `<Card>` `<Cards>` | the card block |
-| `<Accordion>` `<Accordions>` | `Disclosure` / `DisclosureGroup` — the no-JS pair |
+| `<Accordion>` `<Accordions>` | `Disclosure` / `DisclosureGroup`, the no-JS pair |
 | `<Banner>` | `Callout` at `density="editorial"` |
 | `<Tabs>` `<Tab>` | `TabGroup` / `Tab` |
 | `<Steps>` `<Step>` | the step sequence |
 
-Elements MDX renders automatically take no options — there is no call site to
-make the choice. Retune them in CSS via `--prose-measure` and `--prose-leading`.
+Elements that MDX renders automatically take no options, since there is no call
+site to make the choice. Retune them in CSS with `--prose-measure` and
+`--prose-leading`.
 
 For code fences, add the Shiki plugin at build time:
 
@@ -213,6 +219,6 @@ import { rehypeProseCode } from "@supertype/foundations/rehype";
 export default defineConfig({ mdxOptions: { rehypePlugins: [rehypeProseCode] } });
 ```
 
-It emits `--shiki-light` / `--shiki-dark` per token rather than a baked colour,
-so one compiled document serves both themes; `shiki.css` maps them.
-
+It writes `--shiki-light` and `--shiki-dark` on every token instead of a fixed
+colour, so one compiled document works in both themes and `shiki.css` decides
+which applies.

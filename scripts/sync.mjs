@@ -46,10 +46,11 @@ const DEFAULT_TARGETS = CONSUMER_PATHS.map(locate);
 
 /**
  * Everything a consumer resolves: dist/ for the exports map, src/ for the CSS
- * entry points it imports by path. node_modules inside the installed copy is
- * left alone — it holds the package's own deps, which yarn put there.
+ * entry points it imports by path, bin/ for the doctor, llms.txt for whatever
+ * coding agent the consumer runs. node_modules inside the installed copy is left
+ * alone, since it holds the package's own deps, which yarn put there.
  */
-const PAYLOAD = ["dist", "src", "package.json", "README.md"];
+const PAYLOAD = ["dist", "src", "bin", "llms.txt", "package.json", "README.md"];
 
 const args = process.argv.slice(2);
 const watching = args.includes("--watch");
@@ -81,7 +82,7 @@ const copy = () => {
       const to = join(dest, entry);
       // Remove first: cpSync merges, so a file that stopped being emitted would
       // linger and keep resolving.
-      if (entry !== "package.json" && entry !== "README.md") rmSync(to, { recursive: true, force: true });
+      if (!entry.includes(".")) rmSync(to, { recursive: true, force: true });
       cpSync(from, to, { recursive: true });
     }
     console.log(`synced → ${dest}`);
