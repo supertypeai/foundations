@@ -9,11 +9,12 @@
     "prebuild": "node scripts/check-recipes.mjs",
     "build": "next build",
     "start": "next start",
-    "check:recipes": "node scripts/check-recipes.mjs"
+    "check:recipes": "node scripts/check-recipes.mjs",
+    "build:static": "FOUNDATIONS_STATIC=1 next build"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
-    "@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.20",
+    "@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.21",
     "next": "^15.5.7",
     "next-view-transitions": "^0.3.4",
     "react": "^19.0.0",

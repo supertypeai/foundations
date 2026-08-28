@@ -1,0 +1,62 @@
+# Publishes examples/site to GitHub Pages.
+#
+# The app pins the package by git tag, which is right for a consumer but wrong
+# for docs: the site would show the last release, not main. So the workflow
+# installs the tag and then overwrites the installed copy with a build of this
+# checkout (scripts/sync.mjs), the same thing `yarn example` does locally.
+name: docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish; queue at most one more.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install package deps
+        run: yarn install --frozen-lockfile
+
+      - name: Install example deps
+        run: yarn --cwd examples/site install --frozen-lockfile
+
+      - name: Build site
+        env:
+          FOUNDATIONS_STATIC: "1"
+          # Empty for a user/org or custom-domain site; "/<repo>" for a project site.
+          FOUNDATIONS_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: yarn example:static
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: examples/site/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

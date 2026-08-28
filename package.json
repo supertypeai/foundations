@@ -72,7 +72,8 @@
     "dev:sync": "node scripts/sync.mjs --watch",
     "example": "node scripts/sync.mjs examples/site && yarn --cwd examples/site dev",
     "example:install": "yarn --cwd examples/site install",
-    "example:build": "node scripts/sync.mjs examples/site && yarn --cwd examples/site build"
+    "example:build": "node scripts/sync.mjs examples/site && yarn --cwd examples/site build",
+    "example:static": "node scripts/sync.mjs examples/site && yarn --cwd examples/site build:static"
   },
   "dependencies": {
     "@shikijs/rehype": "^2.3.2",
