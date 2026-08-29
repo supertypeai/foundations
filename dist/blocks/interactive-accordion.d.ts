@@ -2,8 +2,8 @@
  * The interactive accordion: Base UI, animated, client-side.
  *
  * `Disclosure`/`DisclosureGroup` next door is the `<details>` version an MDX
- * author gets with no JS. Neither is a variant of the other, which is why they
- * no longer share a name.
+ * author gets with no JS. Neither is a variant of the other, so they no longer
+ * share a name.
  */
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
 declare function Accordion({ className, ...props }: AccordionPrimitive.Root.Props): import("react").JSX.Element;

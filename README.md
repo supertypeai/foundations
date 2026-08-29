@@ -35,9 +35,15 @@ unstyled, or in the wrong typeface. So the package ships a CLI that writes the
 CSS for you and checks the rest:
 
 ```sh
-npx foundations init      # writes the CSS block, prints the font binding
+npx foundations init      # edits your CSS entry, prints the rest
 npx foundations doctor    # checks this app against everything below
 ```
+
+`init` edits one file: the CSS entry that imports Tailwind. It adds the imports
+you are missing and reorders the ones you already have, since the imports are a
+cascade. Run it with `--dry-run` first to see the patch. Everything else it
+prints for you to paste — the font binding, and the `llms.txt` line for a coding
+agent — because those belong in files the CLI has no business rewriting.
 
 The steps are written out below anyway. `init` is a shortcut through them, not
 a replacement for knowing what it changed. See [the CLI](docs/cli.md).
@@ -46,22 +52,23 @@ a replacement for knowing what it changed. See [the CLI](docs/cli.md).
 
 ```jsonc
 // package.json — pin a tag, never `#main`
-"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.20"
+"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.21"
 ```
 
 `dist/` is committed, so there is no install-time build step. Peers are React
->=19, Next >=15, `next-view-transitions` >=0.3 and `@base-ui/react` >=1.4.
+
+> =19, Next >=15, `next-view-transitions` >=0.3 and `@base-ui/react` >=1.4.
 
 ### 2. Import the CSS, in this order
 
 ```css
 /* app/global.css */
 @import "tailwindcss";
-@import "@supertype/foundations/tokens.css";  /* structural tokens + dark variant */
-@import "@supertype/foundations/theme.css";   /* the house palette */
-@import "@supertype/foundations/type.css";    /* the type ramp + font roles */
-@import "@supertype/foundations/prose.css";   /* inline-code rule */
-@import "@supertype/foundations/shiki.css";   /* only if you render code fences */
+@import "@supertype/foundations/tokens.css"; /* structural tokens + dark variant */
+@import "@supertype/foundations/theme.css"; /* the house palette */
+@import "@supertype/foundations/type.css"; /* the type ramp + font roles */
+@import "@supertype/foundations/prose.css"; /* inline-code rule */
+@import "@supertype/foundations/shiki.css"; /* only if you render code fences */
 
 @source '../node_modules/@supertype/foundations/dist/**/*.js';
 ```
@@ -70,7 +77,7 @@ a replacement for knowing what it changed. See [the CLI](docs/cli.md).
 default, so without it every class the package ships is purged and the components
 render with no styles at all.
 
-**`theme.css` is less optional than it looks.** It is the only file that defines
+**`theme.css` is not optional.** It is the only file that defines
 `--secondary-ink`, `--subtle-foreground`, the four earth tones the marker
 highlight uses, and the `accordion-down` and `accordion-up` keyframes. Without
 it, `<TypographyHighlight tone="sage">`, `<TypographyLink tone="secondary">` and
@@ -136,7 +143,9 @@ export default function Page() {
         Three approaches, ordered by how much of your schema they need to know.
       </TypographyProse>
 
-      <TypographyH2 divider className="mt-12">Approaches</TypographyH2>
+      <TypographyH2 divider className="mt-12">
+        Approaches
+      </TypographyH2>
 
       <Cards>
         <Card
@@ -153,10 +162,16 @@ export default function Page() {
 
       <Callout tone="warn" title="Before you start" className="mt-8">
         Replication slots hold WAL until they are consumed. An abandoned slot
-        fills the disk — see <TypographyLink href="/ops/slots" addArrow>slot hygiene</TypographyLink>.
+        fills the disk — see{" "}
+        <TypographyLink href="/ops/slots" addArrow>
+          slot hygiene
+        </TypographyLink>
+        .
       </Callout>
 
-      <TypographyCaption as="p" className="mt-8">Last reviewed March 2026</TypographyCaption>
+      <TypographyCaption as="p" className="mt-8">
+        Last reviewed March 2026
+      </TypographyCaption>
     </main>
   );
 }
@@ -200,6 +215,7 @@ hand-writing `text-sm text-muted-foreground` where a primitive exists:
 
 ```md
 <!-- CLAUDE.md, AGENTS.md, or your agent's equivalent -->
+
 @node_modules/@supertype/foundations/llms.txt
 ```
 
@@ -210,19 +226,19 @@ package.
 
 ## Entry points
 
-| import | contains | docs |
-|---|---|---|
-| `@supertype/foundations` | all typography primitives, `cn` | [Typography](docs/typography.md) |
-| `@supertype/foundations/blocks` | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md) |
-| `@supertype/foundations/mdx` | `proseMdxComponents` — the MDX element map | [In MDX](docs/blocks.md#in-mdx) |
-| `@supertype/foundations/essay` | the long-form shell, TOC, reading rail, post meta | [Essay](docs/essay.md) |
-| `@supertype/foundations/seo` | `createSeo(...)` — metadata + JSON-LD | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype/foundations/og` | `ogCard`, `OG_SIZE` — an element for `next/og` | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype/foundations/eslint` | the design rules as ESLint selectors | [Tooling](docs/tooling.md#lint-rules) |
-| `@supertype/foundations/rehype` | `rehypeProseCode` — **build-time only** | [In MDX](docs/blocks.md#in-mdx) |
-| `@supertype/foundations/contrast` | token resolution + legibility checks, build-time only | [Tooling](docs/tooling.md#contrast-checks) |
-| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer | [Tokens and theming](#tokens-and-theming) |
-| `foundations` (bin) | `init` and `doctor` | [The CLI](docs/cli.md) |
+| import                                                                | contains                                                                 | docs                                         |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------- |
+| `@supertype/foundations`                                              | all typography primitives, `cn`                                          | [Typography](docs/typography.md)             |
+| `@supertype/foundations/blocks`                                       | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
+| `@supertype/foundations/mdx`                                          | `proseMdxComponents` — the MDX element map                               | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype/foundations/essay`                                        | the long-form shell, TOC, reading rail, post meta                        | [Essay](docs/essay.md)                       |
+| `@supertype/foundations/seo`                                          | `createSeo(...)` — metadata + JSON-LD                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype/foundations/og`                                           | `ogCard`, `OG_SIZE` — an element for `next/og`                           | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype/foundations/eslint`                                       | the design rules as ESLint selectors                                     | [Tooling](docs/tooling.md#lint-rules)        |
+| `@supertype/foundations/rehype`                                       | `rehypeProseCode` — **build-time only**                                  | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype/foundations/contrast`                                     | token resolution + legibility checks, build-time only                    | [Tooling](docs/tooling.md#contrast-checks)   |
+| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                          | [Tokens and theming](#tokens-and-theming)    |
+| `foundations` (bin)                                                   | `init` and `doctor`                                                      | [The CLI](docs/cli.md)                       |
 
 The entries are split by what they pull in. Blocks and the MDX map stay out of
 the root barrel so that importing a heading does not resolve `@base-ui/react` or
@@ -256,8 +272,12 @@ left to the app. To repaint, override the raw variables after the imports rather
 than patching the utilities:
 
 ```css
-:root  { --primary: hsl(24 60% 42%); }
-.dark  { --primary: hsl(24 70% 62%); }
+:root {
+  --primary: hsl(24 60% 42%);
+}
+.dark {
+  --primary: hsl(24 70% 62%);
+}
 ```
 
 ### `.editorial`
@@ -271,9 +291,9 @@ only has one:
 <div className="editorial">…</div>   {/* or on <html> for an editorial site */}
 ```
 
-It also retunes the whole heading ladder, which is most of what it is for.
-Heading sizes are a *ratio* to the body text under them, and the two surfaces set
-body at different sizes: 13px in the product, 18px on `.editorial`. Scope the
+It also retunes the whole heading ladder, which is the larger part of what it
+does. Heading sizes are a _ratio_ to the body text under them, and the two
+surfaces set body at different sizes: 13px in the product, 18px on `.editorial`. Scope the
 class to whichever surfaces should be editorial, whether that is a marketing and
 docs section or the whole site.
 
@@ -297,3 +317,23 @@ docs section or the whole site.
    substitute its own element and strip the classes off it, but it cannot strip a
    child combinator. Both the Shiki theming and the inline-code rule rely on
    this.
+
+---
+
+## In production
+
+Sites running the package:
+
+- [supertype.ai](https://supertype.ai) — Supertype, a regional-leading analytics engineering and data science consulting firm.
+- [viably.app](https://viably.app) — Viably, an observability-first business operating system and CRM for automation-obsessed teams.
+
+---
+
+## License
+
+MIT. Copyright © 2026 Supertype. See [LICENSE](LICENSE).
+
+The package installs from this repository rather than from npm, so `private` is
+set in `package.json` to keep it off the registry by accident. That flag is
+about publishing, not permission: the MIT grant above covers using, modifying
+and redistributing it.

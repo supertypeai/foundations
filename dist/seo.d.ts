@@ -18,7 +18,7 @@ export interface ArticleAuthor {
     name: string;
     url?: string;
     sameAs?: string[];
-    /** The byline's role, which is the authorship signal a name alone does not carry. */
+    /** The byline's role. Carries an authorship signal a name alone does not. */
     jobTitle?: string;
 }
 export interface ArticleOptions {

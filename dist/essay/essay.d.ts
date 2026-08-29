@@ -30,7 +30,7 @@ export interface EssayDecorations {
 /** One section of a reference document: a heading, and the prose under it. */
 export type EssayDocSection = {
     heading: string;
-    /** A string is set as one paragraph, which is what most clauses of a policy are. */
+    /** A string is set as one paragraph. Pass a node for anything longer. */
     body: string | ReactNode;
     /** Only when the anchor has to outlive a retitling, since it is a public URL. */
     id?: string;

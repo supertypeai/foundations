@@ -47,13 +47,13 @@ export default function TokensPage() {
       <PageTitle
         eyebrow="Reference"
         title="Tokens and theming"
-        lede="The package defines structural roles, not brand colours. Every square below reads its colour through a variable, so the dark switch in the header re-points all of them at once."
+        lede="The package defines structural roles, not brand colours. Every swatch below reads its colour through a variable, so the dark switch in the header re-points all of them at once."
       />
 
       <Section
         id="structural"
         title="Structural roles"
-        note="tokens.css names the roles and theme.css gives them the house latte and espresso palette. Swap the palette and nothing that uses a role has to change."
+        note="tokens.css names the roles. theme.css assigns them the house latte and espresso palette. Swapping the palette leaves every call site untouched."
       >
         <SwatchGrid tokens={STRUCTURAL} />
       </Section>
@@ -61,7 +61,7 @@ export default function TokensPage() {
       <Section
         id="status"
         title="Status"
-        note="Each role shown with the text colour meant to sit on it. danger is an alias for destructive."
+        note="Each role paired with the ink meant to sit on it. danger is an alias for destructive."
       >
         <PairGrid pairs={STATUS} />
       </Section>
@@ -69,13 +69,13 @@ export default function TokensPage() {
       <Section
         id="editorial"
         title="Editorial inks"
-        note="These are defined in theme.css and nowhere else. If you skip that import, the marker tones, the secondary link colour and the accordion keyframes all quietly resolve to nothing. It is the most common reason the package looks broken."
+        note="Defined in theme.css and nowhere else. Skip that import and the marker tones, the secondary link colour and the accordion keyframes resolve to nothing, with no error."
       >
         <SwatchGrid tokens={EDITORIAL} />
         <TypographyProse className="mt-6">
-          The four earth tones are what{" "}
+          The four earth tones are the palette{" "}
           <TypographyHighlight tone="ochre">the marker highlight</TypographyHighlight> paints
-          with. They are for emphasis only, which is why there is no{" "}
+          with. They carry emphasis, not status, so there is no{" "}
           <TypographyInlineCode>warn</TypographyInlineCode>,{" "}
           <TypographyInlineCode>info</TypographyInlineCode> or{" "}
           <TypographyInlineCode>destructive</TypographyInlineCode> tone here.
@@ -85,7 +85,7 @@ export default function TokensPage() {
       <Section
         id="repaint"
         title="Repainting"
-        note="Override the raw variables after the imports. Do not patch the utility classes: the package owns its own classnames, and that is what lets it retune everything together."
+        note="Override the raw variables after the imports. Do not patch the utility classes — the package owns its classnames, and overriding them breaks the single point of control."
       >
         <div className="mt-4">
           <Code
@@ -106,15 +106,15 @@ export default function TokensPage() {
       <Section
         id="editorial-surface"
         title="The .editorial surface"
-        note="It gives the heading role to the serif, drops the weight to 400, and retunes the whole heading ladder. Heading sizes are a ratio to the body text under them, and the two surfaces set body at different sizes: 13px in the product, 18px on .editorial."
+        note="Assigns the heading role to the serif, drops the heading weight to 400, and retunes the heading ladder. Heading sizes are a ratio to the body text beneath them, and the two surfaces set body at different sizes: 13px in the product, 18px on .editorial."
       >
         <div className="mt-4">
           <Code code={`<div className="editorial">…</div>   {/* or on <html> for an editorial site */}`} />
         </div>
         <TypographyProse className="mt-4">
-          The switch in the header puts it on{" "}
-          <TypographyInlineCode>&lt;html&gt;</TypographyInlineCode>. Turn it on and look at the
-          typography page again: the heading sizes move and the body stays where it was.
+          The switch in the header applies it to{" "}
+          <TypographyInlineCode>&lt;html&gt;</TypographyInlineCode>. Turn it on and revisit the
+          typography page: the heading sizes move, the body size stays put.
         </TypographyProse>
       </Section>
     </WithToc>

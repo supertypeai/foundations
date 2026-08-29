@@ -6,8 +6,7 @@
 
 `@supertype/foundations/essay` holds the long-form reading surface: any page
 someone arrives at to read from the top rather than to scan for one thing. It
-also exports the individual pieces, which is what an MDX article composes
-instead.
+also exports the individual pieces, which an MDX article composes directly.
 
 ```tsx
 // lib/essay.ts

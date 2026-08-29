@@ -265,7 +265,7 @@ const checkInstall = (appRoot) => {
           "warn",
           "the installed copy does not match the pinned tag",
           `package.json asks for v${tag.join(".")}, node_modules holds ${pkgJson.version}`,
-          "That is what a `yarn sync` looks like. Fine while you iterate, but do not ship against it — `yarn install` puts the tag back.",
+          "Expected after a `yarn sync`, and fine while you iterate. Run `yarn install` to restore the tag before you ship.",
         ),
       );
     } else {
@@ -573,7 +573,7 @@ const usage = () => {
 ${bold(PKG_NAME)} ${dim(`v${pkgJson.version}`)}
 
   ${bold("foundations doctor")}    check this app against the package's contract
-  ${bold("foundations init")}      write the CSS block, print the font binding
+  ${bold("foundations init")}      add and reorder the CSS imports, print the rest
 
 Options
   --cwd <dir>    run against another app instead of the current directory

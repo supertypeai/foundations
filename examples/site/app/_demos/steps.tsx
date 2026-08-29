@@ -8,8 +8,8 @@ export default function StepsDemo() {
         Pin a tag, never <TypographyInlineCode>#main</TypographyInlineCode>.
       </Step>
       <Step title="Import the CSS, in order">
-        Or run <TypographyInlineCode>npx foundations init</TypographyInlineCode> and let it
-        write the block.
+        Or run <TypographyInlineCode>npx foundations init</TypographyInlineCode> to write
+        the imports for you.
       </Step>
       <Step title="Bind the fonts">
         With <TypographyInlineCode>.variable</TypographyInlineCode>, never{" "}

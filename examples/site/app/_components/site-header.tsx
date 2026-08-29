@@ -1,8 +1,10 @@
 import { Link } from "next-view-transitions";
 import {
+  TypographyCaption,
   TypographyEyebrow,
   TypographyH1,
   TypographyLabel,
+  TypographyLink,
   TypographyProse,
 } from "@supertype/foundations";
 import { SurfaceSwitches } from "./surface";
@@ -13,6 +15,7 @@ const PAGES = [
   ["/blocks", "Blocks"],
   ["/tokens", "Tokens"],
   ["/essay", "Essay"],
+  ["/agents", "Agents"],
 ] as const;
 
 export function SiteHeader() {
@@ -49,5 +52,24 @@ export function PageTitle({ eyebrow, title, lede }: { eyebrow: string; title: st
       </TypographyH1>
       <TypographyProse className="mt-4">{lede}</TypographyProse>
     </div>
+  );
+}
+
+/** Site footer: the licence and the tag this site is running. */
+export function SiteFooter({ version }: { version: string }) {
+  return (
+    <footer className="mt-24 border-t border-border">
+      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-8">
+        <TypographyCaption>
+          MIT licensed. Copyright © 2026 Supertype.
+        </TypographyCaption>
+        <TypographyCaption className="font-mono">
+          <TypographyLink href="https://github.com/supertypeai/foundations" addArrow>
+            supertypeai/foundations
+          </TypographyLink>{" "}
+          {version}
+        </TypographyCaption>
+      </div>
+    </footer>
   );
 }

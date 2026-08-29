@@ -1,6 +1,6 @@
 /* Structural design tokens. Import AFTER `@import "tailwindcss"`.
-   `@theme inline` is what makes `bg-card` emit CSS at all, and `inline` keeps the
-   utility pointing at the raw variable so `.dark` can re-point it. */
+   `@theme inline` is what emits `bg-card` at all, and `inline` keeps the utility
+   pointing at the raw variable so `.dark` can re-point it. */
 
 /* Binds `dark:` to the `.dark` class. Not optional, and its absence is silent:
    Tailwind v4 defaults to `prefers-color-scheme`, so every `dark:` utility would

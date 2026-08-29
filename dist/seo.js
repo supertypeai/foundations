@@ -63,9 +63,8 @@ export function createSeo(config) {
                 url,
                 image: image ?? defaultOgImage,
                 datePublished,
-                // Falls back to datePublished rather than omitting: an article with no
-                // modified date reads to a crawler as never revised, which is worse than
-                // saying it was last touched when it was written.
+                // Falls back to datePublished rather than omitting. To a crawler, an
+                // article with no modified date reads as never revised.
                 dateModified: dateModified ?? datePublished,
                 author: authors.map((a) => {
                     const author = typeof a === "string" ? { name: a } : a;

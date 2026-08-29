@@ -2,7 +2,7 @@
   "name": "@supertype/foundations",
   "version": "0.1.21",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "description": "Shared typography, prose, essay, and building blocks for Supertype projects.",
   "type": "module",
   "sideEffects": [
@@ -12,7 +12,8 @@
     "bin",
     "dist",
     "llms.txt",
-    "src/*.css"
+    "src/*.css",
+    "LICENSE"
   ],
   "bin": {
     "foundations": "./bin/foundations.mjs"
@@ -101,6 +102,11 @@
     "name": "Samuel Chan",
     "url": "https://supertype.ai/p/samuel"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/supertypeai/foundations.git"
+  },
+  "homepage": "https://github.com/supertypeai/foundations#readme",
   "contributors": [
     {
       "name": "Supertype Pte. Ltd.",

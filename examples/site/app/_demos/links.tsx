@@ -1,18 +1,20 @@
-import { TypographyLink, TypographyProse } from "@supertype/foundations";
+import { TypographyInlineCode, TypographyLink, TypographyProse } from "@supertype/foundations";
 
 export default function Links() {
   return (
     <TypographyProse>
-      Internal versus external is decided from the href, never at the call site:{" "}
-      <TypographyLink href="/blocks">this one routes</TypographyLink>,{" "}
+      The href decides whether a link routes or leaves.{" "}
+      <TypographyLink href="/blocks">An internal href</TypographyLink> routes through
+      next-view-transitions.{" "}
       <TypographyLink href="https://www.postgresql.org/docs/current/sql-copy.html" addArrow>
-        this one leaves
+        An external one
       </TypographyLink>{" "}
-      and takes an ↗ with it, and{" "}
+      opens in a new tab, and <TypographyInlineCode>addArrow</TypographyInlineCode> gives it
+      an ↗. On{" "}
       <TypographyLink href="/tokens" tone="primary" addArrow>
-        this one is the point of the line
+        an internal link
       </TypographyLink>{" "}
-      so it gets a → instead.
+      the same prop gives a →.
     </TypographyProse>
   );
 }

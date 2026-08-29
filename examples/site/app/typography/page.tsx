@@ -29,7 +29,7 @@ export default function TypographyPage() {
       <PageTitle
         eyebrow="Reference"
         title="Typography"
-        lede="You pick a role and the type ramp picks the size. .editorial retunes all four heading sizes together, so turn on the editorial switch above to see what a component does on the other surface."
+        lede="Pick a role and the ramp sets the size. Use the editorial switch above to see any component on the other surface — .editorial retunes all four heading sizes together."
       />
 
       <Section
@@ -37,10 +37,10 @@ export default function TypographyPage() {
         title="Headings"
         note={
           <>
-            <TypographyInlineCode>variant=&quot;display&quot;</TypographyInlineCode> is for a
-            heading that has to outrank the same level elsewhere, like a landing page against
-            the docs. <TypographyInlineCode>divider</TypographyInlineCode> is a separate prop
-            so you can pick a size without also committing to a border.
+            <TypographyInlineCode>variant=&quot;display&quot;</TypographyInlineCode> sets a
+            larger size at the same level, for a landing page heading that should outrank the
+            docs. <TypographyInlineCode>divider</TypographyInlineCode> adds a rule underneath.
+            The two props are independent.
           </>
         }
       >
@@ -55,11 +55,11 @@ export default function TypographyPage() {
         note={
           <>
             <TypographyInlineCode>TypographyMuted</TypographyInlineCode> pins{" "}
-            <TypographyInlineCode>tone</TypographyInlineCode> to muted and drops the prop from
-            its type, so{" "}
+            <TypographyInlineCode>tone</TypographyInlineCode> to muted and removes the prop
+            from its type:{" "}
             <TypographyInlineCode>{`<TypographyMuted tone="default">`}</TypographyInlineCode>{" "}
-            will not compile. Use <TypographyInlineCode>TypographyP</TypographyInlineCode> when
-            you need to set the tone yourself.
+            is a type error. Use <TypographyInlineCode>TypographyP</TypographyInlineCode> to
+            set the tone yourself.
           </>
         }
       >
@@ -71,7 +71,7 @@ export default function TypographyPage() {
       <Section
         id="meta"
         title="Meta and labels"
-        note="Labels and captions share one size scale, because they usually appear together as a key and its value. Setting them at different sizes is almost always a mistake."
+        note="Labels and captions share one size scale. They typically appear together as a key and its value, so match their sizes."
       >
         <Demo source="app/_demos/meta.tsx">
           <Meta />
@@ -81,7 +81,7 @@ export default function TypographyPage() {
       <Section
         id="stats"
         title="Stats, code, highlight"
-        note="The card, panel and page stat sizes ride the heading ladder, so a stat retunes along with the heading next to it on an editorial surface. Keep figures tabular anywhere the number updates in place; a headline figure looks better proportional."
+        note="The card, panel and page sizes ride the heading ladder, so a stat retunes with the heading beside it on an editorial surface. Use tabular figures wherever the number updates in place, and proportional for a headline figure."
       >
         <Demo source="app/_demos/stats.tsx">
           <Stats />
@@ -91,7 +91,7 @@ export default function TypographyPage() {
       <Section
         id="links"
         title="Links"
-        note="The href decides whether a link is internal or external, so call sites cannot get it wrong. Anything with a scheme renders a plain anchor and opens in a new tab with rel=noopener; everything else routes through next-view-transitions."
+        note="An href with a scheme renders a plain anchor and opens in a new tab with rel=noopener. Everything else routes through next-view-transitions. The decision comes from the href, not from the call site."
       >
         <Demo source="app/_demos/links.tsx">
           <Links />
@@ -100,7 +100,8 @@ export default function TypographyPage() {
 
       <Section id="your-own" title="Rendering your own element">
         <TypographyProse className="mt-3">
-          Two options, depending on whether you need a different tag or a different component.
+          Two options, depending on whether you need a different tag or a different
+          component.
         </TypographyProse>
         <div className="mt-4">
           <Code
@@ -112,10 +113,10 @@ export default function TypographyPage() {
 <Dialog.Title className={eyebrowClass("label")}>`}
           />
         </div>
-        <Callout tone="accent" density="editorial" title="Please use one of these two" className="mt-6">
-          Hand-rolling <TypographyInlineCode>text-sm font-medium</TypographyInlineCode> works
-          until someone changes the ramp. Last time we ended up with five slightly different
-          copies of the heading styles.
+        <Callout tone="accent" density="editorial" title="Use one of these two" className="mt-6">
+          Hand-rolled <TypographyInlineCode>text-sm font-medium</TypographyInlineCode> stops
+          matching the moment the ramp changes. The last time these were written by hand, the
+          codebase collected five slightly different copies of the heading styles.
         </Callout>
       </Section>
     </WithToc>

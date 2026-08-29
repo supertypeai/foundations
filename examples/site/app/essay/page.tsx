@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { TypographyProse, TypographyLink } from "@supertype/foundations";
+import { TypographyProse, TypographyLink, TypographyLabel } from "@supertype/foundations";
 import {
   EssayHeader,
   EssayLayout,
@@ -31,6 +31,21 @@ const INDEX = [
 export default function EssayPage() {
   return (
     <article className="pt-10">
+      {/*
+        This page is a specimen, not the reference: it is one essay, rendered at
+        full width, to be read rather than picked apart. Anyone who arrived
+        looking for a component's props wants Blocks, so say so before the
+        header rather than leaving them to scroll an article for an API.
+      */}
+      <div className="mx-auto max-w-2xl px-6">
+        <TypographyLabel as="p" size="xs" className="text-muted-foreground">
+          A specimen. Every piece below is documented on{" "}
+          <TypographyLink href="/blocks#editorial" tone="primary" addArrow>
+            Blocks
+          </TypographyLink>
+        </TypographyLabel>
+      </div>
+
       <EssayHeader
         eyebrow="Engineering"
         title="What we learned shipping to forty workspaces"
@@ -66,7 +81,7 @@ export default function EssayPage() {
 
         <EssaySection id="measure" heading="The measure">
           <TypographyProse>
-            <TypographyLink href="/tokens">EssayColumns</TypographyLink> is three tracks with
+            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink> is three tracks with
             the third empty. Two would push the prose off-centre the moment an aside appeared,
             setting body copy on a different axis per page.
           </TypographyProse>
@@ -87,9 +102,10 @@ export default function EssayPage() {
         <EssaySection id="rail" heading="The rail">
           <TypographyProse>
             An MDX article composes the pieces instead of using the shell whole:{" "}
-            <TypographyLink href="/blocks">EssayColumns</TypographyLink> with a{" "}
-            <TypographyLink href="/blocks">ReadingRail</TypographyLink> in the aside, its
-            headings from <TypographyLink href="/blocks">extractHeadings(source)</TypographyLink>.
+            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink> with a{" "}
+            <TypographyLink href="/blocks#reading">ReadingRail</TypographyLink> in the aside, its
+            headings from{" "}
+            <TypographyLink href="/blocks#markdown">extractHeadings(source)</TypographyLink>.
             Both the rail and the progress bar read shared stores, so mounting both costs one
             scroll subscription rather than two.
           </TypographyProse>

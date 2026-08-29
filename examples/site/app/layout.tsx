@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
 import { ViewTransitions } from "next-view-transitions";
-import { SiteHeader } from "./_components/site-header";
+import { SiteFooter, SiteHeader } from "./_components/site-header";
+import { INSTALLED_VERSION } from "./_components/version";
 import { SurfaceScript } from "./_components/surface";
 
 /**
@@ -34,7 +35,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </head>
         <body className="bg-background text-foreground antialiased">
           <SiteHeader />
-          <main className="mx-auto w-full max-w-5xl px-6 pb-32">{children}</main>
+          <main className="mx-auto w-full max-w-5xl px-6 pb-24">{children}</main>
+          <SiteFooter version={INSTALLED_VERSION} />
         </body>
       </html>
     </ViewTransitions>

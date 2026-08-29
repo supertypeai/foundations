@@ -38,7 +38,7 @@ export function SwatchGrid({ tokens, note }: { tokens: readonly string[]; note?:
   );
 }
 
-/** A role and the ink meant to sit on it, which is the pairing a token set exists to keep. */
+/** A role and the ink meant to sit on it — the pairing a token set exists to keep. */
 export function PairGrid({ pairs }: { pairs: readonly (readonly [string, string])[] }) {
   return (
     <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">

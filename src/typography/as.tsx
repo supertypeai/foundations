@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 
 /** One union, not a bespoke one per component: the narrow ones only decided, for
  * the reader, that a caption could not be a heading. Classes never change with
- * the tag, which is why `as` is a prop and not three more components. */
+ * the tag, so the tag is a prop rather than three more components. */
 export type TypographyTag =
   | "span"
   | "p"

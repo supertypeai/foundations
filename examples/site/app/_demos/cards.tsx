@@ -11,7 +11,7 @@ import {
 export default function CardDemo() {
   return (
     <div className="space-y-6">
-      {/* Shorthand, which is what an MDX author writes. An href links the whole card. */}
+      {/* Shorthand: title and description as props. An href links the whole card. */}
       <Cards>
         <Card
           href="/typography"
@@ -25,7 +25,7 @@ export default function CardDemo() {
         />
       </Cards>
 
-      {/* Composed, when the shorthand is not enough. */}
+      {/* Composed from slots, for content the shorthand cannot express. */}
       <Card>
         <CardHeader>
           <CardTitle>Usage</CardTitle>

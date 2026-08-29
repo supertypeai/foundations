@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "next-view-transitions";
 import { Rail, RailLink, TableOfContents } from "@supertype/foundations/essay";
+import { GroupedToc, type TocGroup } from "./grouped-toc";
 
 export type TocEntry = { id: string; label: string };
 
@@ -71,3 +72,25 @@ export function WithRouteRail({
     </div>
   );
 }
+
+/** Page body plus a grouped index, for a reference page too long for a flat list. */
+export function WithGroupedToc({
+  groups,
+  children,
+}: {
+  groups: readonly TocGroup[];
+  children: ReactNode;
+}) {
+  return (
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-12">
+      <div className="min-w-0">{children}</div>
+      <aside className="hidden lg:block">
+        <div className="sticky top-24 pt-20">
+          <GroupedToc groups={groups} />
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+export type { TocGroup };

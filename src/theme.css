@@ -262,7 +262,7 @@
   --elevation-overlay:
     0 6px 16px -4px hsl(0 0% 0% / 0.5), 0 16px 40px -12px hsl(0 0% 0% / 0.6);
   /* A recess in the dark is a well, not a stain: the inner shadow deepens and a
-     hairline of light catches the bottom lip, which is what sells the depth. */
+     hairline of light catches the bottom lip to sell the depth. */
   --elevation-recessed:
     inset 0 2px 5px hsl(0 0% 0% / 0.4), inset 0 -1px 0 hsl(43 20% 92% / 0.04);
   --sidebar: hsl(30 10% 13%);

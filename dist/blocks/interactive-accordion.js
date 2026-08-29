@@ -3,8 +3,8 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
  * The interactive accordion: Base UI, animated, client-side.
  *
  * `Disclosure`/`DisclosureGroup` next door is the `<details>` version an MDX
- * author gets with no JS. Neither is a variant of the other, which is why they
- * no longer share a name.
+ * author gets with no JS. Neither is a variant of the other, so they no longer
+ * share a name.
  */
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
 import { cn } from "../cn.js";

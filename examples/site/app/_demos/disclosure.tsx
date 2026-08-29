@@ -1,9 +1,9 @@
 import { Disclosure, DisclosureGroup } from "@supertype/foundations/blocks";
 
 /**
- * A <details> element, so it needs no JavaScript and is correct before
- * hydration. Single-open mode uses the shared `name` attribute browsers support
- * natively, so it costs no state and adds nothing to the client bundle.
+ * Built on the native <details> element: no JavaScript, and correct before
+ * hydration. `type="single"` uses the browser's shared `name` attribute, so it
+ * holds no client state and adds nothing to the bundle.
  */
 export default function DisclosureDemo() {
   return (

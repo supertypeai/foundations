@@ -49,7 +49,7 @@ export declare function TypographyProseList(props: Preset<ListProps, typeof PROS
  * Leading is pinned per size rather than left to the rung. Plenty of captions
  * are a wrapped sentence, and the ramp's tight setting sets those cramped —
  * descenders nearly on the caps below. `leading-normal` writes `--tw-leading`,
- * which is the variable the `text-*` step reads, so 1.5 wins at every rung.
+ * the variable the `text-*` step reads, so 1.5 wins at every rung.
  *
  * `inherit` is the parenthetical inside a heading, an eyebrow or a stat. It
  * takes the size of whatever set it and resets the weight, because the only
@@ -83,7 +83,7 @@ export declare function TypographySmall(props: Preset<WithAs<CaptionVariants>, t
  * — the key and the value, the name and the note — and a pair that cannot be set
  * at one size is not a pair. Pinning the label to `sm` while the caption had an
  * axis is what sent a key next to an `xs` value out to `font-medium text-xs` in
- * a className, which then had the weight arguing with the rung it landed on.
+ * a className, leaving the weight arguing with the rung it landed on.
  *
  * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
  * names its sections at this size, and those names are the page's outline.
@@ -96,8 +96,8 @@ export declare function TypographyLabel({ className, size, as, children, ...prop
 /**
  * A numeric readout. Size and colour ride in via className per use.
  *
- * Tabular is right in a column and wrong in a headline, which is why it is an
- * axis and not a constant. Keep `tabular` anywhere a value updates in place.
+ * Tabular is right in a column and wrong in a headline, so it is an axis rather
+ * than a constant. Keep `tabular` anywhere a value updates in place.
  */
 declare const statVariants: (props?: ({
     size?: "inherit" | "display" | "card" | "panel" | "page" | null | undefined;
@@ -150,8 +150,8 @@ type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & {
  * The router is `next-view-transitions`, imported rather than injected. Every
  * project on this package is a Next app and wants the same link, and a factory
  * bought router-agnosticism nobody used at the price of a component that could
- * not be imported by name — which is how one call site ended up on the unbound
- * version and lost its decoration.
+ * not be imported by name. One call site ended up on the unbound version that
+ * way and lost its decoration.
  */
 export declare function TypographyLink({ href, children, tone, newTab, addArrow, className, ...props }: TypographyLinkProps): import("react").JSX.Element;
 export {};

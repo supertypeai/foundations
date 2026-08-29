@@ -65,7 +65,7 @@ export default function RecipesPage() {
       <PageTitle
         eyebrow="Copy and paste"
         title="Recipes"
-        lede="Whole pages rather than single components. Each one is a complete file that only imports from the package, so you can copy it into your app and it will compile."
+        lede="Whole pages, not single components. Each recipe is a complete file importing only from the package, so it compiles as soon as you paste it into your app."
       />
 
       <Callout
@@ -75,13 +75,13 @@ export default function RecipesPage() {
         className="mt-8"
       >
         Each recipe is read off disk at build time, from the same file that rendered the
-        preview next to it. There is no second copy to go stale.
+        preview beside it. The code you copy is the code that ran.
       </Callout>
 
       <Section
         id="marketing-hero"
         title="Marketing hero"
-        note="An eyebrow, a display heading, a lede and a feature grid. The file only decides layout; every size, weight and colour comes from the ramp, so it reads correctly on both surfaces without a conditional."
+        note="An eyebrow, a display heading, a lede and a feature grid. The file sets layout only — every size, weight and colour comes from the ramp, so it renders correctly on both surfaces with no conditional."
       >
         <Demo source="app/_recipes/marketing-hero.tsx" className="p-0">
           <MarketingHero />
@@ -91,7 +91,7 @@ export default function RecipesPage() {
       <Section
         id="stat-panel"
         title="Metrics panel"
-        note="Tabular figures wherever a value updates in place, proportional for the headline. The panel size rides the heading ladder, so these stats retune along with the headings next to them."
+        note="Tabular figures wherever a value updates in place, proportional for the headline. The panel size rides the heading ladder, so these stats retune with the headings beside them."
       >
         <Demo source="app/_recipes/stat-panel.tsx">
           <StatPanel />
@@ -101,7 +101,14 @@ export default function RecipesPage() {
       <Section
         id="pricing"
         title="Pricing tiers"
-        note="The list inside each tier uses the ui variant. It sits next to 13px card copy, and reading-size bullets there would put two different body sizes on the same surface."
+        note={
+          <>
+            Each tier&apos;s feature list uses{" "}
+            <TypographyInlineCode>{`TypographyList variant="ui"`}</TypographyInlineCode> to
+            match the 13px card copy around it. The prose variant would set the bullets at
+            reading size and put two body sizes on one surface.
+          </>
+        }
       >
         <Demo source="app/_recipes/pricing.tsx" className="p-0">
           <Pricing />
@@ -111,7 +118,7 @@ export default function RecipesPage() {
       <Section
         id="docs-page"
         title="Docs page"
-        note="Steps, a callout, a prose list and an FAQ, and it ships no JavaScript. The FAQ uses Disclosure rather than Accordion, so it works before hydration. Use Accordion when you need animation or managed selection."
+        note="Steps, a callout, a prose list and an FAQ, shipping no JavaScript. The FAQ uses Disclosure, which works before hydration. Switch to Accordion when you need animation or managed selection."
       >
         <Demo source="app/_recipes/docs-page.tsx" className="p-0">
           <DocsPage />
@@ -121,7 +128,7 @@ export default function RecipesPage() {
       <Section
         id="post-index"
         title="Article index"
-        note="The meta row is the reason to import from /essay here. PostDate uses formatPostDate, the same function an OG image would call, so a card and its social preview cannot print different dates."
+        note="The meta row is what pulls /essay into a listing page. PostDate formats through formatPostDate, the same function to call when generating an OG image, so a card and its social preview print the same date."
       >
         <Demo source="app/_recipes/post-index.tsx" className="p-0">
           <PostIndex />
@@ -131,11 +138,11 @@ export default function RecipesPage() {
       <Section
         id="mdx"
         title="An MDX article"
-        note="Three files and no preview, since this is configuration rather than markup. The article shell composes the essay pieces individually, because its sections come from the markdown headings."
+        note="Three files, no preview: this is configuration rather than markup. The article shell composes the essay pieces individually, since its sections come from the markdown headings."
       >
         <TypographyProse className="mt-4">
-          First the element map. It is a plain object: the router and the image component
-          come from the package, so there is nothing to inject.
+          First the element map. It is a plain object — the router and the image component
+          ship with the package, so there is nothing to inject.
         </TypographyProse>
         <div className="mt-4">
           <Code code={MDX_COMPONENTS} />
@@ -144,9 +151,9 @@ export default function RecipesPage() {
         <TypographyProse className="mt-6">
           Then the code fences. <TypographyInlineCode>rehypeProseCode</TypographyInlineCode>{" "}
           writes <TypographyInlineCode>--shiki-light</TypographyInlineCode> and{" "}
-          <TypographyInlineCode>--shiki-dark</TypographyInlineCode> on every token instead of a
-          fixed colour, so one compiled document works in both themes and{" "}
-          <TypographyInlineCode>shiki.css</TypographyInlineCode> picks which one applies.
+          <TypographyInlineCode>--shiki-dark</TypographyInlineCode> on every token rather than
+          a fixed colour. One compiled document then serves both themes, with{" "}
+          <TypographyInlineCode>shiki.css</TypographyInlineCode> selecting which applies.
         </TypographyProse>
         <div className="mt-4">
           <Code lang="typescript" code={MDX_SOURCE_CONFIG} />
@@ -161,7 +168,8 @@ export default function RecipesPage() {
 
         <Callout tone="warn" title="Import rehypeProseCode from /rehype, not the root" className="mt-6">
           <TypographyInlineCode>source.config.ts</TypographyInlineCode> runs in plain Node,
-          where React cannot be resolved. That is why the plugin has its own entry point.
+          where React cannot be resolved. The plugin ships from its own entry point so it can
+          be imported there.
         </Callout>
       </Section>
     </WithToc>

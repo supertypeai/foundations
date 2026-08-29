@@ -139,8 +139,8 @@ export function typographyRules({
     // literal gets the size and silently drops the rest.
     //
     // Matching the class node INSIDE the attribute, rather than the className
-    // string on its own, is what lets this name the component; it reaches into
-    // `cn()` for free, since the argument sits in the same subtree.
+    // string on its own, lets this name the component. It reaches into `cn()`
+    // for free, since the argument sits in the same subtree.
     ...(axis
       ? [
           // Both node kinds, for the same reason `classString` above covers both: a

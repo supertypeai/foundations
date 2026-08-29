@@ -5,7 +5,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 /**
  * Reading progress 0→1 from one shared listener: a page mounts both the bar and
  * the rail, and hook-local state would double every subscription. Reads coalesce
- * to a frame — `scrollHeight` forces layout, which is the expensive part.
+ * to a frame, since `scrollHeight` forces layout.
  */
 let progress = 0;
 let frame = 0;
@@ -47,8 +47,8 @@ function subscribe(listener: () => void) {
 }
 
 export function useReadingProgress(): number {
-  // The server snapshot is 0 — a document that has not been scrolled — which is
-  // also the client's value on first paint, so the two agree.
+  // The server snapshot is 0, an unscrolled document. That is also the client's
+  // value on first paint, so the two agree.
   return useSyncExternalStore(subscribe, () => progress, () => 0);
 }
 

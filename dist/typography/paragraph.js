@@ -10,8 +10,8 @@ const pVariants = cva("", {
     variants: {
         /**
          * `ui` is interface copy. `prose` is the reading rung, stated here and
-         * nowhere else — it had drifted to five copies once already. Note that
-         * `--text-lg` resolves larger on an editorial subtree, which is the point.
+         * nowhere else — it had drifted to five copies once already. `--text-lg`
+         * resolves larger on an editorial subtree, by design.
          */
         variant: {
             ui: "text-sm",
@@ -40,9 +40,9 @@ export function TypographyProse(props) {
 /**
  * A list, on the same rung axis as the paragraph beside it.
  *
- * The rung composes `pVariants` rather than restating one, which is the property
- * the old `proseClass` held for the prose rung alone — a list cannot drift from
- * the copy it sits under.
+ * The rung composes `pVariants` rather than restating one, so a list cannot
+ * drift from the copy it sits under. The old `proseClass` held that property for
+ * the prose rung alone.
  *
  * `variant` is here because a list is not always reading copy. A tier card or a
  * bento cell sets its paragraphs in `ui`, and a list pinned to `prose` inside one
@@ -78,7 +78,7 @@ export function TypographyProseList(props) {
  * Leading is pinned per size rather than left to the rung. Plenty of captions
  * are a wrapped sentence, and the ramp's tight setting sets those cramped —
  * descenders nearly on the caps below. `leading-normal` writes `--tw-leading`,
- * which is the variable the `text-*` step reads, so 1.5 wins at every rung.
+ * the variable the `text-*` step reads, so 1.5 wins at every rung.
  *
  * `inherit` is the parenthetical inside a heading, an eyebrow or a stat. It
  * takes the size of whatever set it and resets the weight, because the only
@@ -121,7 +121,7 @@ export function TypographySmall(props) {
  * — the key and the value, the name and the note — and a pair that cannot be set
  * at one size is not a pair. Pinning the label to `sm` while the caption had an
  * axis is what sent a key next to an `xs` value out to `font-medium text-xs` in
- * a className, which then had the weight arguing with the rung it landed on.
+ * a className, leaving the weight arguing with the rung it landed on.
  *
  * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
  * names its sections at this size, and those names are the page's outline.
@@ -144,8 +144,8 @@ export function TypographyLabel({ className, size, as, children, ...props }) {
 /**
  * A numeric readout. Size and colour ride in via className per use.
  *
- * Tabular is right in a column and wrong in a headline, which is why it is an
- * axis and not a constant. Keep `tabular` anywhere a value updates in place.
+ * Tabular is right in a column and wrong in a headline, so it is an axis rather
+ * than a constant. Keep `tabular` anywhere a value updates in place.
  */
 const statVariants = cva("font-semibold tracking-tight", {
     variants: {
@@ -214,8 +214,8 @@ const linkClass = (tone = "foreground", className) => cn(LINK_TONES[tone], LINK_
  * The router is `next-view-transitions`, imported rather than injected. Every
  * project on this package is a Next app and wants the same link, and a factory
  * bought router-agnosticism nobody used at the price of a component that could
- * not be imported by name — which is how one call site ended up on the unbound
- * version and lost its decoration.
+ * not be imported by name. One call site ended up on the unbound version that
+ * way and lost its decoration.
  */
 export function TypographyLink({ href, children, tone = "foreground", newTab, addArrow, className, ...props }) {
     const style = linkClass(tone, className);

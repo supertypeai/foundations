@@ -19,15 +19,16 @@ export default function TabsDemo() {
           <TabsTrigger value="revenue">Revenue</TabsTrigger>
         </TabsList>
         <TabsContent value="people">
-          <TypographyProse>The boxed segmented track — the default.</TypographyProse>
+          <TypographyProse>The default variant: a boxed segmented track.</TypographyProse>
         </TabsContent>
         <TabsContent value="revenue">
-          <TypographyProse>Selection is managed, so this is a client component.</TypographyProse>
+          <TypographyProse>
+            Selection is managed state, so Tabs is a client component.
+          </TypographyProse>
         </TabsContent>
       </Tabs>
 
-      {/* The shorthand an MDX author writes as <Tabs>. Children pair with
-          `items` by position. */}
+      {/* TabGroup is the MDX shorthand. Children pair with `items` by position. */}
       <TabGroup items={["npm", "pnpm", "yarn"]}>
         <Tab value="npm">npx foundations doctor</Tab>
         <Tab value="pnpm">pnpm dlx foundations doctor</Tab>

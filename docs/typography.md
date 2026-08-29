@@ -101,7 +101,7 @@ figure usually looks better proportional.
 `TypographyHighlight` paints a felt-tip swipe as the background of the run it
 wraps. `tone` is `primary` (default), `success`, `ochre`, `terracotta`, `sage` or
 `fig`, and `seed` (any integer) changes the shape of the wobble and the grain.
-These are for emphasis, which is why there is no `warn`, `info` or `destructive`
+They carry emphasis, not status, so there is no `warn`, `info` or `destructive`
 tone.
 
 ## Links
@@ -138,8 +138,8 @@ do not change with the tag:
 
 A section named at eyebrow or label size is still part of the page outline and
 still owes a screen reader a heading. The usual alternative is a hand-rolled
-`<h2 className="text-sm font-medium">`, which is the same thing written by hand
-and free to drift from every label next to it.
+`<h2 className="text-sm font-medium">` — the same result written by hand, and
+free to drift from every label next to it.
 
 **A different component** — `headingClass()` and `eyebrowClass()` return the ramp
 as a string, for a caller that cannot render one of our tags:

@@ -6,9 +6,9 @@ export * from "./typography/index.js";
 //
 // A barrel's transitive dependencies are paid by every name it exports. mdx.tsx
 // imports `next/image`, and a bare subpath like that fails to resolve from
-// inside node_modules under a plain Node ESM loader — which is what a consumer's
-// test runner uses. Pulling it in here made every test that touches a Typography
-// component fail to import.
+// inside node_modules under a plain Node ESM loader, which is the loader a
+// consumer's test runner uses. Pulling it in here made every test that touches a
+// Typography component fail to import.
 //
 // blocks/ carries the same hazard one dependency over: interactive-accordion.tsx
 // and tabs.tsx pull `@base-ui/react`, so re-exporting them made a bare

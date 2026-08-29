@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
-import { makeApp, cleanupApps } from "./fixtures/app.js";
+import { makeApp, cleanupApps, repoPkg, DEFAULT_PEERS } from "./fixtures/app.js";
 
 const CLI = fileURLToPath(new URL("../bin/foundations.mjs", import.meta.url));
 
@@ -156,6 +156,17 @@ export default function RootLayout() {
     expect(code).toBe(0);
   });
 
+  // The default fixture pins the version this repo is at, so this case has to be
+  // asked for. It used to fire by accident on every release, in tests that were
+  // about something else.
+  it("warns when the pinned tag is not the installed version", () => {
+    const app = makeApp({ spec: "https://github.com/supertypeai/foundations.git#v0.0.1" });
+    const { code, out } = doctor(app);
+    expect(out).toContain("does not match the pinned tag");
+    expect(out).toContain(repoPkg.version);
+    expect(code).toBe(0);
+  });
+
   it("warns about an unpinned dependency", () => {
     const { out, code } = doctor(makeApp({ spec: "https://github.com/supertypeai/foundations.git#main" }));
     expect(out).toContain("not pinned to a tag");
@@ -172,6 +183,35 @@ export default function RootLayout() {
     const { code, out } = doctor(makeApp({ css: "body { color: red; }\n" }));
     expect(out).toContain("no CSS entry importing tailwindcss");
     expect(code).toBe(1);
+  });
+
+  // DEFAULT_PEERS is hand-written, so a bump to a peer range in package.json can
+  // leave it below the floor. Without this, that surfaces as a failure in
+  // "passes a correctly wired app", which says nothing about the cause.
+  it("keeps the fixture's peers within the declared ranges", () => {
+    const parts = (spec: string) => {
+      const m = /(\d+)(?:\.(\d+))?(?:\.(\d+))?/.exec(spec);
+      return m ? [Number(m[1]), Number(m[2] ?? 0), Number(m[3] ?? 0)] : null;
+    };
+    // Compare rung by rung. Comparing the arrays directly coerces both to
+    // strings, where "9.0.0" sorts above "10.0.0".
+    const atLeast = (have: number[], want: number[]) => {
+      for (let i = 0; i < 3; i += 1) {
+        if (have[i] !== want[i]) return have[i] > want[i];
+      }
+      return true;
+    };
+
+    for (const [name, range] of Object.entries(repoPkg.peerDependencies)) {
+      const have = parts(DEFAULT_PEERS[name] ?? "");
+      const want = parts(range);
+      expect(have, `${name} is missing from DEFAULT_PEERS`).not.toBeNull();
+      expect(want, `${name} has an unparseable peer range: ${range}`).not.toBeNull();
+      expect(
+        atLeast(have!, want!),
+        `DEFAULT_PEERS.${name} is ${DEFAULT_PEERS[name]}, below the declared ${range}`,
+      ).toBe(true);
+    }
   });
 
   it("refuses to run against the package itself", () => {

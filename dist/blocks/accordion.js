@@ -4,7 +4,7 @@ import { cn } from "../cn.js";
 /**
  * A disclosure group: `<details>`/`<summary>`, no JS, correct before hydration.
  *
- * Named for what it is rather than `Accordion`, which is the interactive Base UI
+ * Named for what it is rather than `Accordion`, the interactive Base UI
  * component next door. The two are not variants of each other — this one is a
  * server component an MDX author gets for free, that one animates and manages
  * state. Sharing a name is how a call site ends up with the wrong one.

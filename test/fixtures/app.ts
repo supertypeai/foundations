@@ -1,6 +1,7 @@
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  * A throwaway consumer app for the CLI to inspect.
@@ -9,7 +10,20 @@ import { dirname, join } from "node:path";
  * run it straight out of this repo, so a fixture only needs the parts the checks
  * actually look at: a package.json, a CSS entry, a root layout, and enough of
  * node_modules to resolve versions against.
+ *
+ * A default fixture is a *correctly wired* app, so anything doctor compares
+ * against the package's own metadata is derived from that metadata rather than
+ * written out here. Tests for the mismatch cases pass the wrong value in
+ * explicitly. The alternative — a literal version — turns every release into a
+ * failure in tests that are not about versions at all.
  */
+export const repoPkg = JSON.parse(
+  readFileSync(fileURLToPath(new URL("../../package.json", import.meta.url)), "utf8"),
+) as { version: string; peerDependencies: Record<string, string> };
+
+/** The tag a correctly pinned consumer would be on: the version this repo is at. */
+export const CURRENT_TAG = `https://github.com/supertypeai/foundations.git#v${repoPkg.version}`;
+
 export type FixtureOptions = {
   /** The dependency spec in package.json. `null` leaves the package undeclared. */
   spec?: string | null;
@@ -49,7 +63,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 `;
 
-const DEFAULT_PEERS = {
+/**
+ * A known-good installed set, written out rather than derived: deriving them
+ * from the declared ranges would test the CLI's range parser against itself.
+ * `peers stay within the declared ranges` guards the drift instead.
+ */
+export const DEFAULT_PEERS: Record<string, string> = {
   react: "19.1.0",
   next: "15.5.24",
   "next-view-transitions": "0.3.5",
@@ -68,10 +87,7 @@ export function makeApp(options: FixtureOptions = {}): string {
   const root = mkdtempSync(join(tmpdir(), "foundations-fixture-"));
   created.push(root);
 
-  const spec =
-    options.spec === undefined
-      ? "https://github.com/supertypeai/foundations.git#v0.1.20"
-      : options.spec;
+  const spec = options.spec === undefined ? CURRENT_TAG : options.spec;
 
   write(
     root,
@@ -99,7 +115,11 @@ export function makeApp(options: FixtureOptions = {}): string {
     const real = mkdtempSync(join(tmpdir(), "foundations-linked-"));
     created.push(real);
     write(real, "dist/index.js", "export {};");
-    write(real, "package.json", JSON.stringify({ name: "@supertype/foundations", version: "0.1.20" }));
+    write(
+      real,
+      "package.json",
+      JSON.stringify({ name: "@supertype/foundations", version: repoPkg.version }),
+    );
     mkdirSync(dirname(installed), { recursive: true });
     symlinkSync(real, installed, "dir");
   } else {
@@ -107,7 +127,7 @@ export function makeApp(options: FixtureOptions = {}): string {
     write(
       root,
       "node_modules/@supertype/foundations/package.json",
-      JSON.stringify({ name: "@supertype/foundations", version: "0.1.20" }),
+      JSON.stringify({ name: "@supertype/foundations", version: repoPkg.version }),
     );
     if (options.nestedReact) {
       write(

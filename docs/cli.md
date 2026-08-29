@@ -14,7 +14,7 @@ an error you can search for.
 They are all easy enough to check mechanically:
 
 ```sh
-npx foundations init      # write the CSS block, print the font binding
+npx foundations init      # add and reorder the CSS imports, print the rest
 npx foundations doctor    # check this app against what the package expects
 ```
 

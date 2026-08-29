@@ -7,7 +7,10 @@ import {
   AccordionContent,
 } from "@supertype/foundations/blocks";
 
-/** Base UI, animated, client-side. Its keyframes come from theme.css. */
+/**
+ * A client component built on Base UI. The open and close keyframes come from
+ * theme.css.
+ */
 export default function AccordionDemo() {
   return (
     <Accordion>
