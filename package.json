@@ -78,7 +78,8 @@
     "./og": {
       "types": "./dist/og.d.ts",
       "default": "./dist/og.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/cjs-marker.mjs && node scripts/check-llms.mjs && node scripts/pins.mjs",

@@ -20,23 +20,20 @@ local iteration against a consumer and for releasing.
 
 ## See it running
 
+Run the example site locally:
+
 ```sh
 yarn example:install   # once, to install Next, the peers and the package
 yarn example           # then open http://localhost:3000
 ```
 
-[`examples/site`](examples/site) renders every component next to the source that
-produced it, carries whole-page [recipes](examples/site/app/_recipes) to copy,
-and puts the `dark` and `.editorial` surfaces on a switch. It is also where
-documentation changes get checked, so start here if you are improving the docs.
+[`examples/site`](examples/site) renders every component along with the code, and include whole-page [recipes](examples/site/app/_recipes) to copy into your project along with the `dark` and `.editorial` switches.
 
----
+## Alternatively, check out: [the documentation site](https://supertypeai.github.io/foundations/)
 
-## Install
+## Initialization and Diagnostics
 
-Get step 2 or 3 wrong and nothing throws an error; the components just render
-unstyled, or in the wrong typeface. So the package ships a CLI that writes the
-CSS for you and checks the rest:
+This package also ships a CLI that writes the CSS for you and checks the rest:
 
 ```sh
 npx @supertype.ai/foundations init      # edits your CSS entry, prints the rest
@@ -44,13 +41,11 @@ npx @supertype.ai/foundations doctor    # checks this app against everything bel
 ```
 
 `init` edits one file: the CSS entry that imports Tailwind. It adds the imports
-you are missing and reorders the ones you already have, since the imports are a
-cascade. Run it with `--dry-run` first to see the patch. Everything else it
+you are missing and reorders anything that is out of place. Run it with `--dry-run` first to see the patch. Everything else it
 prints for you to paste — the font binding, and the `llms.txt` line for a coding
-agent — because those belong in files the CLI has no business rewriting.
+agent.
 
-The steps are written out below anyway. `init` is a shortcut through them, not
-a replacement for knowing what it changed. See [the CLI](docs/cli.md).
+The steps performed by `init` are written out below anyway. See [the CLI](docs/cli.md) for the full list of checks and details.
 
 ### 1. Add the package
 
@@ -59,8 +54,7 @@ yarn add @supertype.ai/foundations
 # or: npm install @supertype.ai/foundations
 ```
 
-The package ships built, so there is no install-time build step. Peers are
-React 19+, Next 15+, `next-view-transitions` 0.3+ and `@base-ui/react` 1.4+.
+Peers are React 19+, Next 15+, `next-view-transitions` 0.3+ and `@base-ui/react` 1.4+.
 
 <details>
 <summary>Installing from a git tag instead</summary>
@@ -91,7 +85,7 @@ untagged git dependency re-resolves to a different commit on any fresh install.
 ```
 
 **The `@source` line is required.** Tailwind does not scan `node_modules` by
-default, so without it every class the package ships is purged and the components
+default, so without it every class is purged and the components
 render with no styles at all.
 
 **`theme.css` is required.** `tokens.css` names the colour roles; `theme.css` is
@@ -100,7 +94,7 @@ resolves to nothing, so the page renders unpainted with no error. It also carrie
 `--secondary-ink`, `--subtle-foreground`, the four earth tones the marker
 highlight uses, and the `accordion-down` and `accordion-up` keyframes. Skip it
 only if you declare every role yourself; `foundations doctor` fails when neither
-is true, and names the roles you left unpainted.
+is true.
 
 ### 3. Bind the fonts
 
@@ -247,15 +241,15 @@ package.
 
 | import                                                                | contains                                                                 | docs                                         |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------- |
-| `@supertype.ai/foundations`                                              | all typography primitives, `cn`                                          | [Typography](docs/typography.md)             |
-| `@supertype.ai/foundations/blocks`                                       | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
-| `@supertype.ai/foundations/mdx`                                          | `proseMdxComponents` — the MDX element map                               | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype.ai/foundations/essay`                                        | the long-form shell, TOC, reading rail, post meta                        | [Essay](docs/essay.md)                       |
-| `@supertype.ai/foundations/seo`                                          | `createSeo(...)` — metadata + JSON-LD                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype.ai/foundations/og`                                           | `ogCard`, `OG_SIZE` — an element for `next/og`                           | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype.ai/foundations/eslint`                                       | the design rules as ESLint selectors                                     | [Tooling](docs/tooling.md#lint-rules)        |
-| `@supertype.ai/foundations/rehype`                                       | `rehypeProseCode` — **build-time only**                                  | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype.ai/foundations/contrast`                                     | token resolution + legibility checks, build-time only                    | [Tooling](docs/tooling.md#contrast-checks)   |
+| `@supertype.ai/foundations`                                           | all typography primitives, `cn`                                          | [Typography](docs/typography.md)             |
+| `@supertype.ai/foundations/blocks`                                    | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
+| `@supertype.ai/foundations/mdx`                                       | `proseMdxComponents` — the MDX element map                               | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                        | [Essay](docs/essay.md)                       |
+| `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype.ai/foundations/og`                                        | `ogCard`, `OG_SIZE` — an element for `next/og`                           | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype.ai/foundations/eslint`                                    | the design rules as ESLint selectors                                     | [Tooling](docs/tooling.md#lint-rules)        |
+| `@supertype.ai/foundations/rehype`                                    | `rehypeProseCode` — **build-time only**                                  | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/contrast`                                  | token resolution + legibility checks, build-time only                    | [Tooling](docs/tooling.md#contrast-checks)   |
 | `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                          | [Tokens and theming](#tokens-and-theming)    |
 | `foundations` (bin)                                                   | `init` and `doctor`                                                      | [The CLI](docs/cli.md)                       |
 
