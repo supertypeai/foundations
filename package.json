@@ -1,6 +1,6 @@
 {
   "name": "@supertype/foundations",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "private": true,
   "license": "MIT",
   "description": "Shared typography, prose, essay, and building blocks for Supertype projects.",
