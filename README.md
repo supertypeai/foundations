@@ -2,7 +2,6 @@
 
 [![ci](https://github.com/supertypeai/foundations/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/supertypeai/foundations/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/%40supertype.ai%2Ffoundations?logo=npm&color=cb3837)](https://www.npmjs.com/package/@supertype.ai/foundations)
-[![bundle](https://img.shields.io/bundlephobia/minzip/%40supertype.ai%2Ffoundations?label=min%2Bgzip)](https://bundlephobia.com/package/@supertype.ai/foundations)
 [![license](https://img.shields.io/npm/l/%40supertype.ai%2Ffoundations?color=blue)](LICENSE)
 
 [The foundations philosophy](https://supertypeai.github.io/foundations/philosophy/) lays out the Raison d'être better, but the crux is that it is a reusable design system that binds typography primitives, content blocks, the long-form essay shell, the token and theme CSS, and the build-time tooling that keep baseline quality high (SEO, OG cards, lint rules, contrast

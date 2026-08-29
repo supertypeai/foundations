@@ -73,11 +73,6 @@ export function createSeo(config: SeoConfig) {
     url.startsWith("http") ? url : `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
 
   /**
-   * Stable `@id` anchors for the site's core entities. Pages reference these
-   * rather than re-declaring an Organization node, so crawlers merge them into
-   * one entity instead of collecting near-duplicates.
-   */
-  /**
    * A page route in the shape this site actually serves. A URL already carrying
    * a query, a fragment or a file extension is left alone — only a route gets
    * the slash.
@@ -100,11 +95,25 @@ export function createSeo(config: SeoConfig) {
     };
   };
 
+  /**
+   * Stable `@id` anchors for the site's core entities. Pages reference these
+   * rather than re-declaring an Organization node, so crawlers merge them into
+   * one entity instead of collecting near-duplicates.
+   */
   const ORG_ID = `${baseUrl}/#organization`;
   const WEBSITE_ID = `${baseUrl}/#website`;
 
+  /**
+   * The publisher every Article and WebPage node points at. It carries `@id`
+   * only when the publisher is this site: without one, each page declares a
+   * fresh Organization and a crawler has no way to merge a corpus of them into
+   * the canonical entity the site emits once. A `publisherUrl` naming a
+   * different site gets no `@id` — `ORG_ID` is derived from `baseUrl`, so
+   * stamping it there would claim someone else's publisher as this one.
+   */
   const publisher = {
     "@type": "Organization",
+    ...(!publisherUrl || publisherUrl === baseUrl ? { "@id": ORG_ID } : {}),
     name: siteName,
     url: publisherUrl ?? baseUrl,
     ...(logoUrl

@@ -76,9 +76,10 @@ export declare function createSeo(config: SeoConfig): {
                 "@type": string;
                 url: string;
             } | undefined;
-            "@type": string;
             name: string;
             url: string;
+            "@id"?: string | undefined;
+            "@type": string;
         };
         mainEntityOfPage: {
             "@type": string;
@@ -154,9 +155,10 @@ export declare function createSeo(config: SeoConfig): {
                 "@type": string;
                 url: string;
             } | undefined;
-            "@type": string;
             name: string;
             url: string;
+            "@id"?: string | undefined;
+            "@type": string;
         };
         author?: {
             jobTitle?: string | undefined;
