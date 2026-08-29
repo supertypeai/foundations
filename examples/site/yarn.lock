@@ -397,9 +397,9 @@
   resolved "https://registry.yarnpkg.com/@shikijs/vscode-textmate/-/vscode-textmate-10.0.2.tgz#a90ab31d0cc1dfb54c66a69e515bf624fa7b2224"
   integrity sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==
 
-"@supertype.ai/foundations@https://github.com/supertypeai/foundations.git#v0.1.26":
-  version "0.1.26"
-  resolved "https://github.com/supertypeai/foundations.git#884132e79432ae2ac0734a8b1c66cedb2c1eb09c"
+"@supertype.ai/foundations@https://github.com/supertypeai/foundations.git#v0.1.27":
+  version "0.1.27"
+  resolved "https://github.com/supertypeai/foundations.git#d4e7b34142f03354e270411a297f63126004c951"
   dependencies:
     "@shikijs/rehype" "^2.3.2"
     class-variance-authority "^0.7.1"
