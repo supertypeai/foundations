@@ -1,6 +1,6 @@
 {
   "name": "@supertype.ai/foundations",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
