@@ -27,6 +27,35 @@ const run = (cmd, args) =>
 const capture = (cmd, args) =>
   execFileSync(cmd, args, { encoding: "utf8", cwd: process.cwd() }).trim();
 
+/**
+ * npm, with yarn's registry out of the way.
+ *
+ * `yarn run` exports `npm_config_registry=https://registry.yarnpkg.com` into
+ * every script it starts, and npm reads it. The auth token in ~/.npmrc is
+ * scoped to `//registry.npmjs.org/`, so npm looks up credentials for a host it
+ * has none for and reports ENEEDAUTH — while the same `npm whoami` outside
+ * yarn succeeds, which makes it look like the login did not take. Both npm
+ * calls below name the registry themselves and drop the inherited value.
+ */
+const REGISTRY = "https://registry.npmjs.org/";
+const npmEnv = () => {
+  const env = { ...process.env };
+  delete env.npm_config_registry;
+  return env;
+};
+const npm = (args) =>
+  execFileSync("npm", [...args, "--registry", REGISTRY], {
+    stdio: "inherit",
+    cwd: process.cwd(),
+    env: npmEnv(),
+  });
+const npmCapture = (args) =>
+  execFileSync("npm", [...args, "--registry", REGISTRY], {
+    encoding: "utf8",
+    cwd: process.cwd(),
+    env: npmEnv(),
+  }).trim();
+
 const die = (msg) => {
   console.error(`\nrelease aborted: ${msg}\n`);
   process.exit(1);
@@ -42,7 +71,7 @@ if (capture("git", ["status", "--porcelain"])) {
 // publish fails at the last step of the release, with the tag already on the
 // remote and no version behind it. Better to find out now.
 try {
-  capture("npm", ["whoami"]);
+  npmCapture(["whoami"]);
 } catch {
   die("not logged in to npm; run `npm login` first");
 }
@@ -91,7 +120,7 @@ run("git", ["push", "origin", tag]);
 // The tag exists, so the commit behind the registry version is now nameable.
 // `prepublishOnly` rebuilds, which is redundant after `yarn test` above and
 // cheap insurance against publishing by hand from a stale tree.
-run("npm", ["publish"]);
+npm(["publish"]);
 
 // The example's lockfile keys on the exact pin spec and resolves to the commit
 // the tag points at, so it cannot live inside that commit — it is only
