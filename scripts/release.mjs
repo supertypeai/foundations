@@ -49,11 +49,14 @@ const npm = (args) =>
     cwd: process.cwd(),
     env: npmEnv(),
   });
-const npmCapture = (args) =>
+const npmCapture = (args, { quiet = false } = {}) =>
   execFileSync("npm", [...args, "--registry", REGISTRY], {
     encoding: "utf8",
     cwd: process.cwd(),
     env: npmEnv(),
+    // execFileSync forwards child stderr to ours unless told otherwise, and a
+    // probe whose failure is a normal answer should not print an error.
+    stdio: quiet ? ["ignore", "pipe", "ignore"] : undefined,
   }).trim();
 
 const die = (msg) => {
@@ -65,7 +68,7 @@ const die = (msg) => {
 // version bump is the only thing the tag can differ by.
 if (capture("git", ["status", "--porcelain"])) {
   die("working tree has uncommitted changes; commit or stash them first");
-}
+  }
 
 // Checked before anything is built, committed or pushed: an unauthenticated
 // publish fails at the last step of the release, with the tag already on the
@@ -81,41 +84,70 @@ const branch = capture("git", ["rev-parse", "--abbrev-ref", "HEAD"]);
 const pkgPath = new URL("../package.json", import.meta.url);
 const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
 
+/** Versions the registry already has. An unpublished package has none. */
+const published = () => {
+  try {
+    return JSON.parse(npmCapture(["view", pkg.name, "versions", "--json"], { quiet: true }));
+  } catch {
+    return [];
+  }
+};
+
+/**
+ * A release that got as far as the tag and no further.
+ *
+ * `npm publish` is the last step and the only irreversible one, so it is the
+ * one most likely to be the first thing a new credential fails at — a 403 for
+ * 2FA leaves the tag pushed and the version missing from the registry. Bumping
+ * again would strand it there permanently, under a tag nobody can install. So
+ * the current version is finished rather than skipped, and only the steps it
+ * has not reached are run.
+ */
+const head = capture("git", ["rev-parse", "HEAD"]);
+const resume =
+  capture("git", ["tag", "--list", `v${pkg.version}`]) &&
+  capture("git", ["rev-list", "-n", "1", `v${pkg.version}`]) === head &&
+  !published().includes(pkg.version);
+
 const [major, minor, patch] = pkg.version.split(".").map(Number);
-const version = `${major}.${minor}.${patch + 1}`;
+const version = resume ? pkg.version : `${major}.${minor}.${patch + 1}`;
 const tag = `v${version}`;
 
-if (capture("git", ["tag", "--list", tag])) {
+if (!resume && capture("git", ["tag", "--list", tag])) {
   die(`tag ${tag} already exists`);
 }
 
-// Compile before committing: dist/ ships in the tag, so a stale or broken build
-// is what consumers would install, and they would find out at their own runtime.
-// `yarn test` builds first, then runs the suite against the output that ships.
-run("yarn", ["test"]);
+if (resume) {
+  console.log(`\n${tag} is tagged but not on the registry — publishing that.\n`);
+} else {
+  // Compile before committing: dist/ ships in the tag, so a stale or broken build
+  // is what consumers would install, and they would find out at their own runtime.
+  // `yarn test` builds first, then runs the suite against the output that ships.
+  run("yarn", ["test"]);
 
-// Tarballs are leftovers from the file: protocol. An unreferenced artifact in
-// the repo root is an invitation to install a version nobody is publishing.
-for (const file of readdirSync(process.cwd())) {
-  if (/^supertype\.ai-foundations-.*\.tgz$/.test(file)) unlinkSync(file);
+  // Tarballs are leftovers from the file: protocol. An unreferenced artifact in
+  // the repo root is an invitation to install a version nobody is publishing.
+  for (const file of readdirSync(process.cwd())) {
+    if (/^supertype\.ai-foundations-.*\.tgz$/.test(file)) unlinkSync(file);
+  }
+
+  pkg.version = version;
+  writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+
+  // The install instructions and the example app name the tag by hand. They are
+  // rewritten here, in the same commit that creates it, because a pin updated
+  // afterwards is a pin that gets forgotten — and `yarn build` fails on a stale
+  // one, so forgetting would break the next build rather than this release.
+  run("node", ["scripts/pins.mjs", "--write"]);
+
+  // -A so a source file that stops emitting takes its stale output with it.
+  run("git", ["add", "package.json", ...PIN_FILES]);
+  run("git", ["add", "-A", "dist"]);
+  run("git", ["commit", "-m", `release ${tag}`]);
+  run("git", ["tag", tag]);
+  run("git", ["push", "origin", branch]);
+  run("git", ["push", "origin", tag]);
 }
-
-pkg.version = version;
-writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
-
-// The install instructions and the example app name the tag by hand. They are
-// rewritten here, in the same commit that creates it, because a pin updated
-// afterwards is a pin that gets forgotten — and `yarn build` fails on a stale
-// one, so forgetting would break the next build rather than this release.
-run("node", ["scripts/pins.mjs", "--write"]);
-
-// -A so a source file that stops emitting takes its stale output with it.
-run("git", ["add", "package.json", ...PIN_FILES]);
-run("git", ["add", "-A", "dist"]);
-run("git", ["commit", "-m", `release ${tag}`]);
-run("git", ["tag", tag]);
-run("git", ["push", "origin", branch]);
-run("git", ["push", "origin", tag]);
 
 // The tag exists, so the commit behind the registry version is now nameable.
 // `prepublishOnly` rebuilds, which is redundant after `yarn test` above and
