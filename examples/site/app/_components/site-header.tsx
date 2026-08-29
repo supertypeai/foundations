@@ -17,18 +17,19 @@ const PAGES = NAV;
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-5 gap-y-2 px-6 py-3">
-        <Link href="/">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:items-center md:gap-x-5">
+        <Link href="/" className="shrink-0">
           <TypographyLabel as="span" size="xs" className="font-mono">
             foundations
           </TypographyLabel>
         </Link>
-        <nav className="flex flex-1 flex-wrap items-center gap-4">
+
+        <nav className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 md:flex-1 md:justify-center">
           {PAGES.map(([href, label]) => (
             <Link
               key={href}
               href={href}
-              className="text-muted-foreground hover:text-foreground"
+              className="rounded-sm px-1.5 py-1 text-muted-foreground transition-colors duration-150 hover:bg-muted/50 hover:text-foreground"
             >
               <TypographyLabel as="span" size="xs">
                 {label}
@@ -36,7 +37,8 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center justify-end gap-2 md:ml-auto">
           <SurfaceSwitches />
           <StarButton />
         </div>

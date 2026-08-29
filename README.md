@@ -1,15 +1,18 @@
 # @supertype.ai/foundations
 
-The shared design layer behind the Supertype projects: typography primitives,
-content blocks, the long-form essay shell, the token and theme CSS, and the
-build-time tooling that checks it all (SEO, OG cards, lint rules, contrast
-checks).
+[![ci](https://github.com/supertypeai/foundations/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/supertypeai/foundations/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/%40supertype.ai%2Ffoundations?logo=npm&color=cb3837)](https://www.npmjs.com/package/@supertype.ai/foundations)
+[![bundle](https://img.shields.io/bundlephobia/minzip/%40supertype.ai%2Ffoundations?label=min%2Bgzip)](https://bundlephobia.com/package/@supertype.ai/foundations)
+[![license](https://img.shields.io/npm/l/%40supertype.ai%2Ffoundations?color=blue)](LICENSE)
+
+[The foundations philosophy](https://supertypeai.github.io/foundations/philosophy/) lays out the Raison d'être better, but the crux is that it is a reusable design system that binds typography primitives, content blocks, the long-form essay shell, the token and theme CSS, and the build-time tooling that keep baseline quality high (SEO, OG cards, lint rules, contrast
+checks) in a single package. Used by Supertype's own projects like [Viably work operating system](https://viably.app) and [supertype.ai](https://supertype.ai), it is also MIT-licensed and available for any Next.js 15+ project built atop Tailwind and Shadcn.
 
 ```sh
 yarn add @supertype.ai/foundations
 ```
 
-**Start here:** [Install](#install) → [Your first page](#your-first-page).
+**Start here:** [Install](#install), then [Your first page](#your-first-page).
 
 **Reference:** [Typography](docs/typography.md) · [Blocks](docs/blocks.md) ·
 [The essay shell](docs/essay.md) · [Build-time tooling](docs/tooling.md) ·
@@ -18,18 +21,18 @@ yarn add @supertype.ai/foundations
 **Working on the package itself:** [Contributing](docs/contributing.md), for
 local iteration against a consumer and for releasing.
 
+Like the project? ⭐ Star it on [GitHub](https://github.com/supertypeai/foundations)
+
 ## See it running
 
-Run the example site locally:
+Check out: [the documentation site](https://supertypeai.github.io/foundations/), or alternatively run the example site locally:
 
 ```sh
 yarn example:install   # once, to install Next, the peers and the package
 yarn example           # then open http://localhost:3000
 ```
 
-[`examples/site`](examples/site) renders every component along with the code, and include whole-page [recipes](examples/site/app/_recipes) to copy into your project along with the `dark` and `.editorial` switches.
-
-## Alternatively, check out: [the documentation site](https://supertypeai.github.io/foundations/)
+[`examples/site`](examples/site) renders every component along with the code, and include whole-page [recipes](examples/site/app/_recipes) to copy into your project. Comes with the `dark` and `.editorial` switches.
 
 ## Initialization and Diagnostics
 
@@ -41,9 +44,7 @@ npx @supertype.ai/foundations doctor    # checks this app against everything bel
 ```
 
 `init` edits one file: the CSS entry that imports Tailwind. It adds the imports
-you are missing and reorders anything that is out of place. Run it with `--dry-run` first to see the patch. Everything else it
-prints for you to paste — the font binding, and the `llms.txt` line for a coding
-agent.
+you are missing and reorders anything that is out of place. Run it with `--dry-run` first to see the patch. Everything else it prints for you to paste (the font binding, and the `llms.txt` lines for a coding agent).
 
 The steps performed by `init` are written out below anyway. See [the CLI](docs/cli.md) for the full list of checks and details.
 
@@ -89,8 +90,7 @@ default, so without it every class is purged and the components
 render with no styles at all.
 
 **`theme.css` is required.** `tokens.css` names the colour roles; `theme.css` is
-what gives them values. Without it every colour utility still generates and
-resolves to nothing, so the page renders unpainted with no error. It also carries
+what gives them values. Without it color utility can't be resolved, so the page renders unpainted with no error. It also carries
 `--secondary-ink`, `--subtle-foreground`, the four earth tones the marker
 highlight uses, and the `accordion-down` and `accordion-up` keyframes. Skip it
 only if you declare every role yourself; `foundations doctor` fails when neither
@@ -114,9 +114,7 @@ const serif = Average({ variable: "--font-average", weight: "400", subsets: ["la
 ```
 
 **Bind with `.variable`, never `.className`.** A className sets `font-family` on
-the element itself and leaves the roles unresolved, so the page renders one
-typeface while every `font-sans` and `font-heading` utility on it renders
-another.
+the element itself and leaves the roles unresolved, causing a mismatch where the page renders one typeface while every `font-sans` and `font-heading` utility on it renders another.
 
 ### 4. Check the wiring
 
@@ -195,8 +193,7 @@ Two rules cover most of the API:
   `text-sm text-muted-foreground` is `<TypographyMuted>`. Using the primitives
   keeps a size and a colour from drifting apart across a few hundred call sites.
 - **Retune with CSS variables, not classes.** The package owns its own
-  classnames. Change a `--text-*` rung, `--heading-weight` or a colour token and
-  everything moves together.
+  classnames. Change a `--text-*`, `--heading-weight`, or a colour specification in `theme.css` to retune the whole package. Read [Tokens and theming](#tokens-and-theming) for full instructions.
 
 ---
 
@@ -205,18 +202,13 @@ Two rules cover most of the API:
 `yarn example` (above) builds the package, syncs it in and starts the dev
 server. `yarn example:build` is what CI would run.
 
-It installs the package from a git tag rather than from the registry — the
-install path that has no lockfile-independent proof anywhere else — and updates
-it with `yarn sync`, with no workspace and no symlink. Its `global.css`
-and `layout.tsx` are the blocks above, unchanged, so an install instruction that
-stops being true breaks the site.
+It installs the package from a git tag rather than from the registry and updates
+it with `yarn sync`.
 
 `/recipes` holds whole pages rather than single components: a marketing hero, a
-metrics panel, pricing tiers, a docs page, an article index, and the three files
-that wire up MDX. Each one lives in
+metrics panel, pricing tiers, a docs page, an article index, and examples of MDX-rendered pages. Each one lives in
 [`app/_recipes/`](examples/site/app/_recipes) as a complete file that imports
 only from this package, so you can paste it into your app and it compiles.
-`yarn example:build` fails if a recipe reaches for a local helper.
 
 ---
 
@@ -253,15 +245,6 @@ package.
 | `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                          | [Tokens and theming](#tokens-and-theming)    |
 | `foundations` (bin)                                                   | `init` and `doctor`                                                      | [The CLI](docs/cli.md)                       |
 
-The entries are split by what they pull in. Blocks and the MDX map stay out of
-the root barrel so that importing a heading does not resolve `@base-ui/react` or
-`next/image`, and `/rehype` and `/contrast` stay out of both so they can run in
-bare Node, where React cannot be resolved.
-
-None of the entry points can be imported from plain Node, though: typography
-reaches `next/link` through `next-view-transitions`. Import them from a Next app,
-or from a test runner that resolves Next — both consumers' vitest suites do.
-
 ---
 
 ## Tokens and theming
@@ -274,18 +257,18 @@ only ever one palette in play.
 
 Each status hue ships twice, on the same rule as the categorical tints:
 `--success`, `--warn` and `--info` are **fills**, held to 3:1 against the page
-and a card because a dot or a bar is a mark rather than words; `--success-ink`,
+and a card; `--success-ink`,
 `--warn-ink` and `--info-ink` are the same hues as **text**, held to 4.5:1.
 `--danger` ships as an ink only. `--destructive` keeps shadcn's shape, where
 `--destructive-foreground` is the label printed on the fill — that is what
 `-foreground` means throughout, and `-ink` means the hue used as words.
-`checkSignals` in `@supertype.ai/foundations/contrast` measures all three bars.
+`checkSignals` in `@supertype.ai/foundations/contrast` measures all of them and fails if any are below the threshold.
 
 `tokens.css` also binds the `dark:` variant to the `.dark` class. Do not skip
 that import: Tailwind v4 otherwise follows the OS setting and quietly ignores
 your toggle.
 
-`theme.css` gives those roles the house latte and espresso palette, and adds the
+`theme.css` gives those roles the latte and espresso palette, and adds the
 editorial inks (`--secondary-ink`, `--subtle-foreground`, and the ochre,
 terracotta, sage and fig pairs) along with the elevation shadows.
 
@@ -306,25 +289,21 @@ than patching the utilities:
 
 `type.css` names three font roles (`--font-sans`, `--font-mono` and
 `--font-heading`) and the weight that goes with the heading face. `.editorial`
-gives the heading role to the serif and drops the weight to 400, since Average
-only has one:
+gives the heading role to the serif and drops the weight to 400.
 
 ```tsx
 <div className="editorial">…</div>   {/* or on <html> for an editorial site */}
 ```
 
-It also retunes the whole heading ladder, which is the larger part of what it
-does. Heading sizes are a _ratio_ to the body text under them, and the two
-surfaces set body at different sizes: 13px in the product, 18px on `.editorial`. Scope the
-class to whichever surfaces should be editorial, whether that is a marketing and
-docs section or the whole site.
+Heading sizes are a _ratio_ to the body text under them, and the two
+surfaces set body at different sizes: 13px in the product, 18px on `.editorial`. Scope the class to whichever surfaces should be editorial, whether that is a marketing and docs section or the whole site.
 
 ---
 
 ## Design rules
 
 1. **The package owns its final classnames.** Retune with CSS custom properties
-   (the `--text-*` ramp, `--heading-weight`, the colour tokens) rather than by
+   (the `--text-*`, `--heading-weight`, the colour tokens) rather than by
    patching classes. A property the package declares is read by the package —
    `test/tokens-live.test.ts` fails on one that is not, because a knob that
    turns nothing is worse than no knob at all.
@@ -351,7 +330,7 @@ Sites running the package:
 - [supertype.ai](https://supertype.ai) — Supertype, a regional-leading analytics engineering and data science consulting firm.
 - [viably.app](https://viably.app) — Viably, an observability-first business operating system and CRM for automation-obsessed teams.
 
----
+## ![](https://assets.viably.app/app_assets/screen/usage_dark.webp)
 
 ## License
 

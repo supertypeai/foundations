@@ -31,16 +31,16 @@ const INDEX: EssayIndexEntry[] = [
 
 const CALL_SITES = `// Decided at the call site, across three files that never see each other
 <p className="text-sm text-muted-foreground">Only what the product needs to run.</p>
-<p className="text-xs text-muted-foreground">Last reviewed March 2026</p>
+<p className="text-xs text-muted-foreground">Last reviewed Sep 2026</p>
 <p className="block text-xs font-semibold uppercase tracking-wider">Guides</p>
 
 // The same three, decided once
 <TypographyMuted>Only what the product needs to run.</TypographyMuted>
-<TypographyCaption as="p">Last reviewed March 2026</TypographyCaption>
+<TypographyCaption as="p">Last reviewed Sep 2026</TypographyCaption>
 <TypographyEyebrow>Guides</TypographyEyebrow>`;
 
 /** Longer than the nav label, so the page keeps its own headline. */
-const TITLE = "Why foundations exists";
+const TITLE = "Why foundations";
 
 /** Shared with the tab and the card, so the schema cannot disagree with them. */
 const { description } = PAGES.find((page) => page.slug === "philosophy")!;
@@ -109,15 +109,15 @@ export default function PhilosophyPage() {
           </EssayFigure>
 
           <TypographyProse>
-            Two rules get you through most of the API. Don&apos;t hand-write
-            type styles: if you are reaching for{" "}
+            Two rules cover most of the API. Don&apos;t hand-write type styles:
+            if you are reaching for{" "}
             <TypographyInlineCode>
               text-sm text-muted-foreground
             </TypographyInlineCode>
             , the primitive already exists. And retune with CSS variables rather
             than classes. The package owns its final classnames and reserves the
             right to change them, so the levers you want are the{" "}
-            <TypographyInlineCode>--text-*</TypographyInlineCode> rungs,{" "}
+            <TypographyInlineCode>--text-*</TypographyInlineCode>,{" "}
             <TypographyInlineCode>--heading-weight</TypographyInlineCode>, and
             the colour tokens. Patching a class works until the next release.
           </TypographyProse>
@@ -265,9 +265,13 @@ export default function PhilosophyPage() {
         <EssaySection id="proof" heading="The documentation is a build step">
           <TypographyProse>
             This site (and this page, naturally) is built using{" "}
-            <TypographyInlineCode>@supertype.ai/foundations</TypographyInlineCode>.
-            It installs{" "}
-            <TypographyInlineCode>@supertype.ai/foundations</TypographyInlineCode>{" "}
+            <TypographyInlineCode>
+              @supertype.ai/foundations
+            </TypographyInlineCode>
+            . It installs{" "}
+            <TypographyInlineCode>
+              @supertype.ai/foundations
+            </TypographyInlineCode>{" "}
             from a git tag the same way our production apps do, and its{" "}
             <TypographyInlineCode>global.css</TypographyInlineCode> and{" "}
             <TypographyInlineCode>layout.tsx</TypographyInlineCode> are the

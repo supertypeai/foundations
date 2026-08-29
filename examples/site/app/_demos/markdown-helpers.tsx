@@ -31,7 +31,10 @@ const minutes = readingTime(SOURCE);
 // The same slugger the extractor uses, called directly to show the collision
 // rule: a repeated title gets a numeric suffix instead of a duplicate id.
 const slug = createSlugger();
-const collisions = ["The queue", "The Queue!"].map((label) => [label, slug(label)]);
+const collisions = ["The queue", "The Queue!"].map((label) => [
+  label,
+  slug(label),
+]);
 
 export default function MarkdownHelpersDemo() {
   return (
@@ -43,9 +46,10 @@ export default function MarkdownHelpersDemo() {
         <ul className="space-y-1">
           {headings.map((h) => (
             <li key={h.id} className={h.depth === 3 ? "pl-6" : undefined}>
-              <span className="font-mono text-xs text-muted-foreground">h{h.depth}</span>{" "}
-              {h.label}{" "}
-              <TypographyInlineCode>#{h.id}</TypographyInlineCode>
+              <span className="font-mono text-xs text-muted-foreground">
+                h{h.depth}
+              </span>{" "}
+              {h.label} <TypographyInlineCode>#{h.id}</TypographyInlineCode>
             </li>
           ))}
         </ul>
@@ -58,7 +62,7 @@ export default function MarkdownHelpersDemo() {
         <ul className="space-y-1">
           {collisions.map(([label, id]) => (
             <li key={id}>
-              {label} → <TypographyInlineCode>#{id}</TypographyInlineCode>
+              {label}: <TypographyInlineCode>#{id}</TypographyInlineCode>
             </li>
           ))}
         </ul>
@@ -68,9 +72,7 @@ export default function MarkdownHelpersDemo() {
         <p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
           readingTime(source)
         </p>
-        <p>
-          {minutes} min. The fenced block is excluded from the count.
-        </p>
+        <p>{minutes} min. The fenced block is excluded from the count.</p>
       </div>
     </div>
   );

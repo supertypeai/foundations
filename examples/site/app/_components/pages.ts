@@ -34,9 +34,9 @@ export const PAGES: PageCopy[] = [
   {
     slug: "philosophy",
     title: "Philosophy",
-    cardTitle: "Why foundations exists",
+    cardTitle: "The Foundations Philosophy",
     description:
-      "Six decisions that stop a design layer drifting: a named vocabulary, the bugs that never throw, tokens named for meaning, and rules that live in one place.",
+      "What binds the Foundations components together: design principles, code principles, and a test-driven approach to making things with a clear baseline.",
   },
   {
     slug: "recipes",

@@ -4,7 +4,12 @@ import type { ReactNode } from "react";
 import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
 import { ViewTransitions } from "next-view-transitions";
 import { SiteFooter, SiteHeader } from "./_components/site-header";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, SITE_TITLE } from "./_components/seo";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_ORIGIN,
+  SITE_TITLE,
+} from "./_components/seo";
 import { INSTALLED_VERSION } from "./_components/version";
 import { SurfaceScript } from "./_components/surface";
 
@@ -14,9 +19,19 @@ import { SurfaceScript } from "./_components/surface";
  * resolving to their generic tails — one face on the page, another on every
  * `font-sans` and `font-heading` utility.
  */
-const sans = Ubuntu_Sans({ variable: "--font-ubuntu-sans", subsets: ["latin"] });
-const mono = Ubuntu_Sans_Mono({ variable: "--font-ubuntu-sans-mono", subsets: ["latin"] });
-const serif = Average({ variable: "--font-average", weight: "400", subsets: ["latin"] });
+const sans = Ubuntu_Sans({
+  variable: "--font-ubuntu-sans",
+  subsets: ["latin"],
+});
+const mono = Ubuntu_Sans_Mono({
+  variable: "--font-ubuntu-sans-mono",
+  subsets: ["latin"],
+});
+const serif = Average({
+  variable: "--font-average",
+  weight: "400",
+  subsets: ["latin"],
+});
 
 /**
  * `metadataBase` is what turns every relative canonical and card URL absolute;
@@ -73,12 +88,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </head>
         <body className="bg-background text-foreground antialiased">
           <SiteHeader />
-          {/*
-            No container here on purpose. The reference pages set their own in
-            `WithRail`; the essay routes set theirs inside the package's essay
-            shell, which places a rail in a margin `main` was too narrow to
-            leave it.
-          */}
+
           <main className="w-full pb-24">{children}</main>
           <SiteFooter version={INSTALLED_VERSION} />
         </body>
