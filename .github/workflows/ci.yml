@@ -1,0 +1,41 @@
+# The package's own gate. Everything it asks of a consumer — a rule that fails a
+# build rather than advises one — has to hold here first.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: yarn install --frozen-lockfile
+
+      # Builds first (tsc, the llms.txt coverage check and the release-pin
+      # check), then the suite: contrast sweeps, token liveness, the CLI.
+      - run: yarn test
+
+  # The docs deploy syncs main over the pinned install, which is right for docs
+  # and wrong for proving the README. This job installs the tag a consumer
+  # actually gets, with no sync, so an install instruction that stops being true
+  # fails here rather than on someone else's machine.
+  pinned:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: yarn --cwd examples/site install --frozen-lockfile
+
+      - run: yarn example:pinned

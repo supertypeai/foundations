@@ -6,8 +6,9 @@
 
 Most of what this package needs from an app fails quietly when it is missing.
 A missing `@source` line purges every class the package ships, so the components
-render unstyled. A skipped `theme.css` leaves the marker tones and the accordion
-keyframes undefined. A font bound with `.className` renders one typeface on
+render unstyled. A skipped `theme.css` leaves every colour role unpainted, so
+`bg-background` resolves to nothing. A font bound with `.className` renders one
+typeface on
 `<html>` and another on every utility that asks for a role. None of them throw
 an error you can search for.
 
@@ -31,11 +32,11 @@ npx foundations init
 
 ```
 ✔ patched app/global.css
-    @import "@supertype/foundations/tokens.css";
-  + @import "@supertype/foundations/theme.css";
-    @import "@supertype/foundations/type.css";  /* the type ramp */
-    @import "@supertype/foundations/prose.css";
-  + @source '../node_modules/@supertype/foundations/dist/**/*.js';
+    @import "@supertype.ai/foundations/tokens.css";
+  + @import "@supertype.ai/foundations/theme.css";
+    @import "@supertype.ai/foundations/type.css";  /* the type ramp */
+    @import "@supertype.ai/foundations/prose.css";
+  + @source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 ```
 
 It adds what is missing and reorders what is out of order, since the imports are
@@ -67,7 +68,7 @@ The markers are `✔` fine, `·` optional, `!` works but degrades, `✖` broken.
 
 | check | what it catches |
 |---|---|
-| the dependency is pinned | a `#main` or untagged git dependency re-resolves to a different commit on any fresh install |
+| the dependency is pinned | a `#main` or untagged git dependency re-resolves to a different commit on any fresh install. A registry range is pinned by the lockfile, so it is not checked |
 | installed version matches the tag | an unreleased `yarn sync`, which is fine to iterate against but not to ship against |
 | not a symlink | `yarn link` gives you two copies of React (invalid hook call) and a path outside the project root that Turbopack fails on |
 | `dist/` is present | the package ships built, so a missing `dist/` means a broken install rather than a failed compile |
@@ -79,10 +80,23 @@ The markers are `✔` fine, `·` optional, `!` works but degrades, `✖` broken.
 | check | what it catches |
 |---|---|
 | a CSS entry importing `tailwindcss` exists | nothing else can be checked without one |
-| every required entry point is imported | `tokens.css`, `type.css` and `prose.css` are structural; `theme.css` is a warning, and the components that need it break quietly |
+| every required entry point is imported | `tokens.css`, `type.css` and `prose.css` are structural; `theme.css` is the palette, and doctor names the roles left unpainted without it |
 | the imports are in order | a later file re-points variables the earlier one defines |
 | `@source` is present and resolves | the loudest failure of the lot: without it Tailwind never scans the package and every class is purged |
 | no second `@custom-variant dark` | `tokens.css` already binds `dark:` to `.dark`, and with two declarations the later one wins |
+
+### Contrast
+
+`doctor` expands the package imports in your CSS entry and measures the palette
+that actually results, in both themes. A structural ink that cannot be read on
+its surface is an error — that is a broken page, not a styling opinion. A fill
+under 3:1 or a tinted ink under 4.5:1 is a warning, because the palette is yours.
+
+| check | what it catches |
+|---|---|
+| every structural ink clears 4.5:1 on every surface | an override that ties on specificity repaints both themes — a `.dark` block measuring 15.7:1 while the page renders white on white |
+| every fill clears 3:1 on the page and on a card | a status dot or a chart bar that cannot be picked out of its background |
+| every tinted ink clears 4.5:1, every label clears 4.5:1 on its own fill | a hue tuned as a mark and then used as words |
 
 ### Fonts
 

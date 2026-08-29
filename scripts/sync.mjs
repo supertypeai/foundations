@@ -21,10 +21,10 @@
  * the running dev server only after it restarts. --watch prints the reminder.
  */
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, rmSync, watch } from "node:fs";
+import { cpSync, existsSync, rmSync, watch, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 
@@ -52,21 +52,26 @@ const DEFAULT_TARGETS = CONSUMER_PATHS.map(locate);
  */
 const PAYLOAD = ["dist", "src", "bin", "llms.txt", "package.json", "README.md"];
 
-const args = process.argv.slice(2);
+/** Written into every synced copy. Read by `yarn example:pinned`. */
+export const SYNC_MARKER = ".synced-from-main";
+
+const main = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+const args = main ? process.argv.slice(2) : [];
 const watching = args.includes("--watch");
 const targets = args.filter((a) => !a.startsWith("--"));
 
-const consumers = (targets.length ? targets.map((t) => resolve(t)) : DEFAULT_TARGETS)
-  .map((dir) => ({ dir, dest: join(dir, "node_modules/@supertype/foundations") }))
+const consumers = (!main ? [] : targets.length ? targets.map((t) => resolve(t)) : DEFAULT_TARGETS)
+  .map((dir) => ({ dir, dest: join(dir, "node_modules/@supertype.ai/foundations") }))
   .filter(({ dir, dest }) => {
     // A missing dest means the consumer never installed us, and creating one by
     // hand would leave a package yarn does not know about.
     if (existsSync(dest)) return true;
-    console.warn(`skipped ${dir}: no node_modules/@supertype/foundations (run yarn install there first)`);
+    console.warn(`skipped ${dir}: no node_modules/@supertype.ai/foundations (run yarn install there first)`);
     return false;
   });
 
-if (!consumers.length) {
+if (main && !consumers.length) {
   console.error("no consumers to sync");
   process.exit(1);
 }
@@ -85,6 +90,10 @@ const copy = () => {
       if (!entry.includes(".")) rmSync(to, { recursive: true, force: true });
       cpSync(from, to, { recursive: true });
     }
+    // A synced tree is main wearing the tag's version number. `yarn install`
+    // removes the marker along with the rest, so its presence means this copy
+    // cannot be used to prove anything about the release.
+    writeFileSync(join(dest, SYNC_MARKER), `${new Date().toISOString()}\n`);
     console.log(`synced → ${dest}`);
   }
 };
@@ -101,7 +110,7 @@ const sync = () => {
   }
 };
 
-sync();
+if (main) sync();
 
 if (watching) {
   console.log("\nwatching src/ — restart the consumer's dev server to pick a sync up\n");

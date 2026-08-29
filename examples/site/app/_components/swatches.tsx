@@ -1,4 +1,4 @@
-import { cn, TypographyLabel, TypographyCaption } from "@supertype/foundations";
+import { cn, TypographyLabel, TypographyCaption } from "@supertype.ai/foundations";
 
 /**
  * A swatch reads its colour through the token, never a literal — which is the
@@ -34,6 +34,39 @@ export function SwatchGrid({ tokens, note }: { tokens: readonly string[]; note?:
           {note}
         </TypographyCaption>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * A hue in both of its cuts: the fill as a mark on the page, and the ink as
+ * words on that same page. Never the ink *on* the fill — that pair is not what
+ * these two tokens are, and printing one on the other measures about 1.2:1.
+ */
+export function SignalGrid({ hues }: { hues: readonly string[] }) {
+  return (
+    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {hues.map((hue) => (
+        <div key={hue} className="flex items-center gap-3 rounded-lg border border-border p-4">
+          <div
+            className="size-3 shrink-0 rounded-full"
+            style={{ backgroundColor: `var(--${hue})` }}
+          />
+          <div className="min-w-0">
+            <TypographyLabel
+              as="p"
+              size="xs"
+              className="truncate font-mono"
+              style={{ color: `var(--${hue}-ink)` }}
+            >
+              --{hue}-ink
+            </TypographyLabel>
+            <TypographyCaption as="p" size="2xs" className="font-mono">
+              the dot is --{hue}
+            </TypographyCaption>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

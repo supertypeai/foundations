@@ -45,6 +45,9 @@ jobs:
           FOUNDATIONS_STATIC: "1"
           # Empty for a user/org or custom-domain site; "/<repo>" for a project site.
           FOUNDATIONS_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # Canonicals, the sitemap, and the social cards have to be absolute,
+          # so they need the origin as well as the path.
+          FOUNDATIONS_SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
         run: yarn example:static
 
       - uses: actions/upload-pages-artifact@v3

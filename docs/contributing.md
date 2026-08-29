@@ -15,7 +15,7 @@ yarn sync        # build, then copy into each consumer's node_modules
 yarn dev:sync    # same, on every save under src/
 ```
 
-It writes to `node_modules/@supertype/foundations` in `ssite` and
+It writes to `node_modules/@supertype.ai/foundations` in `ssite` and
 `viably/on_next`, looked up under `~/Work` then `~/fun` (pass paths as arguments
 for anywhere else). Nothing else changes: the consumer's `package.json` and
 lockfile still name the tag, so CI and production install what they did before,
@@ -53,7 +53,7 @@ code that rendered the preview. A new component needs a demo file and one
 
 Recipes use the same mechanism at page scale, in `app/_recipes/`: a whole page
 someone can paste into their app. They have one rule — import only from
-`@supertype/foundations`, with no relative imports and no `@/` alias — because a
+`@supertype.ai/foundations`, with no relative imports and no `@/` alias — because a
 recipe that reaches for a helper from the example site will not compile once it
 is copied out. `scripts/check-recipes.mjs` runs as `prebuild` and fails the
 build if one does. If a file genuinely needs a local helper, put it in
@@ -119,13 +119,20 @@ points table, and to the lookup table if an app would reach for it directly.
 ## Releasing
 
 ```sh
-yarn release   # bump -> build -> commit -> tag -> push
+yarn release   # bump -> build -> commit -> tag -> push -> npm publish
 ```
 
-It refuses to run on a dirty tree, so commit your work first. The version bump is
-part of releasing rather than a separate step you have to remember: consumers pin
-a tag and yarn records the commit behind it, so shipping new code under an
-existing tag leaves them on whatever they resolved the first time.
+It refuses to run on a dirty tree, so commit your work first, and it checks
+`npm whoami` before it builds anything — an unauthenticated publish would
+otherwise fail at the last step, with the tag already pushed and no version
+behind it. The version bump is part of releasing rather than a separate step you
+have to remember: `npm publish` refuses a version it has already seen, and a
+consumer pinning the git tag records the commit behind it, so shipping new code
+under an existing version leaves them on whatever they resolved the first time.
+
+The tag and the registry version are the same commit because one command makes
+both. Publishing by hand is what breaks that, so don't: `npm publish` on its own
+skips the bump, the tag and the pin rewrite.
 
 `dist/` is tracked deliberately, so do not re-add it to `.gitignore`.
 `yarn release` always rebuilds before staging, so the committed output stays in
@@ -134,5 +141,6 @@ step with the source as long as releases go through it.
 Then repoint each consumer and commit its lockfile:
 
 ```sh
-yarn add "@supertype/foundations@https://github.com/supertypeai/foundations.git#v<version>"
+yarn add @supertype.ai/foundations            # from the registry
+yarn add "@supertype.ai/foundations@https://github.com/supertypeai/foundations.git#v<version>"  # or the tag
 ```

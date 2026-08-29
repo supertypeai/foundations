@@ -4,7 +4,7 @@
 
 # Typography
 
-Everything here imports from `@supertype/foundations`, and none of it needs a
+Everything here imports from `@supertype.ai/foundations`, and none of it needs a
 `"use client"` boundary.
 
 ## Headings

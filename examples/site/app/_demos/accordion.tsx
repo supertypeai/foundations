@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations/blocks";
 
 /**
  * A client component built on Base UI. The open and close keyframes come from

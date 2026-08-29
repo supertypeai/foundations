@@ -1,9 +1,13 @@
-# @supertype/foundations
+# @supertype.ai/foundations
 
 The shared design layer behind the Supertype projects: typography primitives,
 content blocks, the long-form essay shell, the token and theme CSS, and the
 build-time tooling that checks it all (SEO, OG cards, lint rules, contrast
 checks).
+
+```sh
+yarn add @supertype.ai/foundations
+```
 
 **Start here:** [Install](#install) → [Your first page](#your-first-page).
 
@@ -35,8 +39,8 @@ unstyled, or in the wrong typeface. So the package ships a CLI that writes the
 CSS for you and checks the rest:
 
 ```sh
-npx foundations init      # edits your CSS entry, prints the rest
-npx foundations doctor    # checks this app against everything below
+npx @supertype.ai/foundations init      # edits your CSS entry, prints the rest
+npx @supertype.ai/foundations doctor    # checks this app against everything below
 ```
 
 `init` edits one file: the CSS entry that imports Tailwind. It adds the imports
@@ -50,39 +54,53 @@ a replacement for knowing what it changed. See [the CLI](docs/cli.md).
 
 ### 1. Add the package
 
-```jsonc
-// package.json — pin a tag, never `#main`
-"@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.21"
+```sh
+yarn add @supertype.ai/foundations
+# or: npm install @supertype.ai/foundations
 ```
 
-`dist/` is committed, so there is no install-time build step. Peers are React
+The package ships built, so there is no install-time build step. Peers are
+React 19+, Next 15+, `next-view-transitions` 0.3+ and `@base-ui/react` 1.4+.
 
-> =19, Next >=15, `next-view-transitions` >=0.3 and `@base-ui/react` >=1.4.
+<details>
+<summary>Installing from a git tag instead</summary>
+
+Every release is tagged as well as published, so a commit can be installed
+directly — useful for trying an unreleased fix. Pin a tag, never `#main`: an
+untagged git dependency re-resolves to a different commit on any fresh install.
+
+```jsonc
+// package.json
+"@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.1.22"
+```
+
+</details>
 
 ### 2. Import the CSS, in this order
 
 ```css
 /* app/global.css */
 @import "tailwindcss";
-@import "@supertype/foundations/tokens.css"; /* structural tokens + dark variant */
-@import "@supertype/foundations/theme.css"; /* the house palette */
-@import "@supertype/foundations/type.css"; /* the type ramp + font roles */
-@import "@supertype/foundations/prose.css"; /* inline-code rule */
-@import "@supertype/foundations/shiki.css"; /* only if you render code fences */
+@import "@supertype.ai/foundations/tokens.css"; /* structural tokens + dark variant */
+@import "@supertype.ai/foundations/theme.css"; /* the house palette */
+@import "@supertype.ai/foundations/type.css"; /* the type ramp + font roles */
+@import "@supertype.ai/foundations/prose.css"; /* inline-code rule */
+@import "@supertype.ai/foundations/shiki.css"; /* only if you render code fences */
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 ```
 
 **The `@source` line is required.** Tailwind does not scan `node_modules` by
 default, so without it every class the package ships is purged and the components
 render with no styles at all.
 
-**`theme.css` is not optional.** It is the only file that defines
+**`theme.css` is required.** `tokens.css` names the colour roles; `theme.css` is
+what gives them values. Without it every colour utility still generates and
+resolves to nothing, so the page renders unpainted with no error. It also carries
 `--secondary-ink`, `--subtle-foreground`, the four earth tones the marker
-highlight uses, and the `accordion-down` and `accordion-up` keyframes. Without
-it, `<TypographyHighlight tone="sage">`, `<TypographyLink tone="secondary">` and
-the interactive `<Accordion>` all render wrong with no error. Import it unless
-you are supplying your own palette for every one of those names.
+highlight uses, and the `accordion-down` and `accordion-up` keyframes. Skip it
+only if you declare every role yourself; `foundations doctor` fails when neither
+is true, and names the roles you left unpainted.
 
 ### 3. Bind the fonts
 
@@ -129,8 +147,8 @@ import {
   TypographyEyebrow,
   TypographyLink,
   TypographyCaption,
-} from "@supertype/foundations";
-import { Card, Cards, Callout } from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations";
+import { Card, Cards, Callout } from "@supertype.ai/foundations/blocks";
 
 export default function Page() {
   return (
@@ -183,7 +201,7 @@ Two rules cover most of the API:
   `text-sm text-muted-foreground` is `<TypographyMuted>`. Using the primitives
   keeps a size and a colour from drifting apart across a few hundred call sites.
 - **Retune with CSS variables, not classes.** The package owns its own
-  classnames. Change `--prose-measure`, `--heading-weight` or a colour token and
+  classnames. Change a `--text-*` rung, `--heading-weight` or a colour token and
   everything moves together.
 
 ---
@@ -193,8 +211,9 @@ Two rules cover most of the API:
 `yarn example` (above) builds the package, syncs it in and starts the dev
 server. `yarn example:build` is what CI would run.
 
-It installs the package from a git tag and updates it with `yarn sync`, the same
-way `ssite` and `viably` do, with no workspace and no symlink. Its `global.css`
+It installs the package from a git tag rather than from the registry — the
+install path that has no lockfile-independent proof anywhere else — and updates
+it with `yarn sync`, with no workspace and no symlink. Its `global.css`
 and `layout.tsx` are the blocks above, unchanged, so an install instruction that
 stops being true breaks the site.
 
@@ -216,7 +235,7 @@ hand-writing `text-sm text-muted-foreground` where a primitive exists:
 ```md
 <!-- CLAUDE.md, AGENTS.md, or your agent's equivalent -->
 
-@node_modules/@supertype/foundations/llms.txt
+@node_modules/@supertype.ai/foundations/llms.txt
 ```
 
 `yarn build` fails if an export is missing from it, so it cannot fall behind the
@@ -228,15 +247,15 @@ package.
 
 | import                                                                | contains                                                                 | docs                                         |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------- |
-| `@supertype/foundations`                                              | all typography primitives, `cn`                                          | [Typography](docs/typography.md)             |
-| `@supertype/foundations/blocks`                                       | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
-| `@supertype/foundations/mdx`                                          | `proseMdxComponents` — the MDX element map                               | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype/foundations/essay`                                        | the long-form shell, TOC, reading rail, post meta                        | [Essay](docs/essay.md)                       |
-| `@supertype/foundations/seo`                                          | `createSeo(...)` — metadata + JSON-LD                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype/foundations/og`                                           | `ogCard`, `OG_SIZE` — an element for `next/og`                           | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype/foundations/eslint`                                       | the design rules as ESLint selectors                                     | [Tooling](docs/tooling.md#lint-rules)        |
-| `@supertype/foundations/rehype`                                       | `rehypeProseCode` — **build-time only**                                  | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype/foundations/contrast`                                     | token resolution + legibility checks, build-time only                    | [Tooling](docs/tooling.md#contrast-checks)   |
+| `@supertype.ai/foundations`                                              | all typography primitives, `cn`                                          | [Typography](docs/typography.md)             |
+| `@supertype.ai/foundations/blocks`                                       | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
+| `@supertype.ai/foundations/mdx`                                          | `proseMdxComponents` — the MDX element map                               | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/essay`                                        | the long-form shell, TOC, reading rail, post meta                        | [Essay](docs/essay.md)                       |
+| `@supertype.ai/foundations/seo`                                          | `createSeo(...)` — metadata + JSON-LD                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype.ai/foundations/og`                                           | `ogCard`, `OG_SIZE` — an element for `next/og`                           | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype.ai/foundations/eslint`                                       | the design rules as ESLint selectors                                     | [Tooling](docs/tooling.md#lint-rules)        |
+| `@supertype.ai/foundations/rehype`                                       | `rehypeProseCode` — **build-time only**                                  | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/contrast`                                     | token resolution + legibility checks, build-time only                    | [Tooling](docs/tooling.md#contrast-checks)   |
 | `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                          | [Tokens and theming](#tokens-and-theming)    |
 | `foundations` (bin)                                                   | `init` and `doctor`                                                      | [The CLI](docs/cli.md)                       |
 
@@ -253,11 +272,20 @@ or from a test runner that resolves Next — both consumers' vitest suites do.
 
 ## Tokens and theming
 
-`tokens.css` names the structural roles: `--background`, `--foreground`,
-`--card`, `--muted`, `--primary`, `--border` and `--ring`, plus the status set
-(`--success`, `--warn`, `--info` and `--destructive`, with `danger` as an alias
-for the last). They are named for meaning rather than hue, so a project that
-renders `success` in blue still reads correctly.
+`tokens.css` names the structural roles and nothing else: `--background`,
+`--foreground`, `--card`, `--muted`, `--primary`, `--border` and `--ring`, plus
+the status set. They are named for meaning rather than hue, so a project that
+renders `success` in blue still reads correctly. It holds no values, so there is
+only ever one palette in play.
+
+Each status hue ships twice, on the same rule as the categorical tints:
+`--success`, `--warn` and `--info` are **fills**, held to 3:1 against the page
+and a card because a dot or a bar is a mark rather than words; `--success-ink`,
+`--warn-ink` and `--info-ink` are the same hues as **text**, held to 4.5:1.
+`--danger` ships as an ink only. `--destructive` keeps shadcn's shape, where
+`--destructive-foreground` is the label printed on the fill — that is what
+`-foreground` means throughout, and `-ink` means the hue used as words.
+`checkSignals` in `@supertype.ai/foundations/contrast` measures all three bars.
 
 `tokens.css` also binds the `dark:` variant to the `.dark` class. Do not skip
 that import: Tailwind v4 otherwise follows the OS setting and quietly ignores
@@ -302,8 +330,10 @@ docs section or the whole site.
 ## Design rules
 
 1. **The package owns its final classnames.** Retune with CSS custom properties
-   (`--prose-measure`, `--prose-leading`, `--heading-weight`, the colour tokens)
-   rather than by patching classes.
+   (the `--text-*` ramp, `--heading-weight`, the colour tokens) rather than by
+   patching classes. A property the package declares is read by the package —
+   `test/tokens-live.test.ts` fails on one that is not, because a knob that
+   turns nothing is worse than no knob at all.
 2. **No variant props on the MDX map.** Elements that MDX renders automatically
    take no options, because there is no call site to make the choice. Components
    you invoke by hand can have variants.
@@ -333,7 +363,7 @@ Sites running the package:
 
 MIT. Copyright © 2026 Supertype. See [LICENSE](LICENSE).
 
-The package installs from this repository rather than from npm, so `private` is
-set in `package.json` to keep it off the registry by accident. That flag is
-about publishing, not permission: the MIT grant above covers using, modifying
-and redistributing it.
+Published to npm as
+[`@supertype.ai/foundations`](https://www.npmjs.com/package/@supertype.ai/foundations),
+and installable from this repository by tag. The MIT grant covers using,
+modifying and redistributing it either way.

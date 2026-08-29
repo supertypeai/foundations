@@ -11,7 +11,7 @@ rules as lint selectors, and a contrast sweep over the token layer.
 
 ```ts
 // lib/seo.ts
-import { createSeo } from "@supertype/foundations/seo";
+import { createSeo } from "@supertype.ai/foundations/seo";
 
 const seo = createSeo({
   baseUrl: "https://supertype.ai",
@@ -52,7 +52,7 @@ package never imports `next/og`; your app creates the `ImageResponse`:
 
 ```tsx
 import { ImageResponse } from "next/og";
-import { ogCard, OG_SIZE } from "@supertype/foundations/og";
+import { ogCard, OG_SIZE } from "@supertype.ai/foundations/og";
 
 export const size = OG_SIZE;
 export function GET() {
@@ -64,12 +64,12 @@ export function GET() {
 
 ## Lint rules
 
-`@supertype/foundations/eslint` ships the design rules as ESLint selectors, so
+`@supertype.ai/foundations/eslint` ships the design rules as ESLint selectors, so
 both apps enforce the same set. For flat config, one line does it:
 
 ```js
 // eslint.config.js
-import { designConfig } from "@supertype/foundations/eslint";
+import { designConfig } from "@supertype.ai/foundations/eslint";
 
 export default [
   ...designConfig({ accents: "the brand tints", weights: true }),
@@ -86,7 +86,7 @@ To assemble the set yourself, or on `.eslintrc`, use the builders directly:
 
 ```js
 import { colourRules, typographyRules, themeOverrideRules,
-         surfaceAsInkRules } from "@supertype/foundations/eslint";
+         surfaceAsInkRules } from "@supertype.ai/foundations/eslint";
 
 rules: {
   "no-restricted-syntax": [
@@ -133,12 +133,12 @@ people reach for first, not another rule.
 
 ### Contrast checks
 
-`@supertype/foundations/contrast` resolves the token layer the way the cascade
+`@supertype.ai/foundations/contrast` resolves the token layer the way the cascade
 does and checks it against a legibility floor. It runs at build time only, on
 strings and numbers, with no React and no DOM:
 
 ```ts
-import { resolveTokens, checkLegibility, formatFailures } from "@supertype/foundations/contrast";
+import { resolveTokens, checkLegibility, formatFailures } from "@supertype.ai/foundations/contrast";
 
 // The token layer as the browser sees it: package first, then the app's own.
 const css = [tokensCss, themeCss, typeCss, appCss].join("\n");

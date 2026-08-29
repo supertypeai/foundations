@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { TypographyH2, TypographyH3, TypographyProse } from "@supertype/foundations";
+import { TypographyH2, TypographyH3, TypographyProse } from "@supertype.ai/foundations";
 
 /** A linkable heading, an optional note, and whatever the section shows. */
 export function Section({
@@ -12,7 +12,7 @@ export function Section({
   id: string;
   title: string;
   note?: ReactNode;
-  /** Subpath the section's exports come from, e.g. `@supertype/foundations/essay`. */
+  /** Subpath the section's exports come from, e.g. `@supertype.ai/foundations/essay`. */
   from?: string;
   children: ReactNode;
 }) {

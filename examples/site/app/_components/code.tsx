@@ -1,5 +1,5 @@
 import { codeToHtml } from "shiki";
-import { PROSE_THEMES } from "@supertype/foundations/rehype";
+import { PROSE_THEMES } from "@supertype.ai/foundations/rehype";
 
 /**
  * Highlights code the same way the package's MDX pipeline does. With

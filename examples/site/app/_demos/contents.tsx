@@ -1,4 +1,4 @@
-import { TableOfContents } from "@supertype/foundations/essay";
+import { TableOfContents } from "@supertype.ai/foundations/essay";
 
 const SECTIONS = [
   { id: "rail", label: "The rail" },

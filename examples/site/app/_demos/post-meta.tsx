@@ -4,7 +4,7 @@ import {
   MetaDot,
   ReadTime,
   TagPills,
-} from "@supertype/foundations/essay";
+} from "@supertype.ai/foundations/essay";
 
 /**
  * The byline row under a title. Each part is a separate component, so a listing

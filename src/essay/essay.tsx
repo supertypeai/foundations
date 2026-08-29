@@ -146,7 +146,7 @@ export function createEssay({
           </div>
         }
       >
-        <div className="flex flex-col gap-16 border-t border-border pt-12 lg:border-t-0 lg:pt-0">
+        <div className="flex flex-col gap-16 border-t border-border pt-12 @6xl:border-t-0 @6xl:pt-0">
           {children}
         </div>
       </EssayColumns>

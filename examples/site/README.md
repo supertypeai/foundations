@@ -13,7 +13,7 @@ Then http://localhost:3000.
 
 ## How it consumes the package
 
-This app installs `@supertype/foundations` from a git tag, the same way `ssite`
+This app installs `@supertype.ai/foundations` from a git tag, the same way `ssite`
 and `viably` do, and `yarn example` copies the local build over the installed
 copy using the same `yarn sync` those two use. No workspace and no `yarn link`,
 because a symlink gives you two copies of React and a path outside the project
@@ -42,7 +42,7 @@ tiers, a docs page, an article index — for copying rather than for studying on
 component at a time. They render on `/recipes` through the same `<Demo>`.
 
 One rule separates a recipe from a demo: **a recipe imports only from
-`@supertype/foundations`.** No relative imports, no `@/` alias, nothing that
+`@supertype.ai/foundations`.** No relative imports, no `@/` alias, nothing that
 lives in this site. A file that reaches for a local helper will not compile once
 someone pastes it into their own app. `yarn check:recipes` enforces this and
 `prebuild` runs it, so `yarn build` fails rather than shipping a recipe that

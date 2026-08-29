@@ -58,7 +58,12 @@ export function resolveTokens(css: string, theme: Theme): Record<string, string>
   // so a comment sitting above one becomes part of it and the rule is silently
   // skipped — which is how a stylesheet that documents its overrides gets less
   // checking than one that does not.
-  const source0 = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  // A statement at-rule (`@import`, `@source`, `@custom-variant`, `@apply`) ends
+  // in a semicolon, and a selector is read back to the previous `}` — so leaving
+  // one in makes the block that follows it look like an at-rule and be skipped.
+  const source0 = css
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[;{}])\s*@[\w-]+[^;{}]*;/g, "$1");
 
   // Walk the text, tracking whether the current block sits inside `@layer`.
   const walk = (source: string, layered: boolean) => {
@@ -108,9 +113,26 @@ export function resolveTokens(css: string, theme: Theme): Record<string, string>
     if (!held || outranks(decl, held)) winners[decl.property] = decl;
   }
 
-  return Object.fromEntries(
+  const resolved = Object.fromEntries(
     Object.entries(winners).map(([property, decl]) => [property, decl.value]),
   );
+
+  // `--input: var(--border)` is an alias, not an unreadable value. Follow the
+  // whole-value form so a check measures what the browser paints; a fallback or
+  // an embedded var() stays unresolved, which the callers already skip.
+  const ALIAS = /^var\(\s*(--[\w-]+)\s*\)$/;
+  for (const property of Object.keys(resolved)) {
+    const seen = new Set([property]);
+    let match;
+    while ((match = ALIAS.exec(resolved[property]))) {
+      const target = match[1];
+      if (seen.has(target) || resolved[target] === undefined) break;
+      seen.add(target);
+      resolved[property] = resolved[target];
+    }
+  }
+
+  return resolved;
 }
 
 function outranks(next: Declaration, held: Declaration): boolean {
@@ -213,6 +235,79 @@ export function checkLegibility(
   }
 
   return failures;
+}
+
+/**
+ * Marks rather than words: status and categorical fills, which carry meaning as
+ * an 8px dot or a 2px bar. WCAG 1.4.11 asks 3:1 of them, not 4.5:1.
+ */
+const FILLS = [
+  "--success",
+  "--warn",
+  "--info",
+  "--terracotta",
+  "--ochre",
+  "--moss",
+  "--fern",
+  "--sage",
+  "--stone",
+  "--fig",
+  "--cocoa",
+];
+
+/**
+ * A fill has to separate from the page and from a card. Not from `--muted`: a
+ * wash of the hue is where its ink goes, and the fills sit at 2.7:1 there by
+ * design.
+ */
+const FILL_SURFACES = ["--background", "--card"];
+
+/** The same hues as words, at the bar body copy is held to. */
+const INKS_TINTED = [
+  "--success-ink",
+  "--warn-ink",
+  "--info-ink",
+  "--danger",
+  "--secondary-ink",
+  "--terracotta-foreground",
+  "--ochre-foreground",
+  "--moss-foreground",
+  "--fern-foreground",
+  "--sage-foreground",
+  "--stone-foreground",
+  "--fig-foreground",
+  "--cocoa-foreground",
+];
+
+/**
+ * shadcn's shape: `-foreground` is the label printed on the fill, so the pair is
+ * measured against itself rather than against the page.
+ */
+const ON_FILL: [fill: string, label: string][] = [
+  ["--primary", "--primary-foreground"],
+  ["--secondary", "--secondary-foreground"],
+  ["--destructive", "--destructive-foreground"],
+  ["--accent", "--accent-foreground"],
+  ["--card", "--card-foreground"],
+  ["--popover", "--popover-foreground"],
+  ["--sidebar", "--sidebar-foreground"],
+];
+
+/**
+ * The three bars a palette owes, run over the same engine as `checkLegibility`.
+ * Without this the numbers in a theme's comments are claims, not measurements.
+ */
+export function checkSignals(
+  css: string,
+  { themes = ["light", "dark"] as Theme[] } = {},
+): LegibilityFailure[] {
+  return [
+    ...checkLegibility(css, { inks: FILLS, surfaces: FILL_SURFACES, minimum: 3, themes }),
+    ...checkLegibility(css, { inks: INKS_TINTED, themes }),
+    ...ON_FILL.flatMap(([fill, label]) =>
+      checkLegibility(css, { inks: [label], surfaces: [fill], themes }),
+    ),
+  ];
 }
 
 /** A one-line report per failure, for a test's assertion message. */

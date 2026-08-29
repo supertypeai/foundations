@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { TypographyProse, TypographyInlineCode, TypographyHighlight } from "@supertype/foundations";
-import { Callout } from "@supertype/foundations/blocks";
+import { TypographyProse, TypographyInlineCode, TypographyHighlight } from "@supertype.ai/foundations";
+import { Callout } from "@supertype.ai/foundations/blocks";
 import { Section } from "../_components/section";
 import { WithToc } from "../_components/toc";
 import { PageTitle } from "../_components/site-header";
-import { SwatchGrid, PairGrid } from "../_components/swatches";
+import { SwatchGrid, PairGrid, SignalGrid } from "../_components/swatches";
 import { Code } from "../_components/code";
+import { pageMetadata } from "../_components/seo";
 
-export const metadata: Metadata = { title: "Tokens" };
+export const metadata: Metadata = pageMetadata("tokens");
 
 /** Named for meaning, not hue: a `success` a project renders blue still reads correctly. */
 const STRUCTURAL = [
@@ -24,12 +25,11 @@ const STRUCTURAL = [
   "ring",
 ] as const;
 
-const STATUS = [
-  ["success", "success-foreground"],
-  ["warn", "warn-foreground"],
-  ["info", "info-foreground"],
-  ["destructive", "destructive-foreground"],
-] as const;
+/** Fill and ink, shown side by side rather than one printed on the other. */
+const SIGNALS = ["success", "warn", "info"] as const;
+
+/** shadcn's shape, and the one status pair that really is a label on a fill. */
+const ON_FILL = [["destructive", "destructive-foreground"]] as const;
 
 const EDITORIAL = ["secondary-ink", "subtle-foreground", "ochre", "terracotta", "sage", "fig"] as const;
 
@@ -61,9 +61,10 @@ export default function TokensPage() {
       <Section
         id="status"
         title="Status"
-        note="Each role paired with the ink meant to sit on it. danger is an alias for destructive."
+        note="Each status hue ships twice: the fill, held to 3:1 as a mark, and the ink, held to 4.5:1 as words on the page. Nothing prints a label on a status fill — orange carries white text at no lightness. destructive is the exception below, shadcn's pair, where the second token is the label on the fill. danger ships as an ink only."
       >
-        <PairGrid pairs={STATUS} />
+        <SignalGrid hues={SIGNALS} />
+        <PairGrid pairs={ON_FILL} />
       </Section>
 
       <Section

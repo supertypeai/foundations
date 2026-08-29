@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { TypographyProse, TypographyInlineCode } from "@supertype/foundations";
-import { Callout } from "@supertype/foundations/blocks";
+import { TypographyProse, TypographyInlineCode } from "@supertype.ai/foundations";
+import { Callout } from "@supertype.ai/foundations/blocks";
 import { Demo } from "../_components/demo";
 import { Section } from "../_components/section";
 import { WithToc } from "../_components/toc";
@@ -11,20 +11,21 @@ import StatPanel from "../_recipes/stat-panel";
 import Pricing from "../_recipes/pricing";
 import DocsPage from "../_recipes/docs-page";
 import PostIndex from "../_recipes/post-index";
+import { pageMetadata } from "../_components/seo";
 
-export const metadata: Metadata = { title: "Recipes" };
+export const metadata: Metadata = pageMetadata("recipes");
 
 /** The three files that wire the MDX map up. Nothing to preview — this is config. */
 const MDX_COMPONENTS = `// mdx-components.tsx — the file convention @next/mdx calls with no arguments
 import type { MDXComponents } from "mdx/types";
-import { proseMdxComponents } from "@supertype/foundations/mdx";
+import { proseMdxComponents } from "@supertype.ai/foundations/mdx";
 
 export function useMDXComponents(): MDXComponents {
   return proseMdxComponents as MDXComponents;
 }`;
 
 const MDX_SOURCE_CONFIG = `// source.config.ts — runs in bare Node, so it must not reach React
-import { rehypeProseCode } from "@supertype/foundations/rehype";
+import { rehypeProseCode } from "@supertype.ai/foundations/rehype";
 
 export default defineConfig({
   mdxOptions: { rehypePlugins: [rehypeProseCode] },
@@ -33,7 +34,7 @@ export default defineConfig({
 const MDX_ARTICLE = `// app/notes/[slug]/page.tsx — the article shell around compiled MDX
 import { extractHeadings, readingTime, EssayHeader, EssayColumns,
          ReadingRail, PostMetaRow, PostDate, ReadTime, TagPills,
-         MetaDot } from "@supertype/foundations/essay";
+         MetaDot } from "@supertype.ai/foundations/essay";
 
 const headings = extractHeadings(source);   // TocHeading[] — { id, label, depth }
 const minutes = readingTime(source);        // words / 200, rounded up

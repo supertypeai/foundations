@@ -6,8 +6,8 @@ import {
   TypographyLabel,
   TypographyCaption,
   TypographyMuted,
-} from "@supertype/foundations";
-import { Cards, Card, CardHeader, CardTitle, CardDescription, CardContent, Callout } from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations";
+import { Cards, Card, CardHeader, CardTitle, CardDescription, CardContent, Callout } from "@supertype.ai/foundations/blocks";
 
 /**
  * Pricing tiers. The feature list uses `variant="ui"` because it sits next to

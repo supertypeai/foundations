@@ -1,10 +1,9 @@
-/* Structural design tokens. Import AFTER `@import "tailwindcss"`.
-   `@theme inline` is what emits `bg-card` at all, and `inline` keeps the utility
-   pointing at the raw variable so `.dark` can re-point it. */
+/* The structural roles, and nothing else. This file names them and binds the
+   dark variant; theme.css assigns every one a value. An app that skips theme.css
+   must declare all of them itself — `foundations doctor` fails if neither holds. */
 
-/* Binds `dark:` to the `.dark` class. Not optional, and its absence is silent:
-   Tailwind v4 defaults to `prefers-color-scheme`, so every `dark:` utility would
-   follow the OS and ignore the app's toggle. Ships here with the `.dark` block. */
+/* Binds `dark:` to the `.dark` class. Without it Tailwind v4 follows the OS
+   setting and ignores the app's toggle, silently. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
@@ -26,82 +25,19 @@
   --color-destructive-foreground: var(--destructive-foreground);
 
   /* Named for meaning, not hue: a `success` a project renders blue still reads
-     correctly. `danger` aliases `destructive` — both names were already in use. */
+     right. Each status hue ships twice — the fill is a mark, the ink is words. */
   --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
+  --color-success-ink: var(--success-ink);
   --color-warn: var(--warn);
-  --color-warn-foreground: var(--warn-foreground);
+  --color-warn-ink: var(--warn-ink);
   --color-info: var(--info);
-  --color-info-foreground: var(--info-foreground);
-  --color-danger: var(--destructive);
+  --color-info-ink: var(--info-ink);
+  --color-danger: var(--danger);
+
+  /* Deprecated: this was always an ink. Use `warn-ink`. */
+  --color-warn-foreground: var(--warn-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-}
-
-@layer base {
-  :root {
-    /* Prose knobs. These are the supported way to retune spacing and rhythm —
-       prose components take no `variant` or `density` props by design. */
-    --prose-measure: 68ch;
-    --prose-leading: 1.75;
-    --prose-gap: 1.25rem;
-
-    --background: hsl(0, 0%, 96%);
-    --foreground: hsl(0, 0%, 3.9%);
-    --card: hsl(0, 0%, 94.7%);
-    --card-foreground: hsl(0, 0%, 3.9%);
-    --popover: hsl(0, 0%, 98%);
-    --popover-foreground: hsl(0, 0%, 15.1%);
-    --primary: hsl(0, 0%, 9%);
-    --primary-foreground: hsl(0, 0%, 98%);
-    --secondary: hsl(0, 0%, 93.1%);
-    --secondary-foreground: hsl(0, 0%, 9%);
-    --muted: hsl(0, 0%, 96.1%);
-    /* 42.5%, not shadcn's 45.1%: that measured 4.22:1 on --card and 4.35:1 on
-       --muted, both under AA for body text, and this token is the secondary ink
-       every caption and every meta row is set in. */
-    --muted-foreground: hsl(0, 0%, 42.5%);
-    --accent: hsl(0, 0%, 90.1%);
-    --accent-foreground: hsl(0, 0%, 9%);
-    --destructive: hsl(0, 91%, 71%);
-    --destructive-foreground: hsl(0, 91%, 100%);
-    --success: hsl(142, 75%, 31%);
-    --success-foreground: hsl(142, 75%, 96%);
-    --warn: hsl(30, 100%, 52%);
-    --warn-foreground: hsl(22, 85%, 36%);
-    --info: hsl(211, 80%, 43%);
-    --info-foreground: hsl(211, 80%, 96%);
-    --border: hsl(0, 0%, 89.8%);
-    --input: hsl(20, 5.9%, 90%);
-    --ring: hsl(0, 0%, 63.9%);
-  }
-
-  .dark {
-    --background: hsl(0, 0%, 7.04%);
-    --foreground: hsl(0, 0%, 92%);
-    --card: hsl(0, 0%, 9.8%);
-    --card-foreground: hsl(0, 0%, 98%);
-    --popover: hsl(0, 0%, 9.8%);
-    --popover-foreground: hsl(0, 0%, 88%);
-    --primary: hsl(0, 0%, 98%);
-    --primary-foreground: hsl(0, 0%, 9%);
-    --secondary: hsl(0, 0%, 12.9%);
-    --secondary-foreground: hsl(0, 0%, 98%);
-    --muted: hsl(0, 0%, 12.9%);
-    --muted-foreground: hsl(0, 0%, 60.9%);
-    --accent: hsl(0, 0%, 16.9%);
-    --accent-foreground: hsl(0, 0%, 90%);
-    --destructive: hsl(0, 62.8%, 30.6%);
-    --destructive-foreground: hsl(0, 85.7%, 97.3%);
-    --success: hsl(142, 60%, 45%);
-    --success-foreground: hsl(142, 75%, 10%);
-    --warn: hsl(30, 90%, 55%);
-    --warn-foreground: hsl(33, 60%, 72%);
-    --info: hsl(211, 75%, 60%);
-    --info-foreground: hsl(211, 80%, 10%);
-    --border: hsl(0, 0%, 14%);
-    --input: hsl(240, 3.7%, 15.9%);
-    --ring: hsl(0, 0%, 54.9%);
-  }
 }

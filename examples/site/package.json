@@ -5,16 +5,18 @@
   "license": "UNLICENSED",
   "packageManager": "yarn@1.22.22",
   "scripts": {
+    "predev": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/og.mjs",
     "dev": "next dev --turbopack",
-    "prebuild": "node scripts/check-recipes.mjs",
+    "prebuild": "node scripts/check-recipes.mjs && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/og.mjs",
     "build": "next build",
     "start": "next start",
     "check:recipes": "node scripts/check-recipes.mjs",
-    "build:static": "FOUNDATIONS_STATIC=1 next build"
+    "og": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/og.mjs",
+    "build:static": "FOUNDATIONS_STATIC=1 yarn build"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
-    "@supertype/foundations": "https://github.com/supertypeai/foundations.git#v0.1.21",
+    "@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.1.22",
     "next": "^15.5.7",
     "next-view-transitions": "^0.3.4",
     "react": "^19.0.0",

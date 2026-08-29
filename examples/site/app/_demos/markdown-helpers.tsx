@@ -1,9 +1,9 @@
-import { TypographyInlineCode } from "@supertype/foundations";
+import { TypographyInlineCode } from "@supertype.ai/foundations";
 import {
   extractHeadings,
   createSlugger,
   readingTime,
-} from "@supertype/foundations/essay";
+} from "@supertype.ai/foundations/essay";
 
 /**
  * Plain functions over raw markdown, with no DOM and no compiled MDX, so they

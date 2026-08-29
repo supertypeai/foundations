@@ -1,5 +1,5 @@
-import { TypographyStat, TypographyLabel, TypographyCaption } from "@supertype/foundations";
-import { Cards, Card, CardHeader, CardTitle, CardContent } from "@supertype/foundations/blocks";
+import { TypographyStat, TypographyLabel, TypographyCaption } from "@supertype.ai/foundations";
+import { Cards, Card, CardHeader, CardTitle, CardContent } from "@supertype.ai/foundations/blocks";
 
 /**
  * A metrics row for a product surface. Two things worth copying:

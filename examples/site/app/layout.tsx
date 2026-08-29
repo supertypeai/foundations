@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
 import { ViewTransitions } from "next-view-transitions";
 import { SiteFooter, SiteHeader } from "./_components/site-header";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, SITE_TITLE } from "./_components/seo";
 import { INSTALLED_VERSION } from "./_components/version";
 import { SurfaceScript } from "./_components/surface";
 
@@ -17,9 +18,46 @@ const sans = Ubuntu_Sans({ variable: "--font-ubuntu-sans", subsets: ["latin"] })
 const mono = Ubuntu_Sans_Mono({ variable: "--font-ubuntu-sans-mono", subsets: ["latin"] });
 const serif = Average({ variable: "--font-average", weight: "400", subsets: ["latin"] });
 
+/**
+ * `metadataBase` is what turns every relative canonical and card URL absolute;
+ * without it a crawler reads the whole site as unaddressed. The canonicals
+ * themselves are set per page: one in here would merge into all of them and
+ * declare them duplicates of the homepage.
+ *
+ * Both titles are templated. The tab gets "Blocks · Foundations"; so does the
+ * card, which otherwise falls back to the bare page name once it leaves the
+ * site.
+ */
 export const metadata: Metadata = {
-  title: { default: "foundations", template: "%s · foundations" },
-  description: "The Supertype design layer, rendered.",
+  metadataBase: new URL(SITE_ORIGIN),
+  title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "React typography",
+    "Tailwind CSS",
+    "shadcn/ui",
+    "design tokens",
+    "design system",
+    "prose styles",
+    "Supertype",
+  ],
+  authors: [{ name: "Supertype", url: "https://supertype.ai" }],
+  creator: "Supertype",
+  publisher: "Supertype",
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
+    description: SITE_DESCRIPTION,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
+    description: SITE_DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -35,7 +73,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </head>
         <body className="bg-background text-foreground antialiased">
           <SiteHeader />
-          <main className="mx-auto w-full max-w-5xl px-6 pb-24">{children}</main>
+          {/*
+            No container here on purpose. The reference pages set their own in
+            `WithRail`; the essay routes set theirs inside the package's essay
+            shell, which places a rail in a margin `main` was too narrow to
+            leave it.
+          */}
+          <main className="w-full pb-24">{children}</main>
           <SiteFooter version={INSTALLED_VERSION} />
         </body>
       </html>

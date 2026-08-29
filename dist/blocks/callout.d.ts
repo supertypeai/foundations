@@ -17,7 +17,7 @@ declare const TONE: {
     /** A prerequisite or a footgun: the reader can still proceed, but not blindly. */
     readonly warn: {
         readonly box: "border-warn/25 bg-warn/5";
-        readonly title: "text-warn-foreground";
+        readonly title: "text-warn-ink";
         readonly icon: "text-warn";
         readonly rail: "bg-warn/60";
     };

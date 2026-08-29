@@ -11,7 +11,8 @@ import { TypographyProse, TypographyProseList, TypographyLink, } from "./typogra
 /**
  * Rendered from markdown syntax, so there is no call site and no knob — a knob
  * here is one every project turns differently. Headings carry variants and this
- * map binds them; retune in CSS via `--prose-measure` / `--prose-leading`.
+ * map binds them; retune in CSS by moving the `--text-*` rung, or with
+ * `.editorial` over the subtree.
  *
  * A constant rather than a factory: the router and the image component are the
  * package's now, so there is nothing left for a consumer to inject.

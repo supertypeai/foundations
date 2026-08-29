@@ -16,6 +16,10 @@ import type { NextConfig } from "next";
  *   FOUNDATIONS_STATIC=1                        export to out/, served at /
  *   FOUNDATIONS_BASE_PATH=/foundations          export for a project Pages site
  *
+ * app/_components/seo.ts reads FOUNDATIONS_BASE_PATH too, alongside
+ * FOUNDATIONS_SITE_ORIGIN, to build the canonicals and the sitemap. The two
+ * files read the same variable so a build cannot claim a URL it is not at.
+ *
  * trailingSlash makes every route a directory index (out/tokens/index.html), the
  * only shape a plain static host resolves without rewrite rules.
  */

@@ -4,8 +4,8 @@ import {
   TypographyH3,
   TypographyProse,
   TypographyLink,
-} from "@supertype/foundations";
-import { PostMetaRow, PostDate, MetaDot, ReadTime, TagPills } from "@supertype/foundations/essay";
+} from "@supertype.ai/foundations";
+import { PostMetaRow, PostDate, MetaDot, ReadTime, TagPills } from "@supertype.ai/foundations/essay";
 
 /**
  * An article index. The meta row is the reason to import from /essay here

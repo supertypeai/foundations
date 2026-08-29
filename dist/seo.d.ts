@@ -13,6 +13,13 @@ export interface SeoConfig {
     logoUrl?: string;
     /** Path prefix articles live under, no slashes. Defaults to "notes". */
     articleBasePath?: string;
+    /** The publisher's own site, when it is not this one. Defaults to `baseUrl`. */
+    publisherUrl?: string;
+    /**
+     * Routes served as directory indexes, as a static export with `trailingSlash`
+     * does. Structured data then names the same URL the canonical does.
+     */
+    trailingSlash?: boolean;
 }
 export interface ArticleAuthor {
     name: string;
@@ -141,16 +148,27 @@ export declare function createSeo(config: SeoConfig): {
         }[];
     };
     /** Schema.org WebPage and its narrower types. */
-    buildWebPageJsonLd(name: string, description: string, slug: string, type?: "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage" | "WebSite"): {
+    buildWebPageJsonLd(name: string, description: string, slug: string, type?: "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage" | "WebSite", author?: string | ArticleAuthor): {
+        publisher: {
+            logo?: {
+                "@type": string;
+                url: string;
+            } | undefined;
+            "@type": string;
+            name: string;
+            url: string;
+        };
+        author?: {
+            jobTitle?: string | undefined;
+            sameAs?: string[] | undefined;
+            url?: string | undefined;
+            "@type": string;
+            name: string;
+        } | undefined;
         "@context": string;
         "@type": "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage" | "WebSite";
         name: string;
         description: string;
         url: string;
-        publisher: {
-            "@type": string;
-            name: string;
-            url: string;
-        };
     };
 };

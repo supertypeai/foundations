@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ReactNode } from "react";
-import { cn } from "@supertype/foundations";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@supertype/foundations/blocks";
+import { cn } from "@supertype.ai/foundations";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@supertype.ai/foundations/blocks";
 import { Code } from "./code";
 
 /**

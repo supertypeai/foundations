@@ -36,5 +36,12 @@ export declare function checkLegibility(css: string, { minimum, inks, surfaces, 
     surfaces?: string[] | undefined;
     themes?: Theme[] | undefined;
 }): LegibilityFailure[];
+/**
+ * The three bars a palette owes, run over the same engine as `checkLegibility`.
+ * Without this the numbers in a theme's comments are claims, not measurements.
+ */
+export declare function checkSignals(css: string, { themes }?: {
+    themes?: Theme[] | undefined;
+}): LegibilityFailure[];
 /** A one-line report per failure, for a test's assertion message. */
 export declare function formatFailures(failures: LegibilityFailure[]): string;

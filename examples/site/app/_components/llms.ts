@@ -9,7 +9,7 @@ import { join } from "node:path";
  * warn about. Reading the installed copy keeps the excerpts true by
  * construction, the same way `version.ts` keeps the install tag true.
  */
-const INSTALLED = join(process.cwd(), "node_modules/@supertype/foundations");
+const INSTALLED = join(process.cwd(), "node_modules/@supertype.ai/foundations");
 
 const SOURCE = readFileSync(join(INSTALLED, "llms.txt"), "utf8");
 

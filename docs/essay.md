@@ -4,13 +4,13 @@
 
 # The essay shell
 
-`@supertype/foundations/essay` holds the long-form reading surface: any page
+`@supertype.ai/foundations/essay` holds the long-form reading surface: any page
 someone arrives at to read from the top rather than to scan for one thing. It
 also exports the individual pieces, which an MDX article composes directly.
 
 ```tsx
 // lib/essay.ts
-import { createEssay } from "@supertype/foundations/essay";
+import { createEssay } from "@supertype.ai/foundations/essay";
 
 export const {
   EssayHeader, EssayLayout, EssaySection, EssayPullQuote,
@@ -77,7 +77,7 @@ than using the whole shell:
 
 ```tsx
 import { extractHeadings, readingTime, EssayColumns, ReadingRail,
-         PostMetaRow, PostDate, ReadTime, TagPills, MetaDot } from "@supertype/foundations/essay";
+         PostMetaRow, PostDate, ReadTime, TagPills, MetaDot } from "@supertype.ai/foundations/essay";
 
 const headings = extractHeadings(source);   // TocHeading[] — { id, label, depth }
 const minutes = readingTime(source);        // words / 200, rounded up
@@ -102,6 +102,12 @@ formatter outside React, so an OG image and a card cannot print different dates)
 
 `ReadingRail` and `ReadingProgressBar` read from shared stores, so mounting both
 costs one scroll subscription rather than two.
+
+The rail is a container query, not a media query: the margin only appears once
+the shell has 72rem to place it in, which is the width its own three tracks were
+drawn for. Mount it in something narrower — a docs page with its own column —
+and it drops the rail and sets the prose centred, rather than drawing a margin
+too thin to hold a label.
 
 `EssayColumns` is three tracks with the third left empty. With two, the prose
 would shift off-centre as soon as a page had an aside, which sets body copy on a

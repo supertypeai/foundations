@@ -4,6 +4,7 @@ import {
   typographyRules,
   themeOverrideRules,
   surfaceAsInkRules,
+  renamedTokenRules,
   designConfig,
 } from "../dist/eslint.js";
 
@@ -92,7 +93,7 @@ describe("designConfig", () => {
     const config = designConfig();
     expect(config).toHaveLength(1);
     expect(Object.keys(config[0].rules)).toEqual(["no-restricted-syntax"]);
-    expect(config[0].name).toBe("@supertype/foundations/design");
+    expect(config[0].name).toBe("@supertype.ai/foundations/design");
   });
 
   it("carries every rule, since a second entry would replace the first", () => {
@@ -102,7 +103,8 @@ describe("designConfig", () => {
       colourRules().length +
         typographyRules().length +
         themeOverrideRules().length +
-        surfaceAsInkRules().length,
+        surfaceAsInkRules().length +
+        renamedTokenRules().length,
     );
   });
 

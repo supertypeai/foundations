@@ -31,7 +31,7 @@ export type FixtureOptions = {
   layout?: string | null;
   /** Installed peer versions. `null` removes the package entirely. */
   peers?: Record<string, string | null>;
-  /** Make node_modules/@supertype/foundations a symlink, as `yarn link` would. */
+  /** Make node_modules/@supertype.ai/foundations a symlink, as `yarn link` would. */
   symlinked?: boolean;
   /** Nest a second copy of React inside the package. */
   nestedReact?: boolean;
@@ -39,13 +39,13 @@ export type FixtureOptions = {
   files?: Record<string, string>;
 };
 
-const DEFAULT_CSS = `@import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/theme.css";
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
+export const DEFAULT_CSS = `@import "tailwindcss";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/theme.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 `;
 
 const DEFAULT_LAYOUT = `import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
@@ -93,7 +93,7 @@ export function makeApp(options: FixtureOptions = {}): string {
     root,
     "package.json",
     JSON.stringify(
-      { name: "fixture", dependencies: spec ? { "@supertype/foundations": spec } : {} },
+      { name: "fixture", dependencies: spec ? { "@supertype.ai/foundations": spec } : {} },
       null,
       2,
     ),
@@ -110,7 +110,7 @@ export function makeApp(options: FixtureOptions = {}): string {
     write(root, `node_modules/${name}/package.json`, JSON.stringify({ name, version }));
   }
 
-  const installed = join(root, "node_modules/@supertype/foundations");
+  const installed = join(root, "node_modules/@supertype.ai/foundations");
   if (options.symlinked) {
     const real = mkdtempSync(join(tmpdir(), "foundations-linked-"));
     created.push(real);
@@ -118,21 +118,21 @@ export function makeApp(options: FixtureOptions = {}): string {
     write(
       real,
       "package.json",
-      JSON.stringify({ name: "@supertype/foundations", version: repoPkg.version }),
+      JSON.stringify({ name: "@supertype.ai/foundations", version: repoPkg.version }),
     );
     mkdirSync(dirname(installed), { recursive: true });
     symlinkSync(real, installed, "dir");
   } else {
-    write(root, "node_modules/@supertype/foundations/dist/index.js", "export {};");
+    write(root, "node_modules/@supertype.ai/foundations/dist/index.js", "export {};");
     write(
       root,
-      "node_modules/@supertype/foundations/package.json",
-      JSON.stringify({ name: "@supertype/foundations", version: repoPkg.version }),
+      "node_modules/@supertype.ai/foundations/package.json",
+      JSON.stringify({ name: "@supertype.ai/foundations", version: repoPkg.version }),
     );
     if (options.nestedReact) {
       write(
         root,
-        "node_modules/@supertype/foundations/node_modules/react/package.json",
+        "node_modules/@supertype.ai/foundations/node_modules/react/package.json",
         JSON.stringify({ name: "react", version: "19.1.0" }),
       );
     }

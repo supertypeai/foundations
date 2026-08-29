@@ -4,7 +4,7 @@ import {
   TypographyProse,
   TypographyList,
   TypographyProseList,
-} from "@supertype/foundations";
+} from "@supertype.ai/foundations";
 
 export default function Body() {
   return (

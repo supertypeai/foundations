@@ -1,4 +1,4 @@
-import { Disclosure, DisclosureGroup } from "@supertype/foundations/blocks";
+import { Disclosure, DisclosureGroup } from "@supertype.ai/foundations/blocks";
 
 /**
  * Built on the native <details> element: no JavaScript, and correct before

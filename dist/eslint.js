@@ -45,6 +45,13 @@ export function themeOverrideRules() {
 export function surfaceAsInkRules() {
     return rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/", "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card.");
 }
+/**
+ * `-foreground` means the label printed on a fill; `-ink` means the hue as
+ * words. `warn-foreground` was always the ink, under the other name.
+ */
+export function renamedTokenRules() {
+    return rule("/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke)-warn-foreground($| )/", "`warn-foreground` is the deprecated name for `warn-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as text; warn has no printed-on label, because orange carries white text at no lightness. Use warn-ink.");
+}
 export function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up", pairing = false, axis = false, } = {}) {
     return [
         // Alpha ink composites against whatever surface it lands on, so its
@@ -102,7 +109,7 @@ export function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2x
 /**
  * Every rule in one flat-config entry, ready to spread into eslint.config.js:
  *
- *   import { designConfig } from "@supertype/foundations/eslint";
+ *   import { designConfig } from "@supertype.ai/foundations/eslint";
  *   export default [ ...designConfig({ accents: "the brand tints" }) ];
  *
  * One entry is not a detail. Flat config replaces a rule's options rather than
@@ -114,7 +121,7 @@ export function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2x
 export function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], accents, weights, ramp, pairing, axis, } = {}) {
     return [
         {
-            name: "@supertype/foundations/design",
+            name: "@supertype.ai/foundations/design",
             files,
             rules: {
                 "no-restricted-syntax": [
@@ -123,6 +130,7 @@ export function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], accents, weight
                     ...typographyRules({ weights, ramp, pairing, axis }),
                     ...themeOverrideRules(),
                     ...surfaceAsInkRules(),
+                    ...renamedTokenRules(),
                 ],
             },
         },

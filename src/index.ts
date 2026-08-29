@@ -13,11 +13,11 @@ export * from "./typography/index.js";
 // blocks/ carries the same hazard one dependency over: interactive-accordion.tsx
 // and tabs.tsx pull `@base-ui/react`, so re-exporting them made a bare
 // `import { TypographyH2 }` resolve Base UI. They live at
-// "@supertype/foundations/blocks" for that reason, not for tree-shaking — the
+// "@supertype.ai/foundations/blocks" for that reason, not for tree-shaking — the
 // bundlers already handle that.
 //
 // What the split does NOT buy is a plain-Node-importable root. Measured, not
-// assumed: `node -e "import('@supertype/foundations')"` from a consumer fails on
+// assumed: `node -e "import('@supertype.ai/foundations')"` from a consumer fails on
 // ERR_MODULE_NOT_FOUND for next/link, because TypographyLink imports
 // `next-view-transitions`, whose dist/index.js:3 imports `next/link` — the same
 // unresolvable bare subpath as next/image above, one package further out. The
@@ -31,4 +31,4 @@ export * from "./typography/index.js";
 //
 // The Shiki plugin has build-time consumers (source.config.ts, next.config) that
 // run in bare Node where React is not resolvable. Import it from
-// "@supertype/foundations/rehype".
+// "@supertype.ai/foundations/rehype".

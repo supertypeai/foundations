@@ -1,4 +1,4 @@
-import { ReadingRail } from "@supertype/foundations/essay";
+import { ReadingRail } from "@supertype.ai/foundations/essay";
 
 /**
  * Pointed at this page's own sections, so the donut fills and the marked item

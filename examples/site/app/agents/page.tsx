@@ -3,8 +3,8 @@ import {
   TypographyInlineCode,
   TypographyLink,
   TypographyProse,
-} from "@supertype/foundations";
-import { Callout } from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations";
+import { Callout } from "@supertype.ai/foundations/blocks";
 import { Code } from "../_components/code";
 import { Section } from "../_components/section";
 import { PageTitle } from "../_components/site-header";
@@ -15,8 +15,9 @@ import {
   LLMS_SECTIONS,
   llmsSection,
 } from "../_components/llms";
+import { pageMetadata } from "../_components/seo";
 
-export const metadata: Metadata = { title: "Coding agents" };
+export const metadata: Metadata = pageMetadata("agents");
 
 const SECTIONS = [
   { id: "pointer", label: "The one line" },
@@ -28,10 +29,10 @@ const SECTIONS = [
 
 const POINTER = `# CLAUDE.md, AGENTS.md, or your agent's equivalent
 
-@node_modules/@supertype/foundations/llms.txt`;
+@node_modules/@supertype.ai/foundations/llms.txt`;
 
 const ESLINT = `// eslint.config.js
-import { designConfig } from "@supertype/foundations/eslint";
+import { designConfig } from "@supertype.ai/foundations/eslint";
 
 export default [
   ...designConfig({ accents: "the brand tints", weights: true }),
@@ -105,7 +106,7 @@ export default function AgentsPage() {
         note={
           <>
             An agent can miss the summary. The same design rules ship as ESLint selectors
-            from <TypographyInlineCode>@supertype/foundations/eslint</TypographyInlineCode>,
+            from <TypographyInlineCode>@supertype.ai/foundations/eslint</TypographyInlineCode>,
             which fail a build instead of advising one:
           </>
         }

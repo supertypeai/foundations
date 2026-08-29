@@ -7,8 +7,8 @@ import {
   TypographyInlineCode,
   TypographyLink,
   TypographyCaption,
-} from "@supertype/foundations";
-import { Steps, Step, Callout, DisclosureGroup, Disclosure, Cards, Card } from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations";
+import { Steps, Step, Callout, DisclosureGroup, Disclosure, Cards, Card } from "@supertype.ai/foundations/blocks";
 
 /**
  * A docs page written by hand, roughly what an MDX article compiles to. Useful

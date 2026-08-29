@@ -6,8 +6,8 @@ import {
   TypographyHighlight,
   TypographyLabel,
   TypographyLink,
-} from "@supertype/foundations";
-import { Cards, Card } from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations";
+import { Cards, Card } from "@supertype.ai/foundations/blocks";
 
 /**
  * A landing section. It only decides layout; the sizes, weights and colours all

@@ -1,5 +1,5 @@
-import { TypographyProse, TypographyInlineCode } from "@supertype/foundations";
-import { EssayMovements } from "@supertype/foundations/essay";
+import { TypographyProse, TypographyInlineCode } from "@supertype.ai/foundations";
+import { EssayMovements } from "@supertype.ai/foundations/essay";
 
 /** An ordered sequence of stages, each feeding the next. */
 export default function MovementsDemo() {

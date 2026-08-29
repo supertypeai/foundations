@@ -1,4 +1,4 @@
-import { TypographyInlineCode, TypographyLink, TypographyProse } from "@supertype/foundations";
+import { TypographyInlineCode, TypographyLink, TypographyProse } from "@supertype.ai/foundations";
 
 export default function Links() {
   return (

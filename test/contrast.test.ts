@@ -7,6 +7,7 @@ import {
   luminance,
   contrast,
   checkLegibility,
+  checkSignals,
   formatFailures,
 } from "../dist/contrast.js";
 
@@ -91,6 +92,23 @@ describe("resolveTokens", () => {
   });
 });
 
+describe("resolveTokens with statement at-rules", () => {
+  it("reads a block that follows an @source line", () => {
+    const css = `@source '../node_modules/**/*.js';\n:root { --background: #ffffff; }`;
+    expect(resolveTokens(css, "light")["--background"]).toBe("#ffffff");
+  });
+
+  it("strips a statement at-rule carrying parentheses", () => {
+    const css = `@custom-variant dark (&:where(.dark, .dark *));\n:root { --background: #ffffff; }`;
+    expect(resolveTokens(css, "light")["--background"]).toBe("#ffffff");
+  });
+
+  it("leaves a declaration whose value contains @ alone", () => {
+    const css = `:root { --logo: url(sprite@2x.png); --foreground: #111111; }`;
+    expect(resolveTokens(css, "light")["--foreground"]).toBe("#111111");
+  });
+});
+
 describe("checkLegibility", () => {
   it("passes the package's own token layer in both themes", () => {
     const css = [read("tokens.css"), read("theme.css")].join("\n");
@@ -116,5 +134,33 @@ describe("checkLegibility", () => {
     const opts = { themes: ["light"] as const, inks: ["--foreground"], surfaces: ["--background"] };
     expect(checkLegibility(css, { ...opts, minimum: 4.5 })).toEqual([]);
     expect(checkLegibility(css, { ...opts, minimum: 7 })).toHaveLength(1);
+  });
+});
+
+describe("checkSignals", () => {
+  it("holds the package's own fills, inks and labels to their own bars", () => {
+    const css = [read("tokens.css"), read("theme.css")].join("\n");
+    const failures = checkSignals(css);
+    expect(failures, formatFailures(failures)).toEqual([]);
+  });
+
+  it("measures a fill at 3:1, not 4.5:1", () => {
+    const css = `:root { --background: #ffffff; --card: #ffffff; --warn: #767676; }`;
+    // 4.54:1 — over the mark bar, under the body-copy one.
+    expect(checkSignals(css, { themes: ["light"] })).toEqual([]);
+  });
+
+  it("catches a fill that cannot be seen against the page", () => {
+    const css = `:root { --background: #ffffff; --card: #ffffff; --warn: #f0d000; }`;
+    const failures = checkSignals(css, { themes: ["light"] });
+    expect(failures[0]).toMatchObject({ ink: "--warn", required: 3 });
+  });
+
+  it("measures a label against its own fill, not against the page", () => {
+    const css = `:root { --background: #000000; --primary: #ffffff; --primary-foreground: #ffffff; }`;
+    const failures = checkSignals(css, { themes: ["light"] });
+    expect(failures).toContainEqual(
+      expect.objectContaining({ ink: "--primary-foreground", surface: "--primary" }),
+    );
   });
 });

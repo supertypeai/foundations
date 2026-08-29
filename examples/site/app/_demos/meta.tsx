@@ -3,7 +3,7 @@ import {
   TypographyLabel,
   TypographyCaption,
   TypographySmall,
-} from "@supertype/foundations";
+} from "@supertype.ai/foundations";
 
 export default function Meta() {
   return (

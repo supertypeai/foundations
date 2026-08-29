@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
-import { makeApp, cleanupApps, repoPkg, DEFAULT_PEERS } from "./fixtures/app.js";
+import { makeApp, cleanupApps, repoPkg, DEFAULT_PEERS, DEFAULT_CSS } from "./fixtures/app.js";
 
 const CLI = fileURLToPath(new URL("../bin/foundations.mjs", import.meta.url));
 
@@ -34,10 +34,10 @@ describe("doctor", () => {
   it("fails when the @source line is missing", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/theme.css";
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/theme.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
 `,
     });
     const { code, out } = doctor(app);
@@ -48,12 +48,12 @@ describe("doctor", () => {
   it("fails when the CSS imports are out of order", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/theme.css";
-@import "@supertype/foundations/prose.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/theme.css";
+@import "@supertype.ai/foundations/prose.css";
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 `,
     });
     const { code, out } = doctor(app);
@@ -61,19 +61,47 @@ describe("doctor", () => {
     expect(code).toBe(1);
   });
 
-  it("warns, without failing, when theme.css is absent", () => {
+  it("fails when theme.css is absent and nothing else paints the roles", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 `,
     });
     const { code, out } = doctor(app);
     expect(out).toContain("theme.css is not imported");
-    expect(out).toContain("1 warning");
+    expect(out).toContain("--background");
+    expect(code).toBe(1);
+  });
+
+  it("passes when the app paints every role itself", () => {
+    const roles = [
+      ...readFileSync(
+        fileURLToPath(new URL("../src/tokens.css", import.meta.url)),
+        "utf8",
+      ).matchAll(/--color-[a-z0-9-]+:\s*var\((--[a-z0-9-]+)\)/gi),
+      // Inks dark, surfaces light: the point is coverage, but doctor now measures
+      // contrast too, and a palette of one grey is unreadable by construction.
+    ].map((m) => `  ${m[1]}: ${/foreground|ink|danger/.test(m[1]) ? "#111111" : "#ffffff"};`);
+
+    const app = makeApp({
+      css: `@import "tailwindcss";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
+
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
+
+:root {
+${roles.join("\n")}
+}
+`,
+    });
+    const { code, out } = doctor(app);
+    expect(out).toContain("paints all");
     expect(code).toBe(0);
   });
 
@@ -173,6 +201,16 @@ export default function RootLayout() {
     expect(code).toBe(0);
   });
 
+  // The tag rules are about git specs re-resolving. A registry range is pinned
+  // by the lockfile, so the same warning there would fire on every consumer
+  // installing the documented way.
+  it("says nothing about a registry range", () => {
+    const { out, code } = doctor(makeApp({ spec: `^${repoPkg.version}` }));
+    expect(out).not.toContain("not pinned to a tag");
+    expect(out).not.toContain("does not match the pinned tag");
+    expect(code).toBe(0);
+  });
+
   it("fails when the package is not a dependency at all", () => {
     const { code, out } = doctor(makeApp({ spec: null }));
     expect(out).toContain("is not a dependency of this app");
@@ -227,12 +265,12 @@ describe("doctor: CSS comments are not directives", () => {
   it("does not warn about @custom-variant mentioned in a comment", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/theme.css";
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/theme.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 
 /* No @custom-variant dark here: tokens.css already binds it. */
 `,
@@ -245,12 +283,12 @@ describe("doctor: CSS comments are not directives", () => {
   it("still warns about a real second dark variant", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/theme.css";
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/theme.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 
 @custom-variant dark (&:is(.dark *));
 `,
@@ -264,15 +302,63 @@ describe("doctor: CSS comments are not directives", () => {
     expect(out).not.toContain("dist*.js");
   });
 
+  it("fails when an override makes body ink unreadable", () => {
+    const app = makeApp({
+      css: `${DEFAULT_CSS}
+:root { --muted-foreground: hsl(0 0% 88%); }
+`,
+    });
+    const { code, out } = doctor(app);
+    expect(out).toContain("structural ink below 4.5:1");
+    expect(out).toContain("--muted-foreground");
+    expect(code).toBe(1);
+  });
+
+  it("warns, without failing, when a mark is under its own bar", () => {
+    const app = makeApp({
+      css: `${DEFAULT_CSS}
+:root { --warn: hsl(30 100% 52%); }
+`,
+    });
+    const { code, out } = doctor(app);
+    expect(out).toContain("mark or tinted ink below its bar");
+    expect(out).toContain("--warn");
+    expect(code).toBe(0);
+  });
+
+  it("finds a palette that lives one relative import away", () => {
+    const roles = [
+      ...readFileSync(
+        fileURLToPath(new URL("../src/tokens.css", import.meta.url)),
+        "utf8",
+      ).matchAll(/--color-[a-z0-9-]+:\s*var\((--[a-z0-9-]+)\)/gi),
+    ].map((m) => `  ${m[1]}: ${/foreground|ink|danger/.test(m[1]) ? "#111111" : "#ffffff"};`);
+
+    const app = makeApp({
+      css: `@import "tailwindcss";
+@import "@supertype.ai/foundations/tokens.css";
+@import "./palette.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
+
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
+`,
+      files: { "app/palette.css": `:root {\n${roles.join("\n")}\n}\n` },
+    });
+    const { code, out } = doctor(app);
+    expect(out).toContain("paints all");
+    expect(code).toBe(0);
+  });
+
   it("treats a commented-out import as missing", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-/* @import "@supertype/foundations/theme.css"; */
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
+@import "@supertype.ai/foundations/tokens.css";
+/* @import "@supertype.ai/foundations/theme.css"; */
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 `,
     });
     expect(doctor(app).out).toContain("theme.css is not imported");
@@ -288,9 +374,9 @@ describe("init", () => {
     const css = readCss(app);
 
     for (const entry of ["tokens", "theme", "type", "prose"]) {
-      expect(css).toContain(`@import "@supertype/foundations/${entry}.css";`);
+      expect(css).toContain(`@import "@supertype.ai/foundations/${entry}.css";`);
     }
-    expect(css).toContain("@source '../node_modules/@supertype/foundations/dist/**/*.js';");
+    expect(css).toContain("@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';");
     // Not added: an app with no code fences should not pay for it.
     expect(css).not.toContain("shiki.css");
     expect(doctor(app).code).toBe(0);
@@ -299,9 +385,9 @@ describe("init", () => {
   it("repairs the order and keeps a trailing comment with its import", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-@import "@supertype/foundations/type.css";  /* the type ramp */
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/prose.css";
+@import "@supertype.ai/foundations/type.css";  /* the type ramp */
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/prose.css";
 
 @layer base {
   body { color: red; }
@@ -314,7 +400,7 @@ describe("init", () => {
     expect(css.indexOf("tokens.css")).toBeLessThan(css.indexOf("theme.css"));
     expect(css.indexOf("theme.css")).toBeLessThan(css.indexOf("type.css"));
     expect(css.indexOf("type.css")).toBeLessThan(css.indexOf("prose.css"));
-    expect(css).toContain(`@import "@supertype/foundations/type.css";  /* the type ramp */`);
+    expect(css).toContain(`@import "@supertype.ai/foundations/type.css";  /* the type ramp */`);
     expect(css).toContain("@layer base {");
     expect(doctor(app).code).toBe(0);
   });
@@ -331,14 +417,14 @@ describe("init", () => {
   it("does not revive a commented-out import", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
-/* @import "@supertype/foundations/theme.css"; */
+/* @import "@supertype.ai/foundations/theme.css"; */
 `,
     });
     run(["init"], app);
     const css = readCss(app);
-    expect(css).toContain(`/* @import "@supertype/foundations/theme.css"; */`);
+    expect(css).toContain(`/* @import "@supertype.ai/foundations/theme.css"; */`);
     // One live import plus the commented one.
-    expect(css.match(/@import "@supertype\/foundations\/theme\.css";/g)).toHaveLength(2);
+    expect(css.match(/@import "@supertype\.ai\/foundations\/theme\.css";/g)).toHaveLength(2);
     expect(doctor(app).code).toBe(0);
   });
 
@@ -353,6 +439,6 @@ describe("init", () => {
   it("prints the font binding and the agent pointer", () => {
     const { out } = run(["init"], makeApp());
     expect(out).toContain("variable: \"--font-ubuntu-sans\"");
-    expect(out).toContain("@node_modules/@supertype/foundations/llms.txt");
+    expect(out).toContain("@node_modules/@supertype.ai/foundations/llms.txt");
   });
 });

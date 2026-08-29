@@ -2,3 +2,5 @@ node_modules/
 .next/
 next-env.d.ts
 out/
+# Rendered by scripts/og.mjs at build time.
+public/og/

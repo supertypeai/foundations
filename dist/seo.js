@@ -4,7 +4,7 @@
  * compatible object a consumer assigns straight to `Metadata`.
  */
 export function createSeo(config) {
-    const { baseUrl, siteName, defaultOgImage, logoUrl, articleBasePath = "notes", } = config;
+    const { baseUrl, siteName, defaultOgImage, logoUrl, articleBasePath = "notes", publisherUrl, trailingSlash = false, } = config;
     /** Resolves a possibly-relative URL against the site origin. */
     const absolute = (url) => url.startsWith("http") ? url : `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
     /**
@@ -12,12 +12,34 @@ export function createSeo(config) {
      * rather than re-declaring an Organization node, so crawlers merge them into
      * one entity instead of collecting near-duplicates.
      */
+    /**
+     * A page route in the shape this site actually serves. A URL already carrying
+     * a query, a fragment or a file extension is left alone — only a route gets
+     * the slash.
+     */
+    const route = (url) => {
+        const abs = absolute(url);
+        if (!trailingSlash || abs.endsWith("/") || /[#?]|\.[a-z0-9]+$/i.test(abs))
+            return abs;
+        return `${abs}/`;
+    };
+    /** A schema.org Person from a name or a fuller author record. */
+    const person = (a) => {
+        const author = typeof a === "string" ? { name: a } : a;
+        return {
+            "@type": "Person",
+            name: author.name,
+            ...(author.url ? { url: absolute(author.url) } : {}),
+            ...(author.sameAs?.length ? { sameAs: author.sameAs } : {}),
+            ...(author.jobTitle ? { jobTitle: author.jobTitle } : {}),
+        };
+    };
     const ORG_ID = `${baseUrl}/#organization`;
     const WEBSITE_ID = `${baseUrl}/#website`;
     const publisher = {
         "@type": "Organization",
         name: siteName,
-        url: baseUrl,
+        url: publisherUrl ?? baseUrl,
         ...(logoUrl
             ? { logo: { "@type": "ImageObject", url: logoUrl } }
             : {}),
@@ -54,7 +76,7 @@ export function createSeo(config) {
         },
         /** Schema.org BlogPosting for an article. */
         buildArticleJsonLd(title, description, slug, authors, datePublished, image, dateModified, { keywords, readingMinutes } = {}) {
-            const url = `${baseUrl}/${articleBasePath}/${slug}`;
+            const url = route(`${articleBasePath}/${slug}`);
             return {
                 "@context": "https://schema.org",
                 "@type": "BlogPosting",
@@ -66,16 +88,7 @@ export function createSeo(config) {
                 // Falls back to datePublished rather than omitting. To a crawler, an
                 // article with no modified date reads as never revised.
                 dateModified: dateModified ?? datePublished,
-                author: authors.map((a) => {
-                    const author = typeof a === "string" ? { name: a } : a;
-                    return {
-                        "@type": "Person",
-                        name: author.name,
-                        ...(author.url ? { url: absolute(author.url) } : {}),
-                        ...(author.sameAs?.length ? { sameAs: author.sameAs } : {}),
-                        ...(author.jobTitle ? { jobTitle: author.jobTitle } : {}),
-                    };
-                }),
+                author: authors.map(person),
                 ...(keywords?.length ? { keywords: keywords.join(", ") } : {}),
                 ...(readingMinutes ? { timeRequired: `PT${readingMinutes}M` } : {}),
                 publisher,
@@ -91,7 +104,7 @@ export function createSeo(config) {
                     "@type": "ListItem",
                     position: index + 1,
                     name: item.name,
-                    item: absolute(item.url),
+                    item: route(item.url),
                 })),
             };
         },
@@ -105,7 +118,7 @@ export function createSeo(config) {
                     "@type": "ListItem",
                     position: index + 1,
                     name: item.name,
-                    url: absolute(item.url),
+                    url: route(item.url),
                 })),
             };
         },
@@ -122,14 +135,17 @@ export function createSeo(config) {
             };
         },
         /** Schema.org WebPage and its narrower types. */
-        buildWebPageJsonLd(name, description, slug, type = "WebPage") {
+        buildWebPageJsonLd(name, description, slug, type = "WebPage", 
+        /** A page carrying a byline says who wrote it, same as an article does. */
+        author) {
             return {
                 "@context": "https://schema.org",
                 "@type": type,
                 name,
                 description,
-                url: `${baseUrl}/${slug.replace(/^\//, "")}`,
-                publisher: { "@type": "Organization", name: siteName, url: baseUrl },
+                url: route(slug),
+                ...(author ? { author: person(author) } : {}),
+                publisher,
             };
         },
     };

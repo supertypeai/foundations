@@ -1,4 +1,4 @@
-import { TypographyH1, TypographyH2, TypographyH3, TypographyH4 } from "@supertype/foundations";
+import { TypographyH1, TypographyH2, TypographyH3, TypographyH4 } from "@supertype.ai/foundations";
 
 export default function Headings() {
   return (

@@ -23,7 +23,7 @@ const offenders = readdirSync(dir)
   });
 
 if (offenders.length) {
-  console.error("\nRecipes must import only from @supertype/foundations:\n");
+  console.error("\nRecipes must import only from @supertype.ai/foundations:\n");
   for (const { file, line, text } of offenders) console.error(`  app/_recipes/${file}:${line}  ${text}`);
   console.error("\nInline the helper, or move the file to app/_demos/ if it is not a recipe.\n");
   process.exit(1);

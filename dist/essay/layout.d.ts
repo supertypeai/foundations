@@ -2,7 +2,24 @@ import type { ComponentProps, ComponentType, ReactNode } from "react";
 /**
  * Three tracks with the third empty: two would push the prose off-centre the
  * moment an aside appeared, setting body copy on a different axis per page.
- * The measure grows per breakpoint — a comfortable line length is a range.
+ * The measure grows per step — a comfortable line length is a range.
+ *
+ * The margin track is what the third one buys, and it only exists if the
+ * container can pay for it:
+ *
+ *   aside = (container − 3rem padding − measure) ÷ 2 − 2.5rem gutter
+ *
+ * At 72rem, the grid's own first cap, that is 11rem — enough for a rail. At
+ * `lg` (64rem), where this used to switch on, it is 7rem, and a `text-sm` label
+ * past about thirteen characters wraps. So the reveal is pinned to the width
+ * the three tracks were drawn for rather than to a viewport step that happens
+ * to be near it.
+ *
+ * A container query, not a media query, because the answer depends on the room
+ * this shell was given and not on the size of the window. Mounted in something
+ * narrower — a docs page with its own 64rem column — it now drops the rail and
+ * sets the prose centred, which is a layout, where before it drew a 5.5rem
+ * margin and called it one.
  */
 export declare function EssayColumns({ aside, children, className, ...props }: ComponentProps<"div"> & {
     aside?: ReactNode;

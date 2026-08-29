@@ -1,5 +1,5 @@
 import { Link } from "next-view-transitions";
-import { Rail, RailLink } from "@supertype/foundations/essay";
+import { Rail, RailLink } from "@supertype.ai/foundations/essay";
 
 /**
  * `active` highlights an item, `nested` indents an h3 under the h2 above it,

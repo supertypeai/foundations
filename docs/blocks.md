@@ -4,7 +4,7 @@
 
 # Blocks
 
-Content blocks from `@supertype/foundations/blocks`, plus the MDX map that makes
+Content blocks from `@supertype.ai/foundations/blocks`, plus the MDX map that makes
 them available in markdown.
 
 `Tabs` and `Accordion` are client components (Base UI); everything else renders
@@ -169,7 +169,7 @@ The segmented picker as a set of class strings, for building your own control
 that needs to match `TabsList`:
 
 ```tsx
-import { SEGMENT } from "@supertype/foundations/blocks";
+import { SEGMENT } from "@supertype.ai/foundations/blocks";
 
 <div className={cn(SEGMENT.track, "flex")}>
   <button className={cn(SEGMENT.item, active ? SEGMENT.activeSurface : SEGMENT.idle)}>
@@ -185,7 +185,7 @@ The keys are `track`, `item`, `active`, `idle`, `activeSurface`, and
 ```tsx
 // mdx-components.tsx — the file convention @next/mdx calls with no arguments
 import type { MDXComponents } from "mdx/types";
-import { proseMdxComponents } from "@supertype/foundations/mdx";
+import { proseMdxComponents } from "@supertype.ai/foundations/mdx";
 
 export function useMDXComponents(): MDXComponents {
   return proseMdxComponents as MDXComponents;
@@ -207,14 +207,14 @@ It binds the markdown elements (`h1`–`h4`, `p`, `ul`/`ol`, `blockquote`, `a`,
 | `<Steps>` `<Step>` | the step sequence |
 
 Elements that MDX renders automatically take no options, since there is no call
-site to make the choice. Retune them in CSS with `--prose-measure` and
-`--prose-leading`.
+site to make the choice. Retune them in CSS by moving the `--text-*` rung they
+sit on, or scope `.editorial` over the subtree to move the whole ladder.
 
 For code fences, add the Shiki plugin at build time:
 
 ```ts
 // source.config.ts — runs in bare Node, so it must not reach React
-import { rehypeProseCode } from "@supertype/foundations/rehype";
+import { rehypeProseCode } from "@supertype.ai/foundations/rehype";
 
 export default defineConfig({ mdxOptions: { rehypePlugins: [rehypeProseCode] } });
 ```

@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 /**
- * Bump, verify, commit, tag, push.
+ * Bump, verify, commit, tag, push, publish.
  *
- * Consumers install straight from the git remote, so a release is a tag rather
- * than an artifact. The bump is part of releasing rather than a step to
- * remember: yarn pins the resolved commit, and a tag that moves after the fact
- * leaves consumers on code nobody chose. One tag per version avoids that.
+ * A release is a tag and a registry version, and they have to be the same
+ * commit. Consumers install from npm; the git remote still resolves for anyone
+ * pinning a commit ahead of a release. The bump is part of releasing rather
+ * than a step to remember: yarn pins the resolved commit, and a tag that moves
+ * after the fact leaves consumers on code nobody chose. One tag per version
+ * avoids that, and `npm publish` refuses a version it already has, so the two
+ * cannot drift apart without the release failing.
  *
  * dist/ is committed rather than rebuilt by a `prepare` script on the consumer
  * side. A prepare step makes every consumer run a nested `yarn install` that
@@ -15,6 +18,9 @@
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
+
+/** Staged alongside the bump. scripts/pins.mjs is what actually rewrites them. */
+const PIN_FILES = ["README.md", "llms.txt", "docs", "examples/site/package.json"];
 
 const run = (cmd, args) =>
   execFileSync(cmd, args, { stdio: "inherit", cwd: process.cwd() });
@@ -30,6 +36,15 @@ const die = (msg) => {
 // version bump is the only thing the tag can differ by.
 if (capture("git", ["status", "--porcelain"])) {
   die("working tree has uncommitted changes; commit or stash them first");
+}
+
+// Checked before anything is built, committed or pushed: an unauthenticated
+// publish fails at the last step of the release, with the tag already on the
+// remote and no version behind it. Better to find out now.
+try {
+  capture("npm", ["whoami"]);
+} catch {
+  die("not logged in to npm; run `npm login` first");
 }
 
 const branch = capture("git", ["rev-parse", "--abbrev-ref", "HEAD"]);
@@ -53,25 +68,47 @@ run("yarn", ["test"]);
 // Tarballs are leftovers from the file: protocol. An unreferenced artifact in
 // the repo root is an invitation to install a version nobody is publishing.
 for (const file of readdirSync(process.cwd())) {
-  if (/^supertype-foundations-.*\.tgz$/.test(file)) unlinkSync(file);
+  if (/^supertype\.ai-foundations-.*\.tgz$/.test(file)) unlinkSync(file);
 }
 
 pkg.version = version;
 writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 
+// The install instructions and the example app name the tag by hand. They are
+// rewritten here, in the same commit that creates it, because a pin updated
+// afterwards is a pin that gets forgotten — and `yarn build` fails on a stale
+// one, so forgetting would break the next build rather than this release.
+run("node", ["scripts/pins.mjs", "--write"]);
+
 // -A so a source file that stops emitting takes its stale output with it.
-run("git", ["add", "package.json"]);
+run("git", ["add", "package.json", ...PIN_FILES]);
 run("git", ["add", "-A", "dist"]);
 run("git", ["commit", "-m", `release ${tag}`]);
 run("git", ["tag", tag]);
 run("git", ["push", "origin", branch]);
 run("git", ["push", "origin", tag]);
 
+// The tag exists, so the commit behind the registry version is now nameable.
+// `prepublishOnly` rebuilds, which is redundant after `yarn test` above and
+// cheap insurance against publishing by hand from a stale tree.
+run("npm", ["publish"]);
+
+// The example's lockfile keys on the exact pin spec and resolves to the commit
+// the tag points at, so it cannot live inside that commit — it is only
+// resolvable once the tag is pushed. Without this the pin and the lockfile
+// disagree and `yarn install --frozen-lockfile`, which is how both workflows
+// install, fails on the next push.
+run("yarn", ["--cwd", "examples/site", "install"]);
+if (capture("git", ["status", "--porcelain", "examples/site/yarn.lock"]).trim()) {
+  run("git", ["add", "examples/site/yarn.lock"]);
+  run("git", ["commit", "-m", `lock examples/site to ${tag}`]);
+  run("git", ["push", "origin", branch]);
+}
+
 const remote = capture("git", ["remote", "get-url", "origin"])
   .replace(/^git@github\.com:/, "https://github.com/")
   .replace(/\.git$/, "");
 
-console.log(`\n@supertype/foundations ${tag} pushed to ${branch}`);
-console.log(
-  `consumers: yarn add "@supertype/foundations@${remote}.git#${tag}"`,
-);
+console.log(`\n@supertype.ai/foundations ${tag} pushed to ${branch} and published`);
+console.log(`consumers: yarn add @supertype.ai/foundations`);
+console.log(`   or pin: yarn add "@supertype.ai/foundations@${remote}.git#${tag}"`);

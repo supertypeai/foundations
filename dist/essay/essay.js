@@ -35,7 +35,7 @@ export function createEssay({ Reveal = PlainReveal, Glow = NoGlow, } = {}) {
     }
     /** The reading column, with the sticky index sitting in its left margin. */
     function EssayLayout({ index, children, }) {
-        return (_jsx(EssayColumns, { className: "pb-16 sm:pb-24", aside: _jsx("div", { className: "sticky top-24", children: _jsx(TableOfContents, { sections: index }) }), children: _jsx("div", { className: "flex flex-col gap-16 border-t border-border pt-12 lg:border-t-0 lg:pt-0", children: children }) }));
+        return (_jsx(EssayColumns, { className: "pb-16 sm:pb-24", aside: _jsx("div", { className: "sticky top-24", children: _jsx(TableOfContents, { sections: index }) }), children: _jsx("div", { className: "flex flex-col gap-16 border-t border-border pt-12 @6xl:border-t-0 @6xl:pt-0", children: children }) }));
     }
     /** The heading carries the anchor, offset so it lands under the sticky nav. */
     function EssaySection({ id, heading, children, }) {

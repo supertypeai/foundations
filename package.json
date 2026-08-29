@@ -1,9 +1,26 @@
 {
-  "name": "@supertype/foundations",
+  "name": "@supertype.ai/foundations",
   "version": "0.1.22",
-  "private": true,
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Shared typography, prose, essay, and building blocks for Supertype projects.",
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "typography",
+    "prose",
+    "essay",
+    "mdx",
+    "react",
+    "nextjs",
+    "tailwind",
+    "css",
+    "accessibility",
+    "contrast",
+    "eslint-plugin"
+  ],
   "type": "module",
   "sideEffects": [
     "*.css"
@@ -63,18 +80,21 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/cjs-marker.mjs && node scripts/check-llms.mjs",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/cjs-marker.mjs && node scripts/check-llms.mjs && node scripts/pins.mjs",
     "dev": "tsc -p tsconfig.json --watch",
     "test": "yarn build && vitest run",
     "test:watch": "vitest",
     "check:llms": "node scripts/check-llms.mjs",
+    "check:pins": "node scripts/pins.mjs",
     "release": "node scripts/release.mjs",
     "sync": "node scripts/sync.mjs",
     "dev:sync": "node scripts/sync.mjs --watch",
     "example": "node scripts/sync.mjs examples/site && yarn --cwd examples/site dev",
     "example:install": "yarn --cwd examples/site install",
     "example:build": "node scripts/sync.mjs examples/site && yarn --cwd examples/site build",
-    "example:static": "node scripts/sync.mjs examples/site && yarn --cwd examples/site build:static"
+    "example:pinned": "node scripts/pinned.mjs",
+    "example:static": "node scripts/sync.mjs examples/site && yarn --cwd examples/site build:static",
+    "prepublishOnly": "yarn build"
   },
   "dependencies": {
     "@shikijs/rehype": "^2.3.2",
@@ -112,5 +132,8 @@
       "name": "Supertype Pte. Ltd.",
       "url": "https://supertype.ai"
     }
-  ]
+  ],
+  "bugs": {
+    "url": "https://github.com/supertypeai/foundations/issues"
+  }
 }

@@ -3,31 +3,38 @@ import {
   TypographyProse,
   TypographyLink,
   TypographyInlineCode,
-} from "@supertype/foundations";
-import { Cards, Card, Callout } from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations";
+import { Cards, Card, Callout } from "@supertype.ai/foundations/blocks";
+import type { Metadata } from "next";
 import { Code } from "./_components/code";
 import { PageTitle } from "./_components/site-header";
 import { WithRouteRail } from "./_components/toc";
 import { INSTALL_SPEC } from "./_components/version";
+import { ROUTES, SITE_DESCRIPTION, SITE_TITLE, homeMetadata, seo } from "./_components/seo";
 
-const AREAS = [
-  ["/recipes", "Recipes"],
-  ["/typography", "Typography"],
-  ["/blocks", "Blocks"],
-  ["/tokens", "Tokens"],
-  ["/essay", "The essay shell"],
-  ["/agents", "Coding agents"],
-] as const;
+export const metadata: Metadata = homeMetadata;
+
+/**
+ * WebSite plus the pages under it, from the package's own `seo` entry point.
+ * The `@id` anchors it emits are what let a crawler merge these into one site
+ * rather than a handful of unrelated documents.
+ */
+const JSON_LD = [
+  seo.buildWebPageJsonLd(SITE_TITLE, SITE_DESCRIPTION, "", "WebSite"),
+  seo.buildItemListJsonLd(ROUTES.map(([url, name]) => ({ name, url }))),
+];
+
+const AREAS = ROUTES;
 
 const INSTALL_CSS = `/* app/global.css */
 @import "tailwindcss";
-@import "@supertype/foundations/tokens.css";
-@import "@supertype/foundations/theme.css";
-@import "@supertype/foundations/type.css";
-@import "@supertype/foundations/prose.css";
-@import "@supertype/foundations/shiki.css";
+@import "@supertype.ai/foundations/tokens.css";
+@import "@supertype.ai/foundations/theme.css";
+@import "@supertype.ai/foundations/type.css";
+@import "@supertype.ai/foundations/prose.css";
+@import "@supertype.ai/foundations/shiki.css";
 
-@source '../node_modules/@supertype/foundations/dist/**/*.js';`;
+@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';`;
 
 const INSTALL_FONTS = `// app/layout.tsx
 import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
@@ -40,15 +47,19 @@ const serif = Average({ variable: "--font-average", weight: "400", subsets: ["la
 
 const AGENT_POINTER = `# CLAUDE.md, AGENTS.md, or your agent's equivalent
 
-@node_modules/@supertype/foundations/llms.txt`;
+@node_modules/@supertype.ai/foundations/llms.txt`;
 
 export default function Home() {
   return (
     <WithRouteRail label="What is in here" routes={AREAS}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
       <PageTitle
-        eyebrow="@supertype/foundations"
-        title="Better baseline components"
-        lede="The design foundations for semantic and legible interfaces. Built for the Supertype assembly line and open-source."
+        eyebrow="@supertype.ai/foundations"
+        title="Better foundations"
+        lede="Pre-made shadcn and tailwind components for semantic and legible interfaces. Built for the Supertype assembly line and open-source."
       />
 
       <section id="install" className="scroll-mt-24 pt-14">
@@ -63,11 +74,18 @@ export default function Home() {
         <div className="mt-4">
           <Code
             lang="bash"
-            code={`yarn add "@supertype/foundations@${INSTALL_SPEC}"
+            code={`yarn add @supertype.ai/foundations
 npx foundations init      # adds and reorders the CSS imports, prints the rest
 npx foundations doctor    # checks the wiring`}
           />
         </div>
+
+        <TypographyProse className="mt-3">
+          Every release is tagged as well as published, so a commit can be
+          installed directly — useful for pinning ahead of a release. It is what
+          this site installs:{" "}
+          <TypographyInlineCode>{`"@supertype.ai/foundations": "${INSTALL_SPEC}"`}</TypographyInlineCode>
+        </TypographyProse>
 
         <TypographyProse className="mt-6">
           Here is what <TypographyInlineCode>init</TypographyInlineCode> writes.

@@ -4,8 +4,9 @@
  *
  * Everything this package needs from an app fails quietly when it is missing. A
  * missing `@source` line purges every class the package ships, so the
- * components render unstyled. A skipped `theme.css` leaves the marker tones and
- * the accordion keyframes undefined. A font bound with `.className` instead of
+ * components render unstyled. A skipped `theme.css` leaves every colour role
+ * unpainted, so `bg-background` resolves to nothing. A font bound with
+ * `.className` instead of
  * `.variable` renders one typeface on <html> and another on every utility that
  * asks for a role. None of them throw an error, and all of them are easy enough
  * to check mechanically, which is what this file does.
@@ -24,7 +25,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const PKG_NAME = "@supertype/foundations";
+const PKG_NAME = "@supertype.ai/foundations";
 
 /** The installed copy of this package — where `import.meta.url` already is. */
 const pkgRoot = fileURLToPath(new URL("..", import.meta.url));
@@ -132,8 +133,19 @@ const cssEntries = Object.keys(pkgJson.exports)
 
 /** Only needed if the app renders code fences. */
 const OPTIONAL_CSS = new Set([`${PKG_NAME}/shiki.css`]);
-/** Optional in the sense that it imports fine without it, and quietly lossy. */
-const SOFT_CSS = new Set([`${PKG_NAME}/theme.css`]);
+
+/**
+ * Skippable only by an app that paints the roles itself. tokens.css registers
+ * them and theme.css is the palette; with neither, every colour utility
+ * generates and resolves to nothing.
+ */
+const PALETTE_CSS = `${PKG_NAME}/theme.css`;
+
+/** The roles tokens.css registers, which something has to give a value to. */
+const roles = (() => {
+  const css = read(join(pkgRoot, "src/tokens.css")) ?? "";
+  return [...css.matchAll(/--color-[a-z0-9-]+:\s*var\((--[a-z0-9-]+)\)/gi)].map((m) => m[1]);
+})();
 
 /**
  * The font variables the app has to supply. In type.css, a `var(--font-x,
@@ -231,6 +243,15 @@ const sourceGlob = (appRoot, cssFile) => {
 
 /* -------------------------------------------------------------- the checks */
 
+/**
+ * A git dependency, as opposed to a registry range. Only the former can move
+ * under a consumer: `#main` and untagged specs re-resolve on a fresh install,
+ * while `^0.1.23` is pinned by the lockfile. The check below only has something
+ * to say about the first kind.
+ */
+const isGitSpec = (spec) =>
+  /^(git\+|git:|git@)/.test(spec) || /github\.com|gitlab\.com|bitbucket\.org/.test(spec);
+
 const checkInstall = (appRoot) => {
   const out = [];
   const appPkg = readJson(join(appRoot, "package.json"));
@@ -244,16 +265,20 @@ const checkInstall = (appRoot) => {
         "error",
         `${PKG_NAME} is not a dependency of this app`,
         `checked ${join(appRoot, "package.json")}`,
-        `yarn add "${PKG_NAME}@https://github.com/supertypeai/foundations.git#v${pkgJson.version}"`,
+        `yarn add ${PKG_NAME}`,
       ),
     );
+  } else if (!isGitSpec(spec)) {
+    // A registry range is resolved once and recorded in the lockfile, so it
+    // does not have the re-resolution problem a git spec has. Nothing to say.
+    out.push(finding("ok", `${PKG_NAME}@${pkgJson.version}`, spec));
   } else if (/#main\b/.test(spec) || !spec.includes("#")) {
     out.push(
       finding(
         "warn",
         "the dependency is not pinned to a tag",
         spec,
-        `pin it: ...foundations.git#v${pkgJson.version}. An unpinned git dependency re-resolves to a different commit on any fresh install.`,
+        `pin it: ...foundations.git#v${pkgJson.version}, or install from the registry: yarn add ${PKG_NAME}. An unpinned git dependency re-resolves to a different commit on any fresh install.`,
       ),
     );
   } else {
@@ -336,6 +361,8 @@ const checkStyles = (appRoot) => {
   const seen = new Map(order.map((spec, i) => [spec, i]));
 
   const missing = [];
+  /** Set when theme.css is absent but the app declares every role itself. */
+  let selfPainted = false;
   let last = seen.get("tailwindcss") ?? -1;
   for (const entry of cssEntries) {
     const at = seen.get(entry);
@@ -359,14 +386,21 @@ const checkStyles = (appRoot) => {
   for (const entry of missing) {
     if (OPTIONAL_CSS.has(entry)) {
       out.push(finding("info", `${entry} is not imported`, "only needed if you render code fences", "Add it when you add Shiki."));
-    } else if (SOFT_CSS.has(entry)) {
+    } else if (entry === PALETTE_CSS) {
+      // The app's own files, package imports left out — the question is whether
+      // it paints the roles itself, and its palette may live a file away.
+      const own = stripComments(expandImports(cssFile, { includePackage: false }));
+      const unpainted = roles.filter((role) => !new RegExp(`\\${role}\\s*:`).test(own));
+      selfPainted = !unpainted.length;
       out.push(
-        finding(
-          "warn",
-          `${entry} is not imported`,
-          rel,
-          'It is the only file that defines --secondary-ink, --subtle-foreground, the four marker tones and the accordion keyframes. Without it, TypographyHighlight, TypographyLink tone="secondary" and Accordion all render wrong with no error.',
-        ),
+        unpainted.length
+          ? finding(
+              "error",
+              `${entry} is not imported, and ${unpainted.length} role${unpainted.length === 1 ? " has" : "s have"} no value`,
+              rel,
+              `Add @import "${entry}"; to ${rel}, or declare the roles yourself. Unpainted: ${unpainted.join(", ")}.`,
+            )
+          : finding("ok", `${entry} is not imported`, `${rel} paints all ${roles.length} roles itself`),
       );
     } else {
       out.push(finding("error", `${entry} is not imported`, rel, `Add @import "${entry}"; to ${rel}, in order.`));
@@ -400,7 +434,9 @@ const checkStyles = (appRoot) => {
     );
   }
 
-  const required = missing.filter((entry) => !OPTIONAL_CSS.has(entry) && !SOFT_CSS.has(entry));
+  const required = missing.filter(
+    (entry) => !OPTIONAL_CSS.has(entry) && !(entry === PALETTE_CSS && selfPainted),
+  );
   if (!required.length && ours) out.push(finding("ok", "the style layer is complete", rel));
   return out;
 };
@@ -453,6 +489,63 @@ const checkFonts = (appRoot) => {
   return out;
 };
 
+/**
+ * One CSS file with its `@import`s expanded in place, so a check reads the
+ * cascade the browser sees rather than one file of it. A palette split into a
+ * neighbouring file is a normal layout, and dropping it would make an app look
+ * like it declared nothing. Bare specifiers other than this package's are left
+ * out: Tailwind and a component library declare no root palette worth measuring.
+ */
+const expandImports = (file, { includePackage }, seen = new Set()) => {
+  if (seen.has(file)) return "";
+  seen.add(file);
+  return (read(file) ?? "").replace(/@import\s+["']([^"']+)["'];?/g, (_line, spec) => {
+    if (spec.startsWith(`${PKG_NAME}/`))
+      return includePackage ? (read(join(pkgRoot, "src", spec.slice(PKG_NAME.length + 1))) ?? "") : "";
+    if (spec.startsWith(".")) return expandImports(resolve(dirname(file), spec), { includePackage }, seen);
+    return "";
+  });
+};
+
+/**
+ * The one check that reads colour rather than wiring. Structural inks are an
+ * error: a page whose body text does not clear its own background is broken,
+ * not badly styled. Fills and tinted inks are a warning — they are a palette
+ * decision, and the app owns its palette.
+ */
+const checkContrast = async (appRoot) => {
+  const out = [];
+  const cssFile = findCssEntry(appRoot);
+  if (!cssFile) return out;
+
+  let checkLegibility, checkSignals, formatFailures;
+  try {
+    ({ checkLegibility, checkSignals, formatFailures } = await import(
+      join(pkgRoot, "dist/contrast.js")
+    ));
+  } catch {
+    // An install without dist/ has louder problems, already reported above.
+    return out;
+  }
+
+  const css = expandImports(cssFile, { includePackage: true });
+  const rel = relative(appRoot, cssFile);
+  const groups = [
+    ["error", "structural ink below 4.5:1", checkLegibility(css)],
+    ["warn", "mark or tinted ink below its bar", checkSignals(css)],
+  ];
+
+  for (const [level, title, failures] of groups) {
+    if (!failures.length) continue;
+    out.push(
+      finding(level, `${failures.length} ${title}`, rel, formatFailures(failures).split("\n").join("; ")),
+    );
+  }
+
+  if (!out.length) out.push(finding("ok", "every ink clears its surface in both themes", rel));
+  return out;
+};
+
 /* ---------------------------------------------------------------- commands */
 
 const fontSnippet = () => `import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
@@ -464,17 +557,19 @@ const serif = Average({ variable: "--font-average", weight: "400", subsets: ["la
 // .variable, never .className
 <html className={\`\${sans.variable} \${mono.variable} \${serif.variable} font-sans\`}>`;
 
-const doctor = (appRoot) => {
+const doctor = async (appRoot) => {
   const install = checkInstall(appRoot);
   const styles = checkStyles(appRoot);
   const fonts = checkFonts(appRoot);
-  const all = [...install, ...styles, ...fonts];
+  const contrast = await checkContrast(appRoot);
+  const all = [...install, ...styles, ...fonts, ...contrast];
 
   console.log(`\n${bold(PKG_NAME)} ${dim(`doctor · ${appRoot}`)}`);
   report([
     ["Install", install],
     ["Styles", styles],
     ["Fonts", fonts],
+    ["Contrast", contrast],
   ]);
 
   const errors = all.filter((f) => f.level === "error").length;
@@ -608,7 +703,7 @@ if (resolve(appRoot) === resolve(pkgRoot)) {
 
 switch (command) {
   case "doctor":
-    process.exit(doctor(appRoot));
+    process.exit(await doctor(appRoot));
   case "init":
     process.exit(init(appRoot, { dryRun: flag("dry-run") }));
   default:

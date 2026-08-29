@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { TypographyProse, TypographyLink, TypographyLabel } from "@supertype/foundations";
+import { TypographyProse, TypographyLink, TypographyLabel } from "@supertype.ai/foundations";
 import {
   EssayHeader,
   EssayLayout,
@@ -13,9 +13,10 @@ import {
   ReadTime,
   TagPills,
   TableOfContents,
-} from "@supertype/foundations/essay";
+} from "@supertype.ai/foundations/essay";
+import { pageMetadata } from "../_components/seo";
 
-export const metadata: Metadata = { title: "The essay shell" };
+export const metadata: Metadata = pageMetadata("essay");
 
 /**
  * The undecorated bindings, imported by name. `createEssay({ Reveal, Glow })` is
@@ -112,14 +113,17 @@ export default function EssayPage() {
         </EssaySection>
       </EssayLayout>
 
-      <div className="mt-16 border-t border-border pt-8">
-        <EssayColumns aside={<TableOfContents sections={INDEX} />}>
-          <TypographyProse>
-            The same content in EssayColumns with a static margin index, which is how an
-            MDX route composes it when the sections come from the markdown.
-          </TypographyProse>
-        </EssayColumns>
-      </div>
+      {/* The rule goes on EssayColumns itself, so it spans the shell's measure
+          rather than whatever container happens to be around it. */}
+      <EssayColumns
+        className="mt-16 border-t border-border pt-8"
+        aside={<TableOfContents sections={INDEX} />}
+      >
+        <TypographyProse>
+          The same content in EssayColumns with a static margin index, which is how an MDX
+          route composes it when the sections come from the markdown.
+        </TypographyProse>
+      </EssayColumns>
     </article>
   );
 }

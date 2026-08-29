@@ -1,4 +1,4 @@
-import { TypographyStat } from "@supertype/foundations";
+import { TypographyStat } from "@supertype.ai/foundations";
 import {
   Cards,
   Card,
@@ -6,7 +6,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations/blocks";
 
 export default function CardDemo() {
   return (

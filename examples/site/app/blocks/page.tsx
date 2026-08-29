@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { TypographyInlineCode, TypographyLink } from "@supertype/foundations";
+import { TypographyInlineCode, TypographyLink } from "@supertype.ai/foundations";
 import { Code } from "../_components/code";
 import { Demo } from "../_components/demo";
 import { Section, SectionGroup } from "../_components/section";
@@ -18,8 +18,9 @@ import MarkdownHelpersDemo from "../_demos/markdown-helpers";
 import EssayColumnsDemo from "../_demos/essay-columns";
 import MovementsDemo from "../_demos/movements";
 import PostMetaDemo from "../_demos/post-meta";
+import { pageMetadata } from "../_components/seo";
 
-export const metadata: Metadata = { title: "Blocks" };
+export const metadata: Metadata = pageMetadata("blocks");
 
 /**
  * Everything the package exports that is not typography or prose, on one page.
@@ -72,7 +73,7 @@ const GROUPS = [
   },
 ];
 
-const PROGRESS_BAR = `import { ReadingProgressBar } from "@supertype/foundations/essay";
+const PROGRESS_BAR = `import { ReadingProgressBar } from "@supertype.ai/foundations/essay";
 
 export default function ArticleLayout({ children }) {
   return (
@@ -86,7 +87,7 @@ export default function ArticleLayout({ children }) {
 
 const HOOKS = `"use client";
 
-import { useScrollSpy, useReadingProgress } from "@supertype/foundations/essay";
+import { useScrollSpy, useReadingProgress } from "@supertype.ai/foundations/essay";
 
 export function MyRail({ ids }: { ids: string[] }) {
   // Returns the id of the topmost heading on screen. The hook keys on the
@@ -107,7 +108,7 @@ const SHELL = `import {
   EssayFigure,
   EssayDocument,
   createEssay,
-} from "@supertype/foundations/essay";
+} from "@supertype.ai/foundations/essay";
 
 // Sections as data. The margin index is derived from them, so renaming a
 // heading updates its rail link automatically.
@@ -134,7 +135,7 @@ export default function BlocksPage() {
       <SectionGroup
         id="content"
         title="Content"
-        from="@supertype/foundations/blocks"
+        from="@supertype.ai/foundations/blocks"
         note="Components that sit inside prose. Tabs and Accordion are client components built on Base UI. Everything else renders on the server."
       />
 
@@ -208,7 +209,7 @@ export default function BlocksPage() {
       <SectionGroup
         id="navigation"
         title="Indexes and rails"
-        from="@supertype/foundations/essay"
+        from="@supertype.ai/foundations/essay"
         note="Indexes, rails, and reading progress. They ship from the essay entry point but are not essay-only — this page builds its own margin index from them."
       />
 
@@ -283,14 +284,14 @@ export default function BlocksPage() {
       <SectionGroup
         id="editorial"
         title="Editorial"
-        from="@supertype/foundations/essay"
+        from="@supertype.ai/foundations/essay"
         note="Layout, meta, and the shell that composes them. Use the individual pieces for MDX articles, and EssayDocument when the content is data."
       />
 
       <Section
         id="columns"
         title="EssayColumns"
-        note="A three-track grid — margin, measure, and an aside column that is often empty. Keeping the third track reserved holds the prose on the same axis whether or not a page has asides. The measure widens per breakpoint; the aside is hidden below lg."
+        note="A three-track grid — margin, measure, and an aside column that is often empty. Keeping the third track reserved holds the prose on the same axis whether or not a page has asides. The measure widens per step, and the aside appears once the container reaches 72rem — a container query, not a viewport one, so a shell mounted in a narrow column drops the rail and centres the prose instead of drawing a margin too thin to hold a label."
       >
         <Demo source="app/_demos/essay-columns.tsx">
           <EssayColumnsDemo />
@@ -356,7 +357,7 @@ export default function BlocksPage() {
       <SectionGroup
         id="functions"
         title="Helpers"
-        from="@supertype/foundations/essay"
+        from="@supertype.ai/foundations/essay"
         note="The functions that produce heading data for the rails, and the two hooks they run on."
       />
 

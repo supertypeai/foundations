@@ -1,6 +1,6 @@
 "use client";
 
-import { Rail, RailLink, useScrollSpy } from "@supertype/foundations/essay";
+import { Rail, RailLink, useScrollSpy } from "@supertype.ai/foundations/essay";
 
 export type TocGroup = {
   id: string;

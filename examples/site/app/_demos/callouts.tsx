@@ -1,5 +1,5 @@
-import { TypographyLink } from "@supertype/foundations";
-import { Callout } from "@supertype/foundations/blocks";
+import { TypographyLink } from "@supertype.ai/foundations";
+import { Callout } from "@supertype.ai/foundations/blocks";
 
 export default function Callouts() {
   return (

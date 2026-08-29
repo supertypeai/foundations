@@ -1,6 +1,6 @@
 "use client";
 
-import { TypographyProse } from "@supertype/foundations";
+import { TypographyProse } from "@supertype.ai/foundations";
 import {
   Tabs,
   TabsList,
@@ -8,7 +8,7 @@ import {
   TabsContent,
   TabGroup,
   Tab,
-} from "@supertype/foundations/blocks";
+} from "@supertype.ai/foundations/blocks";
 
 export default function TabsDemo() {
   return (

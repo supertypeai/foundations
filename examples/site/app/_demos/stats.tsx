@@ -4,7 +4,7 @@ import {
   TypographyHighlight,
   TypographyLabel,
   TypographyProse,
-} from "@supertype/foundations";
+} from "@supertype.ai/foundations";
 
 export default function Stats() {
   return (

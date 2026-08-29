@@ -1,5 +1,5 @@
-import { TypographyInlineCode } from "@supertype/foundations";
-import { Steps, Step } from "@supertype/foundations/blocks";
+import { TypographyInlineCode } from "@supertype.ai/foundations";
+import { Steps, Step } from "@supertype.ai/foundations/blocks";
 
 export default function StepsDemo() {
   return (

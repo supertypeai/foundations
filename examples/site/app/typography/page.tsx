@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { TypographyProse, TypographyInlineCode } from "@supertype/foundations";
-import { Callout } from "@supertype/foundations/blocks";
+import { TypographyProse, TypographyInlineCode } from "@supertype.ai/foundations";
+import { Callout } from "@supertype.ai/foundations/blocks";
 import { Demo } from "../_components/demo";
 import { Section } from "../_components/section";
 import { PageTitle } from "../_components/site-header";
@@ -11,8 +11,9 @@ import Body from "../_demos/body";
 import Meta from "../_demos/meta";
 import Stats from "../_demos/stats";
 import Links from "../_demos/links";
+import { pageMetadata } from "../_components/seo";
 
-export const metadata: Metadata = { title: "Typography" };
+export const metadata: Metadata = pageMetadata("typography");
 
 const SECTIONS = [
   { id: "headings", label: "Headings" },

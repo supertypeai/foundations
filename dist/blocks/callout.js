@@ -33,7 +33,7 @@ const TONE = {
     /** A prerequisite or a footgun: the reader can still proceed, but not blindly. */
     warn: {
         box: "border-warn/25 bg-warn/5",
-        title: "text-warn-foreground",
+        title: "text-warn-ink",
         icon: "text-warn",
         rail: "bg-warn/60",
     },

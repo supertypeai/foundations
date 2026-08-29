@@ -90,6 +90,17 @@ export function surfaceAsInkRules(): RestrictedSyntax[] {
   );
 }
 
+/**
+ * `-foreground` means the label printed on a fill; `-ink` means the hue as
+ * words. `warn-foreground` was always the ink, under the other name.
+ */
+export function renamedTokenRules(): RestrictedSyntax[] {
+  return rule(
+    "/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke)-warn-foreground($| )/",
+    "`warn-foreground` is the deprecated name for `warn-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as text; warn has no printed-on label, because orange carries white text at no lightness. Use warn-ink.",
+  );
+}
+
 export interface TypographyOptions {
   /** Three-weight ramp. Off for editorial, where 700 is a register not a shout. */
   weights?: boolean;
@@ -198,7 +209,7 @@ export interface DesignConfigOptions extends ColourOptions, TypographyOptions {
 /**
  * Every rule in one flat-config entry, ready to spread into eslint.config.js:
  *
- *   import { designConfig } from "@supertype/foundations/eslint";
+ *   import { designConfig } from "@supertype.ai/foundations/eslint";
  *   export default [ ...designConfig({ accents: "the brand tints" }) ];
  *
  * One entry is not a detail. Flat config replaces a rule's options rather than
@@ -217,7 +228,7 @@ export function designConfig({
 }: DesignConfigOptions = {}): FlatConfigEntry[] {
   return [
     {
-      name: "@supertype/foundations/design",
+      name: "@supertype.ai/foundations/design",
       files,
       rules: {
         "no-restricted-syntax": [
@@ -226,6 +237,7 @@ export function designConfig({
           ...typographyRules({ weights, ramp, pairing, axis }),
           ...themeOverrideRules(),
           ...surfaceAsInkRules(),
+          ...renamedTokenRules(),
         ],
       },
     },
