@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -14,7 +15,12 @@ describe("type assertions", () => {
     let output = "";
     let failed = false;
     try {
-      execFileSync("npx", ["tsc", "-p", "tsconfig.typetest.json"], { cwd: root, encoding: "utf8" });
+      // The local binary rather than `npx`: npx is the npm CLI, which warns on
+      // the npm_config_* vars yarn injects into the child environment.
+      execFileSync(join(root, "node_modules/.bin/tsc"), ["-p", "tsconfig.typetest.json"], {
+        cwd: root,
+        encoding: "utf8",
+      });
     } catch (err: any) {
       failed = true;
       output = `${err.stdout ?? ""}${err.stderr ?? ""}`;
