@@ -14,10 +14,10 @@ import type { ComponentProps } from "react";
 declare const MARKER_TONES: {
     readonly primary: "var(--primary)";
     readonly success: "var(--success)";
-    readonly ochre: "var(--ochre-foreground)";
-    readonly terracotta: "var(--terracotta-foreground)";
-    readonly sage: "var(--sage-foreground)";
-    readonly fig: "var(--fig-foreground)";
+    readonly ochre: "var(--ochre-ink)";
+    readonly terracotta: "var(--terracotta-ink)";
+    readonly sage: "var(--sage-ink)";
+    readonly fig: "var(--fig-ink)";
 };
 export type HighlightTone = keyof typeof MARKER_TONES;
 /**

@@ -68,7 +68,7 @@ export function ReadingRail({
   headings,
   className,
 }: {
-  headings: TocHeading[];
+  headings: readonly TocHeading[];
   className?: string;
 }) {
   const progress = useReadingProgress();

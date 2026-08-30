@@ -9,6 +9,7 @@ import {
   checkLegibility,
   checkSignals,
   formatFailures,
+  tokenCuts,
 } from "../dist/contrast.js";
 
 const read = (name: string) => readFileSync(new URL(`../src/${name}`, import.meta.url), "utf8");
@@ -162,5 +163,68 @@ describe("checkSignals", () => {
     expect(failures).toContainEqual(
       expect.objectContaining({ ink: "--primary-foreground", surface: "--primary" }),
     );
+  });
+});
+
+describe("tokenCuts", () => {
+  it("reads the pair off the same set checkSignals measures", () => {
+    expect(tokenCuts("destructive")).toEqual({
+      fill: "--destructive",
+      onFill: "--destructive-foreground",
+      asInk: undefined,
+    });
+  });
+
+  it("gives a categorical hue an ink and no printed label", () => {
+    // These shipped as `--ochre-foreground` for a while, which reads like a label
+    // printed on `--ochre` and is not one: it is the hue as words, checked at
+    // 4.5:1 against the page, and printing it on its own fill measures about
+    // 1.2:1 — which is what the docs site did while it trusted the suffix.
+    expect(tokenCuts("ochre")).toEqual({
+      fill: "--ochre",
+      onFill: undefined,
+      asInk: "--ochre-ink",
+    });
+  });
+
+  it("does not offer the deprecated spelling as a cut", () => {
+    // The alias still resolves, so nothing broke on the day of the rename. It is
+    // not a cut, so nothing new can be built on it.
+    expect(tokenCuts("ochre").asInk).not.toBe("--ochre-foreground");
+  });
+
+  it("gives the status hues their ink and no label", () => {
+    expect(tokenCuts("warn")).toEqual({
+      fill: "--warn",
+      onFill: undefined,
+      asInk: "--warn-ink",
+    });
+  });
+
+  it("keeps all three cuts where the set really ships three", () => {
+    expect(tokenCuts("secondary")).toEqual({
+      fill: "--secondary",
+      onFill: "--secondary-foreground",
+      asInk: "--secondary-ink",
+    });
+  });
+
+  it("reports a plain role as a fill on its own", () => {
+    expect(tokenCuts("--border")).toEqual({
+      fill: "--border",
+      onFill: undefined,
+      asInk: undefined,
+    });
+  });
+
+  it("every cut it names is a token the theme actually defines", () => {
+    const tokens = resolveTokens([read("tokens.css"), read("theme.css")].join("\n"), "light");
+    const named = ["primary", "secondary", "destructive", "accent", "card", "success", "warn", "info", "ochre", "terracotta", "sage", "fig", "moss", "fern", "stone", "cocoa"];
+    for (const name of named) {
+      const cuts = tokenCuts(name);
+      for (const cut of [cuts.fill, cuts.onFill, cuts.asInk].filter(Boolean)) {
+        expect(tokens[cut as string], `${cut} is named but undefined`).toBeTruthy();
+      }
+    }
   });
 });

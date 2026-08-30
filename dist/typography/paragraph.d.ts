@@ -1,12 +1,13 @@
 import { type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ReactNode } from "react";
+import { type Tone } from "../tone.js";
 import { type WithAs } from "./as.js";
 /** The body layer: two axes and no more. A paragraph picks a rung and an ink; a
  * caption is always secondary ink and picks a size. `lead` was a third rung a
  * breakpoint away from `prose`, and its standfirst role is now the eyebrow's. */
 declare const pVariants: (props?: ({
     variant?: "ui" | "prose" | null | undefined;
-    tone?: "default" | "muted" | null | undefined;
+    tone?: "muted" | "default" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type ParagraphVariants = VariantProps<typeof pVariants>;
 export declare function TypographyP({ className, variant, tone, children, ...props }: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
@@ -113,21 +114,10 @@ export declare function TypographyStat({ className, size, figures, children, ...
  * optical correction — the mono face carries a taller x-height than the sans.
  */
 export declare function TypographyInlineCode({ className, children, ...props }: ComponentProps<"code">): import("react").JSX.Element;
-/**
- * A statement about the surface, not the link: `foreground` inside a paragraph,
- * `primary` when the link is the point of the line, `secondary` for a note
- * beneath a hero where `primary` would compete with the CTA beside it.
- */
-declare const LINK_TONES: {
-    readonly foreground: "font-medium text-foreground";
-    readonly primary: "font-medium text-primary";
-    readonly secondary: "text-secondary-ink";
-};
-export type LinkTone = keyof typeof LINK_TONES;
 type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & {
     href: string;
     children: ReactNode;
-    tone?: LinkTone;
+    tone?: Tone;
     /** Defaults on for an off-site link. Turn it off for one that starts a flow the reader should stay in. */
     newTab?: boolean;
     /**

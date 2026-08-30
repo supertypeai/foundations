@@ -15,10 +15,10 @@ import { cn } from "../cn.js";
 const MARKER_TONES = {
     primary: "var(--primary)",
     success: "var(--success)",
-    ochre: "var(--ochre-foreground)",
-    terracotta: "var(--terracotta-foreground)",
-    sage: "var(--sage-foreground)",
-    fig: "var(--fig-foreground)",
+    ochre: "var(--ochre-ink)",
+    terracotta: "var(--terracotta-ink)",
+    sage: "var(--sage-ink)",
+    fig: "var(--fig-ink)",
 };
 /** Wash density at a fraction of the theme's base alpha. */
 const ink = (weight) => `color-mix(in srgb, var(--marker) calc(var(--marker-alpha) * ${weight}), transparent)`;

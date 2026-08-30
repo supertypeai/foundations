@@ -25,9 +25,14 @@ import { TextAs } from "./as.js";
  * respelling it: a second literal here is a level that forked, and a literal
  * weight beside the face survives into `.editorial` and synthesises the
  * single-weight serif. viably asserts there is exactly one of these strings.
+ *
+ * Exported so a non-heading can ask for the face alone. `headingClass()` below is the whole
+ * h2 ramp — face, anchor offset, margin reset, rung — and is right only for something that
+ * IS a heading wearing another tag. A pull quote is not, and took the ramp anyway because
+ * the face had no door, arriving with a `scroll-m-20` for an anchor it does not have.
  */
-const HEADING_FACE = "font-heading font-[number:var(--heading-weight)]";
-const HEADING_BASE = `scroll-m-20 ${HEADING_FACE} text-foreground`;
+export const headingFace = "font-heading font-[number:var(--heading-weight)]";
+const HEADING_BASE = `scroll-m-20 ${headingFace} text-foreground`;
 const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
     variants: {
         variant: {

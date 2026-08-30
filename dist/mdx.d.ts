@@ -1,9 +1,30 @@
-import type { ComponentProps } from "react";
+import { type ComponentProps, type ReactNode } from "react";
 import { Disclosure, DisclosureGroup } from "./blocks/accordion.js";
 import { Callout } from "./blocks/callout.js";
 import { Card, Cards } from "./blocks/card.js";
 import { Step, Steps } from "./blocks/steps.js";
-import { TabGroup, Tab } from "./blocks/tabs.js";
+/**
+ * `<Tabs items={["npm","pnpm"]}>` with a `<Tab>` per panel: the shape an MDX author
+ * writes, and the only place in the package that speaks it.
+ *
+ * Children pair with `items` **by position**, since a caller writing markdown has no
+ * value to bind. `value` on a `<Tab>` is for the author's eye and is not matched —
+ * matching it would silently drop a panel the moment a label was edited. The label is
+ * the value here, so the strip still survives a reorder.
+ *
+ * This lived in `TabGroup` and made `TabGroup` unusable everywhere else: an app has data,
+ * not positional children, so every one of them rebuilt the adapter by hand. Positional
+ * children are an authoring convenience, not a component API, so they stop here.
+ */
+declare function MdxTabs({ items, children }: {
+    items: string[];
+    children: ReactNode;
+}): import("react").JSX.Element;
+/** `value` names the panel at the call site; it is not used for matching. */
+declare function MdxTab({ children }: {
+    value?: string;
+    children: ReactNode;
+}): import("react").JSX.Element;
 /**
  * Rendered from markdown syntax, so there is no call site and no knob — a knob
  * here is one every project turns differently. Headings carry variants and this
@@ -19,8 +40,8 @@ export declare const proseMdxComponents: {
     Accordions: typeof DisclosureGroup;
     Accordion: typeof Disclosure;
     Banner: (props: ComponentProps<typeof Callout>) => import("react").JSX.Element;
-    Tabs: typeof TabGroup;
-    Tab: typeof Tab;
+    Tabs: typeof MdxTabs;
+    Tab: typeof MdxTab;
     Steps: typeof Steps;
     Step: typeof Step;
     h1: (props: ComponentProps<"h1">) => import("react").JSX.Element;
@@ -45,3 +66,4 @@ export declare const proseMdxComponents: {
     th: (props: ComponentProps<"th">) => import("react").JSX.Element;
     td: (props: ComponentProps<"td">) => import("react").JSX.Element;
 };
+export {};

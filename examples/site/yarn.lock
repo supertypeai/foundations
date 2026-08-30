@@ -785,6 +785,11 @@ lightningcss@1.32.0:
     lightningcss-win32-arm64-msvc "1.32.0"
     lightningcss-win32-x64-msvc "1.32.0"
 
+lucide-react@^1.37.0:
+  version "1.37.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.37.0.tgz#2061cd79429139d83985d8861a0cafd00d338916"
+  integrity sha512-LPsB4rD1TD6wZu1djKOf9vUnS1jTNaHbolXebXDgiTdb6jeA1agIJhJsIybCmjKmQClcOaal1o1OaiYahEftyQ==
+
 magic-string@^0.30.21:
   version "0.30.21"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.30.21.tgz#56763ec09a0fa8091df27879fd94d19078c00d91"

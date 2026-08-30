@@ -18,7 +18,9 @@ import {
   TypographyStat,
   TypographyEyebrow,
   TypographyCaption,
+  TypographyHighlight,
 } from "../../dist/index.js";
+import { Button, Callout } from "../../dist/blocks/index.js";
 
 export const pinned = (
   <>
@@ -69,5 +71,49 @@ export const polymorphic = (
     <TypographyCaption as="marquee">no</TypographyCaption>
 
     <TypographyCaption as="p" size="2xs">yes</TypographyCaption>
+  </>
+);
+
+export const buttonAxes = (
+  <>
+    {/* The two axes stay separate: a semantic name is never a variant. */}
+    {/* @ts-expect-error "destructive" is a tone, not a variant */}
+    <Button variant="destructive">no</Button>
+    {/* @ts-expect-error "secondary" is a tone, not a variant */}
+    <Button variant="secondary">no</Button>
+    {/* @ts-expect-error one size ladder; a square is `icon`, not a size */}
+    <Button size="icon-sm">no</Button>
+
+    <Button variant="ghost" tone="destructive" size="sm">yes</Button>
+    <Button variant="solid" tone="brand" size="xl" pill icon>yes</Button>
+  </>
+);
+
+/**
+ * One tone vocabulary, not one per component. The three names that were dropped
+ * when the private lists merged must stay dropped: each was a second spelling of
+ * a tone that already existed, and a compiling `tone="muted"` is how the second
+ * spelling comes back.
+ */
+export const oneToneVocabulary = (
+  <>
+    {/* @ts-expect-error a tone with no token behind it; this one is `muted` */}
+    <Callout tone="neutral">no</Callout>
+    {/* @ts-expect-error Callout's old "accent" was `--primary` under another name */}
+    <Callout tone="accent">no</Callout>
+    {/* @ts-expect-error TypographyLink's old "foreground" is `muted` */}
+    <TypographyLink href="/x" tone="foreground">no</TypographyLink>
+    {/* @ts-expect-error the categorical palette is not the semantic one */}
+    <Button tone="sage">no</Button>
+    {/* @ts-expect-error ...and the semantic one is not the categorical palette */}
+    <TypographyHighlight tone="destructive">no</TypographyHighlight>
+
+    {/* The same eight reach every component that carries meaning in a hue. */}
+    {/* @ts-expect-error `success | warn | destructive` is the whole triad */}
+    <Button tone="info">no</Button>
+
+    <Button tone="warn" variant="soft">yes</Button>
+    <Callout tone="warn">yes</Callout>
+    <TypographyLink href="/x" tone="warn">yes</TypographyLink>
   </>
 );

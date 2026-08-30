@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import { Link } from "next-view-transitions";
-import { Rail, RailLink, TableOfContents } from "@supertype.ai/foundations/essay";
+import {
+  EssayAside,
+  Rail,
+  RailLink,
+  TableOfContents,
+} from "@supertype.ai/foundations/essay";
 import { GroupedToc, type TocGroup } from "./grouped-toc";
 
 export type TocEntry = { id: string; label: string };
@@ -21,7 +26,7 @@ function WithRail({ aside, children }: { aside: ReactNode; children: ReactNode }
     <div className="mx-auto w-full max-w-5xl px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-12">
       <div className="min-w-0">{children}</div>
       <aside className="hidden lg:block">
-        <div className="sticky top-24 pt-20">{aside}</div>
+        <EssayAside className="pt-20">{aside}</EssayAside>
       </aside>
     </div>
   );

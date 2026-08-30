@@ -25,9 +25,9 @@ export default function EssayColumnsDemo() {
           }
         >
           <TypographyProse>
-            Use EssayColumns directly when your content is MDX. The columns set
-            the measure, and the index you built from the markdown goes in the
-            aside.
+            Reach for EssayColumns directly when the margin holds something that
+            is not a rail. For an article it is ReadingLayout that composes these
+            columns with the reading rail already in the aside.
           </TypographyProse>
         </EssayColumns>
       </div>

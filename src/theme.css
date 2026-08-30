@@ -18,20 +18,31 @@
      other's, so the ink is what tells two swatches apart. checkSignals holds the
      fill to 3:1 and the ink to 4.5:1. */
   --color-terracotta: var(--terracotta);
-  --color-terracotta-foreground: var(--terracotta-foreground);
+  --color-terracotta-ink: var(--terracotta-ink);
   --color-ochre: var(--ochre);
-  --color-ochre-foreground: var(--ochre-foreground);
+  --color-ochre-ink: var(--ochre-ink);
   --color-moss: var(--moss);
-  --color-moss-foreground: var(--moss-foreground);
+  --color-moss-ink: var(--moss-ink);
   --color-fern: var(--fern);
-  --color-fern-foreground: var(--fern-foreground);
+  --color-fern-ink: var(--fern-ink);
   --color-sage: var(--sage);
-  --color-sage-foreground: var(--sage-foreground);
+  --color-sage-ink: var(--sage-ink);
   --color-stone: var(--stone);
-  --color-stone-foreground: var(--stone-foreground);
+  --color-stone-ink: var(--stone-ink);
   --color-fig: var(--fig);
-  --color-fig-foreground: var(--fig-foreground);
+  --color-fig-ink: var(--fig-ink);
   --color-cocoa: var(--cocoa);
+  --color-cocoa-ink: var(--cocoa-ink);
+
+  /* Deprecated aliases. Registered so an unmigrated call site keeps rendering;
+     the ESLint rules flag it so it does not stay unmigrated. */
+  --color-terracotta-foreground: var(--terracotta-foreground);
+  --color-ochre-foreground: var(--ochre-foreground);
+  --color-moss-foreground: var(--moss-foreground);
+  --color-fern-foreground: var(--fern-foreground);
+  --color-sage-foreground: var(--sage-foreground);
+  --color-stone-foreground: var(--stone-foreground);
+  --color-fig-foreground: var(--fig-foreground);
   --color-cocoa-foreground: var(--cocoa-foreground);
 
   --color-chart-1: var(--chart-1);
@@ -57,11 +68,19 @@
   --shadow-recessed: var(--elevation-recessed);
 
   /* Additive scale off a 10px `lg` — fixed pixel offsets, so no oddball values a
-     multiplicative scale would produce. `rounded-full` stays a pill. */
+     multiplicative scale would produce. `rounded-full` stays a pill.
+
+     The container rung was +4px, the one step in the run that was not 2, and 14px
+     on a card read softer than anything else the package draws — a panel rounder
+     than the button sitting inside it. At +2 the run below the marketing sizes is
+     6 / 8 / 10 / 12, evenly spaced, and the jump to `2xl` is left to say what it
+     was always meant to: this one is a feature card, not a container. Card,
+     Accordion, and the MDX pre/img/table frames all step down together, which is
+     the point of moving the token rather than the five call sites. */
   --radius-sm: calc(var(--radius) - 4px); /* 6px */
   --radius-md: calc(var(--radius) - 2px); /* 8px  — inputs, menus, small controls */
   --radius-lg: var(--radius); /* 10px — buttons, default control */
-  --radius-xl: calc(var(--radius) + 4px); /* 14px — cards */
+  --radius-xl: calc(var(--radius) + 2px); /* 12px — cards, panels, framed blocks */
   --radius-2xl: calc(var(--radius) + 8px); /* 18px — marketing feature cards */
   --radius-3xl: calc(var(--radius) + 12px); /* 22px */
   --radius-4xl: calc(var(--radius) + 16px); /* 26px */
@@ -89,23 +108,40 @@
   /* Danger ships as an ink only: a vivid brick red harmonised toward terracotta. */
   --danger: hsl(5 72% 43%);
 
-  /* Latte-warm greens, clays and stone. Both cuts of each hue, light theme. */
+  /* Latte-warm greens, clays and stone. Both cuts of each hue, light theme.
+     `-ink`, not `-foreground`: in this package `-foreground` is the label printed
+     on a fill and `-ink` is the hue used as words, and these are the latter —
+     `checkSignals` holds them to 4.5:1 against the page, and printing one on its
+     own fill measures about 1.2:1. They shipped under the wrong suffix for long
+     enough that a docs page believed it and rendered them as bare squares. The
+     old names are kept below as aliases; the ESLint rules flag them. */
   --terracotta: hsl(10 54% 60%);
-  --terracotta-foreground: hsl(10 72% 40%);
+  --terracotta-ink: hsl(10 72% 40%);
   --ochre: hsl(44 60% 42%);
-  --ochre-foreground: hsl(44 78% 27%);
+  --ochre-ink: hsl(44 78% 27%);
   --moss: hsl(68 42% 41%);
-  --moss-foreground: hsl(68 60% 26%);
+  --moss-ink: hsl(68 60% 26%);
   --fern: hsl(133 30% 47%);
-  --fern-foreground: hsl(133 48% 30%);
+  --fern-ink: hsl(133 48% 30%);
   --sage: hsl(168 28% 47%);
-  --sage-foreground: hsl(168 46% 29%);
+  --sage-ink: hsl(168 46% 29%);
   --stone: hsl(202 24% 55%);
-  --stone-foreground: hsl(202 42% 36%);
+  --stone-ink: hsl(202 42% 36%);
   --fig: hsl(332 32% 61%);
-  --fig-foreground: hsl(332 50% 43%);
+  --fig-ink: hsl(332 50% 43%);
   --cocoa: hsl(20 16% 56%);
-  --cocoa-foreground: hsl(20 34% 39%);
+  --cocoa-ink: hsl(20 34% 39%);
+
+  /* Deprecated: these were always the ink, under shadcn's name for the opposite
+     thing. Use `-ink`; the ESLint rules flag the old name. */
+  --terracotta-foreground: var(--terracotta-ink);
+  --ochre-foreground: var(--ochre-ink);
+  --moss-foreground: var(--moss-ink);
+  --fern-foreground: var(--fern-ink);
+  --sage-foreground: var(--sage-ink);
+  --stone-foreground: var(--stone-ink);
+  --fig-foreground: var(--fig-ink);
+  --cocoa-foreground: var(--cocoa-ink);
 
   --background: hsl(43 33% 96%); /* #FAF8F3 */
   /* Near-black keyed to the latte hue, not a neutral #333: grey reads cold over
@@ -177,21 +213,29 @@
 
   /* Espresso twins: fills darken and inks lift to hold the same two bars. */
   --terracotta: hsl(10 54% 47%);
-  --terracotta-foreground: hsl(10 66% 66%);
+  --terracotta-ink: hsl(10 66% 66%);
   --ochre: hsl(44 60% 33%);
-  --ochre-foreground: hsl(44 72% 45%);
+  --ochre-ink: hsl(44 72% 45%);
   --moss: hsl(68 42% 32%);
-  --moss-foreground: hsl(68 54% 43%);
+  --moss-ink: hsl(68 54% 43%);
   --fern: hsl(133 30% 37%);
-  --fern-foreground: hsl(133 42% 49%);
+  --fern-ink: hsl(133 42% 49%);
   --sage: hsl(168 28% 37%);
-  --sage-foreground: hsl(168 40% 49%);
+  --sage-ink: hsl(168 40% 49%);
   --stone: hsl(202 24% 42%);
-  --stone-foreground: hsl(202 36% 60%);
+  --stone-ink: hsl(202 36% 60%);
   --fig: hsl(332 32% 49%);
-  --fig-foreground: hsl(332 44% 67%);
+  --fig-ink: hsl(332 44% 67%);
   --cocoa: hsl(20 16% 44%);
-  --cocoa-foreground: hsl(20 28% 62%);
+  --cocoa-ink: hsl(20 28% 62%);
+  --terracotta-foreground: var(--terracotta-ink);
+  --ochre-foreground: var(--ochre-ink);
+  --moss-foreground: var(--moss-ink);
+  --fern-foreground: var(--fern-ink);
+  --sage-foreground: var(--sage-ink);
+  --stone-foreground: var(--stone-ink);
+  --fig-foreground: var(--fig-ink);
+  --cocoa-foreground: var(--cocoa-ink);
 
   /* 4 points of lightness at L10 reads flat where the same 4 at L96 reads raised;
      ssite wrote `bg-card dark:bg-muted` at 109 sites before the ground dropped.

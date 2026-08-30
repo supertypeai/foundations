@@ -137,7 +137,7 @@ export default function AgentsPage() {
         <div className="mt-4">
           <Code lang="yaml" code={CI} />
         </div>
-        <Callout tone="accent" density="editorial" title="Three layers" className="mt-6">
+        <Callout tone="primary" density="editorial" title="Three layers" className="mt-6">
           <TypographyInlineCode>llms.txt</TypographyInlineCode> tells the agent what to write.
           The lint rules catch what it wrote anyway.{" "}
           <TypographyInlineCode>doctor</TypographyInlineCode> checks the wiring neither of

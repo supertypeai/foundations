@@ -114,7 +114,7 @@ export default function TypographyPage() {
 <Dialog.Title className={eyebrowClass("label")}>`}
           />
         </div>
-        <Callout tone="accent" density="editorial" title="Use one of these two" className="mt-6">
+        <Callout tone="primary" density="editorial" title="Use one of these two" className="mt-6">
           Hand-rolled <TypographyInlineCode>text-sm font-medium</TypographyInlineCode> stops
           matching the moment the ramp changes. The last time these were written by hand, the
           codebase collected five slightly different copies of the heading styles.

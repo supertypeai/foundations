@@ -13,7 +13,7 @@ export default function Callouts() {
       </Callout>
 
       {/* density="editorial": reading-size body, accent rail. */}
-      <Callout density="editorial" tone="accent" title="Why this is safe">
+      <Callout density="editorial" tone="primary" title="Why this is safe">
         Replication slots are consumed in order. See{" "}
         <TypographyLink href="/typography" addArrow>
           slot hygiene

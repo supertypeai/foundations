@@ -32,15 +32,15 @@ export default defineConfig({
 });`;
 
 const MDX_ARTICLE = `// app/notes/[slug]/page.tsx — the article shell around compiled MDX
-import { extractHeadings, readingTime, EssayHeader, EssayColumns,
-         ReadingRail, PostMetaRow, PostDate, ReadTime, TagPills,
+import { extractHeadings, readingTime, EssayHeader, ReadingLayout,
+         PostMetaRow, PostDate, ReadTime, TagPills,
          MetaDot } from "@supertype.ai/foundations/essay";
 
 const headings = extractHeadings(source);   // TocHeading[] — { id, label, depth }
 const minutes = readingTime(source);        // words / 200, rounded up
 
 <EssayHeader eyebrow="Notes" title={frontmatter.title} />
-<EssayColumns aside={<div className="sticky top-24"><ReadingRail headings={headings} /></div>}>
+<ReadingLayout headings={headings}>
   <PostMetaRow>
     <PostDate date={frontmatter.date} format="long" />
     <MetaDot />
@@ -49,7 +49,7 @@ const minutes = readingTime(source);        // words / 200, rounded up
     <TagPills tags={frontmatter.tags} />
   </PostMetaRow>
   {content}
-</EssayColumns>`;
+</ReadingLayout>`;
 
 const SECTIONS = [
   { id: "marketing-hero", label: "Marketing hero" },
@@ -70,7 +70,7 @@ export default function RecipesPage() {
       />
 
       <Callout
-        tone="accent"
+        tone="primary"
         density="editorial"
         title="The code tab is the file itself"
         className="mt-8"

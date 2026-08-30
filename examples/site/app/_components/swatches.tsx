@@ -1,94 +1,103 @@
-import { cn, TypographyLabel, TypographyCaption } from "@supertype.ai/foundations";
+import { cn, TypographyCaption, TypographyLabel } from "@supertype.ai/foundations";
+import { tokenCuts } from "@supertype.ai/foundations/contrast";
 
 /**
- * A swatch reads its colour through the token, never a literal — which is the
- * point: flip the theme switch and every square here re-points without this file
- * knowing a single hex value.
+ * One grid, one axis: a list of token names. How each one is drawn comes from
+ * `tokenCuts`, the same taxonomy `checkSignals` measures against in CI.
+ *
+ * There used to be three components here — a plain grid, a grid for hues in two
+ * cuts, and a grid for a fill with a label printed on it — and the page chose
+ * between them. Two things went wrong with that, both of them the same thing:
+ *
+ *   The categorical hues went through the plain grid, because their ink is named
+ *   `--ochre-foreground` and looks like a printed label. It is not; it is checked
+ *   at 4.5:1 against the page. So `--ochre` rendered as a lone square and the ink
+ *   the marker highlight actually paints with was documented nowhere.
+ *
+ *   The pair grid repainted its own surface and then put a `TypographyCaption`
+ *   on it. That preset *is* the secondary ink — `text-muted-foreground` is the
+ *   first class in its `cva` — so it won over the inherited colour and the label
+ *   came out invisible on `--destructive` in both themes.
+ *
+ * Neither is fixed by a colour override. The first is fixed by asking the package
+ * which cuts a token has instead of guessing from its suffix; the second by
+ * keeping every label on the page, where the presets are correct, and printing
+ * nothing on a fill but a specimen glyph that carries no preset at all.
  */
-function Swatch({ token, on }: { token: string; on?: string }) {
+
+/** The one thing that belongs on a fill: proof that its label is legible there. */
+function OnFillSpecimen({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <div
-        className={cn("size-9 shrink-0 rounded-md border border-border", on)}
-        style={{ backgroundColor: `var(--${token})` }}
-      />
-      <div className="min-w-0">
-        <TypographyLabel as="p" size="xs" className="truncate font-mono">
-          --{token}
-        </TypographyLabel>
-      </div>
-    </div>
+    <span
+      // Not a Typography primitive. Every one that pins an ink would win over
+      // this surface's colour, which is exactly the bug this file used to have.
+      className="font-mono text-xs font-medium"
+      style={{ color: `var(${label})` }}
+    >
+      Aa
+    </span>
   );
 }
 
-export function SwatchGrid({ tokens, note }: { tokens: readonly string[]; note?: string }) {
+function TokenCard({ token }: { token: string }) {
+  const { fill, onFill, asInk } = tokenCuts(token);
+
+  return (
+    <li className="min-w-0 space-y-1.5">
+      <div
+        className={cn(
+          "grid h-14 place-items-center rounded-md border border-border",
+        )}
+        style={{ backgroundColor: `var(${fill})` }}
+      >
+        {onFill ? <OnFillSpecimen label={onFill} /> : null}
+      </div>
+
+      <TypographyLabel as="p" size="xs" className="truncate font-mono">
+        {fill}
+      </TypographyLabel>
+
+      {onFill ? (
+        <TypographyCaption as="p" size="2xs" className="truncate font-mono">
+          Aa is {onFill}
+        </TypographyCaption>
+      ) : null}
+
+      {asInk ? (
+        // The ink demonstrates itself, on the page, which is the only place it is
+        // ever meant to be read.
+        <TypographyLabel
+          as="p"
+          size="xs"
+          className="truncate font-mono"
+          style={{ color: `var(${asInk})` }}
+        >
+          {asInk}
+        </TypographyLabel>
+      ) : null}
+    </li>
+  );
+}
+
+export function TokenGrid({
+  tokens,
+  note,
+}: {
+  tokens: readonly string[];
+  note?: string;
+}) {
   return (
     <div className="mt-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {tokens.map((token) => (
-          <Swatch key={token} token={token} />
+          <TokenCard key={token} token={token} />
         ))}
-      </div>
+      </ul>
       {note ? (
         <TypographyCaption as="p" size="xs" className="mt-4">
           {note}
         </TypographyCaption>
       ) : null}
-    </div>
-  );
-}
-
-/**
- * A hue in both of its cuts: the fill as a mark on the page, and the ink as
- * words on that same page. Never the ink *on* the fill — that pair is not what
- * these two tokens are, and printing one on the other measures about 1.2:1.
- */
-export function SignalGrid({ hues }: { hues: readonly string[] }) {
-  return (
-    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-      {hues.map((hue) => (
-        <div key={hue} className="flex items-center gap-3 rounded-lg border border-border p-4">
-          <div
-            className="size-3 shrink-0 rounded-full"
-            style={{ backgroundColor: `var(--${hue})` }}
-          />
-          <div className="min-w-0">
-            <TypographyLabel
-              as="p"
-              size="xs"
-              className="truncate font-mono"
-              style={{ color: `var(--${hue}-ink)` }}
-            >
-              --{hue}-ink
-            </TypographyLabel>
-            <TypographyCaption as="p" size="2xs" className="font-mono">
-              the dot is --{hue}
-            </TypographyCaption>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/** A role and the ink meant to sit on it — the pairing a token set exists to keep. */
-export function PairGrid({ pairs }: { pairs: readonly (readonly [string, string])[] }) {
-  return (
-    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-      {pairs.map(([bg, fg]) => (
-        <div
-          key={bg}
-          className="rounded-lg border border-border p-4"
-          style={{ backgroundColor: `var(--${bg})`, color: `var(--${fg})` }}
-        >
-          <TypographyLabel as="p" size="xs" className="font-mono">
-            --{bg}
-          </TypographyLabel>
-          <TypographyCaption as="p" size="2xs" className="font-mono opacity-80">
-            on --{fg}
-          </TypographyCaption>
-        </div>
-      ))}
     </div>
   );
 }

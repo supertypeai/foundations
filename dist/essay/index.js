@@ -6,4 +6,4 @@ export { createEssay,
 EssayHeader, EssayLayout, EssaySection, EssayPullQuote, EssayFigure, EssayMovements, EssayDocument, } from "./essay.js";
 export { useReadingProgress, useScrollSpy } from "./scroll.js";
 export { ReadingProgressBar, ReadingRail } from "./reading.js";
-export { EssayColumns, MetaDot, PostMetaRow, PostDate, formatPostDate, ReadTime, TagPills, } from "./layout.js";
+export { EssayColumns, EssayAside, EssayBody, ReadingLayout, MetaDot, PostMetaRow, PostDate, formatPostDate, ReadTime, TagPills, } from "./layout.js";

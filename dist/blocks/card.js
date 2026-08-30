@@ -1,5 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { cn } from "../cn.js";
+import { FOCUS_RING } from "./focus.js";
+import { toneClass } from "../tone.js";
 import { Link } from "next-view-transitions";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }) {
@@ -13,6 +15,17 @@ export function Cards({ className, children, ...props }) {
 const CARD_CLASS = "flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border " +
     "has-[>img:first-child]:pt-0 " +
     "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl";
+/**
+ * What a card does when it is a link, which is the only time it does anything: two pixels
+ * up, a shadow under it, the ring firming from `--border` to a cut of the page's own ink.
+ * Following a link is not a colour, so nothing here is one — `--elevation-raised` is the
+ * token for a layer leaving the page plane, and that is the whole gesture. The lift is
+ * `motion-safe:` and the shadow is not, so reduced motion keeps the affordance.
+ *
+ * `toneClass` is declared here so the icon below can take `--tone-hue` rather than naming
+ * a token, the way every other tinted role in the package reads it.
+ */
+const CARD_LINK_CLASS = cn(toneClass("primary"), FOCUS_RING, "group/card no-underline transition duration-200 ease-out", "hover:shadow-raised hover:ring-foreground/15 motion-safe:hover:-translate-y-0.5");
 export function CardHeader({ className, ...props }) {
     return (_jsx("div", { "data-slot": "card-header", className: cn("grid auto-rows-min items-start gap-1 px-4 [.border-b]:pb-4", className), ...props }));
 }
@@ -40,7 +53,14 @@ export function CardContent({ className, ...props }) {
  * the router's Link.
  */
 export function Card({ href, className, external, title, description, icon, children, ...rest }) {
-    const header = title || description || icon ? (_jsxs(CardHeader, { children: [icon ? _jsx("div", { className: "mb-1 text-muted-foreground", children: icon }) : null, title ? _jsx(CardTitle, { children: title }) : null, description ? _jsx(CardDescription, { children: description }) : null] })) : null;
+    const header = title || description || icon ? (_jsxs(CardHeader, { children: [icon || title ? (
+            // The icon sits on the title's line and is its mark; stacked, it read as a
+            // decoration the title happened to follow. `gap-2` is a gap between two
+            // objects, not the header's `gap-1` between two lines.
+            _jsxs("div", { className: "flex items-center gap-2", children: [icon ? (
+                    // Sized here, not at the call site, so two cards cannot disagree about how
+                    // big an icon is. On a link card it takes the tone as the card lifts.
+                    _jsx("span", { className: "shrink-0 text-muted-foreground transition-colors group-hover/card:text-(color:--tone-hue) [&_svg]:size-4 [&_svg]:shrink-0", children: icon })) : null, title ? _jsx(CardTitle, { children: title }) : null] })) : null, description ? _jsx(CardDescription, { children: description }) : null] })) : null;
     // Bare children compose; children under a shorthand header are body copy.
     const body = header ? (_jsxs(_Fragment, { children: [header, children ? _jsx(CardContent, { children: children }) : null] })) : (children);
     const shared = { "data-slot": "card" };
@@ -48,7 +68,7 @@ export function Card({ href, className, external, title, description, icon, chil
         return (_jsx("div", { className: cn(CARD_CLASS, className), ...shared, ...rest, children: body }));
     }
     const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
-    const classes = cn(CARD_CLASS, "no-underline transition-colors hover:bg-accent", className);
+    const classes = cn(CARD_CLASS, CARD_LINK_CLASS, className);
     if (leavesApp) {
         return (_jsx("a", { href: href, className: classes, target: "_blank", rel: "noopener noreferrer", ...shared, ...rest, children: body }));
     }

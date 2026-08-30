@@ -1,4 +1,5 @@
 import type { ComponentProps, ComponentType, ReactNode } from "react";
+import type { TocHeading } from "./toc.js";
 /**
  * Three tracks with the third empty: two would push the prose off-centre the
  * moment an aside appeared, setting body copy on a different axis per page.
@@ -23,6 +24,41 @@ import type { ComponentProps, ComponentType, ReactNode } from "react";
  */
 export declare function EssayColumns({ aside, children, className, ...props }: ComponentProps<"div"> & {
     aside?: ReactNode;
+}): import("react").JSX.Element;
+/**
+ * The margin track's contents, pinned as the column scrolls.
+ *
+ * The offset is stated here and nowhere else: it has to clear the same sticky
+ * site nav that `EssaySection`'s `scroll-mt` clears, and two literals a file
+ * apart is how an anchored heading ends up under the chrome that the rail
+ * scrolled it to.
+ */
+export declare function EssayAside({ children, className, }: {
+    children: ReactNode;
+    className?: string;
+}): import("react").JSX.Element;
+/**
+ * The join between a header and the body under it: the one place in the package that draws
+ * it, so a seam cannot be ruled twice by a header and a layout that cannot see each other.
+ *
+ * The rule is for the narrow layout alone. Past `@6xl` the margin rail marks the join, and
+ * the header's own bottom padding is the whole of the gap.
+ */
+export declare function EssayBody({ children, className, }: {
+    children: ReactNode;
+    className?: string;
+}): import("react").JSX.Element;
+/**
+ * The reading column with a scroll-spied rail in its margin: an article whose
+ * body is prose or MDX, rather than the declared sections `EssayLayout` sets.
+ *
+ * The rail is dropped when a piece has no headings, so a short post gets a
+ * centred measure instead of a margin holding an empty nav.
+ */
+export declare function ReadingLayout({ headings, children, className, }: {
+    headings: readonly TocHeading[];
+    children: ReactNode;
+    className?: string;
 }): import("react").JSX.Element;
 /** A separator between meta items. Decorative, so it is hidden from assistive tech. */
 export declare function MetaDot({ className }: {

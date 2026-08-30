@@ -21,23 +21,26 @@ import { pageMetadata, seo } from "../_components/seo";
 export const metadata: Metadata = pageMetadata("philosophy");
 
 const INDEX: EssayIndexEntry[] = [
-  { id: "decisions", label: "Utilities and decisions" },
-  { id: "quiet-failures", label: "The bugs that don't throw" },
+  { id: "decisions", label: "Primitives and decisions" },
+  { id: "quiet-failures", label: "Setting up the CSS" },
   { id: "meaning", label: "Naming tokens" },
   { id: "platform", label: "The platform first" },
   { id: "one-place", label: "One place for the rules" },
   { id: "proof", label: "Docs as a build step" },
 ];
 
-const CALL_SITES = `// Decided at the call site, across three files that never see each other
-<p className="text-sm text-muted-foreground">Only what the product needs to run.</p>
-<p className="text-xs text-muted-foreground">Last reviewed Sep 2026</p>
-<p className="block text-xs font-semibold uppercase tracking-wider">Guides</p>
-
-// The same three, decided once
-<TypographyMuted>Only what the product needs to run.</TypographyMuted>
+const CALL_SITES = `<TypographyMuted>Only what the product needs to run.</TypographyMuted>
 <TypographyCaption as="p">Last reviewed Sep 2026</TypographyCaption>
 <TypographyEyebrow>Guides</TypographyEyebrow>`;
+
+/** The whole install for the design rules. One entry, one `no-restricted-syntax`,
+ *  because flat config replaces a rule's options rather than merging them. */
+const LINT_CONFIG = `// eslint.config.js
+import { designConfig } from "@supertype.ai/foundations/eslint";
+
+export default [
+  ...designConfig({ accents: "the brand tints", weights: true }),
+];`;
 
 /** Longer than the nav label, so the page keeps its own headline. */
 const TITLE = "Why foundations";
@@ -72,79 +75,41 @@ export default function PhilosophyPage() {
       />
 
       <EssayLayout index={INDEX}>
-        <EssaySection id="decisions" heading="Utilities don't store decisions">
+        <EssaySection id="decisions" heading="Primitives store decisions">
           <TypographyProse>
-            Someone types{" "}
-            <TypographyInlineCode>
-              text-sm text-muted-foreground
-            </TypographyInlineCode>{" "}
-            on the first piece of secondary copy in a new repo. It is the right
-            call and it takes four seconds, and it is also the last time anybody
-            thinks about it. The next person copies the nearest paragraph that
-            looks close, and a year later there are a few hundred of them. Some
-            of those are a step off — an{" "}
-            <TypographyInlineCode>xs</TypographyInlineCode> where the rest are{" "}
-            <TypographyInlineCode>sm</TypographyInlineCode>, a raw slate where
-            the rest are tokens — and you cannot say which without opening every
-            file.
+            Three roles a page needs constantly — secondary copy, a
+            timestamp, a section label — and the three primitives that carry
+            them. Each renders nothing you could not have written by hand. What
+            you get is that the next change to secondary ink is a one-line diff
+            in the package rather than a find-and-replace you have to review.
           </TypographyProse>
 
+          <EssayFigure caption="Reach for the primitive whenever the style carries a meaning. The decision lives in one place.">
+            <Code code={CALL_SITES} />
+          </EssayFigure>
+
           <EssayPullQuote>
-            A utility class is a fine way to express a style and a poor way to
+            A utility class is a fine way to express a style but a poor way to
             store a decision.
           </EssayPullQuote>
 
           <TypographyProse>
-            Nobody decided on that, it just accumulated. The utility puts the
-            decision at the call site, and there are hundreds of call sites. A
-            primitive puts it in one.{" "}
-            <TypographyInlineCode>TypographyMuted</TypographyInlineCode> renders
-            nothing you could not have written by hand; what you get is that the
-            next change to secondary ink is a one-line diff instead of a
-            find-and-replace you have to review.
-          </TypographyProse>
-
-          <EssayFigure caption="The same three elements, decided wherever they happen to be used, then decided once.">
-            <Code code={CALL_SITES} />
-          </EssayFigure>
-
-          <TypographyProse>
-            Two rules cover most of the API. Don&apos;t hand-write type styles:
-            if you are reaching for{" "}
+            Spelled as{" "}
             <TypographyInlineCode>
               text-sm text-muted-foreground
-            </TypographyInlineCode>
-            , the primitive already exists. And retune with CSS variables rather
-            than classes. The package owns its final classnames and reserves the
-            right to change them, so the levers you want are the{" "}
-            <TypographyInlineCode>--text-*</TypographyInlineCode>,{" "}
-            <TypographyInlineCode>--heading-weight</TypographyInlineCode>, and
-            the colour tokens. Patching a class works until the next release.
+            </TypographyInlineCode>{" "}
+            instead, the decision sits at the call site, and a year in there are
+            a few hundred call sites drifting a step apart from each other. Two
+            rules keep that from starting. If you are about to hand-write a type
+            style, the primitive already exists. And retune with CSS variables
+            — the <TypographyInlineCode>--text-*</TypographyInlineCode> scale,{" "}
+            <TypographyInlineCode>--heading-weight</TypographyInlineCode>, the
+            colour tokens — rather than classes, since the package owns its
+            final classnames and reserves the right to change them.
           </TypographyProse>
         </EssaySection>
 
-        <EssaySection id="quiet-failures" heading="The bugs that don't throw">
-          <TypographyProse>
-            Three things have to be right before a component renders the way it
-            should: the CSS imports in cascade order, the{" "}
-            <TypographyInlineCode>@source</TypographyInlineCode> line that sends
-            Tailwind into{" "}
-            <TypographyInlineCode>node_modules</TypographyInlineCode>, and fonts
-            bound with <TypographyInlineCode>.variable</TypographyInlineCode>{" "}
-            rather than <TypographyInlineCode>.className</TypographyInlineCode>.
-            Get one of them wrong and{" "}
-            <TypographyHighlight tone="terracotta">
-              nothing throws
-            </TypographyHighlight>
-            . Types pass, the build is green, and the page comes up either
-            unstyled or in a typeface nobody picked, usually close enough to
-            right that it gets approved.{" "}
-            <TypographyInlineCode>
-              @supertypeai/foundations
-            </TypographyInlineCode>{" "}
-            ships a CLI that writes the CSS for you and checks the rest.
-            <br />
-          </TypographyProse>
+        <EssaySection id="quiet-failures" heading="Two commands set up the CSS">
           <TypographyProseList>
             <li>
               <TypographyInlineCode>npx foundations init</TypographyInlineCode>{" "}
@@ -154,15 +119,29 @@ export default function PhilosophyPage() {
               <TypographyInlineCode>
                 npx foundations doctor
               </TypographyInlineCode>{" "}
-              reads your CSS entry, your root layout and your installed tree to
-              find issues. It exits non-zero, so it can sit in CI next to your
-              tests. See{" "}
-              <TypographyLink href="/#install" addArrow>
-                install
-              </TypographyLink>
-              .
+              reads your CSS entry, your root layout and your installed tree,
+              and exits non-zero, so it can sit in CI next to your tests.
             </li>
           </TypographyProseList>
+          <TypographyProse>
+            Three things have to be right before a component renders the way it
+            should: the CSS imports in cascade order, the{" "}
+            <TypographyInlineCode>@source</TypographyInlineCode> line that sends
+            Tailwind into{" "}
+            <TypographyInlineCode>node_modules</TypographyInlineCode>, and fonts
+            bound with <TypographyInlineCode>.variable</TypographyInlineCode>{" "}
+            rather than <TypographyInlineCode>.className</TypographyInlineCode>.
+            None of the three throws when it is wrong — types pass and the
+            build is green — so{" "}
+            <TypographyHighlight tone="terracotta">
+              doctor is what tells you
+            </TypographyHighlight>
+            . The{" "}
+            <TypographyLink href="/#install" addArrow>
+              install
+            </TypographyLink>{" "}
+            section has both commands in context.
+          </TypographyProse>
         </EssaySection>
 
         <EssaySection
@@ -222,40 +201,41 @@ export default function PhilosophyPage() {
 
         <EssaySection id="one-place" heading="One place for the rules">
           <TypographyProse>
-            For a while we kept the design rules in each app. The colour rules
-            got copied across by hand and stayed roughly in step; the typography
-            rules never made the trip at all. By the time anyone went looking,
-            one app had{" "}
-            <TypographyHighlight tone="ochre" seed={7}>
-              78 one-off font sizes
-            </TypographyHighlight>{" "}
-            in it, against rules that had been failing its sibling&apos;s builds
-            for months.
+            The design rules ship with the package, so every app enforces the
+            same set from one line of config.
           </TypographyProse>
+
+          <EssayFigure caption="designConfig returns a single flat-config entry holding a single no-restricted-syntax rule.">
+            <Code code={LINT_CONFIG} lang="js" />
+          </EssayFigure>
+
           <TypographyProse>
-            So the rules ship with the package now.{" "}
-            <TypographyInlineCode>
-              @supertype.ai/foundations/eslint
-            </TypographyInlineCode>{" "}
-            exports them as{" "}
+            They are{" "}
             <TypographyInlineCode>no-restricted-syntax</TypographyInlineCode>{" "}
-            selectors: plain data, no plugin, no ESLint dependency of its own.
-            One line in a flat config turns them on everywhere at once.
+            selectors and nothing more — plain data, no plugin, no ESLint
+            dependency of its own. Spread{" "}
+            <TypographyInlineCode>designRules</TypographyInlineCode> instead if
+            you are on <TypographyInlineCode>.eslintrc</TypographyInlineCode> or
+            composing the rule yourself.
           </TypographyProse>
+
           <TypographyProse>
-            Contrast is handled the same way.{" "}
+            Contrast ships the same way.{" "}
             <TypographyInlineCode>checkLegibility</TypographyInlineCode> sweeps
             every ink over every surface in both themes against a 4.5:1 floor,
-            and it resolves the cascade instead of reading the declarations. It
-            has to: a bare <TypographyInlineCode>:root</TypographyInlineCode>{" "}
-            override of{" "}
+            and it resolves the cascade rather than reading the declarations —
+            a bare <TypographyInlineCode>:root</TypographyInlineCode> override of{" "}
             <TypographyInlineCode>--background</TypographyInlineCode> ties with{" "}
-            <TypographyInlineCode>.dark</TypographyInlineCode> on specificity
-            and wins in both themes. We found that out the expensive way, on a
-            site whose <TypographyInlineCode>.dark</TypographyInlineCode> block
-            measured a healthy 15.7:1 while the page itself rendered white on
-            white.
+            <TypographyInlineCode>.dark</TypographyInlineCode> on specificity and
+            wins in{" "}
+            <TypographyHighlight tone="ochre" seed={7}>
+              both themes at once
+            </TypographyHighlight>
+            , so a{" "}
+            <TypographyInlineCode>.dark</TypographyInlineCode> block that
+            measures 15.7:1 on its own can still render white on white.
           </TypographyProse>
+
           <EssayPullQuote>
             Measure the two blocks separately and you have measured an
             intention, not a page.

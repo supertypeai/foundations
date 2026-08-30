@@ -214,14 +214,14 @@ const INKS_TINTED = [
     "--info-ink",
     "--danger",
     "--secondary-ink",
-    "--terracotta-foreground",
-    "--ochre-foreground",
-    "--moss-foreground",
-    "--fern-foreground",
-    "--sage-foreground",
-    "--stone-foreground",
-    "--fig-foreground",
-    "--cocoa-foreground",
+    "--terracotta-ink",
+    "--ochre-ink",
+    "--moss-ink",
+    "--fern-ink",
+    "--sage-ink",
+    "--stone-ink",
+    "--fig-ink",
+    "--cocoa-ink",
 ];
 /**
  * shadcn's shape: `-foreground` is the label printed on the fill, so the pair is
@@ -236,6 +236,24 @@ const ON_FILL = [
     ["--popover", "--popover-foreground"],
     ["--sidebar", "--sidebar-foreground"],
 ];
+/**
+ * The cuts a token ships, read off the same three sets `checkSignals` measures.
+ *
+ * Exported because the alternative is every consumer keeping its own idea of
+ * which tokens are pairs — the docs site did, and got the categorical hues
+ * wrong, rendering `--ochre` as a lone square while its ink, the colour the
+ * marker highlight is painted with, appeared nowhere. A palette checked against
+ * one taxonomy and documented from another will drift, and the drift shows up as
+ * a page that is quietly wrong rather than a build that fails.
+ */
+export function tokenCuts(token) {
+    const fill = token.startsWith("--") ? token : `--${token}`;
+    return {
+        fill,
+        onFill: ON_FILL.find(([surface]) => surface === fill)?.[1],
+        asInk: INKS_TINTED.find((ink) => ink === `${fill}-ink`),
+    };
+}
 /**
  * The three bars a palette owes, run over the same engine as `checkLegibility`.
  * Without this the numbers in a theme's comments are claims, not measurements.

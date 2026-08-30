@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 
 import { cn } from "../cn.js";
+import { toneClass, type Tone } from "../tone.js";
 import {
   TypographyCaption,
   TypographyLabel,
@@ -23,44 +24,18 @@ import {
 // must not announce themselves to a screen reader every time a sheet opens.
 // ---------------------------------------------------------------------------
 
-const TONE = {
-  /** The default: an explanation, not a problem. */
-  muted: {
-    box: "border-border bg-muted/40",
-    title: "text-foreground",
-    icon: "text-muted-foreground",
-    rail: "bg-border",
-  },
-  /** Something failed and the reader needs to see that it did. */
-  destructive: {
-    box: "border-destructive/40 bg-destructive/5",
-    title: "text-destructive",
-    icon: "text-destructive",
-    rail: "bg-destructive/60",
-  },
-  /** A prerequisite or a footgun: the reader can still proceed, but not blindly. */
-  warn: {
-    box: "border-warn/25 bg-warn/5",
-    title: "text-warn-ink",
-    icon: "text-warn",
-    rail: "bg-warn/60",
-  },
-  /** A detail that rewards the reader rather than warning them. */
-  accent: {
-    box: "border-primary/25 bg-primary/5",
-    title: "text-foreground",
-    icon: "text-primary",
-    rail: "bg-primary/60",
-  },
-} as const;
-
 /**
- * Two densities, because this notice serves two ramps. `compact` is the product
- * default (12px title over 12px body, no rail) that the relay sheet and the contact
- * record already render. `editorial` is the docs form: body copy at reading size,
- * and a 3px accent rail carrying the tone so the surface itself can stay quiet.
- * Splitting on a prop rather than forking the component is the point of the file.
+ * No tone table of its own: the same seven `Button` and `TypographyLink` take.
+ * The four hand-tuned rows this file used to carry are gone, `accent` among them
+ * — it was `--primary` under another name, which is why a "tip" callout and a
+ * "primary" one were indistinguishable. `muted` keeps its name and its values.
+ * See ../tone.ts.
+ *
+ * A callout is a panel, so it tints with `--tone-veil` (5%) where a control uses
+ * `--tone-wash` (10%). That is the only thing this file knows about colour.
  */
+const BOX = "border-(color:--tone-line) bg-(--tone-veil)";
+
 export function Callout({
   icon: Icon,
   title,
@@ -75,7 +50,7 @@ export function Callout({
    *  ("Replied into Norman's thread") gains nothing from a glyph beside it. */
   icon?: ComponentType<{ className?: string }>;
   title?: ReactNode;
-  tone?: keyof typeof TONE;
+  tone?: Tone;
   density?: "compact" | "editorial";
   /** For the one body that is not prose — a raw delivery error, which needs mono and its own
    *  line breaks preserved. */
@@ -86,22 +61,31 @@ export function Callout({
   children: ReactNode;
   className?: string;
 }) {
-  const t = TONE[tone];
+  const toned = toneClass(tone);
 
   if (density === "editorial") {
     return (
       <div
         className={cn(
           "relative overflow-hidden rounded-lg border py-3.5 pl-5 pr-4",
-          t.box,
+          toned,
+          BOX,
           className,
         )}
       >
+        <span
+          aria-hidden
+          className="absolute inset-y-0 left-0 w-[3px] bg-(--tone-line)"
+        />
         <div className="flex items-start gap-2.5">
-          {Icon && <Icon className={cn("mt-0.5 size-4 shrink-0", t.icon)} />}
+          {Icon && (
+            <Icon className="mt-0.5 size-4 shrink-0 text-(color:--tone-hue)" />
+          )}
           <div className="flex min-w-0 flex-col gap-1">
             {title && (
-              <TypographyLabel className={t.title}>{title}</TypographyLabel>
+              <TypographyLabel className="text-(color:--tone-hue)">
+                {title}
+              </TypographyLabel>
             )}
             <TypographyMuted className={cn("leading-relaxed", bodyClassName)}>
               {children}
@@ -116,12 +100,10 @@ export function Callout({
   }
 
   return (
-    <div className={cn("rounded-md border p-3", t.box, className)}>
+    <div className={cn("rounded-md border p-3", toned, BOX, className)}>
       {title && (
-        <TypographySmall
-          className={cn("flex items-center gap-1.5 font-medium", t.title)}
-        >
-          {Icon && <Icon className={cn("size-3.5 shrink-0", t.icon)} />}
+        <TypographySmall className="flex items-center gap-1.5 font-medium text-(color:--tone-hue)">
+          {Icon && <Icon className="size-3.5 shrink-0" />}
           {title}
         </TypographySmall>
       )}

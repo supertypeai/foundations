@@ -76,14 +76,14 @@ Its sections come from the markdown headings, so it composes the pieces rather
 than using the whole shell:
 
 ```tsx
-import { extractHeadings, readingTime, EssayColumns, ReadingRail,
+import { extractHeadings, readingTime, ReadingLayout,
          PostMetaRow, PostDate, ReadTime, TagPills, MetaDot } from "@supertype.ai/foundations/essay";
 
 const headings = extractHeadings(source);   // TocHeading[] — { id, label, depth }
 const minutes = readingTime(source);        // words / 200, rounded up
 
 <EssayHeader eyebrow="Notes" title={frontmatter.title} />
-<EssayColumns aside={<div className="sticky top-24"><ReadingRail headings={headings} /></div>}>
+<ReadingLayout headings={headings}>
   <PostMetaRow>
     <PostDate date={frontmatter.date} format="long" />
     <MetaDot />
@@ -92,10 +92,20 @@ const minutes = readingTime(source);        // words / 200, rounded up
     <TagPills tags={frontmatter.tags} />
   </PostMetaRow>
   {content}
-</EssayColumns>
+</ReadingLayout>
 ```
 
-Also exported: `TableOfContents` (the static margin index), `ReadingProgressBar`,
+`ReadingLayout` is `EssayLayout`'s counterpart for a body the app supplies whole:
+the same column and the same sticky margin, with the scroll-spied `ReadingRail`
+in place of the declared-section index. It drops the rail when a piece has no
+headings, so a short post gets a centred measure rather than a margin holding an
+empty nav. Reach for `EssayColumns` and `EssayAside` directly only when the
+margin holds something that is not a rail — and open the body with `EssayBody`
+when you do, since that is the one piece that rules the seam under a header. Both
+layouts already use it, and nothing else in the package draws that line.
+
+Also exported: `TableOfContents` (the static margin index), `EssayAside` (the
+sticky positioner both layouts put in the margin), `ReadingProgressBar`,
 `Rail` and `RailLink` (the rail's own primitives), `formatPostDate` (the same
 formatter outside React, so an OG image and a card cannot print different dates),
 `createSlugger`, and the `useReadingProgress` and `useScrollSpy` hooks.

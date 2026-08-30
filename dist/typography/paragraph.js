@@ -2,6 +2,7 @@ import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-run
 import { Link } from "next-view-transitions";
 import { cva } from "class-variance-authority";
 import { cn } from "../cn.js";
+import { toneClass } from "../tone.js";
 import { TextAs } from "./as.js";
 /** The body layer: two axes and no more. A paragraph picks a rung and an ink; a
  * caption is always secondary ink and picks a size. `lead` was a third rung a
@@ -190,17 +191,20 @@ export function TypographyInlineCode({ className, children, ...props }) {
     return (_jsx("code", { className: cn("rounded-[3px] bg-foreground/[0.03] px-[0.3em] py-[0.1em] font-mono text-[0.9em] text-secondary-ink", className), ...props, children: children }));
 }
 /**
- * A statement about the surface, not the link: `foreground` inside a paragraph,
+ * A statement about the surface, not the link: `muted` inside a paragraph,
  * `primary` when the link is the point of the line, `secondary` for a note
- * beneath a hero where `primary` would compete with the CTA beside it.
+ * beneath a hero where `primary` would compete with the CTA beside it. The other
+ * four come free, and a link inside a warning should be able to say so.
+ *
+ * This was `foreground | primary | secondary`, a private list whose first member
+ * was "no meaning at all" spelled a third way — `foreground` here, `muted` in
+ * Callout, `default` on a button. Now it is ../tone.ts, the same seven the other
+ * two take, and the weight is uniform: `secondary` alone used to skip
+ * `font-medium`, which read as a lighter link rather than a differently-coloured
+ * one.
  */
-const LINK_TONES = {
-    foreground: "font-medium text-foreground",
-    primary: "font-medium text-primary",
-    secondary: "text-secondary-ink",
-};
 const LINK_DECORATION = "underline decoration-dotted decoration-1 decoration-muted-foreground decoration-skip-ink-none underline-offset-2 hover:decoration-solid hover:decoration-current/70";
-const linkClass = (tone = "foreground", className) => cn(LINK_TONES[tone], LINK_DECORATION, className);
+const linkClass = (tone = "muted", className) => cn(toneClass(tone), "font-medium text-(color:--tone-hue)", LINK_DECORATION, className);
 /**
  * The inline link.
  *
@@ -217,7 +221,7 @@ const linkClass = (tone = "foreground", className) => cn(LINK_TONES[tone], LINK_
  * not be imported by name. One call site ended up on the unbound version that
  * way and lost its decoration.
  */
-export function TypographyLink({ href, children, tone = "foreground", newTab, addArrow, className, ...props }) {
+export function TypographyLink({ href, children, tone = "muted", newTab, addArrow, className, ...props }) {
     const style = linkClass(tone, className);
     const external = /^[a-z][a-z0-9+.-]*:/i.test(href);
     const body = (_jsxs(_Fragment, { children: [children, addArrow && (_jsx("svg", { "aria-hidden": "true", className: "ml-1 inline size-3.5 align-middle", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7" }) }))] }));

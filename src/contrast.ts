@@ -269,14 +269,14 @@ const INKS_TINTED = [
   "--info-ink",
   "--danger",
   "--secondary-ink",
-  "--terracotta-foreground",
-  "--ochre-foreground",
-  "--moss-foreground",
-  "--fern-foreground",
-  "--sage-foreground",
-  "--stone-foreground",
-  "--fig-foreground",
-  "--cocoa-foreground",
+  "--terracotta-ink",
+  "--ochre-ink",
+  "--moss-ink",
+  "--fern-ink",
+  "--sage-ink",
+  "--stone-ink",
+  "--fig-ink",
+  "--cocoa-ink",
 ];
 
 /**
@@ -292,6 +292,44 @@ const ON_FILL: [fill: string, label: string][] = [
   ["--popover", "--popover-foreground"],
   ["--sidebar", "--sidebar-foreground"],
 ];
+
+/** What a token is: a surface or mark, a label printed on it, a hue used as words. */
+export interface TokenCuts {
+  /** The role itself — a surface, or a mark held to 3:1 against the page. */
+  fill: string;
+  /**
+   * The label printed *on* that fill. The only pair measured one against the
+   * other rather than against the page, which is why it is the only pair a
+   * swatch may print one on top of the other.
+   */
+  onFill?: string;
+  /**
+   * The same hue used as words, held to 4.5:1 against the page and never printed
+   * on the fill — there it measures about 1.2:1. Always `-ink`; the categorical
+   * hues shipped under `-foreground` until that was corrected, and the old names
+   * survive only as aliases the ESLint rules flag.
+   */
+  asInk?: string;
+}
+
+/**
+ * The cuts a token ships, read off the same three sets `checkSignals` measures.
+ *
+ * Exported because the alternative is every consumer keeping its own idea of
+ * which tokens are pairs — the docs site did, and got the categorical hues
+ * wrong, rendering `--ochre` as a lone square while its ink, the colour the
+ * marker highlight is painted with, appeared nowhere. A palette checked against
+ * one taxonomy and documented from another will drift, and the drift shows up as
+ * a page that is quietly wrong rather than a build that fails.
+ */
+export function tokenCuts(token: string): TokenCuts {
+  const fill = token.startsWith("--") ? token : `--${token}`;
+  return {
+    fill,
+    onFill: ON_FILL.find(([surface]) => surface === fill)?.[1],
+    asInk: INKS_TINTED.find((ink) => ink === `${fill}-ink`),
+  };
+}
 
 /**
  * The three bars a palette owes, run over the same engine as `checkLegibility`.

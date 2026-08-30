@@ -233,7 +233,7 @@ package.
 | import                                                                | contains                                                                 | docs                                         |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------- |
 | `@supertype.ai/foundations`                                           | all typography primitives, `cn`                                          | [Typography](docs/typography.md)             |
-| `@supertype.ai/foundations/blocks`                                    | `Card`, `Callout`, `Steps`, `Tabs`, `Accordion`, `Disclosure`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
+| `@supertype.ai/foundations/blocks`                                    | `Button`, `Badge`, `Card`, `Callout`, `Steps`, `TabGroup`, `Accordion`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
 | `@supertype.ai/foundations/mdx`                                       | `proseMdxComponents` — the MDX element map                               | [In MDX](docs/blocks.md#in-mdx)              |
 | `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                        | [Essay](docs/essay.md)                       |
 | `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                    | [Tooling](docs/tooling.md#seo-and-og-images) |

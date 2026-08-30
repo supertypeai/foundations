@@ -1,6 +1,8 @@
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 
 import { cn } from "../cn.js";
+import { ReadingRail } from "./reading.js";
+import type { TocHeading } from "./toc.js";
 
 /**
  * Three tracks with the third empty: two would push the prose off-centre the
@@ -49,6 +51,82 @@ export function EssayColumns({
         <div className="hidden @6xl:block" />
       </div>
     </div>
+  );
+}
+
+/**
+ * The margin track's contents, pinned as the column scrolls.
+ *
+ * The offset is stated here and nowhere else: it has to clear the same sticky
+ * site nav that `EssaySection`'s `scroll-mt` clears, and two literals a file
+ * apart is how an anchored heading ends up under the chrome that the rail
+ * scrolled it to.
+ */
+export function EssayAside({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn("sticky top-24", className)}>{children}</div>;
+}
+
+/**
+ * The join between a header and the body under it: the one place in the package that draws
+ * it, so a seam cannot be ruled twice by a header and a layout that cannot see each other.
+ *
+ * The rule is for the narrow layout alone. Past `@6xl` the margin rail marks the join, and
+ * the header's own bottom padding is the whole of the gap.
+ */
+export function EssayBody({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "border-t border-border pt-12 @6xl:border-t-0 @6xl:pt-0",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * The reading column with a scroll-spied rail in its margin: an article whose
+ * body is prose or MDX, rather than the declared sections `EssayLayout` sets.
+ *
+ * The rail is dropped when a piece has no headings, so a short post gets a
+ * centred measure instead of a margin holding an empty nav.
+ */
+export function ReadingLayout({
+  headings,
+  children,
+  className,
+}: {
+  headings: readonly TocHeading[];
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <EssayColumns
+      className={cn("pb-16 sm:pb-24", className)}
+      aside={
+        headings.length > 0 ? (
+          <EssayAside>
+            <ReadingRail headings={headings} />
+          </EssayAside>
+        ) : undefined
+      }
+    >
+      <EssayBody>{children}</EssayBody>
+    </EssayColumns>
   );
 }
 

@@ -25,6 +25,9 @@ export { useReadingProgress, useScrollSpy } from "./scroll.js";
 export { ReadingProgressBar, ReadingRail } from "./reading.js";
 export {
   EssayColumns,
+  EssayAside,
+  EssayBody,
+  ReadingLayout,
   MetaDot,
   PostMetaRow,
   PostDate,

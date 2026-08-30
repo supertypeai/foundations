@@ -24,10 +24,6 @@ export declare function themeOverrideRules(): RestrictedSyntax[];
  * shipped at 17 sites. `text-background` is absent: inverse ink is a real role.
  */
 export declare function surfaceAsInkRules(): RestrictedSyntax[];
-/**
- * `-foreground` means the label printed on a fill; `-ink` means the hue as
- * words. `warn-foreground` was always the ink, under the other name.
- */
 export declare function renamedTokenRules(): RestrictedSyntax[];
 export interface TypographyOptions {
     /** Three-weight ramp. Off for editorial, where 700 is a register not a shout. */
@@ -49,13 +45,35 @@ export interface TypographyOptions {
     axis?: boolean;
 }
 export declare function typographyRules({ weights, ramp, pairing, axis, }?: TypographyOptions): RestrictedSyntax[];
+/**
+ * Every design rule, as one list.
+ *
+ * The five builders below it are still exported, and spreading them by hand is
+ * what both consumers were doing — one of them into a flat config, the other
+ * into a legacy `.eslintrc`, and *both* of them had quietly left out
+ * `renamedTokenRules`, so neither would have flagged a deprecated token name.
+ * That is not a mistake either author made; it is what a five-name API costs
+ * every time somebody wires it up. Spread this instead, and a rule added here
+ * arrives in both apps on their next bump.
+ */
+export interface DesignRuleOptions extends ColourOptions, TypographyOptions {
+    /**
+     * Off for a surface that sets its own type ramp — a marketing page under
+     * `.editorial`, a mockup drawing the product at reduced scale. Everything
+     * about colour still applies: a deprecated token name is wrong on every
+     * surface, which is why this is a flag rather than an invitation to pick
+     * three of the five builders by hand.
+     */
+    typography?: boolean;
+}
+export declare function designRules({ accents, typography, ...type }?: DesignRuleOptions): RestrictedSyntax[];
 /** A flat-config entry, described structurally so the package needs no ESLint dependency. */
 export interface FlatConfigEntry {
     name: string;
     files: string[];
     rules: Record<string, unknown>;
 }
-export interface DesignConfigOptions extends ColourOptions, TypographyOptions {
+export interface DesignConfigOptions extends DesignRuleOptions {
     /** What the rules apply to. Narrow it to exclude generated or vendored code. */
     files?: string[];
 }
@@ -71,4 +89,4 @@ export interface DesignConfigOptions extends ColourOptions, TypographyOptions {
  * half the set by accident. If you need a second scope, call this again with a
  * different `files` and no overlap.
  */
-export declare function designConfig({ files, accents, weights, ramp, pairing, axis, }?: DesignConfigOptions): FlatConfigEntry[];
+export declare function designConfig({ files, ...options }?: DesignConfigOptions): FlatConfigEntry[];

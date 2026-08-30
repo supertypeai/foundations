@@ -153,6 +153,19 @@ Use `as` when you want a different tag and the function when you want a differen
 component. Please do not add a third way: the last time these were hand-rolled we
 ended up with five slightly different copies of the heading styles.
 
+**Something that is not a heading** — `headingFace` is the face and weight alone,
+for text that wears the heading type without being part of the outline. A pull
+quote, a stat, a lockup:
+
+```tsx
+<blockquote className={cn(headingFace, "text-h2 leading-snug")}>
+```
+
+`headingClass()` is not the tool there. It carries `scroll-m-20` for an anchor a
+blockquote does not have and a `first:mt-0` reset for a margin it does not set,
+and taking it means claiming a level in a ladder the element is not on. Take the
+face and name your own rung.
+
 ## Eyebrow
 
 ```tsx

@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { cn } from "../cn.js";
+import { ReadingRail } from "./reading.js";
 /**
  * Three tracks with the third empty: two would push the prose off-centre the
  * moment an aside appeared, setting body copy on a different axis per page.
@@ -24,6 +25,37 @@ import { cn } from "../cn.js";
  */
 export function EssayColumns({ aside, children, className, ...props }) {
     return (_jsx("div", { className: "@container w-full", children: _jsxs("div", { className: cn("mx-auto grid w-full max-w-6xl gap-10 px-6", "@6xl:grid-cols-[1fr_minmax(0,42rem)_1fr] @6xl:gap-0", "@7xl:max-w-7xl @7xl:grid-cols-[1fr_minmax(0,44rem)_1fr]", "@min-[84rem]:max-w-[84rem] @min-[84rem]:grid-cols-[1fr_minmax(0,46rem)_1fr]", className), ...props, children: [_jsx("div", { className: "hidden @6xl:block @6xl:pr-10", children: aside }), _jsx("div", { className: "mx-auto w-full min-w-0 max-w-2xl @6xl:max-w-none", children: children }), _jsx("div", { className: "hidden @6xl:block" })] }) }));
+}
+/**
+ * The margin track's contents, pinned as the column scrolls.
+ *
+ * The offset is stated here and nowhere else: it has to clear the same sticky
+ * site nav that `EssaySection`'s `scroll-mt` clears, and two literals a file
+ * apart is how an anchored heading ends up under the chrome that the rail
+ * scrolled it to.
+ */
+export function EssayAside({ children, className, }) {
+    return _jsx("div", { className: cn("sticky top-24", className), children: children });
+}
+/**
+ * The join between a header and the body under it: the one place in the package that draws
+ * it, so a seam cannot be ruled twice by a header and a layout that cannot see each other.
+ *
+ * The rule is for the narrow layout alone. Past `@6xl` the margin rail marks the join, and
+ * the header's own bottom padding is the whole of the gap.
+ */
+export function EssayBody({ children, className, }) {
+    return (_jsx("div", { className: cn("border-t border-border pt-12 @6xl:border-t-0 @6xl:pt-0", className), children: children }));
+}
+/**
+ * The reading column with a scroll-spied rail in its margin: an article whose
+ * body is prose or MDX, rather than the declared sections `EssayLayout` sets.
+ *
+ * The rail is dropped when a piece has no headings, so a short post gets a
+ * centred measure instead of a margin holding an empty nav.
+ */
+export function ReadingLayout({ headings, children, className, }) {
+    return (_jsx(EssayColumns, { className: cn("pb-16 sm:pb-24", className), aside: headings.length > 0 ? (_jsx(EssayAside, { children: _jsx(ReadingRail, { headings: headings }) })) : undefined, children: _jsx(EssayBody, { children: children }) }));
 }
 /** A separator between meta items. Decorative, so it is hidden from assistive tech. */
 export function MetaDot({ className }) {

@@ -1,4 +1,9 @@
 export { cn } from "./cn.js";
+// The semantic colour vocabulary. Exported from the root because typography
+// takes it too — a link has a tone, and it is the same seven a button has.
+// `toneClass` only: the raw table and its derived half used to ship separately,
+// and the order they were combined in was load-bearing.
+export { toneClass, impliedTone } from "./tone.js";
 export * from "./typography/index.js";
 // NOTE: blocks, the MDX map, and the Shiki plugin are all deliberately absent
 // from this barrel.

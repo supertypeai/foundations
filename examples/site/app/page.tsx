@@ -10,7 +10,13 @@ import { Code } from "./_components/code";
 import { PageTitle } from "./_components/site-header";
 import { WithRouteRail } from "./_components/toc";
 import { INSTALL_SPEC } from "./_components/version";
-import { ROUTES, SITE_DESCRIPTION, SITE_TITLE, homeMetadata, seo } from "./_components/seo";
+import {
+  ROUTES,
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  homeMetadata,
+  seo,
+} from "./_components/seo";
 
 export const metadata: Metadata = homeMetadata;
 
@@ -65,10 +71,11 @@ export default function Home() {
       <section id="install" className="scroll-mt-24 pt-14">
         <TypographyH2 divider>Install</TypographyH2>
         <TypographyProse className="mt-3">
-          Three steps. Get the CSS or the fonts wrong and nothing throws an
-          error; the components just render unstyled, or in the wrong typeface.
-          So the package ships a CLI that writes the CSS for you and checks the
-          rest.
+          This package ships a CLI that writes the CSS for you and performs
+          diagnostic checks. The three commands below are all you need to get
+          started. The first adds the package, the second writes the CSS imports
+          and prints the rest, and the third checks that everything is wired up
+          correctly.
         </TypographyProse>
 
         <div className="mt-4">

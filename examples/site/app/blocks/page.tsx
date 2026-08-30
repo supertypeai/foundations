@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { TypographyInlineCode, TypographyLink } from "@supertype.ai/foundations";
+import {
+  TypographyInlineCode,
+  TypographyLink,
+} from "@supertype.ai/foundations";
 import { Code } from "../_components/code";
 import { Demo } from "../_components/demo";
 import { Section, SectionGroup } from "../_components/section";
@@ -7,6 +10,8 @@ import { PageTitle } from "../_components/site-header";
 import { WithGroupedToc } from "../_components/toc";
 import CardDemo from "../_demos/cards";
 import Callouts from "../_demos/callouts";
+import ButtonsDemo from "../_demos/buttons";
+import BadgesDemo from "../_demos/badges";
 import StepsDemo from "../_demos/steps";
 import TabsDemo from "../_demos/tabs";
 import AccordionDemo from "../_demos/accordion";
@@ -16,6 +21,7 @@ import ContentsDemo from "../_demos/contents";
 import ReadingRailDemo from "../_demos/reading-rail";
 import MarkdownHelpersDemo from "../_demos/markdown-helpers";
 import EssayColumnsDemo from "../_demos/essay-columns";
+import ReadingLayoutDemo from "../_demos/reading-layout";
 import MovementsDemo from "../_demos/movements";
 import PostMetaDemo from "../_demos/post-meta";
 import { pageMetadata } from "../_components/seo";
@@ -37,6 +43,8 @@ const GROUPS = [
     entries: [
       { id: "card", label: "Card" },
       { id: "callout", label: "Callout" },
+      { id: "button", label: "Button" },
+      { id: "badge", label: "Badge" },
       { id: "steps", label: "Steps" },
       { id: "disclosure", label: "Disclosure" },
       { id: "accordion", label: "Accordion" },
@@ -58,6 +66,7 @@ const GROUPS = [
     label: "Editorial",
     entries: [
       { id: "columns", label: "EssayColumns" },
+      { id: "reading-layout", label: "ReadingLayout" },
       { id: "movements", label: "EssayMovements" },
       { id: "meta", label: "Post meta" },
       { id: "shell", label: "The essay shell" },
@@ -154,15 +163,60 @@ export default function BlocksPage() {
         title="Callout"
         note={
           <>
-            Two variants. <TypographyInlineCode>compact</TypographyInlineCode> is sized to sit
-            inside a panel or sidebar. <TypographyInlineCode>editorial</TypographyInlineCode>{" "}
-            sets the body at reading size and adds an accent rail, for docs and long-form
+            Two variants. <TypographyInlineCode>compact</TypographyInlineCode>{" "}
+            is sized to sit inside a panel or sidebar.{" "}
+            <TypographyInlineCode>editorial</TypographyInlineCode> sets the body
+            at reading size and adds an accent rail, for docs and long-form
             pages.
           </>
         }
       >
         <Demo source="app/_demos/callouts.tsx">
           <Callouts />
+        </Demo>
+      </Section>
+
+      <Section
+        id="button"
+        title="Button"
+        note={
+          <>
+            Two independent axes.{" "}
+            <TypographyInlineCode>variant</TypographyInlineCode> is how much ink
+            the button spends; <TypographyInlineCode>tone</TypographyInlineCode>{" "}
+            is what the ink means. A tone sets three custom properties and a
+            variant spends them, so the grid below is thirty-five pairs from
+            twelve declarations. The seven tones are the package&rsquo;s one
+            semantic vocabulary, not this component&rsquo;s:{" "}
+            <TypographyInlineCode>Callout</TypographyInlineCode> and{" "}
+            <TypographyInlineCode>TypographyLink</TypographyInlineCode> take the
+            same list.
+          </>
+        }
+      >
+        <Demo source="app/_demos/buttons.tsx">
+          <ButtonsDemo />
+        </Demo>
+      </Section>
+
+      <Section
+        id="badge"
+        title="Badge"
+        note={
+          <>
+            The same two axes as Button, spelled the same way, minus{" "}
+            <TypographyInlineCode>link</TypographyInlineCode> — a badge is not a
+            link. Both apps had grown a private list instead, one of which
+            carried <TypographyInlineCode>warning</TypographyInlineCode> and{" "}
+            <TypographyInlineCode>supertype</TypographyInlineCode> for tones the
+            package already named{" "}
+            <TypographyInlineCode>warn</TypographyInlineCode> and{" "}
+            <TypographyInlineCode>brand</TypographyInlineCode>.
+          </>
+        }
+      >
+        <Demo source="app/_demos/badges.tsx">
+          <BadgesDemo />
         </Demo>
       </Section>
 
@@ -199,7 +253,7 @@ export default function BlocksPage() {
       <Section
         id="tabs"
         title="Tabs"
-        note="TabsList takes a variant. default renders a boxed segmented track; line drops the surface and underlines the active tab, as in the preview and code switcher on this page."
+        note="TabGroup takes the tabs as data and is the shape to reach for. Its variant picks the box: default renders a boxed segmented track, line drops the surface and underlines the active tab, as in the preview and code switcher on this page. Its tone inks the marker and only the marker — on line, the underline and the active tab's icon."
       >
         <Demo source="app/_demos/tabs.tsx">
           <TabsDemo />
@@ -218,12 +272,14 @@ export default function BlocksPage() {
         title="Rail and RailLink"
         note={
           <>
-            The primitive behind every index in the package: a list with a rule down its
-            side. On <TypographyInlineCode>RailLink</TypographyInlineCode>,{" "}
-            <TypographyInlineCode>active</TypographyInlineCode> highlights an item,{" "}
-            <TypographyInlineCode>nested</TypographyInlineCode> indents a sub-heading, and{" "}
-            <TypographyInlineCode>render</TypographyInlineCode> swaps the anchor for a router
-            link. Uses no client hooks, so it works in a server component.
+            The primitive behind every index in the package: a list with a rule
+            down its side. On{" "}
+            <TypographyInlineCode>RailLink</TypographyInlineCode>,{" "}
+            <TypographyInlineCode>active</TypographyInlineCode> highlights an
+            item, <TypographyInlineCode>nested</TypographyInlineCode> indents a
+            sub-heading, and <TypographyInlineCode>render</TypographyInlineCode>{" "}
+            swaps the anchor for a router link. Uses no client hooks, so it
+            works in a server component.
           </>
         }
       >
@@ -237,13 +293,14 @@ export default function BlocksPage() {
         title="TableOfContents"
         note={
           <>
-            A margin index that highlights the current section with a scroll spy. Pass{" "}
-            <TypographyInlineCode>sections</TypographyInlineCode> as{" "}
-            <TypographyInlineCode>{"{ id, label }"}</TypographyInlineCode> matching the ids on
-            your headings. <TypographyInlineCode>label</TypographyInlineCode> renames the rail
-            heading; pass <TypographyInlineCode>null</TypographyInlineCode> to hide it. An
-            empty list renders nothing. The examples below spy on this page, so they update as
-            you scroll.
+            A margin index that highlights the current section with a scroll
+            spy. Pass <TypographyInlineCode>sections</TypographyInlineCode> as{" "}
+            <TypographyInlineCode>{"{ id, label }"}</TypographyInlineCode>{" "}
+            matching the ids on your headings.{" "}
+            <TypographyInlineCode>label</TypographyInlineCode> renames the rail
+            heading; pass <TypographyInlineCode>null</TypographyInlineCode> to
+            hide it. An empty list renders nothing. The examples below spy on
+            this page, so they update as you scroll.
           </>
         }
       >
@@ -257,12 +314,15 @@ export default function BlocksPage() {
         title="ReadingRail"
         note={
           <>
-            TableOfContents plus a progress donut, for pages that are read start to finish
-            rather than scanned. Takes{" "}
+            TableOfContents plus a progress donut, for pages that are read start
+            to finish rather than scanned. Takes{" "}
             <TypographyInlineCode>TocHeading[]</TypographyInlineCode> —{" "}
-            <TypographyInlineCode>{"{ depth, id, label }"}</TypographyInlineCode>, the shape{" "}
-            <TypographyInlineCode>extractHeadings</TypographyInlineCode> returns. Headings at
-            depth 3 are indented.
+            <TypographyInlineCode>
+              {"{ depth, id, label }"}
+            </TypographyInlineCode>
+            , the shape{" "}
+            <TypographyInlineCode>extractHeadings</TypographyInlineCode>{" "}
+            returns. Headings at depth 3 are indented.
           </>
         }
       >
@@ -299,6 +359,16 @@ export default function BlocksPage() {
       </Section>
 
       <Section
+        id="reading-layout"
+        title="ReadingLayout"
+        note="EssayColumns with the reading rail already in its margin, for an article whose body the app supplies whole — prose, or compiled MDX. It is EssayLayout's counterpart: the same column and the same sticky offset, with the scroll-spied rail in place of the declared-section index. The rail is dropped when a piece has no headings, so a short post gets a centred measure rather than a margin holding an empty nav. It opens the body with EssayBody, the one piece that rules the seam under a header, so the narrow layout gets that line without the caller deciding."
+      >
+        <Demo source="app/_demos/reading-layout.tsx">
+          <ReadingLayoutDemo />
+        </Demo>
+      </Section>
+
+      <Section
         id="movements"
         title="EssayMovements"
         note="An ordered list for stages that feed into one another — a pipeline, a method, a sequence of phases. Use it instead of a card grid when the order carries meaning."
@@ -318,10 +388,11 @@ export default function BlocksPage() {
             <TypographyInlineCode>PostDate</TypographyInlineCode>,{" "}
             <TypographyInlineCode>ReadTime</TypographyInlineCode> and{" "}
             <TypographyInlineCode>TagPills</TypographyInlineCode>, separated by{" "}
-            <TypographyInlineCode>MetaDot</TypographyInlineCode>. Dates format in en-US on both
-            server and client, which avoids a locale mismatch at hydration. Use{" "}
-            <TypographyInlineCode>formatPostDate</TypographyInlineCode> for the same output
-            outside React, such as in an OG image or a feed.
+            <TypographyInlineCode>MetaDot</TypographyInlineCode>. Dates format
+            in en-US on both server and client, which avoids a locale mismatch
+            at hydration. Use{" "}
+            <TypographyInlineCode>formatPostDate</TypographyInlineCode> for the
+            same output outside React, such as in an OG image or a feed.
           </>
         }
       >
@@ -339,9 +410,10 @@ export default function BlocksPage() {
             <TypographyInlineCode>EssayLayout</TypographyInlineCode>,{" "}
             <TypographyInlineCode>EssaySection</TypographyInlineCode>,{" "}
             <TypographyInlineCode>EssayPullQuote</TypographyInlineCode> and{" "}
-            <TypographyInlineCode>EssayFigure</TypographyInlineCode> compose an article by
-            hand. <TypographyInlineCode>EssayDocument</TypographyInlineCode> takes the sections
-            as data instead and builds the margin index from them. See{" "}
+            <TypographyInlineCode>EssayFigure</TypographyInlineCode> compose an
+            article by hand.{" "}
+            <TypographyInlineCode>EssayDocument</TypographyInlineCode> takes the
+            sections as data instead and builds the margin index from them. See{" "}
             <TypographyLink href="/essay" addArrow>
               a rendered essay
             </TypographyLink>{" "}
@@ -366,14 +438,15 @@ export default function BlocksPage() {
         title="Headings from markdown"
         note={
           <>
-            <TypographyInlineCode>extractHeadings</TypographyInlineCode> pulls h2 and h3 from
-            raw markdown, ignoring fenced code. It needs no DOM and no compiled MDX, so it runs
-            at build time. Ids come from{" "}
-            <TypographyInlineCode>createSlugger</TypographyInlineCode>, which follows GitHub's
-            algorithm and therefore matches the ids rehype-slug adds to your headings.{" "}
-            <TypographyInlineCode>readingTime</TypographyInlineCode> skips code blocks, which
-            otherwise inflate the estimate on technical posts. The output below was generated
-            at build time.
+            <TypographyInlineCode>extractHeadings</TypographyInlineCode> pulls
+            h2 and h3 from raw markdown, ignoring fenced code. It needs no DOM
+            and no compiled MDX, so it runs at build time. Ids come from{" "}
+            <TypographyInlineCode>createSlugger</TypographyInlineCode>, which
+            follows GitHub's algorithm and therefore matches the ids rehype-slug
+            adds to your headings.{" "}
+            <TypographyInlineCode>readingTime</TypographyInlineCode> skips code
+            blocks, which otherwise inflate the estimate on technical posts. The
+            output below was generated at build time.
           </>
         }
       >

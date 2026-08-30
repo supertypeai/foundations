@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../cn.js";
+import { toneClass, type Tone } from "../tone.js";
 import { TextAs, type WithAs } from "./as.js";
 
 /** The body layer: two axes and no more. A paragraph picks a rung and an ink; a
@@ -314,28 +315,33 @@ export function TypographyInlineCode({
 }
 
 /**
- * A statement about the surface, not the link: `foreground` inside a paragraph,
+ * A statement about the surface, not the link: `muted` inside a paragraph,
  * `primary` when the link is the point of the line, `secondary` for a note
- * beneath a hero where `primary` would compete with the CTA beside it.
+ * beneath a hero where `primary` would compete with the CTA beside it. The other
+ * four come free, and a link inside a warning should be able to say so.
+ *
+ * This was `foreground | primary | secondary`, a private list whose first member
+ * was "no meaning at all" spelled a third way — `foreground` here, `muted` in
+ * Callout, `default` on a button. Now it is ../tone.ts, the same seven the other
+ * two take, and the weight is uniform: `secondary` alone used to skip
+ * `font-medium`, which read as a lighter link rather than a differently-coloured
+ * one.
  */
-const LINK_TONES = {
-  foreground: "font-medium text-foreground",
-  primary: "font-medium text-primary",
-  secondary: "text-secondary-ink",
-} as const;
-
 const LINK_DECORATION =
   "underline decoration-dotted decoration-1 decoration-muted-foreground decoration-skip-ink-none underline-offset-2 hover:decoration-solid hover:decoration-current/70";
 
-export type LinkTone = keyof typeof LINK_TONES;
-
-const linkClass = (tone: LinkTone = "foreground", className?: string) =>
-  cn(LINK_TONES[tone], LINK_DECORATION, className);
+const linkClass = (tone: Tone = "muted", className?: string) =>
+  cn(
+    toneClass(tone),
+    "font-medium text-(color:--tone-hue)",
+    LINK_DECORATION,
+    className,
+  );
 
 type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & {
   href: string;
   children: ReactNode;
-  tone?: LinkTone;
+  tone?: Tone;
   /** Defaults on for an off-site link. Turn it off for one that starts a flow the reader should stay in. */
   newTab?: boolean;
   /**
@@ -365,7 +371,7 @@ type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & {
 export function TypographyLink({
   href,
   children,
-  tone = "foreground",
+  tone = "muted",
   newTab,
   addArrow,
   className,

@@ -12,6 +12,6 @@ export declare function ReadingProgressBar({ className }: {
  * stores, so mounting them together costs one scroll subscription, not two.
  */
 export declare function ReadingRail({ headings, className, }: {
-    headings: TocHeading[];
+    headings: readonly TocHeading[];
     className?: string;
 }): import("react").JSX.Element | null;

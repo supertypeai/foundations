@@ -10,6 +10,7 @@ exports.themeOverrideRules = themeOverrideRules;
 exports.surfaceAsInkRules = surfaceAsInkRules;
 exports.renamedTokenRules = renamedTokenRules;
 exports.typographyRules = typographyRules;
+exports.designRules = designRules;
 exports.designConfig = designConfig;
 /** A className written as a plain string, or as a chunk of a template literal. */
 const classString = (pattern) => [
@@ -55,10 +56,13 @@ function surfaceAsInkRules() {
 }
 /**
  * `-foreground` means the label printed on a fill; `-ink` means the hue as
- * words. `warn-foreground` was always the ink, under the other name.
+ * words. `warn-foreground` and the eight categorical `-foreground` tokens were
+ * always inks, under the other name. The old spellings still resolve, so nothing
+ * breaks on the day of the rename; this is what stops them surviving it.
  */
+const RENAMED_INKS = "warn|terracotta|ochre|moss|fern|sage|stone|fig|cocoa";
 function renamedTokenRules() {
-    return rule("/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke)-warn-foreground($| )/", "`warn-foreground` is the deprecated name for `warn-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as text; warn has no printed-on label, because orange carries white text at no lightness. Use warn-ink.");
+    return rule(`/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke|decoration)-(${RENAMED_INKS})-foreground($| )/`, "That is the deprecated name for the same hue's `-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as words, and none of these hues has a printed-on label — they are checked at 4.5:1 against the page, and printing one on its own fill measures about 1.2:1. Use `-ink`.");
 }
 function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up", pairing = false, axis = false, } = {}) {
     return [
@@ -114,6 +118,15 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
             : []),
     ];
 }
+function designRules({ accents, typography = true, ...type } = {}) {
+    return [
+        ...colourRules({ accents }),
+        ...(typography ? typographyRules(type) : []),
+        ...themeOverrideRules(),
+        ...surfaceAsInkRules(),
+        ...renamedTokenRules(),
+    ];
+}
 /**
  * Every rule in one flat-config entry, ready to spread into eslint.config.js:
  *
@@ -126,7 +139,7 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
  * half the set by accident. If you need a second scope, call this again with a
  * different `files` and no overlap.
  */
-function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], accents, weights, ramp, pairing, axis, } = {}) {
+function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], ...options } = {}) {
     return [
         {
             name: "@supertype.ai/foundations/design",
@@ -134,11 +147,7 @@ function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], accents, weights, ramp
             rules: {
                 "no-restricted-syntax": [
                     "error",
-                    ...colourRules({ accents }),
-                    ...typographyRules({ weights, ramp, pairing, axis }),
-                    ...themeOverrideRules(),
-                    ...surfaceAsInkRules(),
-                    ...renamedTokenRules(),
+                    ...designRules(options),
                 ],
             },
         },

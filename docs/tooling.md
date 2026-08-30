@@ -82,22 +82,32 @@ them, so two entries covering overlapping files would leave only the last one's
 rules in effect. It takes the same options as the builders below, plus `files`
 to narrow what it applies to.
 
-To assemble the set yourself, or on `.eslintrc`, use the builders directly:
+On `.eslintrc`, or anywhere you need the rules without the wrapper, spread
+`designRules` — the same list `designConfig` puts in that entry:
 
 ```js
-import { colourRules, typographyRules, themeOverrideRules,
-         surfaceAsInkRules } from "@supertype.ai/foundations/eslint";
+const { designRules } = require("@supertype.ai/foundations/eslint");
 
 rules: {
   "no-restricted-syntax": [
     "error",
-    ...colourRules({ accents: "the brand tints" }),
-    ...typographyRules({ weights: true, ramp: "text-xs 12 / text-sm 13 / …" }),
-    ...themeOverrideRules(),
-    ...surfaceAsInkRules(),
+    ...designRules({ accents: "the brand tints", weights: true,
+                     ramp: "text-xs 12 / text-sm 13 / …" }),
   ],
 }
 ```
+
+Pass `typography: false` for a surface that sets its own ramp — a marketing page
+under `.editorial`, a mockup drawing the product at reduced scale. Colour still
+applies: a deprecated token name is wrong on every surface.
+
+The five builders (`colourRules`, `typographyRules`, `themeOverrideRules`,
+`surfaceAsInkRules`, `renamedTokenRules`) are still exported for a config that
+needs something narrower. Reach for them last. This page used to show four of
+the five being spread by hand, both apps copied it, and for as long as that
+stood neither of them ran `renamedTokenRules` — so a token rename the package
+had already shipped went unenforced, and fifty-three call sites accumulated
+behind a rule that had never once fired.
 
 It is plain data, with no plugin and no ESLint dependency of its own. There is an
 ESM build and a CommonJS one under `dist/cjs`, so a flat config's `import` and an

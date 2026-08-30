@@ -1,39 +1,47 @@
 "use client";
 
-import { TypographyProse } from "@supertype.ai/foundations";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  TabGroup,
-  Tab,
-} from "@supertype.ai/foundations/blocks";
+import { TabGroup } from "@supertype.ai/foundations/blocks";
+
+import { Icons } from "../_components/icons";
 
 export default function TabsDemo() {
   return (
+    // Two variants of one component, not two ways to draw a tab strip. Composing
+    // Tabs/TabsList/TabsTrigger/TabsContent by hand renders exactly this, which is
+    // why it is not shown here: a demo that draws the same strip twice reads as a
+    // choice, and there isn't one to make.
     <div className="space-y-8">
-      <Tabs defaultValue="people">
-        <TabsList>
-          <TabsTrigger value="people">People</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-        </TabsList>
-        <TabsContent value="people">
-          <TypographyProse>The default variant: a boxed segmented track.</TypographyProse>
-        </TabsContent>
-        <TabsContent value="revenue">
-          <TypographyProse>
-            Selection is managed state, so Tabs is a client component.
-          </TypographyProse>
-        </TabsContent>
-      </Tabs>
+      {/* default: the boxed segmented track. */}
+      <TabGroup
+        tabs={[
+          { value: "npm", label: "npm", content: "npx foundations doctor" },
+          { value: "pnpm", label: "pnpm", content: "pnpm dlx foundations doctor" },
+          { value: "yarn", label: "yarn", content: "yarn foundations doctor" },
+        ]}
+      />
 
-      {/* TabGroup is the MDX shorthand. Children pair with `items` by position. */}
-      <TabGroup items={["npm", "pnpm", "yarn"]}>
-        <Tab value="npm">npx foundations doctor</Tab>
-        <Tab value="pnpm">pnpm dlx foundations doctor</Tab>
-        <Tab value="yarn">yarn foundations doctor</Tab>
-      </TabGroup>
+      {/* line: no surface, a toned underline, and room for an icon. The tone inks
+          the underline and the active tab's icon; labels stay in the page's ink. */}
+      <TabGroup
+        variant="line"
+        tone="brand"
+        defaultValue="speakers"
+        tabs={[
+          {
+            value: "gallery",
+            label: "Gallery",
+            icon: <Icons.Award />,
+            content: "An icon sits in the label's own gap rather than being margined onto it.",
+          },
+          {
+            value: "speakers",
+            label: "Speakers",
+            icon: <Icons.Mic />,
+            content: "The active tab's icon takes the list's tone — the same seven a Button has.",
+          },
+          { value: "venue", label: "Venue", content: "An icon is optional, per tab." },
+        ]}
+      />
     </div>
   );
 }

@@ -9,29 +9,37 @@
  * class strings, which is exactly the kind of duplication that drifts the first time
  * someone retunes the palette.
  *
- * Some entries appear twice, once bare and once `data-active:`-prefixed. That is not
- * laziness: Tailwind generates a utility only if it appears literally in scanned source, so
- * prefixing at runtime would compile to classes that never got built. Writing both forms
- * side by side is the honest version, and it keeps the pair impossible to change by half.
- *
  * The active segment is deliberately flat — a card surface and a hairline, no shadow.
  * Elevation in this system means "this layer left the page plane" (see --elevation-* in
  * theme.css), and a segment sitting inside its own track has not.
+ *
+ * The other half of that: the segment stays on the page plane because the RAIL drops below
+ * it. The well is the shadow and the hairline, not a fill — the track is `bg-background`
+ * pressed in. A `--muted` rail cannot work, because `--muted` sits below `--card` in light
+ * and above it in dark, so a muted fill reads correct in one theme and inverted in the
+ * other, and `dark:` is what the package's own ESLint rule exists to stop.
  */
 export declare const SEGMENT: {
-    /** The rail a set of segments sits in. Surface only; each component owns its layout. */
-    readonly track: "rounded-lg border border-border bg-muted/40 p-0.5";
+    /**
+     * The rail a set of segments sits in. Surface only; each component owns its layout.
+     *
+     * `rounded-md` over `activeSurface`'s `rounded-sm` is the 2px of `p-0.5`: concentric
+     * radii, so the segment's corner runs parallel to the rail's rather than across it.
+     */
+    readonly track: "rounded-md border border-border bg-background p-0.5 shadow-recessed";
     /** Affordances every segment shares, whatever its shape or engine. */
-    readonly item: "relative inline-flex items-center gap-1.5 font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50";
+    readonly item: "relative inline-flex items-center gap-1.5 font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
     /** Selected: the ink lifts to full strength. */
     readonly active: "text-foreground";
     /**
      * Unselected: quiet, but lighting its own surface on hover so the whole strip reads as
-     * reachable rather than only the segment already chosen.
+     * reachable rather than only the segment already chosen. It moves toward `activeSurface`
+     * and not toward the rail, so a hover previews being picked.
      */
-    readonly idle: "text-muted-foreground hover:bg-muted/60 hover:text-foreground";
-    /** The flat surface marking the selection. */
-    readonly activeSurface: "bg-card ring-1 ring-border";
-    /** `activeSurface`, for an engine that marks its own trigger with `data-active`. */
-    readonly dataActiveSurface: "data-active:bg-card data-active:text-foreground data-active:ring-1 data-active:ring-border";
+    readonly idle: "text-muted-foreground hover:bg-card/60 hover:text-foreground";
+    /**
+     * The flat surface marking the selection. One string, worn by both engines: the marketing
+     * picker slides it with `motion`, `Tabs` hands it to the element Base UI positions.
+     */
+    readonly activeSurface: "rounded-sm bg-card ring-1 ring-border";
 };

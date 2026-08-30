@@ -2,7 +2,7 @@ import type { ComponentProps, ComponentType, ReactNode } from "react";
 
 import { cn } from "../cn.js";
 import {
-  headingClass,
+  headingFace,
   TypographyEyebrow,
   TypographyH1,
   TypographyH2,
@@ -13,7 +13,7 @@ import {
   TypographyMuted,
   TypographyProse,
 } from "../typography/paragraph.js";
-import { EssayColumns } from "./layout.js";
+import { EssayAside, EssayBody, EssayColumns, PostMetaRow } from "./layout.js";
 import { TableOfContents } from "./contents.js";
 
 /**
@@ -117,12 +117,9 @@ export function createEssay({
                 {lede}
               </TypographyMuted>
             )}
-            {/* Body size: a byline is part of the argument, not a timestamp. */}
-            {byline && (
-              <TypographyMuted className="border-t border-border/60 pt-5 text-base">
-                {byline}
-              </TypographyMuted>
-            )}
+            {/* The same meta row an article sets under its title, so a byline reads one
+                way across the package. It rules nothing: the seam is `EssayBody`'s. */}
+            {byline && <PostMetaRow>{byline}</PostMetaRow>}
           </Reveal>
         </EssayColumns>
       </header>
@@ -141,14 +138,12 @@ export function createEssay({
       <EssayColumns
         className="pb-16 sm:pb-24"
         aside={
-          <div className="sticky top-24">
+          <EssayAside>
             <TableOfContents sections={index} />
-          </div>
+          </EssayAside>
         }
       >
-        <div className="flex flex-col gap-16 border-t border-border pt-12 @6xl:border-t-0 @6xl:pt-0">
-          {children}
-        </div>
+        <EssayBody className="flex flex-col gap-16">{children}</EssayBody>
       </EssayColumns>
     );
   }
@@ -175,15 +170,23 @@ export function createEssay({
     );
   }
 
-  /** One per essay: a page with three of them has decided nothing. */
+  /**
+   * One per essay: a page with three of them has decided nothing.
+   *
+   * The face and a rung, not the whole `headingClass()` ramp — see `headingFace` in
+   * typography/header.tsx for why a non-heading takes one and not the other. `text-pretty`
+   * over `text-balance`: this is prose set large, so it fills the measure rather than being
+   * set in even lines like a headline. The rung is the section heading's, so one pull quote
+   * stands level with them and retunes with them under `.editorial`.
+   */
   function EssayPullQuote({ children }: { children: ReactNode }) {
     return (
       <Reveal>
-        {/* Takes the rung off `headingClass` rather than restating the face. */}
         <blockquote
           className={cn(
-            headingClass(),
-            "text-balance border-l-2 border-primary/40 py-1 pl-6 leading-snug",
+            headingFace,
+            "text-h2 leading-snug text-foreground text-pretty",
+            "border-l-2 border-primary/40 py-1 pl-6",
           )}
         >
           {children}

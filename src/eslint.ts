@@ -92,12 +92,16 @@ export function surfaceAsInkRules(): RestrictedSyntax[] {
 
 /**
  * `-foreground` means the label printed on a fill; `-ink` means the hue as
- * words. `warn-foreground` was always the ink, under the other name.
+ * words. `warn-foreground` and the eight categorical `-foreground` tokens were
+ * always inks, under the other name. The old spellings still resolve, so nothing
+ * breaks on the day of the rename; this is what stops them surviving it.
  */
+const RENAMED_INKS = "warn|terracotta|ochre|moss|fern|sage|stone|fig|cocoa";
+
 export function renamedTokenRules(): RestrictedSyntax[] {
   return rule(
-    "/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke)-warn-foreground($| )/",
-    "`warn-foreground` is the deprecated name for `warn-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as text; warn has no printed-on label, because orange carries white text at no lightness. Use warn-ink.",
+    `/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke|decoration)-(${RENAMED_INKS})-foreground($| )/`,
+    "That is the deprecated name for the same hue's `-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as words, and none of these hues has a printed-on label — they are checked at 4.5:1 against the page, and printing one on its own fill measures about 1.2:1. Use `-ink`.",
   );
 }
 
@@ -194,6 +198,42 @@ export function typographyRules({
   ];
 }
 
+/**
+ * Every design rule, as one list.
+ *
+ * The five builders below it are still exported, and spreading them by hand is
+ * what both consumers were doing — one of them into a flat config, the other
+ * into a legacy `.eslintrc`, and *both* of them had quietly left out
+ * `renamedTokenRules`, so neither would have flagged a deprecated token name.
+ * That is not a mistake either author made; it is what a five-name API costs
+ * every time somebody wires it up. Spread this instead, and a rule added here
+ * arrives in both apps on their next bump.
+ */
+export interface DesignRuleOptions extends ColourOptions, TypographyOptions {
+  /**
+   * Off for a surface that sets its own type ramp — a marketing page under
+   * `.editorial`, a mockup drawing the product at reduced scale. Everything
+   * about colour still applies: a deprecated token name is wrong on every
+   * surface, which is why this is a flag rather than an invitation to pick
+   * three of the five builders by hand.
+   */
+  typography?: boolean;
+}
+
+export function designRules({
+  accents,
+  typography = true,
+  ...type
+}: DesignRuleOptions = {}): RestrictedSyntax[] {
+  return [
+    ...colourRules({ accents }),
+    ...(typography ? typographyRules(type) : []),
+    ...themeOverrideRules(),
+    ...surfaceAsInkRules(),
+    ...renamedTokenRules(),
+  ];
+}
+
 /** A flat-config entry, described structurally so the package needs no ESLint dependency. */
 export interface FlatConfigEntry {
   name: string;
@@ -201,7 +241,7 @@ export interface FlatConfigEntry {
   rules: Record<string, unknown>;
 }
 
-export interface DesignConfigOptions extends ColourOptions, TypographyOptions {
+export interface DesignConfigOptions extends DesignRuleOptions {
   /** What the rules apply to. Narrow it to exclude generated or vendored code. */
   files?: string[];
 }
@@ -220,11 +260,7 @@ export interface DesignConfigOptions extends ColourOptions, TypographyOptions {
  */
 export function designConfig({
   files = ["**/*.{ts,tsx,js,jsx}"],
-  accents,
-  weights,
-  ramp,
-  pairing,
-  axis,
+  ...options
 }: DesignConfigOptions = {}): FlatConfigEntry[] {
   return [
     {
@@ -233,11 +269,7 @@ export function designConfig({
       rules: {
         "no-restricted-syntax": [
           "error",
-          ...colourRules({ accents }),
-          ...typographyRules({ weights, ramp, pairing, axis }),
-          ...themeOverrideRules(),
-          ...surfaceAsInkRules(),
-          ...renamedTokenRules(),
+          ...designRules(options),
         ],
       },
     },

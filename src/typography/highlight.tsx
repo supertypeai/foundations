@@ -17,10 +17,10 @@ import { cn } from "../cn.js";
 const MARKER_TONES = {
   primary: "var(--primary)",
   success: "var(--success)",
-  ochre: "var(--ochre-foreground)",
-  terracotta: "var(--terracotta-foreground)",
-  sage: "var(--sage-foreground)",
-  fig: "var(--fig-foreground)",
+  ochre: "var(--ochre-ink)",
+  terracotta: "var(--terracotta-ink)",
+  sage: "var(--sage-ink)",
+  fig: "var(--fig-ink)",
 } as const;
 
 export type HighlightTone = keyof typeof MARKER_TONES;

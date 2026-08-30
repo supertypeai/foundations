@@ -1,8 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { cn } from "../cn.js";
-import { headingClass, TypographyEyebrow, TypographyH1, TypographyH2, TypographyH3, } from "../typography/header.js";
+import { headingFace, TypographyEyebrow, TypographyH1, TypographyH2, TypographyH3, } from "../typography/header.js";
 import { TypographyCaption, TypographyMuted, TypographyProse, } from "../typography/paragraph.js";
-import { EssayColumns } from "./layout.js";
+import { EssayAside, EssayBody, EssayColumns, PostMetaRow } from "./layout.js";
 import { TableOfContents } from "./contents.js";
 /** Pass-through: keeps the className the shell relies on for layout. */
 const PlainReveal = ({ children, className, }) => _jsx("div", { className: className, children: children });
@@ -31,19 +31,27 @@ const anchorIds = (sections) => {
 export function createEssay({ Reveal = PlainReveal, Glow = NoGlow, } = {}) {
     /** Left aligned: the eye has to reach the first line of prose either way. */
     function EssayHeader({ eyebrow, title, lede, byline, }) {
-        return (_jsxs("header", { className: "relative overflow-hidden pb-12 pt-16 sm:pt-24", children: [_jsx(Glow, { className: "-top-40 left-1/2 -translate-x-1/2", intensity: 0.16 }), _jsx(EssayColumns, { children: _jsxs(Reveal, { eager: true, className: "flex flex-col gap-6", children: [_jsx(TypographyEyebrow, { children: eyebrow }), _jsx(TypographyH1, { variant: "display", className: "text-balance", children: title }), lede && (_jsx(TypographyMuted, { className: "text-pretty text-xl leading-relaxed", children: lede })), byline && (_jsx(TypographyMuted, { className: "border-t border-border/60 pt-5 text-base", children: byline }))] }) })] }));
+        return (_jsxs("header", { className: "relative overflow-hidden pb-12 pt-16 sm:pt-24", children: [_jsx(Glow, { className: "-top-40 left-1/2 -translate-x-1/2", intensity: 0.16 }), _jsx(EssayColumns, { children: _jsxs(Reveal, { eager: true, className: "flex flex-col gap-6", children: [_jsx(TypographyEyebrow, { children: eyebrow }), _jsx(TypographyH1, { variant: "display", className: "text-balance", children: title }), lede && (_jsx(TypographyMuted, { className: "text-pretty text-xl leading-relaxed", children: lede })), byline && _jsx(PostMetaRow, { children: byline })] }) })] }));
     }
     /** The reading column, with the sticky index sitting in its left margin. */
     function EssayLayout({ index, children, }) {
-        return (_jsx(EssayColumns, { className: "pb-16 sm:pb-24", aside: _jsx("div", { className: "sticky top-24", children: _jsx(TableOfContents, { sections: index }) }), children: _jsx("div", { className: "flex flex-col gap-16 border-t border-border pt-12 @6xl:border-t-0 @6xl:pt-0", children: children }) }));
+        return (_jsx(EssayColumns, { className: "pb-16 sm:pb-24", aside: _jsx(EssayAside, { children: _jsx(TableOfContents, { sections: index }) }), children: _jsx(EssayBody, { className: "flex flex-col gap-16", children: children }) }));
     }
     /** The heading carries the anchor, offset so it lands under the sticky nav. */
     function EssaySection({ id, heading, children, }) {
         return (_jsx("section", { id: id, className: "scroll-mt-24", children: _jsxs(Reveal, { className: "flex flex-col gap-5", children: [_jsx(TypographyH2, { className: "text-balance", children: heading }), children] }) }));
     }
-    /** One per essay: a page with three of them has decided nothing. */
+    /**
+     * One per essay: a page with three of them has decided nothing.
+     *
+     * The face and a rung, not the whole `headingClass()` ramp — see `headingFace` in
+     * typography/header.tsx for why a non-heading takes one and not the other. `text-pretty`
+     * over `text-balance`: this is prose set large, so it fills the measure rather than being
+     * set in even lines like a headline. The rung is the section heading's, so one pull quote
+     * stands level with them and retunes with them under `.editorial`.
+     */
     function EssayPullQuote({ children }) {
-        return (_jsx(Reveal, { children: _jsx("blockquote", { className: cn(headingClass(), "text-balance border-l-2 border-primary/40 py-1 pl-6 leading-snug"), children: children }) }));
+        return (_jsx(Reveal, { children: _jsx("blockquote", { className: cn(headingFace, "text-h2 leading-snug text-foreground text-pretty", "border-l-2 border-primary/40 py-1 pl-6"), children: children }) }));
     }
     /** Generic on purpose: a page hands it anything; this decides only the fit. */
     function EssayFigure({ children, caption, }) {
