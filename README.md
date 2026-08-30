@@ -65,7 +65,7 @@ untagged git dependency re-resolves to a different commit on any fresh install.
 
 ```jsonc
 // package.json
-"@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.1.28"
+"@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.1.29"
 ```
 
 </details>
