@@ -35,7 +35,7 @@ import { TextAs, type WithAs } from "./as.js";
  */
 export const headingFace = "font-heading font-[number:var(--heading-weight)]";
 
-const HEADING_BASE = `scroll-m-20 ${headingFace} text-foreground`;
+const HEADING_BASE = `scroll-m-20 ${headingFace} text-[color:var(--ink,var(--foreground))]`;
 
 const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
   variants: {
@@ -156,7 +156,7 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
        * Primary ink, stated not inherited — an eyebrow names the section under it,
        * and one that turns red from its surroundings is not a heading.
        */
-      heading: "text-xs font-semibold text-foreground",
+      heading: "text-xs font-semibold text-[color:var(--ink,var(--foreground))]",
       /** Stat cards invert it: the figure is the headline, so the label yields. */
       label: "text-2xs font-medium text-accent-foreground",
     },
@@ -167,8 +167,8 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
 /**
  * The eyebrow's ramp as a class, for a caller that cannot render our element —
  * a dialog title primitive, a motion element. Same escape hatch as
- * `headingClass`, and it exists so that a consumer needing the class does not
- * hand-roll a second copy of it that then drifts from the component.
+ * `headingClass`. It exists so a consumer needing the class can take ours rather
+ * than hand-rolling a copy that drifts from the component.
  */
 export const eyebrowClass = (
   tone?: VariantProps<typeof eyebrowVariants>["tone"],

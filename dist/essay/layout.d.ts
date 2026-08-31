@@ -5,7 +5,7 @@ import type { TocHeading } from "./toc.js";
  * moment an aside appeared, setting body copy on a different axis per page.
  * The measure grows per step — a comfortable line length is a range.
  *
- * The margin track is what the third one buys, and it only exists if the
+ * The margin track is what the third one buys, and appears only where the
  * container can pay for it:
  *
  *   aside = (container − 3rem padding − measure) ÷ 2 − 2.5rem gutter

@@ -2,10 +2,7 @@ import { codeToHtml } from "shiki";
 import { PROSE_THEMES } from "@supertype.ai/foundations/rehype";
 
 /**
- * Highlights code the same way the package's MDX pipeline does. With
- * `defaultColor: false`, Shiki writes `--shiki-light` and `--shiki-dark` on each
- * token instead of a fixed colour, and `shiki.css` decides which applies. One
- * pass covers both themes, so switching theme does not re-highlight anything.
+ * Shiki writes `--shiki-light` and `--shiki-dark` per token; `shiki.css` picks one.
  */
 export async function Code({ code, lang = "tsx" }: { code: string; lang?: string }) {
   const html = await codeToHtml(code.trim(), {

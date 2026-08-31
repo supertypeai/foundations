@@ -7,16 +7,15 @@ import {
   AccordionContent,
 } from "@supertype.ai/foundations/blocks";
 
-/**
- * A client component built on Base UI. The open and close keyframes come from
- * theme.css.
- */
+/** A client component on Base UI. Keyframes come from theme.css. */
 export default function AccordionDemo() {
   return (
     <Accordion>
       <AccordionItem value="seat">
         <AccordionTrigger>What counts as a seat?</AccordionTrigger>
-        <AccordionContent>Anyone who signs in during the billing period.</AccordionContent>
+        <AccordionContent>
+          Anyone who signs in during the billing period.
+        </AccordionContent>
       </AccordionItem>
       <AccordionItem value="proration">
         <AccordionTrigger>Are seats prorated?</AccordionTrigger>

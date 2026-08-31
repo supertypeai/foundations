@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
+import { type LinkBehavior } from "../href.js";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export declare function Cards({ className, children, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 export declare function CardHeader({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;
@@ -18,17 +19,15 @@ type CardShorthand = {
     title?: ReactNode;
     description?: ReactNode;
     icon?: ReactNode;
-    /** Override the scheme sniff: an absolute URL home, or a relative one away. */
-    external?: boolean;
 };
 /**
  * Takes either shape: `title`/`href` fills the header, or compose the slots
  * directly. Unrecognised props pass through — MDX authors reach for the whole
- * HTML surface. An href with a scheme leaves the app; the rest route through
- * the router's Link.
+ * HTML surface. Where the href goes is ../href.ts's call, the same one Button
+ * and TypographyLink make.
  */
-export declare function Card({ href, className, external, title, description, icon, children, ...rest }: CardShorthand & {
+export declare function Card({ href, className, external, newTab, title, description, icon, children, ...rest }: CardShorthand & LinkBehavior & {
     href?: string;
     children?: ReactNode;
-} & Omit<ComponentProps<"a">, keyof CardShorthand | "href" | "children">): import("react").JSX.Element;
+} & Omit<ComponentProps<"a">, keyof CardShorthand | keyof LinkBehavior | "href" | "children">): import("react").JSX.Element;
 export {};

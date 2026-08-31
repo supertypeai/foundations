@@ -1,14 +1,17 @@
-import { TypographyStat, TypographyLabel, TypographyCaption } from "@supertype.ai/foundations";
-import { Cards, Card, CardHeader, CardTitle, CardContent } from "@supertype.ai/foundations/blocks";
+import {
+  TypographyStat,
+  TypographyLabel,
+  TypographyCaption,
+} from "@supertype.ai/foundations";
+import {
+  Cards,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@supertype.ai/foundations/blocks";
 
-/**
- * A metrics row for a product surface. Two things worth copying:
- *
- *  - `figures="tabular"` (the default) keeps digits from shifting when a value
- *    updates in place. The headline figure opts out and uses proportional.
- *  - `size="panel"` rides the heading ladder, so these stats retune along with
- *    the headings around them on an editorial surface.
- */
+/** `figures="tabular"` holds digits steady; `size="panel"` rides the ladder. */
 const METRICS = [
   { label: "Rows synced", value: "18,204", delta: "+12% vs last week" },
   { label: "Lag", value: "1.4s", delta: "p95, last hour" },
@@ -36,13 +39,13 @@ export default function StatPanel() {
         {METRICS.map(({ label, value, delta }) => (
           <Card key={label}>
             <CardContent>
-              <TypographyLabel as="p" size="2xs">
+              <TypographyLabel as="p" size="sm">
                 {label}
               </TypographyLabel>
               <TypographyStat size="panel" className="mt-1 block">
                 {value}
               </TypographyStat>
-              <TypographyCaption as="p" size="2xs" className="mt-1">
+              <TypographyCaption as="p" size="xs" className="mt-1">
                 {delta}
               </TypographyCaption>
             </CardContent>

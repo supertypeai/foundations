@@ -15,6 +15,7 @@ import {
   type EssayIndexEntry,
 } from "@supertype.ai/foundations/essay";
 import { Code } from "../_components/code";
+import { ContrastProof } from "../_components/contrast-proof";
 import { PAGES } from "../_components/pages";
 import { pageMetadata, seo } from "../_components/seo";
 
@@ -26,6 +27,7 @@ const INDEX: EssayIndexEntry[] = [
   { id: "meaning", label: "Naming tokens" },
   { id: "platform", label: "The platform first" },
   { id: "one-place", label: "One place for the rules" },
+  { id: "contrast", label: "Contrast, measured" },
   { id: "proof", label: "Docs as a build step" },
 ];
 
@@ -77,14 +79,14 @@ export default function PhilosophyPage() {
       <EssayLayout index={INDEX}>
         <EssaySection id="decisions" heading="Primitives store decisions">
           <TypographyProse>
-            Three roles a page needs constantly — secondary copy, a
-            timestamp, a section label — and the three primitives that carry
-            them. Each renders nothing you could not have written by hand. What
-            you get is that the next change to secondary ink is a one-line diff
-            in the package rather than a find-and-replace you have to review.
+            Three roles every page needs constantly: secondary copy, a
+            timestamp, a section label. Each primitive renders markup you could
+            have written by hand. The payoff comes at the next change to
+            secondary ink, which is then a one-line diff in the package instead
+            of a find-and-replace across your app.
           </TypographyProse>
 
-          <EssayFigure caption="Reach for the primitive whenever the style carries a meaning. The decision lives in one place.">
+          <EssayFigure caption="Reach for the primitive whenever the style carries a meaning. The decision then lives in one place.">
             <Code code={CALL_SITES} />
           </EssayFigure>
 
@@ -98,14 +100,14 @@ export default function PhilosophyPage() {
             <TypographyInlineCode>
               text-sm text-muted-foreground
             </TypographyInlineCode>{" "}
-            instead, the decision sits at the call site, and a year in there are
-            a few hundred call sites drifting a step apart from each other. Two
-            rules keep that from starting. If you are about to hand-write a type
-            style, the primitive already exists. And retune with CSS variables
-            — the <TypographyInlineCode>--text-*</TypographyInlineCode> scale,{" "}
-            <TypographyInlineCode>--heading-weight</TypographyInlineCode>, the
-            colour tokens — rather than classes, since the package owns its
-            final classnames and reserves the right to change them.
+            instead, the decision sits at the call site, and a year in you have
+            a few hundred call sites drifting a step apart. Two rules keep that
+            from starting. When you are about to hand-write a type style, look
+            for the primitive first. When you want to retune, reach for the CSS
+            variables: the <TypographyInlineCode>--text-*</TypographyInlineCode>{" "}
+            scale, <TypographyInlineCode>--heading-weight</TypographyInlineCode>
+            , the colour tokens. The package owns its final classnames and
+            reserves the right to change them.
           </TypographyProse>
         </EssaySection>
 
@@ -120,7 +122,8 @@ export default function PhilosophyPage() {
                 npx foundations doctor
               </TypographyInlineCode>{" "}
               reads your CSS entry, your root layout and your installed tree,
-              and exits non-zero, so it can sit in CI next to your tests.
+              then exits non-zero on a problem, so it can sit in CI next to your
+              tests.
             </li>
           </TypographyProseList>
           <TypographyProse>
@@ -130,11 +133,11 @@ export default function PhilosophyPage() {
             Tailwind into{" "}
             <TypographyInlineCode>node_modules</TypographyInlineCode>, and fonts
             bound with <TypographyInlineCode>.variable</TypographyInlineCode>{" "}
-            rather than <TypographyInlineCode>.className</TypographyInlineCode>.
-            None of the three throws when it is wrong — types pass and the
-            build is green — so{" "}
+            instead of <TypographyInlineCode>.className</TypographyInlineCode>.
+            If any of them are off, the build still passes and the types still
+            look fine, which is why the{" "}
             <TypographyHighlight tone="terracotta">
-              doctor is what tells you
+              doctor check is the one that catches it
             </TypographyHighlight>
             . The{" "}
             <TypographyLink href="/#install" addArrow>
@@ -149,22 +152,21 @@ export default function PhilosophyPage() {
           heading="Tokens are named for meaning, not colour"
         >
           <TypographyProse>
-            <TypographyInlineCode>--success</TypographyInlineCode> is not{" "}
-            <TypographyInlineCode>--green</TypographyInlineCode>. If your
-            product renders success in blue the token still reads correctly, and
-            when the brand moves, nothing in the component layer needs renaming.
-            So the package ships structural roles only: background, foreground,
-            card, muted, primary, border, ring, and the status set. There are no
-            brand colours anywhere in it. Yours belong to your app, and you
-            install them by overriding the raw variables after the imports
-            rather than by patching utilities.
+            The token is <TypographyInlineCode>--success</TypographyInlineCode>,
+            never <TypographyInlineCode>--green</TypographyInlineCode>. Render
+            success in blue and the name still reads true; move the brand and
+            the component layer keeps its vocabulary. The package defines the
+            structural roles only: background, foreground, card, muted, primary,
+            border, ring, and the status set. Your brand colours stay in your
+            app. Install them by overriding the raw variables after the imports,
+            leaving the utilities alone.
           </TypographyProse>
           <TypographyProse>
             <TypographyInlineCode>.editorial</TypographyInlineCode> came out of
             the same thinking. A heading size is a ratio to the body text
-            underneath it, not a number in a table, so one{" "}
-            <TypographyInlineCode>TypographyH2</TypographyInlineCode> has to
-            render at 18px in the first and 30px in the second to mean the same
+            underneath it, so the same{" "}
+            <TypographyInlineCode>TypographyH2</TypographyInlineCode> renders at
+            18px on a dense product screen and 30px in an essay to say the same
             thing. <TypographyInlineCode>.editorial</TypographyInlineCode>{" "}
             retunes the whole ladder and hands the heading role to the serif at
             weight 400, because Average only ships the one weight. Put it on a
@@ -185,17 +187,17 @@ export default function PhilosophyPage() {
             <TypographyInlineCode>&lt;details&gt;</TypographyInlineCode> and a{" "}
             <TypographyInlineCode>&lt;summary&gt;</TypographyInlineCode>. No
             JavaScript, correct before hydration, keyboard-accessible because
-            the browser handles that part, and it works from a markdown file
-            where there is no call site to pass props to.{" "}
+            the browser handles that part. It works from a markdown file too,
+            where you have no call site to pass props to.{" "}
             <TypographyInlineCode>Accordion</TypographyInlineCode> and{" "}
-            <TypographyInlineCode>Tabs</TypographyInlineCode> use Base UI, so we
-            don't have to maintain the keyboard handling, focus management, and
-            ARIA attributes ourselves.
+            <TypographyInlineCode>Tabs</TypographyInlineCode> use Base UI, which
+            leaves the keyboard handling, focus management and ARIA attributes
+            to a team that maintains them full time.
           </TypographyProse>
           <TypographyProse>
-            Structure lives in CSS. A host framework can substitute its own
-            element for yours and drop the classes on the way through; it cannot
-            do much about a child combinator in our stylesheet.
+            Structure lives in CSS. A host framework can swap its own element in
+            for yours and drop the classes on the way through. A child
+            combinator in our stylesheet survives that.
           </TypographyProse>
         </EssaySection>
 
@@ -210,41 +212,73 @@ export default function PhilosophyPage() {
           </EssayFigure>
 
           <TypographyProse>
-            They are{" "}
+            The rules are{" "}
             <TypographyInlineCode>no-restricted-syntax</TypographyInlineCode>{" "}
-            selectors and nothing more — plain data, no plugin, no ESLint
-            dependency of its own. Spread{" "}
-            <TypographyInlineCode>designRules</TypographyInlineCode> instead if
-            you are on <TypographyInlineCode>.eslintrc</TypographyInlineCode> or
-            composing the rule yourself.
+            selectors: plain data, no plugin, no ESLint dependency of their own.
+            Spread <TypographyInlineCode>designRules</TypographyInlineCode>{" "}
+            instead if you are on{" "}
+            <TypographyInlineCode>.eslintrc</TypographyInlineCode> or composing
+            the rule yourself.
           </TypographyProse>
+        </EssaySection>
 
+        <EssaySection
+          id="contrast"
+          heading="Contrast is arithmetic, so we do it"
+        >
           <TypographyProse>
-            Contrast ships the same way.{" "}
-            <TypographyInlineCode>checkLegibility</TypographyInlineCode> sweeps
-            every ink over every surface in both themes against a 4.5:1 floor,
-            and it resolves the cascade rather than reading the declarations —
-            a bare <TypographyInlineCode>:root</TypographyInlineCode> override of{" "}
+            Contrast ships as functions for the same reason the rules do.{" "}
+            <TypographyInlineCode>checkLegibility</TypographyInlineCode> checks
+            every ink against every surface in both themes using a 4.5:1 floor,
+            resolving the cascade the way a browser would. A bare{" "}
+            <TypographyInlineCode>:root</TypographyInlineCode> override of{" "}
             <TypographyInlineCode>--background</TypographyInlineCode> ties with{" "}
-            <TypographyInlineCode>.dark</TypographyInlineCode> on specificity and
-            wins in{" "}
+            <TypographyInlineCode>.dark</TypographyInlineCode> on specificity
+            and wins in{" "}
             <TypographyHighlight tone="ochre" seed={7}>
               both themes at once
             </TypographyHighlight>
-            , so a{" "}
-            <TypographyInlineCode>.dark</TypographyInlineCode> block that
+            , so a <TypographyInlineCode>.dark</TypographyInlineCode> block that
             measures 15.7:1 on its own can still render white on white.
           </TypographyProse>
 
           <EssayPullQuote>
             Measure the two blocks separately and you have measured an
-            intention, not a page.
+            intention.
           </EssayPullQuote>
+
+          <TypographyProse>
+            A ratio has a second blind spot: it treats both directions the same,
+            even though dark text on a bright field looks thinner and light text
+            on a dark field often looks heavier. That is why the package also
+            computes Lc, the APCA measure WCAG 3 is built on, which uses{" "}
+            <TypographyHighlight tone="sage">
+              two exponent pairs, one per polarity
+            </TypographyHighlight>
+            .
+          </TypographyProse>
+
+          <EssayFigure caption="The same ratio to a tenth, both clearing AA, half a ramp apart to read. Under them, this site's own ramp in both themes: the light column steps 19 then 20 Lc, the dark column steps 18 then 30 and drops its tertiary ink to 47.8 while the ratio for that rung reads nearly double the light theme's.">
+            <ContrastProof show="both" />
+          </EssayFigure>
+
+          <TypographyProse>
+            Every figure in that panel is computed at build time from the
+            stylesheet this site installs, by the same two functions your app
+            gets. Ratios answer the audit;{" "}
+            <TypographyInlineCode>lc</TypographyInlineCode> answers whether your
+            secondary ink is quieter than your primary, and whether it stayed
+            that way in dark. The{" "}
+            <TypographyLink href="/tokens#measuring" addArrow>
+              tokens
+            </TypographyLink>{" "}
+            page has the arithmetic and the call sites.
+          </TypographyProse>
         </EssaySection>
 
         <EssaySection id="proof" heading="The documentation is a build step">
           <TypographyProse>
-            This site (and this page, naturally) is built using{" "}
+            This site, this page included, is built with{" "}
             <TypographyInlineCode>
               @supertype.ai/foundations
             </TypographyInlineCode>
@@ -259,20 +293,20 @@ export default function PhilosophyPage() {
           </TypographyProse>
           <TypographyProse>
             <TypographyLink href="/recipes">Recipes</TypographyLink> holds whole
-            pages rather than single components, and each one is a complete file
-            that imports only from the package. The build fails if a recipe
-            reaches for a local helper, otherwise you end up with examples that
-            only run inside this repo.
+            pages instead of single components, each one a complete file that
+            imports from the package alone. The build fails if a recipe reaches
+            for a local helper, which keeps every example runnable outside this
+            repo.
           </TypographyProse>
           <TypographyProse>
-            Most of the code that ends up using this package will not be typed
-            by a person, so it also ships an{" "}
+            Most of the code that ends up using this package gets written by an
+            agent, so it also ships an{" "}
             <TypographyInlineCode>llms.txt</TypographyInlineCode> covering the
             public API, the rules, and the mistakes that produce no error.{" "}
             <TypographyInlineCode>yarn build</TypographyInlineCode> fails if an
             export is missing from it, and one line in your{" "}
             <TypographyInlineCode>AGENTS.md</TypographyInlineCode> is usually
-            enough to stop an agent hand-writing{" "}
+            enough to keep an agent from hand-writing{" "}
             <TypographyInlineCode>
               text-sm text-muted-foreground
             </TypographyInlineCode>{" "}
@@ -283,13 +317,12 @@ export default function PhilosophyPage() {
             page.
           </TypographyProse>
           <TypographyProse>
-            None of this is clever. They are small decisions, made once and
-            readily deployed in the places where a codebase begins to drift. If
-            you want to try it, start at{" "}
+            These are small decisions, made once and applied at the places where
+            a codebase starts to drift. To try it, start at{" "}
             <TypographyLink href="/#install" addArrow>
               install
             </TypographyLink>
-            ; if you would rather read a whole page than a component list, go to{" "}
+            . For a whole page ahead of a component list, go to{" "}
             <TypographyLink href="/recipes" addArrow>
               recipes
             </TypographyLink>{" "}

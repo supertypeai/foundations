@@ -6,19 +6,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@supertype.ai/foundati
 import { Code } from "./code";
 
 /**
- * Shows a preview and the source that produced it. The source is read from the
- * file at build time rather than retyped into a string, so the two cannot get
- * out of sync.
- *
- * The tabs come from the package, so this file also happens to be a working
- * example of `Tabs`.
+ * A preview and the source that produced it, read off disk at build time so the
+ * two stay in step. The tabs come from the package.
  */
 export function Demo({
   source,
   children,
   className,
 }: {
-  /** Repo-relative, from the app root — e.g. `app/_demos/headings.tsx`. */
+  /** Repo-relative, from the app root, e.g. `app/_demos/headings.tsx`. */
   source: string;
   children: ReactNode;
   className?: string;

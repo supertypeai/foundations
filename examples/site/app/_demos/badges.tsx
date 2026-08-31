@@ -1,7 +1,6 @@
 import { Badge } from "@supertype.ai/foundations/blocks";
 
-/** The same grid as the button demo, and deliberately so: one vocabulary means
- *  one thing to learn, and a badge reads its column and row exactly as a button does. */
+/** The button grid again: a badge reads its column and row the same way. */
 const VARIANTS = ["solid", "soft", "outline", "ghost"] as const;
 const TONES = [
   "muted",
@@ -24,7 +23,7 @@ export default function Badges() {
               {VARIANTS.map((variant) => (
                 <th
                   key={variant}
-                  className="text-left text-xs font-medium text-muted-foreground"
+                  className="text-left text-xs text-muted-foreground"
                 >
                   {variant}
                 </th>
@@ -34,7 +33,7 @@ export default function Badges() {
           <tbody>
             {TONES.map((tone) => (
               <tr key={tone}>
-                <th className="pr-2 text-left text-xs font-medium text-muted-foreground">
+                <th className="pr-2 text-left text-xs text-muted-foreground">
                   {tone}
                 </th>
                 {VARIANTS.map((variant) => (

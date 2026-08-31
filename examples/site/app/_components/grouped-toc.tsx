@@ -9,13 +9,8 @@ export type TocGroup = {
 };
 
 /**
- * A margin index for a page with more sections than one flat list can carry.
- *
- * The package's `TableOfContents` is the flat case and stays the default; this
- * is the same two primitives underneath — `Rail` for the line, `RailLink` with
- * `nested` for the entries — driven by the same `useScrollSpy`. Groups are the
- * one thing the package deliberately does not decide for you, since where a
- * page breaks is the page's business.
+ * A margin index for a page with more sections than one flat list can carry,
+ * over the same `Rail`, `RailLink` and `useScrollSpy` as `TableOfContents`.
  */
 export function GroupedToc({ groups }: { groups: readonly TocGroup[] }) {
   const active = useScrollSpy([

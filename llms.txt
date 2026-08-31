@@ -5,8 +5,8 @@ content blocks, a long-form essay shell, token and theme CSS, and build-time
 tooling for SEO, OG cards, lint rules and contrast checks.
 
 This file is for coding agents working in an app that consumes the package. It
-covers what to import and the mistakes that do not produce an error. Full
-reference: https://github.com/supertypeai/foundations
+covers what to import, how the copy should read, and the mistakes that pass
+silently. Full reference: https://github.com/supertypeai/foundations
 
 ## Rules
 
@@ -21,6 +21,11 @@ reference: https://github.com/supertypeai/foundations
 4. **Use colour tokens, never literal colours.** `bg-card`, `text-foreground`,
    `border-border`. No hex values, no `bg-zinc-800`, no `dark:` overrides that
    swap one token for another.
+5. **Paint a surface, hand down its ink.** Any element you give a background
+   needs `INK_ON_FILL` (a tone fill) or `inkOnSurface(token)` (a tinted one), or
+   the type inside it keeps the page's ink and fails contrast silently.
+6. **Write the words like a person would.** See Writing copy below. It applies
+   to every string a reader sees and to the comments you leave behind.
 
 ## Which component
 
@@ -40,6 +45,7 @@ reference: https://github.com/supertypeai/foundations
 | a number or metric | `TypographyStat` | root |
 | inline code | `TypographyInlineCode` | root |
 | a link | `TypographyLink` | root |
+| where an href goes, without a component | `resolveLink` | root |
 | a highlighted phrase | `TypographyHighlight` | root |
 | a button, or a link that looks like one | `Button` | `/blocks` |
 | a status label, count or chip | `Badge` | `/blocks` |
@@ -61,15 +67,15 @@ reference: https://github.com/supertypeai/foundations
 
 | import | exports |
 |---|---|
-| `@supertype.ai/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyProseList`, `TypographyCaption`, `TypographySmall`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `headingClass`, `headingFace`, `eyebrowClass`, `toneClass`, `impliedTone`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `Tone`, `HighlightTone` |
+| `@supertype.ai/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyProseList`, `TypographyCaption`, `TypographySmall`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `headingClass`, `headingFace`, `eyebrowClass`, `toneClass`, `impliedTone`, `resolveLink`, `isExternalHref`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `Tone`, `HighlightTone`, `LinkBehavior`, `ResolvedLink` |
 | `@supertype.ai/foundations/blocks` | `Cards`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `Callout`, `Button`, `buttonVariants`, `Badge`, `badgeVariants`, `Steps`, `Step`, `Disclosure`, `DisclosureGroup`, `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`, `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `TabGroup`, `SEGMENT`. Types: `ButtonLook`, `BadgeLook`, `TabItem` |
 | `@supertype.ai/foundations/mdx` | `proseMdxComponents` |
 | `@supertype.ai/foundations/essay` | `createEssay`, `EssayHeader`, `EssayLayout`, `EssaySection`, `EssayPullQuote`, `EssayFigure`, `EssayMovements`, `EssayDocument`, `EssayColumns`, `EssayAside`, `EssayBody`, `ReadingLayout`, `TableOfContents`, `ReadingRail`, `ReadingProgressBar`, `Rail`, `RailLink`, `PostMetaRow`, `PostDate`, `ReadTime`, `TagPills`, `MetaDot`, `formatPostDate`, `extractHeadings`, `readingTime`, `createSlugger`, `useReadingProgress`, `useScrollSpy`. Types: `TocHeading`, `EssayDecorations`, `EssayIndexEntry`, `EssayDocSection`, `EssayMovement`, `PostDateFormat` |
 | `@supertype.ai/foundations/seo` | `createSeo`. Types: `SeoConfig`, `ArticleAuthor`, `ArticleOptions`, `PageMetadata` |
 | `@supertype.ai/foundations/og` | `ogCard`, `OG_SIZE`. Types: `OgCardOptions` |
-| `@supertype.ai/foundations/eslint` | `designRules` (every rule as one array — spread this), `designConfig` (the same set wrapped as a flat-config entry). The five builders `colourRules`, `typographyRules`, `themeOverrideRules`, `surfaceAsInkRules`, `renamedTokenRules` are still exported, but spreading them by hand is how a consumer ends up missing one. Types: `FlatConfigEntry`, `DesignRuleOptions`, `DesignConfigOptions`, `RestrictedSyntax`, `ColourOptions`, `TypographyOptions` |
+| `@supertype.ai/foundations/eslint` | `designRules` (every rule as one array, the one to spread), `designConfig` (the same set wrapped as a flat-config entry). The builders `colourRules`, `typographyRules`, `linkRules`, `themeOverrideRules`, `surfaceAsInkRules`, `renamedTokenRules` are exported too, though spreading them by hand is how a consumer ends up missing one. Types: `FlatConfigEntry`, `DesignRuleOptions`, `DesignConfigOptions`, `RestrictedSyntax`, `ColourOptions`, `TypographyOptions` |
 | `@supertype.ai/foundations/rehype` | `rehypeProseCode`, `proseCodeOptions`, `PROSE_LANGS`, `PROSE_THEMES`. Build-time only, must not resolve React |
-| `@supertype.ai/foundations/contrast` | `checkLegibility` (inks at 4.5:1), `checkSignals` (fills at 3:1, tinted inks at 4.5:1, labels against their own fill), `resolveTokens`, `formatFailures`, `specificity`, `parseColor`, `luminance`, `contrast`, `tokenCuts` (which cuts a token ships — fill, the label printed on it, the hue as words; the taxonomy `checkSignals` measures). Types: `Rgb`, `Theme`, `LegibilityFailure`, `TokenCuts`. Build-time only |
+| `@supertype.ai/foundations/contrast` | `checkLegibility` (inks at 4.5:1), `checkSignals` (fills at 3:1 — status hues, the categorical earth hues and the six chart series alike — tinted inks at 4.5:1, `--subtle-foreground` at the 3:1 it is documented for, labels against their own fill), `checkHairlines` (`--border` and `--input` at 1.4:1 on `--background` and `--card`, `--sidebar-border` on `--sidebar`: a rule is exempt from the ink and mark bars, but it still has to read as the same weight in both themes), `resolveTokens`, `formatFailures`, `specificity`, `parseColor`, `luminance`, `contrast` (WCAG ratio), `lc` (APCA lightness contrast: polarity-aware, for checking that an ink ramp is perceptually ordered rather than merely ordered by ratio), `tokenCuts` (which cuts a token ships: fill, the label printed on it, the hue as words, the taxonomy `checkSignals` measures against). Types: `Rgb`, `Theme`, `LegibilityFailure`, `TokenCuts`. Build-time only |
 
 ## Props worth knowing
 
@@ -77,51 +83,100 @@ reference: https://github.com/supertypeai/foundations
 - `TypographyH2`: `variant?`, plus `divider?: boolean` for a rule underneath.
 - `TypographyP`: `variant?: "ui" | "prose"` (default `ui`), `tone?: "default" | "muted"`.
 - `TypographyMuted`, `TypographyProse`, `TypographyProseList` are presets. The
-  prop each one pins is removed from its type, so passing it will not compile.
+  prop each one pins is dropped from its type, so passing it fails to compile.
 - `TypographyCaption`, `TypographyLabel`, `TypographySmall`: `size?: "sm" | "xs" | "2xs" | "inherit"`, `as?`.
 - `TypographyEyebrow`: `tone?: "heading" | "label"`, `as?`.
 - `TypographyStat`: `size?: "inherit" | "card" | "panel" | "page" | "display"`, `figures?: "tabular" | "proportional"`. Keep tabular where a value updates in place.
-- `TypographyLink`: `href` (required), `tone?: Tone` (default `muted`), `addArrow?`, `newTab?`. Internal versus external is decided from the href.
-- `TypographyHighlight`: `tone?: HighlightTone` — `"primary" | "success" | "ochre" | "terracotta" | "sage" | "fig"`, `seed?: number`. Deliberately NOT `Tone`: this axis is categorical (which one it is), not semantic (what it means), which is the same split theme.css draws between the earth swatches and the status tokens.
+- `TypographyLink`: `href` (required), `tone?: Tone` (default `muted`), `addArrow?`, `newTab?`. The href decides internal versus external.
+- `TypographyHighlight`: `tone?: HighlightTone`, one of `"primary" | "success" | "ochre" | "terracotta" | "sage" | "fig"`, plus `seed?: number`. A separate type from `Tone` on purpose: this axis is categorical (which one it is) where `Tone` is semantic (what it means), the same split theme.css draws between the earth swatches and the status tokens.
 - `Card`: `href`, `title`, `description`, `icon`, `external`. An href makes the whole card a link.
-- `Tone` — the one semantic colour vocabulary, shared by `Button`, `Callout` and `TypographyLink`: `"muted" | "primary" | "secondary" | "brand" | "success" | "warn" | "destructive"`, defaulting to `muted` everywhere except a solid `Button`. Seven tones, seven tokens, one to one — that is the bar for adding one. There is no `neutral` (that is `muted`, the word the rest of the package uses), no `foreground` (also `muted`), no `accent` (that is `--primary`'s hover tint, so a washed `primary` renders the same thing) and no `info` (`success | warn | destructive` is already the whole triad). `brand` falls back to `--primary` in an app that defines no `--brand`.
-- `Button`: `variant?: "solid" | "soft" | "outline" | "ghost" | "link"` (default `solid`), `tone?: Tone` (defaults to `primary` on a solid button and `muted` on every other variant — filling a button in is how a page says this is the action), `size?: "xs" | "sm" | "md" | "lg" | "xl"` (default `md`), `icon?: boolean` for a square glyph box, `pill?: boolean` for full-round corners, `render` for the element to become. Variant is how much ink it spends; tone is what the ink means — separate axes, so a quiet delete is `variant="ghost" tone="destructive"`, not a `destructive` variant.
-- `Badge`: `variant?: "solid" | "soft" | "outline" | "ghost"` (default `solid`), `tone?: Tone`, `size?: "xs" | "sm"` (default `sm`), `pill?: boolean`. Same axes and same spellings as `Button`, minus `link` — a badge is not a link. There is no `warning` or `supertype` variant; those were `tone="warn"` and `tone="brand"` under invented names.
+- `Tone` is the one semantic colour vocabulary, shared by `Button`, `Badge`, `Callout`, `TypographyLink` and `TabsList`: `"muted" | "primary" | "secondary" | "brand" | "success" | "warn" | "destructive"`, defaulting to `muted` everywhere except a solid `Button`. Seven tones, seven tokens, one to one, which is the bar for adding one. Four names map onto others: `neutral` and `foreground` are `muted`, the word the rest of the package uses; `accent` is `--primary`'s hover tint, so a washed `primary` renders the same thing; `info` is covered by the `success | warn | destructive` triad. `brand` falls back to `--primary` in an app that defines no `--brand`.
+- **Ink is handed down by whatever paints.** `toneClass(tone)` is a palette and sets no ink. A surface that fills adds `INK_ON_FILL`; a tinted one uses `inkOnSurface("--card-foreground")`. Both declare `--ink` and `--ink-muted`, which every type primitive reads, falling back to the page. Paint a background without them and a nested `TypographyLabel` prints `--foreground` on your fill, which measures 2.34:1 on `--primary`. On a hue fill `--ink-muted` equals `--ink`: a filled control has one ink, and wanting a second rung means wanting a tinted surface.
+- `Button`: `variant?: "solid" | "soft" | "outline" | "ghost" | "link"` (default `solid`), `tone?: Tone` (defaults to `primary` on a solid button and `muted` on every other variant — filling a button in is how a page says this is the action), `size?: "xs" | "sm" | "md" | "lg" | "xl"` (default `md`), `icon?: boolean` for a square glyph box, `pill?: boolean` for full-round corners, `href` to make it a link, `render` for an element that is neither a button nor a link. Variant is how much ink it spends and tone is what the ink means, on separate axes, so a quiet delete is `variant="ghost" tone="destructive"`.
+- `Badge`: `variant?: "solid" | "soft" | "outline" | "ghost"` (default `solid`), `tone?: Tone`, `size?: "xs" | "sm"` (default `sm`), `pill?: boolean`, `href` for a badge that leads somewhere. Same axes and same spellings as `Button`, minus `link`, which belongs to things you click. `warning` and `supertype` were `tone="warn"` and `tone="brand"` under invented names.
 - `Callout`: `tone?: Tone`, `density?: "compact" | "editorial"`, `title`, `icon`, `action`.
 - `DisclosureGroup`: `type?: "multiple" | "single"`, `defaultValue` (matches the title string).
-- `TabsList`: `variant?: "default" | "line"`, `tone?: Tone` (default `primary`) — the tone
-  inks the marker only: on `line` the underline and the active icon. The boxed track's
-  marker is deliberately flat, so a tone there paints nothing.
+- `TabsList`: `variant?: "default" | "line"`, `tone?: Tone` (default `primary`). The tone
+  inks the marker alone, which on `line` means the underline and the active icon. The
+  boxed track keeps its marker flat, so a tone there paints nothing.
 - `TabGroup`: `tabs: readonly TabItem[]` (`{ value, label, icon?, content }`), `defaultValue?`,
   `value?`, `onValueChange?`, `variant?`, `tone?`, `iconPosition?: "inline-start" | "inline-end"`.
-  `icon` is an element (`<Icons.Mic />`); the trigger sizes and inks it. Reach for it
-  whenever the tabs are data — do not rebuild it over `Tabs`/`TabsTrigger`.
+  `icon` is an element (`<Icons.Mic />`) that the trigger sizes and inks. Reach for it
+  whenever the tabs are data, and compose `Tabs`/`TabsTrigger` by hand only for a shape
+  it cannot express.
+
+## Writing copy
+
+Every string a reader sees goes through this: page copy, section notes, button
+labels, callout titles, error messages, and the comments you leave in the file.
+Write the way a person writes when they know the subject and respect the reader's
+time.
+
+- **Say the thing.** State what is true and move on. Skip the setup sentence, the
+  restatement, and the closing summary of what you just said.
+- **Define forwards.** "A tone sets three variables and the component paints from
+  them" over "the component does not branch on the tone". Reach for a negative
+  only when the absence is the point.
+- **One em dash per page, at most.** Prefer a full stop, a comma, or a colon. The
+  same goes for a parenthetical aside mid-sentence.
+- **No arrow glyphs in prose.** Write "3.44:1 in light, 6.75:1 in dark" rather
+  than joining the two with an arrow. Where a UI genuinely points at something,
+  render a real icon.
+- **Watch the tacked-on clause.** "…, and it is the shape to reach for", "…, and
+  it exists so that…". The second half is usually the point: lead with it, or
+  make it its own sentence.
+- **Break the triples.** "X, Y, and Z" as a rhetorical flourish, three clauses
+  joined by "and", and the "not just A, but B" shape all read as machine prose.
+  Two items, or a list.
+- **Cut the throat-clearing.** No "it is worth noting", "it is important to",
+  "simply", "just", "of course", "in other words". No "this is not X, it is Y".
+- **Skip the rationale.** A note explains what the reader needs to use the thing.
+  Design history, near-misses, and the case for a decision go in the commit
+  message or the docs, not in the copy.
+- **Concrete over abstract.** Name the class, the prop, the file. "Five
+  components take the prop" beats "several components".
+- **Vary the sentences.** A paragraph of same-length clauses reads as generated
+  even when every sentence is true.
+- **Headings are labels.** "How it stays current", not "Why it cannot go stale".
+
+Code samples and commit messages stay conventional. This is about prose.
 
 ## Common mistakes
 
-- `<p className="text-sm text-muted-foreground">` — use `<TypographyMuted>`.
-- `<h2 className="text-lg font-semibold">` — use `<TypographyH2>`, or
-  `headingClass()` if you must pass classes to someone else's component.
+- `<p className="text-sm text-muted-foreground">`: use `<TypographyMuted>`.
+- `<h2 className="text-lg font-semibold">`: use `<TypographyH2>`, or
+  `headingClass()` to pass classes into someone else's component.
 - Importing `Card`, `Callout` or `Button` from `@supertype.ai/foundations`. They
   live in `@supertype.ai/foundations/blocks`.
-- `<Button variant="destructive">` or `variant="secondary"` — those are tones, not
-  variants. Write `variant="soft" tone="destructive"`, `variant="solid" tone="secondary"`.
-- `<Button size="icon-sm">` — there is one size ladder. Write `size="sm" icon`.
-- `<Badge variant="warning">` / `variant="supertype"` — tones, and misspelled ones.
+- `<Button variant="destructive">` or `variant="secondary"`: those are tones.
+  Write `variant="soft" tone="destructive"`, `variant="solid" tone="secondary"`.
+- `<Button size="icon-sm">`: one size ladder. Write `size="sm" icon`.
+- `<Badge variant="warning">` or `variant="supertype"`: tones, and misspelled ones.
   Write `variant="outline" tone="warn"` and `variant="solid" tone="brand"`.
-- `tone="neutral"`, `tone="foreground"` or `tone="accent"` — all three were
-  removed when the tone lists merged. Write `tone="muted"` for the first two and
-  `tone="primary"` for the third.
-- An `<a>` or `<Link>` styled by hand to look like a button. Pass it as
-  `render={<Link href="/x" />}`; the anchor keeps its link semantics.
-- `<TypographyMuted tone="default">` — a type error. Use `TypographyP`.
+- `tone="neutral"`, `tone="foreground"` or `tone="accent"`: all three went when the
+  tone lists merged. Write `tone="muted"` for the first two, `tone="primary"` for
+  the third.
+- An `<a>` or `<Link>` styled by hand to look like a button, and equally
+  `render={<a href="/x" />}` or `render={<Link href="/x" />}` on anything that
+  takes an `href`. Write `<Button href="/x">`. `Button`, `Badge`, `Card` and
+  `TypographyLink` all take `href` and route it through one rule
+  (`resolveLink`): a scheme leaves the app and gets `target`/`rel`, a `#hash`
+  stays a plain anchor, everything else goes through the router's `Link` and
+  keeps the view transition. A hand-passed anchor skips all of that. `render` is
+  for an element that is genuinely not a link — and for `RailLink`, which takes a
+  router `Link` that way on purpose, since `essay/rail.tsx` has to import without
+  Next.
+- Exporting a constant from a `"use client"` module and importing it into a server
+  component. It crosses the boundary as a stub, not a string, so an `href` built that
+  way arrives as a function. Keep shared constants in a plain module.
+- `<TypographyMuted tone="default">`: a type error. Use `TypographyP`.
 - Binding fonts with `font.className` instead of `font.variable`. The className
   form sets `font-family` on the element and leaves the roles unresolved.
 - Omitting `@source '../node_modules/@supertype.ai/foundations/dist/**/*.js'` from
   the CSS entry. Tailwind then purges every class the package ships.
 - Omitting `@import "@supertype.ai/foundations/theme.css"`. `tokens.css` names the
   colour roles but holds no values, so the whole palette resolves to nothing.
-- Using `Accordion` for a static FAQ. `Disclosure` needs no JavaScript.
+- Using `Accordion` for a static FAQ. `Disclosure` runs on the browser alone.
 - Adding a second `@custom-variant dark`. `tokens.css` already binds it.
 
 Run `npx foundations doctor` in the app to check the last four.
@@ -130,8 +185,8 @@ Run `npx foundations doctor` in the app to check the last four.
 
 Two classes change how everything renders, and both go on `<html>` or a subtree:
 
-- `.dark` re-points every colour token. It is bound by `tokens.css`, not by the
-  OS setting.
+- `.dark` re-points every colour token. `tokens.css` binds it to the class, so
+  the OS setting leaves it alone.
 - `.editorial` gives the heading role to the serif at weight 400 and retunes the
   whole heading ladder against an 18px body, instead of the product's 13px.
 

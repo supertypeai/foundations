@@ -52,11 +52,11 @@ compose the slots yourself when you need more.
 | -------------------------------- | ---------------- | ---------------------------------- |
 | `href`                           | `string`         | present ⇒ the whole card is a link |
 | `external`                       | `boolean`        | overrides the scheme sniff         |
+| `newTab`                         | `boolean`        | overrides the target               |
 | `title` / `description` / `icon` | `ReactNode`      | the shorthand header               |
 | everything else                  | anchor/div props | passed through                     |
 
-An href with a scheme leaves the app, with `target="_blank"` and
-`rel="noopener noreferrer"`; the rest route through the router's `Link`. The
+Where the href goes is [`resolveLink`](#links)'s call, not the call site's. The
 exported slots are
 `CardHeader`, `CardTitle`, `CardDescription` and `CardContent`, and `Cards` is a
 two-column grid from `sm` up.
@@ -84,7 +84,7 @@ losing the weight that separates it from the description.
 | `destructive` | it deletes, or it failed | `--destructive` / `--destructive-foreground` / `--destructive`   |
 
 **Seven tones, seven tokens, one to one.** That is the bar for admitting a new
-one, and it is what ruled three out:
+one, and three names failed it:
 
 - `neutral` — no such token, and `muted` is already the package's word for the
   quiet register (`--muted-foreground`, `TypographyMuted`, `TypographyP
@@ -119,6 +119,34 @@ load-bearing in a way nothing enforced: the derived values have to come first so
 `muted` can override `--tone-line` with `--border`. Two arguments whose order
 matters and whose values always travel together is one argument.
 
+### The ink your children inherit
+
+`toneClass` is a palette, not a surface. A `Callout` spends the same seven values
+a filled `Button` does and tints at 5%, so the words inside it still sit on the
+page and still want the page's ink.
+
+So the ink is handed down by whatever actually paints. Fill a surface and add
+`INK_ON_FILL`; tint a neutral one and use `inkOnSurface("--card-foreground")`.
+Both set `--ink` and `--ink-muted`, which every type primitive reads with the
+page as its fallback:
+
+```tsx
+<div className={cn(toneClass("brand"), INK_ON_FILL, "bg-(--tone-fill) p-4")}>
+  <TypographyLabel>Reads the surface, not the page</TypographyLabel>
+</div>
+```
+
+Skip it and a nested `TypographyLabel` prints `--foreground` on your fill.
+That shipped: a hand-rolled anchor styled `bg-primary text-primary-foreground`
+with a `TypographyLabel` inside measured **2.34:1**, because the preset's own ink
+won over the colour it inherited. `test/composition.test.ts` measures every
+surface against every primitive in both themes, which is what makes the token
+pair check sufficient.
+
+On a hue fill `--ink-muted` collapses to `--ink`: mixing a label 20% toward its
+fill measures 4.22:1 on the dark theme. Nothing on a filled control may be
+quieter than its label — two rungs means you wanted a tinted surface.
+
 `brand` is the one token the package does not define. It falls back to
 `--primary`, so an app with no identity hue of its own gets its principal one
 rather than an invisible control.
@@ -126,6 +154,37 @@ rather than an invisible control.
 `TypographyHighlight` deliberately does not take this type. Its palette is
 categorical — identity and kind, never state — which is the same distinction
 theme.css draws between the earth swatches and the status tokens.
+
+## Links
+
+Every component that can be a link takes `href` and nothing more: `Button`,
+`Badge`, `Card`, `TypographyLink`. One function behind all four —
+`resolveLink`, exported from the root for the rare call site that styles someone
+else's element:
+
+| the href        | renders                | why                                                            |
+| --------------- | ---------------------- | -------------------------------------------------------------- |
+| `/notes`        | the router's `Link`    | client navigation, and the view transition survives             |
+| `#section`      | a plain `<a>`          | the browser can already scroll there; routing it asks for a navigation |
+| `https://…`     | `<a target="_blank" rel="noopener noreferrer">` | it leaves the app          |
+| `mailto:`, `tel:` | `<a>`, no target     | it hands off to another app; there is no tab to open            |
+
+`external` overrides the scheme sniff (an absolute URL that is home, a relative
+one that is not) and `newTab` overrides the target.
+
+**Do not pass an anchor through `render`.** `render={<a href="/x" />}` reads as a
+styling escape hatch and is a routing decision made in the wrong place: the
+cloned anchor never reaches the router, so the page fully reloads and the view
+transition is lost, and an off-site href gets no `rel`. It was written that way
+because `Button` had no `href`; now it does. `linkRules()` in the lint set flags
+the old form on `Button`, `Badge` and `Card`, and `render` keeps its real job —
+an element that is genuinely not a link.
+
+`RailLink` is the exception, and the comment in `essay/rail.tsx` says why: its
+module is reached from `contents.tsx`, `reading.tsx` and `layout.tsx`, which have
+to import in bare Node and in a test runner with no Next installed. Pulling the
+router in there would break that, so a rail of routes still passes `<Link>`
+through `render`. Its own links are `#hash` anchors, which want no router.
 
 ## Callout
 
@@ -166,7 +225,7 @@ opens.
 <Button variant="outline">Cancel</Button>                  {/* outline implies neutral */}
 <Button variant="ghost" tone="destructive" size="sm">Delete</Button>
 <Button variant="ghost" size="sm" icon aria-label="More"><MoreIcon /></Button>
-<Button size="xl" pill tone="brand" render={<Link href="/notes" />}>
+<Button size="xl" pill tone="brand" href="/notes">      {/* a link, routed */}
   Read the notes
 </Button>
 ```
@@ -178,16 +237,20 @@ opens.
 | `size`    | `"xs" \| "sm" \| "md" \| "lg" \| "xl"`                | `md`                                    |
 | `icon`    | `boolean` — a square box for a lone glyph             | `false`                                 |
 | `pill`    | `boolean` — full-round corners                        | `false`                                 |
-| `render`  | `ReactElement` — the element the button becomes       | a `<button>`                            |
+| `href`    | `string` — makes it a link, routed by [`resolveLink`](#links)  | —                       |
+| `external`| `boolean` — override the scheme sniff                 | from the href                           |
+| `newTab`  | `boolean` — override the target                       | on for an `http(s)` href                |
+| `render`  | `ReactElement` — an element that is neither a button nor a link | a `<button>`                  |
 
 **Variant is how much ink the button spends; tone is what the ink means.** They
-are independent, which is the point. A list that mixes them — the
-`default | secondary | destructive | ghost` both apps used to ship — can only
-express the pairs someone thought to add, so a quiet destructive button had to be
-written by hand. Five variants against seven tones is thirty-five pairs from twelve
-declarations, and the cross product happens in CSS. `tone` is not this
-component's: it is the package's one semantic vocabulary, listed under
-[Tone](#tone) above and taken by `Callout` and `TypographyLink` too.
+are independent, and that separation is what makes the API useful. A list that
+mixes them — the `default | secondary | destructive | ghost` both apps used to
+ship — can only express the pairs someone thought to add, so a quiet destructive
+button had to be written by hand. Five variants against seven tones is
+thirty-five pairs from twelve declarations, and the cross product happens in CSS.
+`tone` is not this component's: it is the package's one semantic vocabulary,
+listed under [Tone](#tone) above and taken by `Callout` and `TypographyLink`
+too.
 
 `tone` is the one axis whose default is not a constant. Filling a button in is
 how a page says _this is the action_, so a solid button with nothing else stated
@@ -201,10 +264,18 @@ Sizes are one ladder on a 4px step, 24px to 40px. `md` is the product default,
 both have exactly two states, and they compose: a round icon button is
 `icon pill`.
 
-A `render` element that is not a `<button>` gets the classes and nothing else, on
-purpose: Base UI stamps `role="button"` on whatever it renders, and that drops an
-anchor out of screen-reader link navigation. `render={<Link href="/x" />}` stays a
-link.
+**A button that leads somewhere takes `href`, not an anchor.** `render={<a
+href="/x" />}` was how this used to be written, and it is a routing decision
+wearing a styling prop: the cloned anchor never reaches the router, so the CTA
+full-page-reloads and loses the view transition, and an off-site href gets no
+`rel`. `href` goes through the package's one rule — see [Links](#links) — the
+same one `Card`, `Badge` and `TypographyLink` use. The lint set flags
+the old form.
+
+Either way the element is not run through Base UI: it stamps `role="button"` on
+whatever it renders, and that drops an anchor out of screen-reader link
+navigation. `render` remains for an element that is genuinely neither — a
+`<label>`, a menu item.
 
 ## Badge
 
@@ -221,6 +292,7 @@ link.
 | `tone`    | `Tone` (see above)                          | `primary` on `solid`, `muted` otherwise |
 | `size`    | `"xs" \| "sm"`                              | `sm`                                    |
 | `pill`    | `boolean`                                   | `false`                                 |
+| `href`    | `string` — a badge that leads somewhere, routed by [`resolveLink`](#links) | — |
 
 The same two axes as [Button](#button), spelled the same way, so knowing one
 component's vocabulary is knowing this one's. `link` is the single omission: no
@@ -285,8 +357,7 @@ It needs `theme.css` for its open and close keyframes.
 ```
 
 `TabGroup` is the component. Everything the package and both apps do with tabs is
-this shape, and it is the one to reach for — including the cases that look like
-they want composing by hand.
+this shape, including the cases that look like they want composing by hand.
 
 `TabsList` takes a `variant`: `default` draws a boxed segmented track, `line`
 drops the surface and marks the active tab with an underline. Each variant states
@@ -347,7 +418,7 @@ preview/code switchers that look like they do are `TabGroup` with a wrapper in
 </Tabs>
 ```
 
-It renders exactly what the `TabGroup` above it does. That is the point: it is a
+It renders exactly what the `TabGroup` above it does. The purpose is simple: it is a
 lower rung, not a second way.
 
 ## Steps

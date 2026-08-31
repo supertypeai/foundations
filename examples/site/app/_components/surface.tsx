@@ -5,18 +5,15 @@ import { TypographyLabel } from "@supertype.ai/foundations";
 import { PILL } from "./pill";
 
 /**
- * Toggles the two surfaces you cannot show in a markdown file: `.dark`, which
- * every colour token re-points under, and `.editorial`, which switches the
- * heading face to the serif and retunes the heading sizes against a larger body.
- *
- * Both classes go on <html>, which is where an app would put them.
+ * Toggles `.dark` and `.editorial` on <html>, the two surfaces a static page has
+ * to demonstrate live.
  */
 const KEYS = {
   dark: "foundations-dark",
   editorial: "foundations-editorial",
 } as const;
 
-/** Runs before first paint so a reload does not flash the other surface. */
+/** Runs before first paint, so a reload comes back on the surface you left. */
 export const SurfaceScript = () => (
   <script
     dangerouslySetInnerHTML={{

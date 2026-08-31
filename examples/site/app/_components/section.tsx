@@ -28,10 +28,7 @@ export function Section({
   );
 }
 
-/**
- * The band above a run of sections. A page long enough to need groups needs the
- * import path stated once per group rather than argued about per section.
- */
+/** The band above a run of sections, stating the group's import path once. */
 export function SectionGroup({
   id,
   title,

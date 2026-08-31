@@ -20,7 +20,7 @@ import {
   TypographyCaption,
   TypographyHighlight,
 } from "../../dist/index.js";
-import { Button, Callout } from "../../dist/blocks/index.js";
+import { Badge, Button, Callout, Card } from "../../dist/blocks/index.js";
 
 export const pinned = (
   <>
@@ -115,5 +115,14 @@ export const oneToneVocabulary = (
     <Button tone="warn" variant="soft">yes</Button>
     <Callout tone="warn">yes</Callout>
     <TypographyLink href="/x" tone="warn">yes</TypographyLink>
+
+    {/* A link is an href, on every component that can be one, and the two
+        overrides that go with it. */}
+    <Button href="/x">yes</Button>
+    <Button href="mailto:a@b.c" newTab={false}>yes</Button>
+    <Badge href="/tags/x" external={false}>yes</Badge>
+    <Card href="/x" title="yes" />
+    {/* @ts-expect-error an href is a string; a UrlObject is the router's shape, not this one */}
+    <Button href={{ pathname: "/x" }}>no</Button>
   </>
 );

@@ -97,6 +97,8 @@ under 3:1 or a tinted ink under 4.5:1 is a warning, because the palette is yours
 | every structural ink clears 4.5:1 on every surface | an override that ties on specificity repaints both themes — a `.dark` block measuring 15.7:1 while the page renders white on white |
 | every fill clears 3:1 on the page and on a card | a status dot or a chart bar that cannot be picked out of its background |
 | every tinted ink clears 4.5:1, every label clears 4.5:1 on its own fill | a hue tuned as a mark and then used as words |
+| `--subtle-foreground` clears the 3:1 it is documented for | a tertiary ink quietly promoted to body copy by a theme override |
+| every hairline clears 1.4:1 on the page and on a card | a border retinted in one theme and left faint in the other |
 
 ### Fonts
 

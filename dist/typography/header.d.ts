@@ -59,8 +59,8 @@ declare const eyebrowVariants: (props?: ({
 /**
  * The eyebrow's ramp as a class, for a caller that cannot render our element —
  * a dialog title primitive, a motion element. Same escape hatch as
- * `headingClass`, and it exists so that a consumer needing the class does not
- * hand-roll a second copy of it that then drifts from the component.
+ * `headingClass`. It exists so a consumer needing the class can take ours rather
+ * than hand-rolling a copy that drifts from the component.
  */
 export declare const eyebrowClass: (tone?: VariantProps<typeof eyebrowVariants>["tone"]) => string;
 /**

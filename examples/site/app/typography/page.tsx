@@ -30,7 +30,7 @@ export default function TypographyPage() {
       <PageTitle
         eyebrow="Reference"
         title="Typography"
-        lede="Pick a role and the ramp sets the size. Use the editorial switch above to see any component on the other surface — .editorial retunes all four heading sizes together."
+        lede="Pick a role and the ramp sets the size. The editorial switch above shows any component on the other surface, where .editorial retunes all four heading sizes together."
       />
 
       <Section
@@ -56,11 +56,12 @@ export default function TypographyPage() {
         note={
           <>
             <TypographyInlineCode>TypographyMuted</TypographyInlineCode> pins{" "}
-            <TypographyInlineCode>tone</TypographyInlineCode> to muted and removes the prop
-            from its type:{" "}
+            <TypographyInlineCode>tone</TypographyInlineCode> to muted and drops the prop
+            from its type, so{" "}
             <TypographyInlineCode>{`<TypographyMuted tone="default">`}</TypographyInlineCode>{" "}
-            is a type error. Use <TypographyInlineCode>TypographyP</TypographyInlineCode> to
-            set the tone yourself.
+            fails to typecheck. Reach for{" "}
+            <TypographyInlineCode>TypographyP</TypographyInlineCode> to set the tone
+            yourself.
           </>
         }
       >
@@ -72,7 +73,7 @@ export default function TypographyPage() {
       <Section
         id="meta"
         title="Meta and labels"
-        note="Labels and captions share one size scale. They typically appear together as a key and its value, so match their sizes."
+        note="Labels and captions share one size scale. They usually appear together as a key and its value, so their sizes match."
       >
         <Demo source="app/_demos/meta.tsx">
           <Meta />
@@ -92,7 +93,7 @@ export default function TypographyPage() {
       <Section
         id="links"
         title="Links"
-        note="An href with a scheme renders a plain anchor and opens in a new tab with rel=noopener. Everything else routes through next-view-transitions. The decision comes from the href, not from the call site."
+        note="An href with a scheme renders a plain anchor and opens in a new tab with rel=noopener. Every other href routes through next-view-transitions. The href decides, so the call site stays the same either way."
       >
         <Demo source="app/_demos/links.tsx">
           <Links />
@@ -116,8 +117,8 @@ export default function TypographyPage() {
         </div>
         <Callout tone="primary" density="editorial" title="Use one of these two" className="mt-6">
           Hand-rolled <TypographyInlineCode>text-sm font-medium</TypographyInlineCode> stops
-          matching the moment the ramp changes. The last time these were written by hand, the
-          codebase collected five slightly different copies of the heading styles.
+          matching the moment the ramp changes. Last time these went in by hand, the codebase
+          collected five slightly different copies of the heading styles.
         </Callout>
       </Section>
     </WithToc>

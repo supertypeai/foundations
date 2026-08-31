@@ -1,12 +1,6 @@
 import { Button } from "@supertype.ai/foundations/blocks";
 
-/**
- * The grid is the argument: every column is one variant, every row one tone, and
- * nothing in the package declares a cell. Reading down a column shows how much
- * ink a variant spends; reading across a row shows what the ink means. The tones
- * are the package's, not this component's — Callout and TypographyLink take the
- * same seven.
- */
+/** Columns are variants, rows are tones: ink spent down, meaning across. */
 const VARIANTS = ["solid", "soft", "outline", "ghost", "link"] as const;
 const TONES = [
   "muted",
@@ -29,7 +23,7 @@ export default function Buttons() {
               {VARIANTS.map((variant) => (
                 <th
                   key={variant}
-                  className="text-left text-xs font-medium text-muted-foreground"
+                  className="text-left text-xs text-muted-foreground"
                 >
                   {variant}
                 </th>
@@ -39,7 +33,7 @@ export default function Buttons() {
           <tbody>
             {TONES.map((tone) => (
               <tr key={tone}>
-                <th className="pr-2 text-left text-xs font-medium text-muted-foreground">
+                <th className="pr-2 text-left text-xs text-muted-foreground">
                   {tone}
                 </th>
                 {VARIANTS.map((variant) => (
@@ -55,7 +49,7 @@ export default function Buttons() {
         </table>
       </div>
 
-      {/* One ladder, 24px to 40px on a 4px step. `md` is the product default. */}
+      {/* One ladder, 24px to 40px. `md` is the product default. */}
       <div className="flex flex-wrap items-center gap-3">
         <Button size="xs">xs</Button>
         <Button size="sm">sm</Button>
@@ -64,7 +58,7 @@ export default function Buttons() {
         <Button size="xl">xl</Button>
       </div>
 
-      {/* `icon` squares whichever rung you are on, rather than forking the ladder. */}
+      {/* `icon` squares whichever rung you are on, leaving one size ladder. */}
       <div className="flex flex-wrap items-center gap-3">
         <Button size="sm" icon variant="ghost" aria-label="Add">
           +

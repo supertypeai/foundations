@@ -5,8 +5,7 @@ import type { ComponentProps } from "react";
  * hue for nothing. That is why the earth tones enter as `-foreground`: those are
  * the ink-grade pair, mixed to hold at text weight in both themes.
  *
- * Emphasis, never status. Warn and info and destructive are absent on purpose —
- * a swipe of red under a phrase says less than the words do.
+ * Emphasis, never status. Warn and info and destructive are absent on purpose.
  *
  * The four earth tones are one palette, not a menu: each is a different hue,
  * because two a reader cannot tell apart are one tone with two names.
@@ -24,6 +23,8 @@ export type HighlightTone = keyof typeof MARKER_TONES;
  * Marker highlight for inline text. Painted as the run's own background, never a
  * mask — a mask would shave the glyph tops. `luminosity` lets letters borrow the
  * marker's hue while keeping their own lightness, so contrast holds in both themes.
+ * That lightness comes from `--marker-ink`, a deepened `--foreground`, so the run
+ * still reads as the emphasised one rather than sinking into its own wash.
  */
 export declare function TypographyHighlight({ tone, seed, className, style, children, ...props }: ComponentProps<"span"> & {
     tone?: HighlightTone;

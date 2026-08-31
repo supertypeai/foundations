@@ -6,22 +6,17 @@ import { Icons } from "../_components/icons";
 
 export default function TabsDemo() {
   return (
-    // Two variants of one component, not two ways to draw a tab strip. Composing
-    // Tabs/TabsList/TabsTrigger/TabsContent by hand renders exactly this, which is
-    // why it is not shown here: a demo that draws the same strip twice reads as a
-    // choice, and there isn't one to make.
     <div className="space-y-8">
       {/* default: the boxed segmented track. */}
       <TabGroup
         tabs={[
           { value: "npm", label: "npm", content: "npx foundations doctor" },
-          { value: "pnpm", label: "pnpm", content: "pnpm dlx foundations doctor" },
+          { value: "pnpm", label: "pnpm", content: "pnpm dlx foundations" },
           { value: "yarn", label: "yarn", content: "yarn foundations doctor" },
         ]}
       />
 
-      {/* line: no surface, a toned underline, and room for an icon. The tone inks
-          the underline and the active tab's icon; labels stay in the page's ink. */}
+      {/* line: no surface, a toned underline, and room for an icon. */}
       <TabGroup
         variant="line"
         tone="brand"
@@ -31,15 +26,15 @@ export default function TabsDemo() {
             value: "gallery",
             label: "Gallery",
             icon: <Icons.Award />,
-            content: "An icon sits in the label's own gap rather than being margined onto it.",
+            content: "An icon sits in the label's own gap.",
           },
           {
             value: "speakers",
             label: "Speakers",
             icon: <Icons.Mic />,
-            content: "The active tab's icon takes the list's tone — the same seven a Button has.",
+            content: "The active icon takes the list's tone.",
           },
-          { value: "venue", label: "Venue", content: "An icon is optional, per tab." },
+          { value: "venue", label: "Venue", content: "Icons are optional." },
         ]}
       />
     </div>

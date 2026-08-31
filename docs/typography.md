@@ -31,8 +31,8 @@ together.
 ```
 
 Use `display` for a heading that has to outrank the same level somewhere else,
-like a landing page against the docs. `divider` draws a rule underneath, and it
-is a separate prop so you can pick a size without also committing to a border.
+like a landing page against the docs. `divider` draws a rule underneath, kept as
+a separate prop so you can pick a size without committing to a border.
 
 ## Body copy
 
@@ -89,6 +89,11 @@ inside a heading or a chip, where the container has already picked a size.
 
 <TypographyHighlight tone="sage">the part that matters</TypographyHighlight>
 <TypographyHighlight tone="terracotta" seed={7}>a different swipe</TypographyHighlight>
+
+{/* one tone, three swipes: same hue, three shapes */}
+<TypographyHighlight tone="sage">default, seed 3</TypographyHighlight>
+<TypographyHighlight tone="sage" seed={12}>same sage, wobbles elsewhere</TypographyHighlight>
+<TypographyHighlight tone="sage" seed={41}>same sage again</TypographyHighlight>
 ```
 
 `TypographyStat` takes `size`: `inherit` (default), `card`, `panel`, `page` or
@@ -100,9 +105,21 @@ figure usually looks better proportional.
 
 `TypographyHighlight` paints a felt-tip swipe as the background of the run it
 wraps. `tone` is `primary` (default), `success`, `ochre`, `terracotta`, `sage` or
-`fig`, and `seed` (any integer) changes the shape of the wobble and the grain.
-They carry emphasis, not status, so there is no `warn`, `info` or `destructive`
-tone.
+`fig`. They carry emphasis, not status, so there is no `warn`, `info` or
+`destructive` tone.
+
+`seed` is any integer, `3` by default. It is not a size or a strength — `41` is
+not a heavier swipe than `3`, only a different one. It seeds the deterministic
+noise that decides where along the run the felt tip wobbled and where the grain
+dragged, so the same seed always paints the same swipe (server and browser
+included) and a different one repaints it without touching the hue. Vary it when
+the same phrase is highlighted more than once on a page; leave it alone
+otherwise.
+
+The words keep their own lightness and borrow the swipe's hue, so a `color` set
+on the children only contributes its lightness. That lightness comes from
+`--marker-ink`, a deepened `--foreground`; override it on the element to make a
+run lighter or heavier than the default.
 
 ## Links
 
@@ -118,10 +135,13 @@ glyph that matches the destination: `↗` when the link leaves the site, `→` w
 it does not.
 
 The `href` decides whether a link is internal or external, so a call site cannot
-get it wrong. An href with a scheme renders a plain anchor, and an http(s) one
-opens in a new tab with `rel="noopener noreferrer"`. Everything else routes
-through `next-view-transitions`. Use `newTab={false}` for an off-site href that
-starts a flow the reader should stay inside.
+get it wrong — and it is the same decision `Button`, `Badge` and `Card` make,
+from the same function (`resolveLink`, see
+[Links](./blocks.md#links)). A scheme renders a plain anchor, an http(s) one
+opens away with `rel="noopener noreferrer"`, a `#hash` stays a plain anchor, and
+everything else routes through `next-view-transitions`. `newTab={false}` is for
+an off-site href that starts a flow the reader should stay inside; `external`
+overrides the sniff itself.
 
 ## Rendering your own element
 

@@ -6,12 +6,11 @@ import {
   type Tone,
 } from "@supertype.ai/foundations";
 import { Badge, Button } from "@supertype.ai/foundations/blocks";
+import { Icons } from "./icons";
 
 /**
- * The tone vocabulary, painted with itself. Every square below is a
- * `bg-(--tone-fill)` inside a `TONE[…]` class — the same two lines the button
- * beside it uses. No hex, no token name repeated in a style attribute, so this
- * page cannot claim a colour the package no longer ships.
+ * The tone vocabulary painted with itself: every square is `bg-(--tone-fill)`
+ * under a tone class, so the page shows exactly what the package ships.
  */
 
 const ROWS: readonly { tone: Tone; token: string; means: string }[] = [
@@ -24,8 +23,8 @@ const ROWS: readonly { tone: Tone; token: string; means: string }[] = [
   { tone: "destructive", token: "--destructive", means: "It deletes, or it failed." },
 ];
 
-/** Three cuts per tone, because a fill is a mark at 3:1 and an ink is words at
- *  4.5:1, and no single value clears both. */
+/** Three cuts per tone: a fill is a mark at 3:1, an ink is words at 4.5:1, and
+ *  clearing both takes two values. */
 const CUTS = [
   { label: "fill", className: "bg-(--tone-fill)" },
   { label: "ink", className: "bg-(--tone-hue)" },
@@ -93,14 +92,14 @@ export function ToneLedger() {
   );
 }
 
-/** Names developers reach for that the one-to-one rule does not ship, and the
- *  tone to use instead. Each of these is a type error at the call site; this is
- *  the answer to it. */
+/** Names developers reach for that the one-to-one rule leaves out, and the tone
+ *  to use instead. Each one is a type error at the call site, and this is the
+ *  answer to it. */
 const ALIASES: readonly { reached: string; use: Tone; why: string }[] = [
   {
     reached: "neutral",
     use: "muted",
-    why: "The package says muted everywhere — --muted-foreground, TypographyMuted. Same register, one name.",
+    why: "The package says muted everywhere: --muted-foreground, TypographyMuted. Same register, one name.",
   },
   {
     reached: "accent",
@@ -110,7 +109,7 @@ const ALIASES: readonly { reached: string; use: Tone; why: string }[] = [
   {
     reached: "info",
     use: "secondary",
-    why: "--info exists as a status token, but it is not a tone: nothing renders a button or badge in it. For a neutral-but-coloured mark, use secondary.",
+    why: "--info is a status token, spent on messages rather than controls. For a quiet coloured mark, use secondary.",
   },
 ] as const;
 
@@ -120,8 +119,8 @@ export function ToneAliases() {
       {ALIASES.map(({ reached, use, why }) => (
         <li
           key={reached}
-          // The row is set in the tone it points at, so the replacement is shown and
-          // not just named. `--tone-hue` has to be declared to be read.
+          // The row is set in the tone it points at, so the replacement is shown as
+          // well as named. `--tone-hue` has to be declared to be read.
           className={cn(
             toneClass(use),
             "flex flex-col gap-2 rounded-xl border border-border p-4",
@@ -132,9 +131,10 @@ export function ToneAliases() {
               tone=&quot;{reached}&quot;
             </TypographyLabel>
             <TypographyLabel as="p" className="text-(color:--tone-hue)">
-              <span aria-hidden className="pr-1 text-muted-foreground">
-                &rarr;
-              </span>
+              <Icons.ArrowRight
+                aria-hidden
+                className="mr-1 inline size-3 align-baseline text-muted-foreground"
+              />
               tone=&quot;{use}&quot;
             </TypographyLabel>
           </div>

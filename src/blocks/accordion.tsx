@@ -1,6 +1,7 @@
 import { Children, cloneElement, isValidElement, type ComponentProps, type ReactNode } from "react";
 
 import { cn } from "../cn.js";
+import { inkOnSurface } from "../tone.js";
 
 /**
  * A disclosure group: `<details>`/`<summary>`, no JS, correct before hydration.
@@ -99,7 +100,10 @@ export function Disclosure({
   ...props
 }: DisclosureProps) {
   return (
-    <details className={cn("group bg-card", className)} {...props}>
+    <details
+      className={cn("group bg-card", inkOnSurface("--card-foreground"), className)}
+      {...props}
+    >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-foreground marker:hidden hover:bg-accent [&::-webkit-details-marker]:hidden">
         {title}
         <svg

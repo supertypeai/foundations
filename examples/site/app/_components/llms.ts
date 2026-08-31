@@ -2,12 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * The `llms.txt` this site's own install resolved, read at build time.
- *
- * The file is the thing the page is about, so quoting it from memory would let
- * the two drift the moment someone edits it — the failure the page exists to
- * warn about. Reading the installed copy keeps the excerpts true by
- * construction, the same way `version.ts` keeps the install tag true.
+ * The `llms.txt` this site's own install resolved, read at build time so the
+ * excerpts on the agents page cannot drift from the file they quote.
  */
 const INSTALLED = join(process.cwd(), "node_modules/@supertype.ai/foundations");
 

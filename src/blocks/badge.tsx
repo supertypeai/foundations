@@ -3,8 +3,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "../cn.js";
 import { renderAs } from "./render-as.js";
+import { resolveLink, type LinkBehavior } from "../href.js";
 import { FOCUS_RING } from "./focus.js";
-import { TONE, TONE_SURFACE, impliedTone } from "../tone.js";
+import { INK_ON_FILL, TONE, TONE_SURFACE, impliedTone } from "../tone.js";
 
 // ---------------------------------------------------------------------------
 // A label that is not a control. Same two axes as Button, and for the same
@@ -56,7 +57,7 @@ const badge = cva(
       },
       pill: { true: "rounded-full", false: "" },
       variant: {
-        solid: "bg-(--tone-fill) text-(color:--tone-ink) [a]:hover:bg-(--tone-fill-hover)",
+        solid: `bg-(--tone-fill) text-(color:--tone-ink) [a]:hover:bg-(--tone-fill-hover) ${INK_ON_FILL}`,
         soft: "bg-(--tone-wash) text-(color:--tone-hue) [a]:hover:bg-(--tone-wash-hover)",
         outline:
           "border-(color:--tone-line) text-(color:--tone-hue) [a]:hover:bg-(--tone-wash)",
@@ -74,7 +75,8 @@ export function badgeVariants(props: Parameters<typeof badge>[0] = {}) {
 }
 
 /**
- * A `span` unless `render` says otherwise — cloned rather than run through a
+ * A `span`, an anchor when given an `href` — a tag pill leading to its listing —
+ * and whatever `render` says otherwise — cloned rather than run through a
  * `useRender` hook, which is what viably's badge did. A hook would make every
  * badge in the tree a client component to serve the one call site that renders
  * an anchor, and a badge is a label: it should cost nothing on the server. This
@@ -90,8 +92,13 @@ export function Badge({
   size,
   pill,
   render,
+  href,
+  external,
+  newTab,
   ...props
-}: ComponentProps<"span"> & BadgeLook & { render?: ReactElement }) {
+}: ComponentProps<"span"> &
+  BadgeLook &
+  LinkBehavior & { render?: ReactElement; href?: string }) {
   const resolved = tone ?? impliedTone(variant);
   const classes = cn(badge({ variant, tone: resolved, size, pill, className }));
   const marks = {
@@ -99,6 +106,18 @@ export function Badge({
     "data-variant": variant ?? "solid",
     "data-tone": resolved,
   };
+
+  if (href !== undefined) {
+    const { Component, props: link } = resolveLink(href, { external, newTab });
+    return (
+      <Component
+        {...marks}
+        {...link}
+        className={classes}
+        {...(props as ComponentProps<"a">)}
+      />
+    );
+  }
 
   const as = renderAs(render, classes, { ...marks, ...props });
   if (as) return as;

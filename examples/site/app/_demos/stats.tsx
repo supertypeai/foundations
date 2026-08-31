@@ -20,7 +20,7 @@ export default function Stats() {
           <TypographyLabel as="p" size="2xs">
             Uptime
           </TypographyLabel>
-          {/* proportional for a headline figure; tabular where a value updates in place */}
+          {/* proportional for a headline; tabular where a value updates */}
           <TypographyStat size="panel" figures="proportional">
             98%
           </TypographyStat>
@@ -28,9 +28,13 @@ export default function Stats() {
       </div>
 
       <TypographyProse>
-        Run <TypographyInlineCode>npx foundations doctor</TypographyInlineCode> before
+        Run <TypographyInlineCode>npx foundations doctor</TypographyInlineCode>
+        before
         reporting a styling bug. It checks{" "}
-        <TypographyHighlight tone="sage">import order, fonts and peers</TypographyHighlight>,
+        <TypographyHighlight tone="sage">
+          import order, fonts and peers
+        </TypographyHighlight>
+        ,
         which is where most of them come from. Changing{" "}
         <TypographyInlineCode>seed</TypographyInlineCode> gives{" "}
         <TypographyHighlight tone="terracotta" seed={7}>

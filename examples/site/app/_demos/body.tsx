@@ -12,7 +12,8 @@ export default function Body() {
       <TypographyP>Interface copy, 13px.</TypographyP>
       <TypographyMuted>The same rung, secondary ink.</TypographyMuted>
       <TypographyProse>
-        Reading copy: 18px, relaxed leading, balanced wrapping. Essays and docs pages set
+        Reading copy: 18px, relaxed leading, balanced wrapping. Essays and docs
+        pages set
         their body at this rung, and the heading ladder is a ratio to it.
       </TypographyProse>
 

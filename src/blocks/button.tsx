@@ -1,11 +1,12 @@
-import { isValidElement } from "react";
+import { isValidElement, type ComponentProps } from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "../cn.js";
 import { renderAs } from "./render-as.js";
+import { resolveLink, type LinkBehavior } from "../href.js";
 import { FOCUS_RING } from "./focus.js";
-import { TONE, TONE_SURFACE, impliedTone } from "../tone.js";
+import { INK_ON_FILL, TONE, TONE_SURFACE, impliedTone } from "../tone.js";
 
 // ---------------------------------------------------------------------------
 // The control both apps were re-declaring. viably and ssite each carried their
@@ -72,7 +73,7 @@ const button = cva(
       /** Full-round corners. Marketing surfaces; also every filter chip. */
       pill: { true: "rounded-full", false: "" },
       variant: {
-        solid: "bg-(--tone-fill) text-(color:--tone-ink) hover:bg-(--tone-fill-hover)",
+        solid: `bg-(--tone-fill) text-(color:--tone-ink) hover:bg-(--tone-fill-hover) ${INK_ON_FILL}`,
         soft: "bg-(--tone-wash) text-(color:--tone-hue) hover:bg-(--tone-wash-hover)",
         outline:
           "border-(color:--tone-line) bg-background text-(color:--tone-hue) hover:bg-(--tone-wash)",
@@ -110,10 +111,15 @@ export function buttonVariants(props: Parameters<typeof button>[0] = {}) {
 }
 
 /**
- * A non-`<button>` render element bypasses the primitive on purpose: Base UI
+ * `href` makes the button a link — the anchor is the button, and where the href
+ * goes is ../href.ts's decision, not the call site's. `render={<a href="…" />}`
+ * did this before, and got a bare anchor: no router, so a CTA reloaded the page
+ * and lost the view transition, and an off-site href never grew a `rel`.
+ *
+ * Either way a non-`<button>` element bypasses the primitive on purpose: Base UI
  * always stamps `type="button"` or `role="button"`, and the latter drops an
- * anchor out of screen-reader link navigation. Cloning gives it the classes and
- * nothing else.
+ * anchor out of screen-reader link navigation. `render` remains for an element
+ * that is genuinely neither — a `<label>`, a menu item.
  */
 export function Button({
   className,
@@ -124,8 +130,11 @@ export function Button({
   pill,
   render,
   nativeButton,
+  href,
+  external,
+  newTab,
   ...props
-}: ButtonPrimitive.Props & ButtonLook) {
+}: ButtonPrimitive.Props & ButtonLook & LinkBehavior & { href?: string }) {
   const resolved = tone ?? impliedTone(variant);
   const classes = cn(
     button({ variant, tone: resolved, size, icon, pill, className }),
@@ -137,6 +146,18 @@ export function Button({
     "data-variant": variant ?? "solid",
     "data-tone": resolved,
   };
+
+  if (href !== undefined) {
+    const { Component, props: link } = resolveLink(href, { external, newTab });
+    return (
+      <Component
+        {...marks}
+        {...link}
+        className={classes}
+        {...(props as ComponentProps<"a">)}
+      />
+    );
+  }
 
   // `render.type !== "button"`: a plain <button/> still goes through the primitive, which
   // is what supplies the native semantics.

@@ -4,8 +4,9 @@
 [![npm](https://img.shields.io/npm/v/%40supertype.ai%2Ffoundations?logo=npm&color=cb3837)](https://www.npmjs.com/package/@supertype.ai/foundations)
 [![license](https://img.shields.io/npm/l/%40supertype.ai%2Ffoundations?color=blue)](LICENSE)
 
-[The foundations philosophy](https://supertypeai.github.io/foundations/philosophy/) lays out the Raison d'être better, but the crux is that it is a reusable design system that binds typography primitives, content blocks, the long-form essay shell, the token and theme CSS, and the build-time tooling that keep baseline quality high (SEO, OG cards, lint rules, contrast
-checks) in a single package. Used by Supertype's own projects like [Viably work operating system](https://viably.app) and [supertype.ai](https://supertype.ai), it is also MIT-licensed and available for any Next.js 15+ project built atop Tailwind and Shadcn.
+[The foundations philosophy](https://supertypeai.github.io/foundations/philosophy/) explains the reasoning in more detail, but the short version is simple: this is a reusable design system for typography primitives, content blocks, the long-form essay shell, token and theme CSS, and the build-time tooling that keeps the baseline consistent. That includes SEO, OG cards, lint rules, and contrast checks.
+
+It is used in Supertype projects like [Viably work operating system](https://viably.app) and [supertype.ai](https://supertype.ai), and it is MIT-licensed for any Next.js 15+ app built on Tailwind and Shadcn.
 
 ```sh
 yarn add @supertype.ai/foundations
@@ -31,11 +32,11 @@ yarn example:install   # once, to install Next, the peers and the package
 yarn example           # then open http://localhost:3000
 ```
 
-[`examples/site`](examples/site) renders every component along with the code, and include whole-page [recipes](examples/site/app/_recipes) to copy into your project. Comes with the `dark` and `.editorial` switches.
+[`examples/site`](examples/site) renders every component with the code next to it, and includes whole-page [recipes](examples/site/app/_recipes) you can copy into your project. It also includes the `dark` and `.editorial` switches.
 
 ## Initialization and Diagnostics
 
-This package also ships a CLI that writes the CSS for you and checks the rest:
+This package includes a CLI that writes the CSS for you and checks the rest:
 
 ```sh
 npx @supertype.ai/foundations init      # edits your CSS entry, prints the rest
@@ -43,7 +44,7 @@ npx @supertype.ai/foundations doctor    # checks this app against everything bel
 ```
 
 `init` edits one file: the CSS entry that imports Tailwind. It adds the imports
-you are missing and reorders anything that is out of place. Run it with `--dry-run` first to see the patch. Everything else it prints for you to paste (the font binding, and the `llms.txt` lines for a coding agent).
+you are missing and reorders anything that is out of place. Run it with `--dry-run` first to preview the patch. Everything else it prints for you to paste is the font binding and the `llms.txt` lines for a coding agent.
 
 The steps performed by `init` are written out below anyway. See [the CLI](docs/cli.md) for the full list of checks and details.
 
@@ -59,9 +60,9 @@ Peers are React 19+, Next 15+, `next-view-transitions` 0.3+ and `@base-ui/react`
 <details>
 <summary>Installing from a git tag instead</summary>
 
-Every release is tagged as well as published, so a commit can be installed
-directly — useful for trying an unreleased fix. Pin a tag, never `#main`: an
-untagged git dependency re-resolves to a different commit on any fresh install.
+Every release is tagged and published, so a commit can be installed directly
+when you want to try an unreleased fix. Pin a tag rather than `#main`: an
+untagged git dependency resolves to a different commit on a fresh install.
 
 ```jsonc
 // package.json
@@ -85,15 +86,16 @@ untagged git dependency re-resolves to a different commit on any fresh install.
 ```
 
 **The `@source` line is required.** Tailwind does not scan `node_modules` by
-default, so without it every class is purged and the components
-render with no styles at all.
+default, so without it the package&rsquo;s classes get purged and the
+components render without styles.
 
-**`theme.css` is required.** `tokens.css` names the colour roles; `theme.css` is
-what gives them values. Without it color utility can't be resolved, so the page renders unpainted with no error. It also carries
-`--secondary-ink`, `--subtle-foreground`, the four earth tones the marker
-highlight uses, and the `accordion-down` and `accordion-up` keyframes. Skip it
-only if you declare every role yourself; `foundations doctor` fails when neither
-is true.
+**`theme.css` is required.** `tokens.css` names the colour roles, and
+`theme.css` gives them values. Without it, the colour utilities cannot be
+resolved, so the page renders unpainted without an obvious error. It also
+carries `--secondary-ink`, `--subtle-foreground`, the four earth tones used
+for marker highlights, and the `accordion-down` and `accordion-up` keyframes.
+Skip it only if you declare every role yourself; `foundations doctor` fails if
+neither path is true.
 
 ### 3. Bind the fonts
 
@@ -112,8 +114,10 @@ const serif = Average({ variable: "--font-average", weight: "400", subsets: ["la
 <html className={`${sans.variable} ${mono.variable} ${serif.variable} font-sans`}>
 ```
 
-**Bind with `.variable`, never `.className`.** A className sets `font-family` on
-the element itself and leaves the roles unresolved, causing a mismatch where the page renders one typeface while every `font-sans` and `font-heading` utility on it renders another.
+**Bind with `.variable`, never `.className`.** A className sets `font-family`
+on the element itself and leaves the roles unresolved, which causes a mismatch
+where the page renders one typeface while the `font-sans` and `font-heading`
+utilities render another.
 
 ### 4. Check the wiring
 
@@ -213,9 +217,9 @@ only from this package, so you can paste it into your app and it compiles.
 
 ## For coding agents
 
-The package ships an `llms.txt` with the public API, the rules, and the mistakes
-that do not produce an error. Point your agent at it once and it stops
-hand-writing `text-sm text-muted-foreground` where a primitive exists:
+The package includes an `llms.txt` with the public API, the rules, and the
+mistakes that do not produce an error. Point your agent at it once and it stops
+writing `text-sm text-muted-foreground` where a primitive already exists:
 
 ```md
 <!-- CLAUDE.md, AGENTS.md, or your agent's equivalent -->

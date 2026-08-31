@@ -39,21 +39,48 @@ export function themeOverrideRules() {
     return rule(`/(^| )dark:(${COLOUR_PREFIX})-(${TOKEN})($| )/`, "A `dark:` override on a token means the token is wrong — fix it in theme.css, where one change covers every call site, rather than here. Alpha variants (dark:bg-destructive/20) stay legal: those tune a wash's density, not the token.");
 }
 /**
- * `--muted` is a fill at L92%, so `text-muted` is ~1.1:1 — invisible, and it
- * shipped at 17 sites. `text-background` is absent: inverse ink is a real role.
+ * `--muted` is a fill at L92%, so `text-muted` lands at ~1.1:1. Invisible, and
+ * it shipped at 17 sites. `text-background` stays legal: inverse ink is a real
+ * role.
  */
 export function surfaceAsInkRules() {
     return rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/", "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card.");
 }
 /**
  * `-foreground` means the label printed on a fill; `-ink` means the hue as
- * words. `warn-foreground` and the eight categorical `-foreground` tokens were
- * always inks, under the other name. The old spellings still resolve, so nothing
- * breaks on the day of the rename; this is what stops them surviving it.
+ * words. The eight categorical `-foreground` tokens were always inks, under the
+ * other name. The old spellings still resolve, so nothing breaks on the day of
+ * the rename; this is what stops them surviving it.
+ *
+ * `warn` left this list when the status tones gained real on-fill labels:
+ * `--warn-foreground` now means what its name says, the ink printed on the warn
+ * fill, and `Button tone="warn" variant="solid"` is what reads it.
  */
-const RENAMED_INKS = "warn|terracotta|ochre|moss|fern|sage|stone|fig|cocoa";
+const RENAMED_INKS = "terracotta|ochre|moss|fern|sage|stone|fig|cocoa";
 export function renamedTokenRules() {
     return rule(`/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke|decoration)-(${RENAMED_INKS})-foreground($| )/`, "That is the deprecated name for the same hue's `-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as words, and none of these hues has a printed-on label — they are checked at 4.5:1 against the page, and printing one on its own fill measures about 1.2:1. Use `-ink`.");
+}
+/**
+ * `render={<a href="…" />}` on a component that takes an `href`. It reads as a
+ * styling choice and is a routing one: the cloned anchor skips the router, so
+ * the page fully reloads and the view transition is lost, and an off-site href
+ * never grows a `rel`. Button, Badge and Card each decide internal vs external
+ * from the href itself, so the anchor is never needed and cannot be right more
+ * often than the one shared rule is.
+ *
+ * Narrow on both axes, so it never fires on a line that is correct. Only those
+ * three components — `RailLink` deliberately takes a router element through
+ * `render`, because its module has to stay importable without Next. And only a
+ * bare `<a>`: `render={<Link/>}` is redundant beside `href` but it still routes,
+ * so it is not a bug.
+ */
+export function linkRules() {
+    return [
+        {
+            selector: 'JSXOpeningElement[name.name=/^(Button|Badge|Card)$/] > JSXAttribute[name.name="render"] > JSXExpressionContainer > JSXElement > JSXOpeningElement[name.name="a"]',
+            message: "Pass `href` instead of rendering an anchor. A cloned <a> bypasses the router (full page load, no view transition) and gets no rel on an off-site href; `href` routes through the package's one rule. `render` is for an element that is not a link.",
+        },
+    ];
 }
 export function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up", pairing = false, axis = false, } = {}) {
     return [
@@ -100,7 +127,7 @@ export function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2x
             ? [
                 {
                     selector: 'JSXElement:has(>JSXOpeningElement[name.name="TypographyP"]) ~ JSXElement > JSXOpeningElement[name.name="TypographyProseList"]',
-                    message: "A ui paragraph over a prose list splits one passage across two rungs. Promote the paragraph with TypographyProse, or drop the list to the paragraph's rung with TypographyList variant=\"ui\".",
+                    message: 'A ui paragraph over a prose list splits one passage across two rungs. Promote the paragraph with TypographyProse, or drop the list to the paragraph\'s rung with TypographyList variant="ui".',
                 },
             ]
             : []),
@@ -113,6 +140,7 @@ export function designRules({ accents, typography = true, ...type } = {}) {
     return [
         ...colourRules({ accents }),
         ...(typography ? typographyRules(type) : []),
+        ...linkRules(),
         ...themeOverrideRules(),
         ...surfaceAsInkRules(),
         ...renamedTokenRules(),
@@ -136,10 +164,7 @@ export function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], ...options } = 
             name: "@supertype.ai/foundations/design",
             files,
             rules: {
-                "no-restricted-syntax": [
-                    "error",
-                    ...designRules(options),
-                ],
+                "no-restricted-syntax": ["error", ...designRules(options)],
             },
         },
     ];

@@ -11,14 +11,14 @@ export default function Meta() {
       <div>
         <TypographyEyebrow>Case study</TypographyEyebrow>
         <TypographyCaption as="p" className="mt-1">
-          tone=&quot;heading&quot; — primary ink, for an eyebrow naming the section below it
+          tone=&quot;heading&quot;: primary ink, for an eyebrow above a section
         </TypographyCaption>
       </div>
 
       <div>
         <TypographyEyebrow tone="label">Monthly revenue</TypographyEyebrow>
         <TypographyCaption as="p" className="mt-1">
-          tone=&quot;label&quot; — quiet ink, for a stat card where the figure leads
+          tone=&quot;label&quot;: quiet ink, for a card where the figure leads
         </TypographyCaption>
       </div>
 

@@ -2,13 +2,8 @@ import type { MetadataRoute } from "next";
 import { ROUTES, SITE_URL } from "./_components/seo";
 
 /**
- * Written out at build time, static export and all. The URLs are absolute and
- * carry the trailing slash the export actually serves, so they match the
- * canonicals rather than competing with them.
- *
- * No `lastModified`: every build would stamp today's date on every page, which
- * is a claim the site cannot back up, and a lastmod a crawler learns to distrust
- * is worse than none.
+ * Absolute URLs carrying the trailing slash the export serves, so they match the
+ * canonicals. No `lastModified`: every build would restamp every page.
  */
 export const dynamic = "force-static";
 

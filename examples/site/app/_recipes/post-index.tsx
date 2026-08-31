@@ -5,13 +5,17 @@ import {
   TypographyProse,
   TypographyLink,
 } from "@supertype.ai/foundations";
-import { PostMetaRow, PostDate, MetaDot, ReadTime, TagPills } from "@supertype.ai/foundations/essay";
+import {
+  PostMetaRow,
+  PostDate,
+  MetaDot,
+  ReadTime,
+  TagPills,
+} from "@supertype.ai/foundations/essay";
 
 /**
- * An article index. The meta row is the reason to import from /essay here
- * instead of writing it by hand: `PostDate` uses `formatPostDate`, the same
- * function an OG image would call, so a card and its social preview always
- * print the same date.
+ * An article index. `PostDate` calls `formatPostDate`, the function an OG image
+ * uses, so a card and its social preview print the same date.
  */
 const POSTS = [
   {
@@ -25,7 +29,7 @@ const POSTS = [
   {
     slug: "slot-hygiene",
     title: "Slot hygiene, or how we filled a disk on a Sunday",
-    excerpt: "An abandoned replication slot is a disk-usage graph with one direction.",
+    excerpt: "An abandoned slot is a disk graph with one direction.",
     date: "2026-02-02",
     minutes: 4,
     tags: ["postgres", "incidents"],
@@ -42,7 +46,9 @@ export default function PostIndex() {
         {POSTS.map((post) => (
           <article key={post.slug}>
             <TypographyH3>
-              <TypographyLink href={`/notes/${post.slug}`}>{post.title}</TypographyLink>
+              <TypographyLink href={`/notes/${post.slug}`}>
+                {post.title}
+              </TypographyLink>
             </TypographyH3>
 
             <PostMetaRow size="sm" className="mt-2">

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useSyncExternalStore } from "react";
 /**
- * Reading progress 0→1 from one shared listener: a page mounts both the bar and
+ * Reading progress, 0 to 1, from one shared listener: a page mounts both the bar and
  * the rail, and hook-local state would double every subscription. Reads coalesce
  * to a frame, since `scrollHeight` forces layout.
  */

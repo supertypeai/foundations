@@ -19,6 +19,26 @@ export declare function parseColor(value: string): Rgb | null;
 export declare function luminance([r, g, b]: Rgb): number;
 /** WCAG contrast ratio, 1:1 to 21:1. */
 export declare function contrast(a: Rgb, b: Rgb): number;
+/**
+ * APCA lightness contrast (Lc), the perceptual measure WCAG 3 is built on.
+ *
+ * It sits beside `contrast` because the two answer different questions and an
+ * ink ramp needs both. A WCAG ratio is polarity-blind: it reports the same
+ * number whether the text is dark on light or light on dark, when in fact dark
+ * glyphs on a bright field thin out and light glyphs on a dark field bloat. That
+ * blindness is what lets a ramp be ordered by ratio and still read flat — viably
+ * shipped a `--muted-foreground` measuring 72.5 Lc in light and 52.1 in dark,
+ * the same verdict from `contrast` on both sides and twenty points apart to a
+ * reader.
+ *
+ * Lc also states the term a ratio cannot: legibility is contrast times size, so
+ * a floor here is what says an ink comfortable at 16px is or is not comfortable
+ * on the 13px rung a dense product actually spends.
+ *
+ * Returned absolute. It is signed by polarity in the specification, and every
+ * caller so far asks "is this legible", never "which way round is it".
+ */
+export declare function lc(text: Rgb, background: Rgb): number;
 export interface LegibilityFailure {
     theme: Theme;
     ink: string;
@@ -65,6 +85,13 @@ export interface TokenCuts {
  * a page that is quietly wrong rather than a build that fails.
  */
 export declare function tokenCuts(token: string): TokenCuts;
+/**
+ * The bar a rule owes, held apart from `checkSignals` because it is not a
+ * signal: nothing here carries meaning in its hue, it only has to be seen.
+ */
+export declare function checkHairlines(css: string, { themes }?: {
+    themes?: Theme[] | undefined;
+}): LegibilityFailure[];
 /**
  * The three bars a palette owes, run over the same engine as `checkLegibility`.
  * Without this the numbers in a theme's comments are claims, not measurements.

@@ -4,58 +4,52 @@ import {
   TypographyH2,
   TypographyProse,
   TypographyHighlight,
-  TypographyLabel,
   TypographyLink,
 } from "@supertype.ai/foundations";
-import { Cards, Card } from "@supertype.ai/foundations/blocks";
+import { Button, Cards, Card } from "@supertype.ai/foundations/blocks";
 
 /**
- * A landing section. It only decides layout; the sizes, weights and colours all
- * come from the ramp, so the same file works on a product surface and on an
- * editorial one without a conditional.
+ * A landing section that decides layout only. Sizes, weights and colours come
+ * from the ramp, so one file works on both surfaces.
  */
 export default function MarketingHero() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
       <TypographyEyebrow>Warehouse sync</TypographyEyebrow>
 
-      {/* `display` for a heading that has to outrank the same level elsewhere. */}
+      {/* `display` outranks the same level elsewhere on the site. */}
       <TypographyH1 variant="display" className="mt-3 text-balance">
         Your data, in the warehouse, before anyone asks for it
       </TypographyH1>
 
       <TypographyProse className="mt-5">
         Change capture from Postgres to your warehouse with{" "}
-        <TypographyHighlight tone="sage">no schema coupling</TypographyHighlight> and no
-        nightly window to miss. Point it at a database and it keeps up.
+        <TypographyHighlight tone="sage">
+          no schema coupling
+        </TypographyHighlight>{" "}
+        and no nightly window to miss. Supertype works with any Postgres
+        instance out of the box.
       </TypographyProse>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
-        <a
-          href="/signup"
-          className="rounded-md bg-primary px-4 py-2 text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          <TypographyLabel as="span" size="sm">
-            Start a sync
-          </TypographyLabel>
-        </a>
-        <TypographyLink href="/docs/replication" tone="primary" addArrow>
+        <Button href="/recipes">Start a sync</Button>
+        <TypographyLink href="/recipes" tone="primary" addArrow>
           Read how it works
         </TypographyLink>
       </div>
 
-      <TypographyH2 divider className="mt-16">
-        Three ways in
+      <TypographyH2 className="mt-16">
+        Use Supertype&apos;s postgres service either way.
       </TypographyH2>
 
       <Cards className="mt-6">
         <Card
-          href="/docs/logical-replication"
+          href="/recipes"
           title="Logical replication"
           description="Row-level changes, no schema coupling, no polling."
         />
         <Card
-          href="/docs/copy"
+          href="/recipes"
           title="Bulk COPY"
           description="The fastest first load. Leaves the app untouched."
         />

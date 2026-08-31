@@ -18,11 +18,7 @@ import { pageMetadata } from "../_components/seo";
 
 export const metadata: Metadata = pageMetadata("essay");
 
-/**
- * The undecorated bindings, imported by name. `createEssay({ Reveal, Glow })` is
- * there for an app with its own motion and gradient. This page has neither, so
- * it gets the same markup, rendered statically.
- */
+/** Undecorated bindings. `createEssay({ Reveal, Glow })` is for an app with its own motion. */
 const INDEX = [
   { id: "queue", label: "The queue" },
   { id: "measure", label: "The measure" },
@@ -32,12 +28,7 @@ const INDEX = [
 export default function EssayPage() {
   return (
     <article className="pt-10">
-      {/*
-        This page is a specimen, not the reference: it is one essay, rendered at
-        full width, to be read rather than picked apart. Anyone who arrived
-        looking for a component's props wants Blocks, so say so before the
-        header rather than leaving them to scroll an article for an API.
-      */}
+      {/* A specimen, not a reference. Anyone here for props wants Blocks, so say so first. */}
       <div className="mx-auto max-w-2xl px-6">
         <TypographyLabel as="p" size="xs" className="text-muted-foreground">
           A specimen. Every piece below is documented on{" "}
@@ -65,9 +56,9 @@ export default function EssayPage() {
 
         <EssaySection id="queue" heading="The queue">
           <TypographyProse>
-            The shell gives you one measure, one body size, and a margin index built from
-            the sections themselves rather than kept in a list beside them. Keeping a
-            separate list is how a renamed section ends up with a rail link to nowhere.
+            The shell gives you one measure, one body size, and a margin index derived from
+            the sections themselves. Keep that index in a list beside them and a renamed
+            section ends up with a rail link to nowhere.
           </TypographyProse>
           <TypographyProse>
             Turn on the editorial switch in the header to see what this page is designed for.
@@ -82,12 +73,12 @@ export default function EssayPage() {
 
         <EssaySection id="measure" heading="The measure">
           <TypographyProse>
-            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink> is three tracks with
-            the third empty. Two would push the prose off-centre the moment an aside appeared,
-            setting body copy on a different axis per page.
+            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink> is three tracks,
+            the third often empty. Two tracks would push the prose off-centre the moment an
+            aside appeared, setting body copy on a different axis per page.
           </TypographyProse>
 
-          <EssayFigure caption="Backlog, by hour — the figure slot takes any node">
+          <EssayFigure caption="Backlog, by hour. The figure slot takes any node.">
             <div className="flex h-32 items-end gap-1 rounded-md bg-muted p-3">
               {[18, 34, 52, 41, 66, 88, 74, 49, 30, 22, 15, 9].map((h, i) => (
                 <div
@@ -107,14 +98,14 @@ export default function EssayPage() {
             <TypographyLink href="/blocks#reading">ReadingRail</TypographyLink> in the aside, its
             headings from{" "}
             <TypographyLink href="/blocks#markdown">extractHeadings(source)</TypographyLink>.
-            Both the rail and the progress bar read shared stores, so mounting both costs one
-            scroll subscription rather than two.
+            Both the rail and the progress bar read shared stores, so mounting both costs a
+            single scroll subscription.
           </TypographyProse>
         </EssaySection>
       </EssayLayout>
 
       {/* The rule goes on EssayColumns itself, so it spans the shell's measure
-          rather than whatever container happens to be around it. */}
+          instead of whatever container happens to be around it. */}
       <EssayColumns
         className="mt-16 border-t border-border pt-8"
         aside={<TableOfContents sections={INDEX} />}

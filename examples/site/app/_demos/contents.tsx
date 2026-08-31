@@ -6,10 +6,7 @@ const SECTIONS = [
   { id: "reading", label: "The reading rail" },
 ];
 
-/**
- * Both instances spy on this page's real sections, so the marked item updates
- * as you scroll. The second one hides the rail heading with `label={null}`.
- */
+/** Both spy on this page's sections. The second hides its heading. */
 export default function ContentsDemo() {
   return (
     <div className="grid gap-10 sm:grid-cols-2">

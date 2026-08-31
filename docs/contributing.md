@@ -39,7 +39,7 @@ consumer, so a README that stops being true stops rendering.
 
 ```sh
 yarn example:install   # once — installs the tag, plus Next and the peers
-yarn example           # build → sync → dev server
+yarn example           # build, sync, then the dev server
 yarn example:build     # what CI would run
 ```
 
@@ -81,8 +81,8 @@ yarn test          # builds, then runs the suite against dist/
 yarn test:watch    # vitest, no rebuild
 ```
 
-The suite runs against `dist/` rather than `src/`, because `dist/` is what
-consumers install and it is committed to the repo. `yarn release` runs `yarn
+The suite runs against `dist/` rather than `src/`, since `dist/` is what
+consumers install and what the repo commits. `yarn release` runs `yarn
 test` in place of `yarn build`, so a failing suite stops a tag going out.
 
 Four kinds of test, in `test/`:
@@ -122,8 +122,8 @@ points table, and to the lookup table if an app would reach for it directly.
 yarn release   # bump -> build -> commit -> tag -> push -> npm publish
 ```
 
-It refuses to run on a dirty tree, so commit your work first, and it checks
-`npm whoami` before it builds anything — an unauthenticated publish would
+It refuses to run on a dirty tree, so commit your work first. It also checks
+`npm whoami` before building anything: an unauthenticated publish would
 otherwise fail at the last step, with the tag already pushed and no version
 behind it. The version bump is part of releasing rather than a separate step you
 have to remember: `npm publish` refuses a version it has already seen, and a

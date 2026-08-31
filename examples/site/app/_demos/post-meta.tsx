@@ -6,10 +6,8 @@ import {
   TagPills,
 } from "@supertype.ai/foundations/essay";
 
-/**
- * The byline row under a title. Each part is a separate component, so a listing
- * card can show the date and tags without the reading time.
- */
+/** The byline row. Each part is separate, so a listing card can drop the
+reading time. */
 export default function PostMetaDemo() {
   return (
     <div className="space-y-6">

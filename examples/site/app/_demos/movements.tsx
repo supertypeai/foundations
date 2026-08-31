@@ -1,4 +1,7 @@
-import { TypographyProse, TypographyInlineCode } from "@supertype.ai/foundations";
+import {
+  TypographyProse,
+  TypographyInlineCode,
+} from "@supertype.ai/foundations";
 import { EssayMovements } from "@supertype.ai/foundations/essay";
 
 /** An ordered sequence of stages, each feeding the next. */
@@ -10,7 +13,8 @@ export default function MovementsDemo() {
           title: "Read the source",
           body: (
             <TypographyProse>
-              <TypographyInlineCode>extractHeadings</TypographyInlineCode> walks the raw
+              <TypographyInlineCode>extractHeadings</TypographyInlineCode> walks
+              the raw
               markdown, so the index is ready before the MDX is compiled.
             </TypographyProse>
           ),
@@ -19,8 +23,10 @@ export default function MovementsDemo() {
           title: "Slug every heading",
           body: (
             <TypographyProse>
-              <TypographyInlineCode>createSlugger</TypographyInlineCode> follows the same
-              algorithm as rehype-slug, so rail anchors match the ids on the headings.
+              <TypographyInlineCode>createSlugger</TypographyInlineCode> follows
+              the same
+              algorithm as rehype-slug, so rail anchors match the ids on the
+              headings.
             </TypographyProse>
           ),
         },
@@ -28,7 +34,8 @@ export default function MovementsDemo() {
           title: "Hand them to the rail",
           body: (
             <TypographyProse>
-              <TypographyInlineCode>ReadingRail</TypographyInlineCode> takes the list as
+              <TypographyInlineCode>ReadingRail</TypographyInlineCode> takes the
+              list as
               returned. The depth on each heading is what drives the indent.
             </TypographyProse>
           ),

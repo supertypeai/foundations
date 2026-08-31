@@ -11,15 +11,8 @@ import { GroupedToc, type TocGroup } from "./grouped-toc";
 export type TocEntry = { id: string; label: string };
 
 /**
- * The shell every reference page on this site uses: a body column and a sticky
- * rail in the margin, which drops out below `lg` where there is no margin to
- * put it in.
- *
- * The page's width is decided here rather than on `main`, because it is a
- * property of *this* layout and not of the site. The essay routes bring their
- * own three-track measure and need roughly 72rem to place a rail in it; inside
- * a `main` capped at 64rem their margin collapsed to 88px against the 208px
- * this one gives.
+ * The shell every reference page uses: a body column and a sticky rail that
+ * drops below `lg`. The width is set here, leaving `main` free for the essays.
  */
 function WithRail({ aside, children }: { aside: ReactNode; children: ReactNode }) {
   return (
@@ -32,20 +25,12 @@ function WithRail({ aside, children }: { aside: ReactNode; children: ReactNode }
   );
 }
 
-/**
- * Page body plus a sticky index of the sections in it. The index is the
- * package's own TableOfContents, which tracks the section you are reading with
- * a scroll spy.
- */
+/** Page body plus the package's scroll-spied `TableOfContents` in the margin. */
 export function WithToc({ sections, children }: { sections: readonly TocEntry[]; children: ReactNode }) {
   return <WithRail aside={<TableOfContents sections={sections} />}>{children}</WithRail>;
 }
 
-/**
- * The same rail, pointing at other pages instead of anchors. `RailLink` takes a
- * `render` prop for exactly this, so the router's Link keeps the view
- * transition and the rail keeps its styling.
- */
+/** The same rail pointing at routes: `RailLink`'s `render` keeps the router's Link. */
 export function RouteRail({
   label,
   routes,

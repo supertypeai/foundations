@@ -1,9 +1,7 @@
 import { ReadingRail } from "@supertype.ai/foundations/essay";
 
-/**
- * Pointed at this page's own sections, so the donut fills and the marked item
- * moves as you scroll. Headings at `depth: 3` are indented.
- */
+/** Pointed at this page's sections, so the donut fills as you scroll. Depth 3
+indents. */
 export default function ReadingRailDemo() {
   return (
     <ReadingRail

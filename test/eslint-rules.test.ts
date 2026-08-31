@@ -5,6 +5,7 @@ import {
   themeOverrideRules,
   surfaceAsInkRules,
   renamedTokenRules,
+  linkRules,
   designConfig,
 } from "../dist/eslint.js";
 
@@ -102,6 +103,7 @@ describe("designConfig", () => {
     expect(rules).toHaveLength(
       colourRules().length +
         typographyRules().length +
+        linkRules().length +
         themeOverrideRules().length +
         surfaceAsInkRules().length +
         renamedTokenRules().length,
@@ -118,5 +120,32 @@ describe("designConfig", () => {
   it("defaults to every source file and takes a narrower list", () => {
     expect(designConfig()[0].files).toEqual(["**/*.{ts,tsx,js,jsx}"]);
     expect(designConfig({ files: ["app/**/*.tsx"] })[0].files).toEqual(["app/**/*.tsx"]);
+  });
+});
+
+describe("linkRules", () => {
+  it("matches a bare anchor in a render prop, on the components that take href", () => {
+    const [{ selector, message }] = linkRules();
+    expect(selector).toContain('JSXAttribute[name.name="render"]');
+    expect(selector).toContain("JSXExpressionContainer");
+    // The rendered element: only a bare <a>. `render={<Link/>}` still routes.
+    expect(selector.endsWith('JSXOpeningElement[name.name="a"]')).toBe(true);
+    const components = /name\.name=\/(.*?)\/\]/.exec(selector)?.[1];
+    expect(components, selector).toBeTruthy();
+    const match = new RegExp(components!);
+    for (const name of ["Button", "Badge", "Card"]) expect(match.test(name), name).toBe(true);
+    // RailLink takes a router element through `render` on purpose: its module
+    // stays importable without Next, so it has no href to offer instead.
+    for (const name of ["RailLink", "Tabs", "div"]) expect(match.test(name), name).toBe(false);
+    // The message has to name the fix, since the rule fires on a line that looks fine.
+    expect(message).toContain("href");
+  });
+
+  it("ships in the full set, so neither app can miss it", () => {
+    const [, ...rules] = designConfig()[0].rules["no-restricted-syntax"] as [
+      string,
+      ...{ selector: string }[],
+    ];
+    expect(rules.map((r) => r.selector)).toContain(linkRules()[0].selector);
   });
 });

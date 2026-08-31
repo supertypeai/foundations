@@ -6,8 +6,7 @@ import { cn } from "../cn.js";
  * hue for nothing. That is why the earth tones enter as `-foreground`: those are
  * the ink-grade pair, mixed to hold at text weight in both themes.
  *
- * Emphasis, never status. Warn and info and destructive are absent on purpose —
- * a swipe of red under a phrase says less than the words do.
+ * Emphasis, never status. Warn and info and destructive are absent on purpose.
  *
  * The four earth tones are one palette, not a menu: each is a different hue,
  * because two a reader cannot tell apart are one tone with two names.
@@ -41,7 +40,8 @@ const DABS = [
 // Integer-only: `Math.sin` is implementation-defined, so Node and the browser
 // disagreed in the last bits and the swipe hydrated as a mismatch.
 const hash = (seed, i) => {
-    let h = Math.imul(seed ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(i + 0x165667b1, 0xc2b2ae35);
+    let h = Math.imul(seed ^ 0x9e3779b9, 0x85ebca6b) ^
+        Math.imul(i + 0x165667b1, 0xc2b2ae35);
     h ^= h >>> 15;
     h = Math.imul(h, 0x2545f491);
     h ^= h >>> 13;
@@ -88,11 +88,17 @@ const markerFill = (seed) => {
  * Marker highlight for inline text. Painted as the run's own background, never a
  * mask — a mask would shave the glyph tops. `luminosity` lets letters borrow the
  * marker's hue while keeping their own lightness, so contrast holds in both themes.
+ * That lightness comes from `--marker-ink`, a deepened `--foreground`, so the run
+ * still reads as the emphasised one rather than sinking into its own wash.
  */
 export function TypographyHighlight({ tone = "primary", seed = 3, className, style, children, ...props }) {
-    return (_jsx("span", { className: cn("isolate inline px-[0.3em] py-[0.06em]", "[-webkit-box-decoration-break:clone] [box-decoration-break:clone]", "[--marker-alpha:44%] dark:[--marker-alpha:58%]", className), style: {
+    return (_jsx("span", { className: cn("isolate inline px-[0.3em] py-[0.06em]", "[-webkit-box-decoration-break:clone] [box-decoration-break:clone]", "[--marker-alpha:44%] dark:[--marker-alpha:58%]", 
+        // The blend keeps a glyph's lightness and nothing else, so a run over the
+        // wash reads flatter than the same words beside it. Pushing the lightness
+        // past --foreground buys that punch back without touching the hue borrow.
+        "[--marker-ink:color-mix(in_oklab,var(--foreground)_85%,black)]", "dark:[--marker-ink:color-mix(in_oklab,var(--foreground)_88%,white)]", className), style: {
             "--marker": MARKER_TONES[tone],
             backgroundImage: markerFill(seed),
             ...style,
-        }, ...props, children: _jsx("span", { className: "[mix-blend-mode:luminosity]", children: children }) }));
+        }, ...props, children: _jsx("span", { className: "text-(color:--marker-ink) [mix-blend-mode:luminosity]", children: children }) }));
 }

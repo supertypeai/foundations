@@ -22,7 +22,7 @@ contract cannot check it.
 
 So `app/global.css` is the README's install block unchanged, and
 `app/layout.tsx` is the README's font binding unchanged. If either drifts from
-the docs this app stops rendering correctly, which is the point of keeping it
+the docs this app stops rendering correctly, which is why we keep the example
 here. `npx foundations doctor --cwd examples/site` passes for the same reason.
 
 ## The demos are the code

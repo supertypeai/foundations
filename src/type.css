@@ -39,7 +39,7 @@
 
 @layer base {
   :root {
-    /* 680, not 600: Ubuntu Sans steps 500→600 by 9.3% where Geist stepped 11.9%,
+    /* 680, not 600: Ubuntu Sans steps 500 to 600 by 9.3% where Geist stepped 11.9%,
        and panel titles stopped separating from the labels inside them. */
     --heading-weight: 680;
   }

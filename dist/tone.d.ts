@@ -30,8 +30,8 @@
  */
 /**
  * `muted` is the only row that names a fourth value. A hairline derived from the
- * ink at 45% is right for a hue and wrong for the absence of one; `--border` is
- * the tuned answer there, and it is not a wash of `--foreground`.
+ * ink at 45% is right for a hue and wrong for the absence of one. `--border` is
+ * the tuned answer there, in place of a wash of `--foreground`.
  *
  * Its hue is `--foreground` rather than `--muted-foreground` on purpose. `muted`
  * says the control carries no meaning, not that it carries less contrast — a
@@ -47,15 +47,15 @@ export declare const TONE: {
     /** No meaning: chrome, toolbars, anything that must not compete. */
     readonly muted: "[--tone-fill:var(--muted)] [--tone-ink:var(--foreground)] [--tone-hue:var(--foreground)] [--tone-line:var(--border)]";
     /** The principal action, and the package's default wherever a tone is optional. */
-    readonly primary: "[--tone-fill:var(--primary)] [--tone-ink:var(--primary-foreground)] [--tone-hue:var(--primary)]";
+    readonly primary: "[--tone-fill:var(--primary)] [--tone-ink:var(--primary-foreground)] [--tone-hue:var(--primary-ink,var(--primary))]";
     /** The warm accent. `--secondary-ink` is its readable cut; the fill is not. */
     readonly secondary: "[--tone-fill:var(--secondary)] [--tone-ink:var(--secondary-foreground)] [--tone-hue:var(--secondary-ink)]";
     /** The consumer's identity hue, if it defined one. Otherwise the principal one. */
-    readonly brand: "[--tone-fill:var(--brand,var(--primary))] [--tone-ink:var(--tint-foreground)] [--tone-hue:var(--brand-ink,var(--primary))]";
+    readonly brand: "[--tone-fill:var(--brand,var(--primary))] [--tone-ink:var(--brand-foreground,var(--primary-foreground))] [--tone-hue:var(--brand-ink,var(--primary-ink,var(--primary)))]";
     /** It worked. */
-    readonly success: "[--tone-fill:var(--success)] [--tone-ink:var(--tint-foreground)] [--tone-hue:var(--success-ink)]";
+    readonly success: "[--tone-fill:var(--success)] [--tone-ink:var(--success-foreground)] [--tone-hue:var(--success-ink)]";
     /** A footgun: the reader can still proceed, but not blindly. */
-    readonly warn: "[--tone-fill:var(--warn)] [--tone-ink:var(--tint-foreground)] [--tone-hue:var(--warn-ink)]";
+    readonly warn: "[--tone-fill:var(--warn)] [--tone-ink:var(--warn-foreground)] [--tone-hue:var(--warn-ink)]";
     /** It deletes something, or it already failed. */
     readonly destructive: "[--tone-fill:var(--destructive)] [--tone-ink:var(--destructive-foreground)] [--tone-hue:var(--destructive)]";
 };
@@ -70,9 +70,13 @@ export type Tone = keyof typeof TONE;
  * while `color-mix` is what the modifier compiles to anyway — the same CSS, one
  * layer less of trust.
  *
- * `--tone-fill-hover` mixes toward `--foreground` rather than darkening by a
- * fixed amount, so a filled control deepens on the light theme and lifts on the
- * dark one from a single declaration. A `dark:` override here is what the
+ * A hover moves the fill 18% toward `--hover-toward`, the extreme theme.css
+ * points away from the page: black on latte, white on espresso. The token
+ * carries the direction and the percentage carries the state. Mixing toward
+ * `--foreground` instead made the step as long as the gap between the fill and
+ * the ink, so a `primary` button moved 4.9 ΔL* on latte against 6.2 on espresso
+ * and read as no hover at all. Every tone now clears 6 ΔL* in both themes,
+ * measured in test/composition.test.ts. A `dark:` override here is what the
  * package's own ESLint rule exists to prevent.
  */
 export declare const TONE_SURFACE: string;
@@ -87,6 +91,31 @@ export declare const TONE_SURFACE: string;
  * whose order matters and whose values always travel together is one argument.
  */
 export declare const toneClass: (tone: Tone) => string;
+/**
+ * The ink a nested element inherits, declared by whatever painted the surface
+ * under it. Two properties, one rule: paint a background, hand down its ink.
+ *
+ * `toneClass` alone is a palette, not a surface — a `Callout` spends the same
+ * seven values as a filled `Button` and tints at 5%, so the words inside it
+ * still sit on the page and still want the page's ink. Only a component that
+ * actually fills promotes `--tone-ink` to the inherited ink, and the type
+ * primitives read it with the page as their fallback. A tint that promotes
+ * nothing is therefore correct by default, which is the failure this replaces:
+ * `TypographyLabel` pinned `text-foreground`, won over the `text-primary-foreground`
+ * on the anchor around it, and printed 2.34:1 on a filled button.
+ *
+ * `--ink-muted` collapses to the ink itself, because a hue fill has no second
+ * rung: mixing the ink 20% toward `--primary` measures 4.22:1 on the
+ * espresso theme and 3.49:1 at 30%. Nothing on a filled control may be quieter
+ * than its label. Wanting two rungs is wanting a tinted surface.
+ */
+export declare const INK_ON_FILL = "[--ink:var(--tone-ink)] [--ink-muted:var(--tone-ink)]";
+/**
+ * The same contract for a surface the tones do not name: `--card`, `--popover`,
+ * a sidebar. These are tints of the page rather than hues, so both rungs
+ * survive and the pair is stated rather than collapsed.
+ */
+export declare const inkOnSurface: (ink: string, muted?: string) => string;
 /**
  * What an unstated tone means, given how much ink the component is spending.
  * Shared, because `Button` and `Badge` both need it and two copies of a default

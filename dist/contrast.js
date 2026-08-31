@@ -131,9 +131,7 @@ export function parseColor(value) {
     }
     const hex = input.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
     if (hex) {
-        const digits = hex[1].length === 3
-            ? [...hex[1]].map((d) => d + d).join("")
-            : hex[1];
+        const digits = hex[1].length === 3 ? [...hex[1]].map((d) => d + d).join("") : hex[1];
         return [
             parseInt(digits.slice(0, 2), 16),
             parseInt(digits.slice(2, 4), 16),
@@ -157,6 +155,47 @@ export function luminance([r, g, b]) {
 export function contrast(a, b) {
     const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
     return (hi + 0.05) / (lo + 0.05);
+}
+/**
+ * APCA lightness contrast (Lc), the perceptual measure WCAG 3 is built on.
+ *
+ * It sits beside `contrast` because the two answer different questions and an
+ * ink ramp needs both. A WCAG ratio is polarity-blind: it reports the same
+ * number whether the text is dark on light or light on dark, when in fact dark
+ * glyphs on a bright field thin out and light glyphs on a dark field bloat. That
+ * blindness is what lets a ramp be ordered by ratio and still read flat — viably
+ * shipped a `--muted-foreground` measuring 72.5 Lc in light and 52.1 in dark,
+ * the same verdict from `contrast` on both sides and twenty points apart to a
+ * reader.
+ *
+ * Lc also states the term a ratio cannot: legibility is contrast times size, so
+ * a floor here is what says an ink comfortable at 16px is or is not comfortable
+ * on the 13px rung a dense product actually spends.
+ *
+ * Returned absolute. It is signed by polarity in the specification, and every
+ * caller so far asks "is this legible", never "which way round is it".
+ */
+export function lc(text, background) {
+    // Screen luminance on APCA's own curve, which is not WCAG's: exponent 2.4 on
+    // the raw channel, with weights of its own.
+    const y = ([r, g, b]) => {
+        const v = 0.2126729 * (r / 255) ** 2.4 +
+            0.7151522 * (g / 255) ** 2.4 +
+            0.072175 * (b / 255) ** 2.4;
+        // Soft clamp near black, where the power curve stops modelling perception.
+        return v < 0.022 ? v + (0.022 - v) ** 1.414 : v;
+    };
+    const [yText, yBackground] = [y(text), y(background)];
+    // Two exponent pairs, one per polarity. This asymmetry is the whole reason Lc
+    // says something a ratio cannot.
+    const s = yBackground > yText
+        ? (yBackground ** 0.56 - yText ** 0.57) * 1.14
+        : (yBackground ** 0.65 - yText ** 0.62) * 1.14;
+    // Below the noise floor the two are the same colour as far as a reader is
+    // concerned, and the offset below would report a spurious 2.7.
+    if (Math.abs(s) < 0.1)
+        return 0;
+    return Math.abs(s > 0 ? (s - 0.027) * 100 : (s + 0.027) * 100);
 }
 const INKS = ["--foreground", "--muted-foreground", "--card-foreground"];
 const SURFACES = ["--background", "--card", "--muted"];
@@ -200,6 +239,16 @@ const FILLS = [
     "--stone",
     "--fig",
     "--cocoa",
+    // A chart series is a mark like any other, and docs/cli.md has always said so
+    // ("a status dot or a chart bar that cannot be picked out of its background").
+    // Leaving them out of this list is how the sand shipped at 2.18:1 in light and
+    // the taupe at 2.26:1 in dark: a promise in prose that nothing measured.
+    "--chart-1",
+    "--chart-2",
+    "--chart-3",
+    "--chart-4",
+    "--chart-5",
+    "--chart-6",
 ];
 /**
  * A fill has to separate from the page and from a card. Not from `--muted`: a
@@ -209,6 +258,7 @@ const FILLS = [
 const FILL_SURFACES = ["--background", "--card"];
 /** The same hues as words, at the bar body copy is held to. */
 const INKS_TINTED = [
+    "--primary-ink",
     "--success-ink",
     "--warn-ink",
     "--info-ink",
@@ -224,13 +274,28 @@ const INKS_TINTED = [
     "--cocoa-ink",
 ];
 /**
+ * The tertiary ink, at the 3:1 its own comment in theme.css claims for it —
+ * placeholders and disabled labels, never anything load-bearing. Held here
+ * rather than in `INKS` because 4.5:1 would fail a token that is correct; held
+ * *somewhere* because the sentence stating the bar was the only thing enforcing
+ * it, and light sits at 3.14:1 on --muted with nothing watching the gap.
+ */
+const TERTIARY = ["--subtle-foreground"];
+/**
  * shadcn's shape: `-foreground` is the label printed on the fill, so the pair is
  * measured against itself rather than against the page.
+ *
+ * `--success` and `--warn` joined the list when the tone table stopped making
+ * exceptions of them. A filled status control is a real thing, `Button
+ * tone="warn" variant="solid"` renders one, and white on amber measured 2.44:1
+ * on the dark theme for as long as the pair went unnamed here.
  */
 const ON_FILL = [
     ["--primary", "--primary-foreground"],
     ["--secondary", "--secondary-foreground"],
     ["--destructive", "--destructive-foreground"],
+    ["--success", "--success-foreground"],
+    ["--warn", "--warn-foreground"],
     ["--accent", "--accent-foreground"],
     ["--card", "--card-foreground"],
     ["--popover", "--popover-foreground"],
@@ -255,13 +320,62 @@ export function tokenCuts(token) {
     };
 }
 /**
+ * A hairline is neither ink nor a mark, so neither bar fits: WCAG exempts a
+ * decorative rule outright, and holding one to 3:1 would draw a box, not a
+ * border. What it owes is symmetry — the same rule has to read as the same
+ * weight in both themes, and it did not: the dark hairline was tuned by hand
+ * (L22's 1.34:1 on --card was rejected as too faint) while the light one was
+ * never measured at all and shipped under the value dark had turned down.
+ *
+ * 1.4:1 is that floor, set just under the pair the themes now agree on. Only
+ * --background and --card: a rule inside a `muted` well sits on a surface that
+ * is itself a wash, and 1.3:1 is the practical floor for that kind of well.
+ */
+const HAIRLINES = ["--border", "--input"];
+const HAIRLINE_SURFACES = ["--background", "--card"];
+/**
+ * The sidebar keeps its own pair, because a rule there is drawn on `--sidebar`
+ * and never on the page. Measuring it against `--background` would fail a border
+ * that is correct and pass one that is not.
+ */
+const SIDEBAR_HAIRLINE = [
+    "--sidebar-border",
+    "--sidebar",
+];
+/**
+ * The bar a rule owes, held apart from `checkSignals` because it is not a
+ * signal: nothing here carries meaning in its hue, it only has to be seen.
+ */
+export function checkHairlines(css, { themes = ["light", "dark"] } = {}) {
+    return [
+        ...checkLegibility(css, {
+            inks: HAIRLINES,
+            surfaces: HAIRLINE_SURFACES,
+            minimum: 1.4,
+            themes,
+        }),
+        ...checkLegibility(css, {
+            inks: [SIDEBAR_HAIRLINE[0]],
+            surfaces: [SIDEBAR_HAIRLINE[1]],
+            minimum: 1.4,
+            themes,
+        }),
+    ];
+}
+/**
  * The three bars a palette owes, run over the same engine as `checkLegibility`.
  * Without this the numbers in a theme's comments are claims, not measurements.
  */
 export function checkSignals(css, { themes = ["light", "dark"] } = {}) {
     return [
-        ...checkLegibility(css, { inks: FILLS, surfaces: FILL_SURFACES, minimum: 3, themes }),
+        ...checkLegibility(css, {
+            inks: FILLS,
+            surfaces: FILL_SURFACES,
+            minimum: 3,
+            themes,
+        }),
         ...checkLegibility(css, { inks: INKS_TINTED, themes }),
+        ...checkLegibility(css, { inks: TERTIARY, minimum: 3, themes }),
         ...ON_FILL.flatMap(([fill, label]) => checkLegibility(css, { inks: [label], surfaces: [fill], themes })),
     ];
 }

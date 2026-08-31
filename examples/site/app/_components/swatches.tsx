@@ -2,35 +2,16 @@ import { cn, TypographyCaption, TypographyLabel } from "@supertype.ai/foundation
 import { tokenCuts } from "@supertype.ai/foundations/contrast";
 
 /**
- * One grid, one axis: a list of token names. How each one is drawn comes from
- * `tokenCuts`, the same taxonomy `checkSignals` measures against in CI.
- *
- * There used to be three components here — a plain grid, a grid for hues in two
- * cuts, and a grid for a fill with a label printed on it — and the page chose
- * between them. Two things went wrong with that, both of them the same thing:
- *
- *   The categorical hues went through the plain grid, because their ink is named
- *   `--ochre-foreground` and looks like a printed label. It is not; it is checked
- *   at 4.5:1 against the page. So `--ochre` rendered as a lone square and the ink
- *   the marker highlight actually paints with was documented nowhere.
- *
- *   The pair grid repainted its own surface and then put a `TypographyCaption`
- *   on it. That preset *is* the secondary ink — `text-muted-foreground` is the
- *   first class in its `cva` — so it won over the inherited colour and the label
- *   came out invisible on `--destructive` in both themes.
- *
- * Neither is fixed by a colour override. The first is fixed by asking the package
- * which cuts a token has instead of guessing from its suffix; the second by
- * keeping every label on the page, where the presets are correct, and printing
- * nothing on a fill but a specimen glyph that carries no preset at all.
+ * One grid, one axis: token names. `tokenCuts` decides how each is drawn, since
+ * the suffix lies, and every label stays on the page rather than on a fill.
  */
 
 /** The one thing that belongs on a fill: proof that its label is legible there. */
 function OnFillSpecimen({ label }: { label: string }) {
   return (
     <span
-      // Not a Typography primitive. Every one that pins an ink would win over
-      // this surface's colour, which is exactly the bug this file used to have.
+      // Plain classes on purpose: a Typography preset pins its own ink, which
+      // would win over this surface's colour.
       className="font-mono text-xs font-medium"
       style={{ color: `var(${label})` }}
     >

@@ -8,7 +8,8 @@ import {
   TypographyProse,
 } from "@supertype.ai/foundations";
 import { NAV } from "./seo";
-import { REPO_SLUG, REPO_URL, StarButton } from "./star";
+import { REPO_SLUG, REPO_URL } from "./repo";
+import { StarButton } from "./star";
 import { SurfaceSwitches } from "./surface";
 
 /** From the one record that holds every page, so a new route reaches the nav by existing. */
@@ -47,7 +48,7 @@ export function SiteHeader() {
   );
 }
 
-/** The standard page opening. Uses the primitives rather than raw classes. */
+/** The standard page opening, built from the primitives. */
 export function PageTitle({
   eyebrow,
   title,

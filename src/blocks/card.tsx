@@ -2,8 +2,8 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../cn.js";
 import { FOCUS_RING } from "./focus.js";
-import { toneClass } from "../tone.js";
-import { Link } from "next-view-transitions";
+import { inkOnSurface, toneClass } from "../tone.js";
+import { resolveLink, type LinkBehavior } from "../href.js";
 
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }: ComponentProps<"div">) {
@@ -20,7 +20,7 @@ export function Cards({ className, children, ...props }: ComponentProps<"div">) 
  * only — the horizontal inset belongs to the slots, so bands can run edge to edge.
  */
 const CARD_CLASS =
-  "flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border " +
+  `flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border ${inkOnSurface("--card-foreground")} ` +
   "has-[>img:first-child]:pt-0 " +
   "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl";
 
@@ -94,28 +94,28 @@ type CardShorthand = {
   title?: ReactNode;
   description?: ReactNode;
   icon?: ReactNode;
-  /** Override the scheme sniff: an absolute URL home, or a relative one away. */
-  external?: boolean;
 };
 
 /**
  * Takes either shape: `title`/`href` fills the header, or compose the slots
  * directly. Unrecognised props pass through — MDX authors reach for the whole
- * HTML surface. An href with a scheme leaves the app; the rest route through
- * the router's Link.
+ * HTML surface. Where the href goes is ../href.ts's call, the same one Button
+ * and TypographyLink make.
  */
 export function Card({
   href,
   className,
   external,
+  newTab,
   title,
   description,
   icon,
   children,
   ...rest
-}: CardShorthand & { href?: string; children?: ReactNode } & Omit<
+}: CardShorthand &
+  LinkBehavior & { href?: string; children?: ReactNode } & Omit<
     ComponentProps<"a">,
-    keyof CardShorthand | "href" | "children"
+    keyof CardShorthand | keyof LinkBehavior | "href" | "children"
   >) {
   const header =
     title || description || icon ? (
@@ -159,20 +159,11 @@ export function Card({
     );
   }
 
-  const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
-  const classes = cn(CARD_CLASS, CARD_LINK_CLASS, className);
-
-  if (leavesApp) {
-    return (
-      <a href={href} className={classes} target="_blank" rel="noopener noreferrer" {...shared} {...rest}>
-        {body}
-      </a>
-    );
-  }
+  const { Component, props: link } = resolveLink(href, { external, newTab });
 
   return (
-    <Link href={href} className={classes} {...shared} {...rest}>
+    <Component className={cn(CARD_CLASS, CARD_LINK_CLASS, className)} {...link} {...shared} {...rest}>
       {body}
-    </Link>
+    </Component>
   );
 }

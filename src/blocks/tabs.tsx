@@ -179,8 +179,8 @@ export type TabItem = {
    * An element and not a component, which this briefly also took. `TabGroup` is a client
    * component, so a component reference handed to it from a server page is a function
    * crossing the RSC boundary, which React refuses at render; an element is already
-   * rendered and crosses fine. One accepted shape also spares the slot a branch, and it
-   * is the shape `Card`'s `icon` has always taken.
+   * rendered and crosses fine. One accepted shape also spares the slot a branch, and
+   * matches what `Card`'s `icon` has always taken.
    */
   icon?: ReactNode
   content: ReactNode
@@ -206,9 +206,9 @@ function TabIconSlot({
 
 /**
  * The declarative shorthand: the tabs as data. `TabGroup` is to `Tabs` what
- * `DisclosureGroup` is to `Accordion`, and it is the shape to reach for — an app that
- * rebuilds it over the primitives ends up re-adding the icon, the change handler and the
- * stable value by hand.
+ * `DisclosureGroup` is to `Accordion`: the shape to reach for. An app that rebuilds it
+ * over the primitives ends up re-adding the icon, the change handler and the stable value
+ * by hand.
  *
  * Everything below the adapter is the same component the product surfaces use, so a tab
  * strip in the docs and one on a dashboard behave identically. The positional

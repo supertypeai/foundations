@@ -1,8 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { cn } from "../cn.js";
 import { FOCUS_RING } from "./focus.js";
-import { toneClass } from "../tone.js";
-import { Link } from "next-view-transitions";
+import { inkOnSurface, toneClass } from "../tone.js";
+import { resolveLink } from "../href.js";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }) {
     return (_jsx("div", { className: cn("my-6 grid gap-4 sm:grid-cols-2", className), ...props, children: children }));
@@ -12,7 +12,7 @@ export function Cards({ className, children, ...props }) {
  * grid and `overflow-hidden` clips a bleed image cleanly. Padding is vertical
  * only — the horizontal inset belongs to the slots, so bands can run edge to edge.
  */
-const CARD_CLASS = "flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border " +
+const CARD_CLASS = `flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border ${inkOnSurface("--card-foreground")} ` +
     "has-[>img:first-child]:pt-0 " +
     "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl";
 /**
@@ -49,10 +49,10 @@ export function CardContent({ className, ...props }) {
 /**
  * Takes either shape: `title`/`href` fills the header, or compose the slots
  * directly. Unrecognised props pass through — MDX authors reach for the whole
- * HTML surface. An href with a scheme leaves the app; the rest route through
- * the router's Link.
+ * HTML surface. Where the href goes is ../href.ts's call, the same one Button
+ * and TypographyLink make.
  */
-export function Card({ href, className, external, title, description, icon, children, ...rest }) {
+export function Card({ href, className, external, newTab, title, description, icon, children, ...rest }) {
     const header = title || description || icon ? (_jsxs(CardHeader, { children: [icon || title ? (
             // The icon sits on the title's line and is its mark; stacked, it read as a
             // decoration the title happened to follow. `gap-2` is a gap between two
@@ -67,10 +67,6 @@ export function Card({ href, className, external, title, description, icon, chil
     if (!href) {
         return (_jsx("div", { className: cn(CARD_CLASS, className), ...shared, ...rest, children: body }));
     }
-    const leavesApp = external ?? /^[a-z][a-z0-9+.-]*:/i.test(href);
-    const classes = cn(CARD_CLASS, CARD_LINK_CLASS, className);
-    if (leavesApp) {
-        return (_jsx("a", { href: href, className: classes, target: "_blank", rel: "noopener noreferrer", ...shared, ...rest, children: body }));
-    }
-    return (_jsx(Link, { href: href, className: classes, ...shared, ...rest, children: body }));
+    const { Component, props: link } = resolveLink(href, { external, newTab });
+    return (_jsx(Component, { className: cn(CARD_CLASS, CARD_LINK_CLASS, className), ...link, ...shared, ...rest, children: body }));
 }

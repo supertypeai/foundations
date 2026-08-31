@@ -1,16 +1,13 @@
 import { Link } from "next-view-transitions";
 import { Rail, RailLink } from "@supertype.ai/foundations/essay";
 
-/**
- * `active` highlights an item, `nested` indents an h3 under the h2 above it,
- * and `render` swaps the anchor for a router link so a rail can point at
- * routes instead of fragments.
- */
+/** `active` highlights, `nested` indents, `render` swaps the anchor for a
+router link. */
 export default function RailDemo() {
   return (
     <div className="grid gap-10 sm:grid-cols-2">
       <div>
-        <p className="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <p className="mb-4 text-xs uppercase text-muted-foreground">
           Anchors, with depth
         </p>
         <Rail>
@@ -26,7 +23,7 @@ export default function RailDemo() {
       </div>
 
       <div>
-        <p className="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <p className="mb-4 text-xs uppercase text-muted-foreground">
           Routes, via render
         </p>
         <Rail>
@@ -36,7 +33,11 @@ export default function RailDemo() {
           <RailLink href="/essay" render={<Link href="/essay" />}>
             Essay
           </RailLink>
-          <RailLink href="/essay/reference" active render={<Link href="/essay/reference" />}>
+          <RailLink
+            href="/essay/reference"
+            active
+            render={<Link href="/essay/reference" />}
+          >
             Essay reference
           </RailLink>
         </Rail>

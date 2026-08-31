@@ -1,5 +1,5 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
-import { Link } from "next-view-transitions";
+import { resolveLink } from "../href.js";
 import { cva } from "class-variance-authority";
 import { cn } from "../cn.js";
 import { toneClass } from "../tone.js";
@@ -19,8 +19,8 @@ const pVariants = cva("", {
             prose: "text-pretty text-lg leading-relaxed",
         },
         tone: {
-            default: "text-foreground",
-            muted: "text-muted-foreground",
+            default: "text-[color:var(--ink,var(--foreground))]",
+            muted: "text-[color:var(--ink-muted,var(--muted-foreground))]",
         },
     },
     defaultVariants: { variant: "ui", tone: "default" },
@@ -34,7 +34,10 @@ export function TypographyMuted(props) {
     return _jsx(TypographyP, { ...props, ...MUTED });
 }
 /** Reading-size body copy. `TypographyMuted` is the same ink one rung down. */
-const PROSE = { variant: "prose", tone: "muted" };
+const PROSE = {
+    variant: "prose",
+    tone: "muted",
+};
 export function TypographyProse(props) {
     return _jsx(TypographyP, { ...props, ...PROSE });
 }
@@ -86,7 +89,7 @@ export function TypographyProseList(props) {
  * reason to sit there is to be quieter than the thing you qualify — and every
  * container that sets a size for you sets a weight too.
  */
-const captionVariants = cva("text-muted-foreground", {
+const captionVariants = cva("text-[color:var(--ink-muted,var(--muted-foreground))]", {
     variants: {
         size: {
             sm: "text-sm leading-normal",
@@ -127,7 +130,7 @@ export function TypographySmall(props) {
  * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
  * names its sections at this size, and those names are the page's outline.
  */
-const labelVariants = cva("font-medium text-foreground", {
+const labelVariants = cva("font-medium text-[color:var(--ink,var(--foreground))]", {
     variants: {
         size: {
             sm: "text-sm",
@@ -188,11 +191,11 @@ export function TypographyStat({ className, size, figures, children, ...props })
  * optical correction — the mono face carries a taller x-height than the sans.
  */
 export function TypographyInlineCode({ className, children, ...props }) {
-    return (_jsx("code", { className: cn("rounded-[3px] bg-foreground/[0.03] px-[0.3em] py-[0.1em] font-mono text-[0.9em] text-secondary-ink", className), ...props, children: children }));
+    return (_jsx("code", { className: cn("rounded-[3px] bg-current/[0.06] px-[0.3em] py-[0.1em] font-mono text-[0.9em] text-[color:var(--ink,var(--secondary-ink))]", className), ...props, children: children }));
 }
 /**
  * A statement about the surface, not the link: `muted` inside a paragraph,
- * `primary` when the link is the point of the line, `secondary` for a note
+ * `primary` when the link is the main thing on the line, `secondary` for a note
  * beneath a hero where `primary` would compete with the CTA beside it. The other
  * four come free, and a link inside a warning should be able to say so.
  *
@@ -203,17 +206,22 @@ export function TypographyInlineCode({ className, children, ...props }) {
  * `font-medium`, which read as a lighter link rather than a differently-coloured
  * one.
  */
+const INHERITED_INK = "text-[color:var(--ink,var(--foreground))]";
 const LINK_DECORATION = "underline decoration-dotted decoration-1 decoration-muted-foreground decoration-skip-ink-none underline-offset-2 hover:decoration-solid hover:decoration-current/70";
-const linkClass = (tone = "muted", className) => cn(toneClass(tone), "font-medium text-(color:--tone-hue)", LINK_DECORATION, className);
+/**
+ * No tone stated means "read the surface": the ink comes from whatever painted
+ * the ground, which on a page is `--foreground` and inside a filled control is
+ * that control's label ink. The old default spelled this `muted`, whose hue is
+ * `--foreground` — identical on a page, and 2.28:1 on a filled button.
+ */
+const linkClass = (tone, className) => cn(tone ? cn(toneClass(tone), "text-(color:--tone-hue)") : INHERITED_INK, "font-medium", LINK_DECORATION, className);
 /**
  * The inline link.
  *
- * Internal and external are decided from the href, never at the call site: an
- * href with a scheme renders a plain anchor and, if it is http(s), opens away
- * with `rel="noopener noreferrer"`; everything else routes through the router's
- * Link. `newTab` is the one override, for an off-site href that starts a flow
- * the reader should stay in. Call-site props apply last, so a passed
- * `target`/`rel` still wins.
+ * Internal and external are decided from the href, never at the call site —
+ * ../href.ts holds that decision, and Button, Badge and Card make the same one.
+ * `newTab` and `external` are the overrides. Call-site props apply last, so a
+ * passed `target`/`rel` still wins.
  *
  * The router is `next-view-transitions`, imported rather than injected. Every
  * project on this package is a Next app and wants the same link, and a factory
@@ -221,13 +229,12 @@ const linkClass = (tone = "muted", className) => cn(toneClass(tone), "font-mediu
  * not be imported by name. One call site ended up on the unbound version that
  * way and lost its decoration.
  */
-export function TypographyLink({ href, children, tone = "muted", newTab, addArrow, className, ...props }) {
+export function TypographyLink({ href, children, tone = "muted", external: leavesApp, newTab, addArrow, className, ...props }) {
     const style = linkClass(tone, className);
-    const external = /^[a-z][a-z0-9+.-]*:/i.test(href);
+    const { Component, props: link, external } = resolveLink(href, {
+        external: leavesApp,
+        newTab,
+    });
     const body = (_jsxs(_Fragment, { children: [children, addArrow && (_jsx("svg", { "aria-hidden": "true", className: "ml-1 inline size-3.5 align-middle", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7" }) }))] }));
-    if (external) {
-        const away = newTab ?? href.startsWith("http");
-        return (_jsx("a", { href: href, className: style, ...(away ? { target: "_blank", rel: "noopener noreferrer" } : {}), ...props, children: body }));
-    }
-    return (_jsx(Link, { href: href, className: style, ...props, children: body }));
+    return (_jsx(Component, { className: style, ...link, ...props, children: body }));
 }

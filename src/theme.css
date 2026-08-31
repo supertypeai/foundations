@@ -91,18 +91,35 @@
      both, so its label stays light in both. */
   --tint-foreground: hsl(0, 0%, 100%);
 
+  /* Which way a control moves under the pointer: away from the page, so it
+     deepens on latte and lifts on espresso. How far is the state's own
+     business, and hover spends 18%.
 
-  /* Status, on the same two-token rule as the categorical set below: the fill is
-     a mark (3:1), the ink is the same hue as words (4.5:1). Nothing prints a
-     label on a status fill — orange cannot carry white text at any lightness. */
-  --success: hsl(142 75% 31%);
+     The extreme rather than `--foreground`, because mixing toward an ink that
+     already sits near the fill gives a step the size of the gap between them:
+     `--primary` moved 4.9 ΔL* on latte against 6.2 on espresso from the same
+     declaration, and read as no hover at all. Against black and white every
+     tone clears 6 ΔL* in both themes. */
+  --hover-toward: hsl(0, 0%, 0%);
+
+
+  /* Status, on the same three-cut rule as every other tone: the fill is a mark
+     (3:1), the `-ink` is that hue used as words (4.5:1), and the `-foreground`
+     is the label printed on the fill (4.5:1 against it). A filled status
+     control is a real thing — `Button tone="warn" variant="solid"` — so the
+     pair is measured rather than assumed. checkSignals holds all three. */
+  --success: hsl(142 75% 29%);
   --success-ink: hsl(142 68% 28%);
+  /* White clears 4.94:1 here. At the old 31% it measured 4.42:1, which passed
+     nothing and shipped anyway, because no component was checked against it. */
+  --success-foreground: var(--tint-foreground);
   /* Was 52%, which measured 2.27:1 on latte — a dot you could not see. */
   --warn: hsl(30 100% 43%);
   --warn-ink: hsl(22 85% 36%);
-  /* Deprecated: --warn-foreground was always this ink, under shadcn's name for
-     the opposite thing. Use --warn-ink; the ESLint rules flag the old name. */
-  --warn-foreground: var(--warn-ink);
+  /* The label on the warn fill, and one value for both themes: amber is a mark
+     in each, so the ink that reads on it is deep in each. 4.84:1 on latte,
+     6.70:1 on espresso. White measured 3.37:1 and 2.44:1. */
+  --warn-foreground: hsl(30 25% 12%);
   --info: hsl(211 80% 43%);
   --info-ink: hsl(211 80% 40%);
   /* Danger ships as an ink only: a vivid brick red harmonised toward terracotta. */
@@ -153,6 +170,12 @@
   --popover-foreground: hsl(30 14% 12%);
   --primary: hsl(133 11% 33%); /* #4A5D4E */
   --primary-foreground: hsl(0 0% 100%);
+  /* The third cut, the one `--secondary` and every status hue already shipped.
+     A fill is a mark and words are read, so one value doing both jobs is tuned
+     for neither — and that is why the espresso CTA measured Lc 48.9 against
+     this theme's 89.3. On latte the two happen to coincide, so this is an
+     alias here and a value of its own under .dark. */
+  --primary-ink: var(--primary);
   /* Three tokens, because the accent pulls opposite ways: fill, the label on it,
      and the accent as text. Tuning any one for another sinks the third. */
   --secondary: hsl(14, 67%, 72%);
@@ -167,13 +190,23 @@
   --accent-foreground: hsl(133 11% 33%);
   --destructive: hsl(0 50% 36%);
   --destructive-foreground: hsl(0 0% 98%);
-  /* Soft beige-grey, to keep a rule un-intrusive. */
-  --border: hsl(40 15% 88%); /* #E3DFD8 */
+  /* Soft beige-grey, to keep a rule un-intrusive — but a rule still has to be
+     seen. L88 measured 1.20:1 on --background and 1.29:1 on --card, below the
+     1.34:1 the dark twin at L22 was rejected for, so the light theme shipped the
+     fainter hairline of the two. L80 puts --card at 1.56:1, within a point of
+     the dark theme's 1.57:1, so the same border reads the same weight in both. */
+  --border: hsl(40 15% 80%); /* #CFC8BA */
   --input: var(--border);
   --ring: hsl(133 11% 33%); /* the brand green */
+  /* A series is a fill: docs/cli.md promises every one of them clears 3:1 on the
+     page and on a card, and until `checkSignals` measured them two did not. The
+     sand was the worst in the palette at 2.18:1 — a 43° hue on a 43° ground, the
+     same colour 36 points apart in lightness. Saturation rises as it darkens, or
+     it lands as mud rather than as sand. The six stay 17.1 ΔE76 apart at their
+     closest (chart-4 against chart-6), which is where the floor sat before. */
   --chart-1: hsl(133 18% 45%);
-  --chart-2: hsl(14 47% 59%);
-  --chart-3: hsl(43 33% 60%);
+  --chart-2: hsl(14 47% 56%); /* 2.98:1 at L59 */
+  --chart-3: hsl(43 45% 42%); /* 2.18:1 at 33% L60 */
   --chart-4: hsl(200 20% 50%);
   --chart-5: hsl(30 12% 40%);
   /* A muted teal: the one cool hue the warm set leaves open, and far enough from
@@ -191,21 +224,27 @@
     inset 0 1px 3px hsl(30 18% 12% / 0.07),
     inset 0 0 0 1px hsl(30 18% 12% / 0.03);
   --sidebar: hsl(40 25% 94%); /* #F5F2EC */
-  --sidebar-foreground: hsl(0 0% 25%);
+  /* Warm-keyed like every other ink here. It shipped as hsl(0 0% 25%), the one
+     neutral grey in the light theme, on a surface hued at 40° — the same cold
+     read L146 rules out for --foreground. Same lightness step, 9.43:1. */
+  --sidebar-foreground: hsl(30 12% 24%);
   --sidebar-primary: hsl(133 11% 33%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(133 15% 88%);
   --sidebar-accent-foreground: hsl(133 11% 25%);
-  --sidebar-border: hsl(40 15% 88%);
+  /* A sidebar rule sits on --sidebar, not the page, and that surface is lighter
+     than --background — so it needs 2 points more than --border to read the same
+     (1.49:1, against the dark twin's 1.49:1). */
+  --sidebar-border: hsl(40 15% 77%);
   --sidebar-ring: hsl(133 11% 33%);
 }
 
 .dark {
+  --hover-toward: hsl(0, 0%, 100%);
   /* --success does not flip: the same green clears 3:1 on espresso as on latte. */
   --success-ink: hsl(142 55% 58%);
   --warn: hsl(30 90% 55%);
   --warn-ink: hsl(33 60% 72%);
-  --warn-foreground: var(--warn-ink);
   --info: hsl(211 75% 60%);
   --info-ink: hsl(211 75% 64%);
   /* Soft terracotta-red. The light cut measured ~2.9:1 on espresso and read muddy. */
@@ -248,8 +287,14 @@
   --card-foreground: hsl(43 20% 92%);
   --popover: hsl(30 8% 14%);
   --popover-foreground: hsl(43 20% 92%);
-  --primary: hsl(133 18% 58%); /* #7A9E7E */
-  --primary-foreground: hsl(30 10% 13%);
+  /* Split in two, so each cut is tuned for its own job. The fill takes a white
+     label at Lc 83.0 against latte's 89.3, and still clears 3:1 as a mark on
+     espresso (3.36:1). The ink reads as words at Lc 73.8 against latte's 79.1.
+     Both sit inside the 15 Lc the themes are held to; the single token they
+     replace sat 30 Lc adrift on both counts. */
+  --primary: hsl(133 34% 34%);
+  --primary-foreground: var(--tint-foreground);
+  --primary-ink: hsl(133 26% 76%);
   /* Espresso twin: the fill darkens under a white label, the ink lifts as text. */
   --secondary: hsl(14, 64%, 37%);
   --secondary-foreground: hsl(0 0% 100%);
@@ -264,8 +309,12 @@
   --accent: hsl(133 12% 20%);
   --accent-foreground: hsl(133 18% 78%);
   /* Overwhelmingly an ink: sixty `text-destructive` sites, no fill carrying text.
-     The light value measured 2.08:1 here — a colour, not words. */
-  --destructive: hsl(0 65% 67%);
+     The light value measured 2.08:1 here — a colour, not words.
+     L67 read 4.48:1 on --muted, which is AA to two decimal places and under it
+     to three, on a surface with several hundred call sites. L68 is the smallest
+     step that clears with room to spare (4.64:1) rather than landing back on the
+     line; --background and --card, already clear, rise with it. */
+  --destructive: hsl(0 65% 68%);
   /* The ink is light here, so anything printed on it must be dark. Nothing does
      today; white would arm a 1.3:1 trap for whoever tries first. */
   --destructive-foreground: hsl(30 10% 10%);
@@ -278,7 +327,9 @@
   --chart-2: hsl(14 45% 55%);
   --chart-3: hsl(43 20% 70%);
   --chart-4: hsl(200 15% 55%);
-  --chart-5: hsl(30 8% 35%);
+  /* The espresso twin of the light sand: 2.26:1 on --card, the same failure the
+     light theme carried, in the theme that usually gets tuned first. */
+  --chart-5: hsl(30 8% 46%);
   --chart-6: hsl(178 30% 52%);
   /* A warm tint reads as haze on espresso: deep black, more spread. */
   --elevation-raised:
@@ -295,7 +346,9 @@
   --sidebar-primary-foreground: hsl(133 20% 10%);
   --sidebar-accent: hsl(30 8% 19%);
   --sidebar-accent-foreground: hsl(43 20% 85%);
-  --sidebar-border: hsl(30 8% 20%);
+  /* L20 measured 1.28:1 on --sidebar, the same too-faint rule the light theme
+     shipped. L24 is the twin of the light 1.49:1. */
+  --sidebar-border: hsl(30 8% 24%);
   --sidebar-ring: hsl(133 18% 58%);
 }
 

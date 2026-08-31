@@ -1,4 +1,4 @@
-import { Link } from "next-view-transitions";
+import { resolveLink, type LinkBehavior } from "../href.js";
 
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ReactNode } from "react";
@@ -23,8 +23,8 @@ const pVariants = cva("", {
       prose: "text-pretty text-lg leading-relaxed",
     },
     tone: {
-      default: "text-foreground",
-      muted: "text-muted-foreground",
+      default: "text-[color:var(--ink,var(--foreground))]",
+      muted: "text-[color:var(--ink-muted,var(--muted-foreground))]",
     },
   },
   defaultVariants: { variant: "ui", tone: "default" },
@@ -60,7 +60,10 @@ export function TypographyMuted(props: Preset<ParagraphProps, typeof MUTED>) {
 }
 
 /** Reading-size body copy. `TypographyMuted` is the same ink one rung down. */
-const PROSE = { variant: "prose", tone: "muted" } as const satisfies ParagraphVariants;
+const PROSE = {
+  variant: "prose",
+  tone: "muted",
+} as const satisfies ParagraphVariants;
 export function TypographyProse(props: Preset<ParagraphProps, typeof PROSE>) {
   return <TypographyP {...props} {...PROSE} />;
 }
@@ -82,10 +85,7 @@ export function TypographyProse(props: Preset<ParagraphProps, typeof PROSE>) {
  * reason the paragraph presets are, and a weight-or-ink argument at the marker
  * is not a thing a call site should be able to start.
  */
-const listClass = (
-  variant: ParagraphVariants["variant"],
-  ordered?: boolean,
-) =>
+const listClass = (variant: ParagraphVariants["variant"], ordered?: boolean) =>
   cn(
     "my-4 flex flex-col gap-1 pl-6 [&>li]:pl-1.5",
     ordered ? "list-decimal" : "list-disc",
@@ -121,7 +121,9 @@ const PROSE_LIST = { variant: "prose" } as const satisfies Pick<
   ParagraphVariants,
   "variant"
 >;
-export function TypographyProseList(props: Preset<ListProps, typeof PROSE_LIST>) {
+export function TypographyProseList(
+  props: Preset<ListProps, typeof PROSE_LIST>,
+) {
   return <TypographyList {...props} {...PROSE_LIST} />;
 }
 
@@ -143,7 +145,7 @@ export function TypographyProseList(props: Preset<ListProps, typeof PROSE_LIST>)
  * reason to sit there is to be quieter than the thing you qualify — and every
  * container that sets a size for you sets a weight too.
  */
-const captionVariants = cva("text-muted-foreground", {
+const captionVariants = cva("text-[color:var(--ink-muted,var(--muted-foreground))]", {
   variants: {
     size: {
       sm: "text-sm leading-normal",
@@ -169,7 +171,11 @@ export function TypographyCaption({
   ...props
 }: WithAs<CaptionVariants>) {
   return (
-    <TextAs as={as} className={cn(captionVariants({ size }), className)} {...props}>
+    <TextAs
+      as={as}
+      className={cn(captionVariants({ size }), className)}
+      {...props}
+    >
       {children}
     </TextAs>
   );
@@ -201,7 +207,7 @@ export function TypographySmall(
  * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
  * names its sections at this size, and those names are the page's outline.
  */
-const labelVariants = cva("font-medium text-foreground", {
+const labelVariants = cva("font-medium text-[color:var(--ink,var(--foreground))]", {
   variants: {
     size: {
       sm: "text-sm",
@@ -280,10 +286,7 @@ export function TypographyStat({
   ...props
 }: ComponentProps<"span"> & StatVariants) {
   return (
-    <span
-      className={cn(statVariants({ size, figures }), className)}
-      {...props}
-    >
+    <span className={cn(statVariants({ size, figures }), className)} {...props}>
       {children}
     </span>
   );
@@ -304,7 +307,7 @@ export function TypographyInlineCode({
   return (
     <code
       className={cn(
-        "rounded-[3px] bg-foreground/[0.03] px-[0.3em] py-[0.1em] font-mono text-[0.9em] text-secondary-ink",
+        "rounded-[3px] bg-current/[0.06] px-[0.3em] py-[0.1em] font-mono text-[0.9em] text-[color:var(--ink,var(--secondary-ink))]",
         className,
       )}
       {...props}
@@ -316,7 +319,7 @@ export function TypographyInlineCode({
 
 /**
  * A statement about the surface, not the link: `muted` inside a paragraph,
- * `primary` when the link is the point of the line, `secondary` for a note
+ * `primary` when the link is the main thing on the line, `secondary` for a note
  * beneath a hero where `primary` would compete with the CTA beside it. The other
  * four come free, and a link inside a warning should be able to say so.
  *
@@ -327,27 +330,34 @@ export function TypographyInlineCode({
  * `font-medium`, which read as a lighter link rather than a differently-coloured
  * one.
  */
+const INHERITED_INK = "text-[color:var(--ink,var(--foreground))]";
+
 const LINK_DECORATION =
   "underline decoration-dotted decoration-1 decoration-muted-foreground decoration-skip-ink-none underline-offset-2 hover:decoration-solid hover:decoration-current/70";
 
-const linkClass = (tone: Tone = "muted", className?: string) =>
+/**
+ * No tone stated means "read the surface": the ink comes from whatever painted
+ * the ground, which on a page is `--foreground` and inside a filled control is
+ * that control's label ink. The old default spelled this `muted`, whose hue is
+ * `--foreground` — identical on a page, and 2.28:1 on a filled button.
+ */
+const linkClass = (tone: Tone | undefined, className?: string) =>
   cn(
-    toneClass(tone),
-    "font-medium text-(color:--tone-hue)",
+    tone ? cn(toneClass(tone), "text-(color:--tone-hue)") : INHERITED_INK,
+    "font-medium",
     LINK_DECORATION,
     className,
   );
 
-type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & {
+type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> &
+  LinkBehavior & {
   href: string;
   children: ReactNode;
   tone?: Tone;
-  /** Defaults on for an off-site link. Turn it off for one that starts a flow the reader should stay in. */
-  newTab?: boolean;
   /**
    * A trailing arrow, for a link that ends a sentence and leads somewhere. The
    * glyph follows the href: `↗` when the link leaves the site, `→` when it does
-   * not. That is the convention, and it is not a call site's to get wrong.
+   * not. The href picks it, so a call site never has to.
    */
   addArrow?: boolean;
 };
@@ -355,12 +365,10 @@ type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & {
 /**
  * The inline link.
  *
- * Internal and external are decided from the href, never at the call site: an
- * href with a scheme renders a plain anchor and, if it is http(s), opens away
- * with `rel="noopener noreferrer"`; everything else routes through the router's
- * Link. `newTab` is the one override, for an off-site href that starts a flow
- * the reader should stay in. Call-site props apply last, so a passed
- * `target`/`rel` still wins.
+ * Internal and external are decided from the href, never at the call site —
+ * ../href.ts holds that decision, and Button, Badge and Card make the same one.
+ * `newTab` and `external` are the overrides. Call-site props apply last, so a
+ * passed `target`/`rel` still wins.
  *
  * The router is `next-view-transitions`, imported rather than injected. Every
  * project on this package is a Next app and wants the same link, and a factory
@@ -372,13 +380,17 @@ export function TypographyLink({
   href,
   children,
   tone = "muted",
+  external: leavesApp,
   newTab,
   addArrow,
   className,
   ...props
 }: TypographyLinkProps) {
   const style = linkClass(tone, className);
-  const external = /^[a-z][a-z0-9+.-]*:/i.test(href);
+  const { Component, props: link, external } = resolveLink(href, {
+    external: leavesApp,
+    newTab,
+  });
   const body = (
     <>
       {children}
@@ -393,29 +405,17 @@ export function TypographyLink({
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d={external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7"} />
+          <path
+            d={external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7"}
+          />
         </svg>
       )}
     </>
   );
 
-  if (external) {
-    const away = newTab ?? href.startsWith("http");
-    return (
-      <a
-        href={href}
-        className={style}
-        {...(away ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-        {...props}
-      >
-        {body}
-      </a>
-    );
-  }
-
   return (
-    <Link href={href} className={style} {...props}>
+    <Component className={style} {...link} {...props}>
       {body}
-    </Link>
+    </Component>
   );
 }

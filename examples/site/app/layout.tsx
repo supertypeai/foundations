@@ -14,10 +14,8 @@ import { INSTALLED_VERSION } from "./_components/version";
 import { SurfaceScript } from "./_components/surface";
 
 /**
- * The font binding exactly as the README documents it: `.variable`, never
- * `.className`. A className would set font-family on <html> and leave the roles
- * resolving to their generic tails — one face on the page, another on every
- * `font-sans` and `font-heading` utility.
+ * The font binding as the README documents it: `.variable`, never `.className`,
+ * which would leave `font-sans` and `font-heading` on their generic tails.
  */
 const sans = Ubuntu_Sans({
   variable: "--font-ubuntu-sans",
@@ -34,14 +32,8 @@ const serif = Average({
 });
 
 /**
- * `metadataBase` is what turns every relative canonical and card URL absolute;
- * without it a crawler reads the whole site as unaddressed. The canonicals
- * themselves are set per page: one in here would merge into all of them and
- * declare them duplicates of the homepage.
- *
- * Both titles are templated. The tab gets "Blocks · Foundations"; so does the
- * card, which otherwise falls back to the bare page name once it leaves the
- * site.
+ * `metadataBase` turns every relative canonical and card URL absolute. The
+ * canonicals are per page, since one here would duplicate the homepage.
  */
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),

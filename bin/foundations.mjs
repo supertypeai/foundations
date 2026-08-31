@@ -518,9 +518,9 @@ const checkContrast = async (appRoot) => {
   const cssFile = findCssEntry(appRoot);
   if (!cssFile) return out;
 
-  let checkLegibility, checkSignals, formatFailures;
+  let checkLegibility, checkSignals, checkHairlines, formatFailures;
   try {
-    ({ checkLegibility, checkSignals, formatFailures } = await import(
+    ({ checkLegibility, checkSignals, checkHairlines, formatFailures } = await import(
       join(pkgRoot, "dist/contrast.js")
     ));
   } catch {
@@ -533,6 +533,9 @@ const checkContrast = async (appRoot) => {
   const groups = [
     ["error", "structural ink below 4.5:1", checkLegibility(css)],
     ["warn", "mark or tinted ink below its bar", checkSignals(css)],
+    // A rule owes no WCAG bar, so this can never be an error. It is here because
+    // an app that retints --border almost always retints one theme.
+    ["warn", "hairline too faint to read as a rule", checkHairlines(css)],
   ];
 
   for (const [level, title, failures] of groups) {

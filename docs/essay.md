@@ -106,7 +106,9 @@ layouts already use it, and nothing else in the package draws that line.
 
 Also exported: `TableOfContents` (the static margin index), `EssayAside` (the
 sticky positioner both layouts put in the margin), `ReadingProgressBar`,
-`Rail` and `RailLink` (the rail's own primitives), `formatPostDate` (the same
+`Rail` and `RailLink` (the rail's own primitives — the one link in the package
+that takes a router element through `render` rather than routing an `href`
+itself, because this module has to import without Next), `formatPostDate` (the same
 formatter outside React, so an OG image and a card cannot print different dates),
 `createSlugger`, and the `useReadingProgress` and `useScrollSpy` hooks.
 

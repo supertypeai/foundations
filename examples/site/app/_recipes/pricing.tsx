@@ -3,17 +3,21 @@ import {
   TypographyH2,
   TypographyStat,
   TypographyList,
-  TypographyLabel,
   TypographyCaption,
   TypographyMuted,
 } from "@supertype.ai/foundations";
-import { Cards, Card, CardHeader, CardTitle, CardDescription, CardContent, Callout } from "@supertype.ai/foundations/blocks";
+import {
+  Button,
+  Cards,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Callout,
+} from "@supertype.ai/foundations/blocks";
 
-/**
- * Pricing tiers. The feature list uses `variant="ui"` because it sits next to
- * 13px card copy — reading-size bullets here would put two different body sizes
- * on the same card.
- */
+/** The feature list takes `variant="ui"` to match the 13px card copy. */
 const TIERS = [
   {
     name: "Solo",
@@ -35,11 +39,13 @@ export default function Pricing() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
       <TypographyEyebrow>Pricing</TypographyEyebrow>
-      <TypographyH2 className="mt-2">Priced per source, not per row</TypographyH2>
-      <TypographyMuted className="mt-2">No egress charges, no surprise invoice.</TypographyMuted>
+      <TypographyH2 className="mt-2">Priced per source</TypographyH2>
+      <TypographyMuted className="mt-2">
+        No egress charges, no surprise invoice.
+      </TypographyMuted>
 
       <Cards className="mt-8">
-        {TIERS.map((tier) => (
+        {TIERS.map((tier, index) => (
           <Card key={tier.name}>
             <CardHeader>
               <CardTitle>{tier.name}</CardTitle>
@@ -59,20 +65,23 @@ export default function Pricing() {
                 ))}
               </TypographyList>
 
-              <a
+              <Button
+                variant={index === 0 ? "soft" : "solid"}
+                className="mt-5 w-full"
                 href={`/signup?tier=${tier.name.toLowerCase()}`}
-                className="mt-5 block rounded-md border border-border py-2 text-center transition-colors hover:bg-muted"
               >
-                <TypographyLabel as="span" size="sm">
-                  Choose {tier.name}
-                </TypographyLabel>
-              </a>
+                Choose {tier.name}
+              </Button>
             </CardContent>
           </Card>
         ))}
       </Cards>
 
-      <Callout tone="muted" title="Both tiers include the full connector set" className="mt-8">
+      <Callout
+        tone="muted"
+        title="Both tiers include the full connector set"
+        className="mt-8"
+      >
         Sources are counted by database, not by table.
       </Callout>
     </section>

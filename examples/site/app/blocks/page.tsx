@@ -29,12 +29,8 @@ import { pageMetadata } from "../_components/seo";
 export const metadata: Metadata = pageMetadata("blocks");
 
 /**
- * Everything the package exports that is not typography or prose, on one page.
- *
- * The split by import subpath is real — `/blocks` and `/essay` are separate
- * entry points — but it is the package's business, not the reader's. Someone
- * looking for a table of contents should not have to guess that it ships under
- * essay, so the groups state the subpath and the index lists them all together.
+ * Every export outside typography and prose, on one page. The groups state their
+ * import subpath, so nobody has to guess that a rail ships under essay.
  */
 const GROUPS = [
   {
@@ -87,7 +83,7 @@ const PROGRESS_BAR = `import { ReadingProgressBar } from "@supertype.ai/foundati
 export default function ArticleLayout({ children }) {
   return (
     <>
-      {/* Fixed to the top of the viewport. Render one per page, above your header. */}
+      {/* Fixed to the viewport. One per page, above your header. */}
       <ReadingProgressBar />
       {children}
     </>
@@ -96,7 +92,10 @@ export default function ArticleLayout({ children }) {
 
 const HOOKS = `"use client";
 
-import { useScrollSpy, useReadingProgress } from "@supertype.ai/foundations/essay";
+import {
+  useScrollSpy,
+  useReadingProgress,
+} from "@supertype.ai/foundations/essay";
 
 export function MyRail({ ids }: { ids: string[] }) {
   // Returns the id of the topmost heading on screen. The hook keys on the
@@ -138,14 +137,14 @@ export default function BlocksPage() {
       <PageTitle
         eyebrow="Reference"
         title="Blocks"
-        lede="Every component outside typography and prose. They ship from two import subpaths; each group lists the one it comes from."
+        lede="Every component outside typography and prose. They ship from two import subpaths, and each group names the one it comes from."
       />
 
       <SectionGroup
         id="content"
         title="Content"
         from="@supertype.ai/foundations/blocks"
-        note="Components that sit inside prose. Tabs and Accordion are client components built on Base UI. Everything else renders on the server."
+        note="Components that sit inside prose. Tabs and Accordion are client components built on Base UI. The rest render on the server."
       />
 
       <Section
@@ -183,11 +182,12 @@ export default function BlocksPage() {
           <>
             Two independent axes.{" "}
             <TypographyInlineCode>variant</TypographyInlineCode> is how much ink
-            the button spends; <TypographyInlineCode>tone</TypographyInlineCode>{" "}
-            is what the ink means. A tone sets three custom properties and a
-            variant spends them, so the grid below is thirty-five pairs from
-            twelve declarations. The seven tones are the package&rsquo;s one
-            semantic vocabulary, not this component&rsquo;s:{" "}
+            the button spends, and{" "}
+            <TypographyInlineCode>tone</TypographyInlineCode> is what the ink
+            means. A tone sets three custom properties, a variant spends them,
+            and the grid below comes to thirty-five pairs from twelve
+            declarations. The seven tones belong to the package rather than to
+            this component:{" "}
             <TypographyInlineCode>Callout</TypographyInlineCode> and{" "}
             <TypographyInlineCode>TypographyLink</TypographyInlineCode> take the
             same list.
@@ -205,9 +205,9 @@ export default function BlocksPage() {
         note={
           <>
             The same two axes as Button, spelled the same way, minus{" "}
-            <TypographyInlineCode>link</TypographyInlineCode> — a badge is not a
-            link. Both apps had grown a private list instead, one of which
-            carried <TypographyInlineCode>warning</TypographyInlineCode> and{" "}
+            <TypographyInlineCode>link</TypographyInlineCode>, which belongs to
+            things you click. Both apps had grown a private list instead, one
+            carrying <TypographyInlineCode>warning</TypographyInlineCode> and{" "}
             <TypographyInlineCode>supertype</TypographyInlineCode> for tones the
             package already named{" "}
             <TypographyInlineCode>warn</TypographyInlineCode> and{" "}
@@ -233,7 +233,7 @@ export default function BlocksPage() {
       <Section
         id="disclosure"
         title="Disclosure"
-        note="Expandable content built on the native <details> element: no JavaScript required, and correct before hydration. Set a shared name to make a group single-open, handled by the browser rather than React state."
+        note="Expandable content built on the native <details> element: no JavaScript, correct before hydration. Set a shared name to make a group single-open, which the browser handles for you."
       >
         <Demo source="app/_demos/disclosure.tsx">
           <DisclosureDemo />
@@ -243,7 +243,7 @@ export default function BlocksPage() {
       <Section
         id="accordion"
         title="Accordion"
-        note="Use Accordion when you need animated transitions or controlled selection; otherwise Disclosure is lighter. Requires theme.css for the open and close keyframes — without it, panels snap open."
+        note="Use Accordion for animated transitions or controlled selection, and Disclosure everywhere else, since it is lighter. The open and close keyframes live in theme.css; skip that import and panels snap open."
       >
         <Demo source="app/_demos/accordion.tsx">
           <AccordionDemo />
@@ -253,7 +253,7 @@ export default function BlocksPage() {
       <Section
         id="tabs"
         title="Tabs"
-        note="TabGroup takes the tabs as data and is the shape to reach for. Its variant picks the box: default renders a boxed segmented track, line drops the surface and underlines the active tab, as in the preview and code switcher on this page. Its tone inks the marker and only the marker — on line, the underline and the active tab's icon."
+        note="TabGroup takes the tabs as data, which is the shape to reach for. Its variant picks the box: default renders a boxed segmented track, line drops the surface and underlines the active tab, as in the preview and code switcher on this page. Its tone inks the marker alone, which on line means the underline and the active tab's icon."
       >
         <Demo source="app/_demos/tabs.tsx">
           <TabsDemo />
@@ -264,7 +264,7 @@ export default function BlocksPage() {
         id="navigation"
         title="Indexes and rails"
         from="@supertype.ai/foundations/essay"
-        note="Indexes, rails, and reading progress. They ship from the essay entry point but are not essay-only — this page builds its own margin index from them."
+        note="Indexes, rails, and reading progress. They ship from the essay entry point and work anywhere: this page builds its own margin index from them."
       />
 
       <Section
@@ -278,8 +278,8 @@ export default function BlocksPage() {
             <TypographyInlineCode>active</TypographyInlineCode> highlights an
             item, <TypographyInlineCode>nested</TypographyInlineCode> indents a
             sub-heading, and <TypographyInlineCode>render</TypographyInlineCode>{" "}
-            swaps the anchor for a router link. Uses no client hooks, so it
-            works in a server component.
+            swaps the anchor for a router link. It runs without client hooks,
+            so it works in a server component.
           </>
         }
       >
@@ -299,8 +299,8 @@ export default function BlocksPage() {
             matching the ids on your headings.{" "}
             <TypographyInlineCode>label</TypographyInlineCode> renames the rail
             heading; pass <TypographyInlineCode>null</TypographyInlineCode> to
-            hide it. An empty list renders nothing. The examples below spy on
-            this page, so they update as you scroll.
+            hide it. An empty list renders nothing at all. The examples below
+            spy on this page, so they update as you scroll.
           </>
         }
       >
@@ -314,9 +314,9 @@ export default function BlocksPage() {
         title="ReadingRail"
         note={
           <>
-            TableOfContents plus a progress donut, for pages that are read start
-            to finish rather than scanned. Takes{" "}
-            <TypographyInlineCode>TocHeading[]</TypographyInlineCode> —{" "}
+            TableOfContents plus a progress donut, for pages read start to
+            finish. Takes{" "}
+            <TypographyInlineCode>TocHeading[]</TypographyInlineCode>,{" "}
             <TypographyInlineCode>
               {"{ depth, id, label }"}
             </TypographyInlineCode>
@@ -334,7 +334,7 @@ export default function BlocksPage() {
       <Section
         id="progress"
         title="ReadingProgressBar"
-        note="A hairline progress indicator fixed to the top of the viewport, for the widths where the rail is hidden. Mount one per page, above your header. It shares a single scroll listener with ReadingRail, so using both costs one subscription. Not previewed here: it would track this page rather than the example."
+        note="A hairline progress indicator fixed to the top of the viewport, for the widths where the rail is hidden. Mount one per page, above your header. It shares a single scroll listener with ReadingRail, so using both costs one subscription. The preview is omitted here, since it would track this page instead of the example."
       >
         <div className="mt-4">
           <Code code={PROGRESS_BAR} />
@@ -351,7 +351,7 @@ export default function BlocksPage() {
       <Section
         id="columns"
         title="EssayColumns"
-        note="A three-track grid — margin, measure, and an aside column that is often empty. Keeping the third track reserved holds the prose on the same axis whether or not a page has asides. The measure widens per step, and the aside appears once the container reaches 72rem — a container query, not a viewport one, so a shell mounted in a narrow column drops the rail and centres the prose instead of drawing a margin too thin to hold a label."
+        note="A three-track grid: margin, measure, and an aside column that often sits empty. Reserving that third track holds the prose on one axis across pages with and without asides. The measure widens per step, and the aside appears once the container reaches 72rem. That is a container query rather than a viewport one, so a shell mounted in a narrow column drops the rail and centres the prose instead of drawing a margin too thin to hold a label."
       >
         <Demo source="app/_demos/essay-columns.tsx">
           <EssayColumnsDemo />
@@ -361,7 +361,7 @@ export default function BlocksPage() {
       <Section
         id="reading-layout"
         title="ReadingLayout"
-        note="EssayColumns with the reading rail already in its margin, for an article whose body the app supplies whole — prose, or compiled MDX. It is EssayLayout's counterpart: the same column and the same sticky offset, with the scroll-spied rail in place of the declared-section index. The rail is dropped when a piece has no headings, so a short post gets a centred measure rather than a margin holding an empty nav. It opens the body with EssayBody, the one piece that rules the seam under a header, so the narrow layout gets that line without the caller deciding."
+        note="EssayColumns with the reading rail already in its margin, for an article whose body the app supplies whole, as prose or compiled MDX. It is EssayLayout's counterpart: the same column, the same sticky offset, with the scroll-spied rail in place of the declared-section index. A piece with no headings drops the rail, so a short post gets a centred measure in place of a margin holding an empty nav. The body opens with EssayBody, the one piece that rules the seam under a header, so the narrow layout gets that line for free."
       >
         <Demo source="app/_demos/reading-layout.tsx">
           <ReadingLayoutDemo />
@@ -371,7 +371,7 @@ export default function BlocksPage() {
       <Section
         id="movements"
         title="EssayMovements"
-        note="An ordered list for stages that feed into one another — a pipeline, a method, a sequence of phases. Use it instead of a card grid when the order carries meaning."
+        note="An ordered list for stages that feed into one another: a pipeline, a method, a sequence of phases. Reach for it over a card grid when the order carries meaning."
       >
         <Demo source="app/_demos/movements.tsx">
           <MovementsDemo />
@@ -389,8 +389,8 @@ export default function BlocksPage() {
             <TypographyInlineCode>ReadTime</TypographyInlineCode> and{" "}
             <TypographyInlineCode>TagPills</TypographyInlineCode>, separated by{" "}
             <TypographyInlineCode>MetaDot</TypographyInlineCode>. Dates format
-            in en-US on both server and client, which avoids a locale mismatch
-            at hydration. Use{" "}
+            in en-US on both server and client, which keeps hydration free of a
+            locale mismatch. Use{" "}
             <TypographyInlineCode>formatPostDate</TypographyInlineCode> for the
             same output outside React, such as in an OG image or a feed.
           </>
@@ -439,13 +439,13 @@ export default function BlocksPage() {
         note={
           <>
             <TypographyInlineCode>extractHeadings</TypographyInlineCode> pulls
-            h2 and h3 from raw markdown, ignoring fenced code. It needs no DOM
-            and no compiled MDX, so it runs at build time. Ids come from{" "}
+            h2 and h3 from raw markdown, ignoring fenced code. It runs on the
+            string alone, so it works at build time. Ids come from{" "}
             <TypographyInlineCode>createSlugger</TypographyInlineCode>, which
             follows GitHub's algorithm and therefore matches the ids rehype-slug
             adds to your headings.{" "}
             <TypographyInlineCode>readingTime</TypographyInlineCode> skips code
-            blocks, which otherwise inflate the estimate on technical posts. The
+            blocks, which keeps the estimate honest on technical posts. The
             output below was generated at build time.
           </>
         }

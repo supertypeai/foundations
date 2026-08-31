@@ -13,10 +13,7 @@ import { Icons } from "../_components/icons";
 export default function CardDemo() {
   return (
     <div className="space-y-6">
-      {/* Shorthand: title and description as props. An href links the whole card —
-          which lifts under the pointer, firms its ring, and takes the principal hue
-          in the icon. The slot sizes the icon, so the call site hands it the bare
-          component. */}
+      {/* Shorthand: title and description as props, href links the card. */}
       <Cards>
         <Card
           href="/typography"
@@ -32,7 +29,7 @@ export default function CardDemo() {
         />
       </Cards>
 
-      {/* Composed from slots, for content the shorthand cannot express. */}
+      {/* Composed from slots, for content beyond title and description. */}
       <Card>
         <CardHeader>
           <CardTitle>Usage</CardTitle>

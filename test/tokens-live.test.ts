@@ -37,8 +37,13 @@ const declared = (css: string) =>
  */
 const THEME_NAMESPACES = /^--(text|font|color|shadow|radius|breakpoint|container|leading|tracking|spacing|animate|ease|blur|perspective)-/;
 
+/**
+ * `var(--x)` and `var(--x, fallback)` are both reads. Only the first counted
+ * until `--hover-toward` shipped read one way and reported dead the other.
+ */
 const isRead = (property: string) =>
-  SOURCE.includes(`var(${property})`) || THEME_NAMESPACES.test(property);
+  new RegExp(`var\\(\\s*${property}\\s*[,)]`).test(SOURCE) ||
+  THEME_NAMESPACES.test(property);
 
 describe("token liveness", () => {
   it("finds the properties to check", () => {

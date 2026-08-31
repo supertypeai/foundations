@@ -2,12 +2,8 @@ import { TypographyProse } from "@supertype.ai/foundations";
 import { EssayColumns, TableOfContents } from "@supertype.ai/foundations/essay";
 
 /**
- * Prose at the measure, with an index in the aside column.
- *
- * The reveal is a container query at 72rem, so the frame below is scaffolding:
- * this demo sits in a column narrower than that, and without a wide container
- * to measure the aside would never appear. In your own app the shell spans the
- * page and no wrapper is needed.
+ * Prose at the measure with an index in the aside. The 72rem frame is
+ * scaffolding for the container query; your own shell spans the page.
  */
 export default function EssayColumnsDemo() {
   return (
@@ -25,8 +21,8 @@ export default function EssayColumnsDemo() {
           }
         >
           <TypographyProse>
-            Reach for EssayColumns directly when the margin holds something that
-            is not a rail. For an article it is ReadingLayout that composes these
+            Reach for EssayColumns directly when the margin holds something
+            other than a rail. For an article, ReadingLayout composes these
             columns with the reading rail already in the aside.
           </TypographyProse>
         </EssayColumns>

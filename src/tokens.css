@@ -15,6 +15,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-ink: var(--primary-ink);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -25,17 +26,17 @@
   --color-destructive-foreground: var(--destructive-foreground);
 
   /* Named for meaning, not hue: a `success` a project renders blue still reads
-     right. Each status hue ships twice — the fill is a mark, the ink is words. */
+     right. The fill is a mark, the ink is words, the foreground is the label
+     printed on the fill. */
   --color-success: var(--success);
   --color-success-ink: var(--success-ink);
+  --color-success-foreground: var(--success-foreground);
   --color-warn: var(--warn);
   --color-warn-ink: var(--warn-ink);
+  --color-warn-foreground: var(--warn-foreground);
   --color-info: var(--info);
   --color-info-ink: var(--info-ink);
   --color-danger: var(--danger);
-
-  /* Deprecated: this was always an ink. Use `warn-ink`. */
-  --color-warn-foreground: var(--warn-foreground);
 
   --color-border: var(--border);
   --color-input: var(--input);

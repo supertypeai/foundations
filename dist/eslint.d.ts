@@ -20,11 +20,27 @@ export declare function colourRules({ accents, }?: ColourOptions): RestrictedSyn
  */
 export declare function themeOverrideRules(): RestrictedSyntax[];
 /**
- * `--muted` is a fill at L92%, so `text-muted` is ~1.1:1 — invisible, and it
- * shipped at 17 sites. `text-background` is absent: inverse ink is a real role.
+ * `--muted` is a fill at L92%, so `text-muted` lands at ~1.1:1. Invisible, and
+ * it shipped at 17 sites. `text-background` stays legal: inverse ink is a real
+ * role.
  */
 export declare function surfaceAsInkRules(): RestrictedSyntax[];
 export declare function renamedTokenRules(): RestrictedSyntax[];
+/**
+ * `render={<a href="…" />}` on a component that takes an `href`. It reads as a
+ * styling choice and is a routing one: the cloned anchor skips the router, so
+ * the page fully reloads and the view transition is lost, and an off-site href
+ * never grows a `rel`. Button, Badge and Card each decide internal vs external
+ * from the href itself, so the anchor is never needed and cannot be right more
+ * often than the one shared rule is.
+ *
+ * Narrow on both axes, so it never fires on a line that is correct. Only those
+ * three components — `RailLink` deliberately takes a router element through
+ * `render`, because its module has to stay importable without Next. And only a
+ * bare `<a>`: `render={<Link/>}` is redundant beside `href` but it still routes,
+ * so it is not a bug.
+ */
+export declare function linkRules(): RestrictedSyntax[];
 export interface TypographyOptions {
     /** Three-weight ramp. Off for editorial, where 700 is a register not a shout. */
     weights?: boolean;
@@ -40,7 +56,7 @@ export interface TypographyOptions {
     /**
      * Flag a size class on a primitive that already owns a size axis. Off by
      * default for the same reason as `pairing`: it fails until the consumer has
-     * migrated, and the migration is the point.
+     * migrated, and that migration is the intended end state.
      */
     axis?: boolean;
 }
@@ -48,7 +64,7 @@ export declare function typographyRules({ weights, ramp, pairing, axis, }?: Typo
 /**
  * Every design rule, as one list.
  *
- * The five builders below it are still exported, and spreading them by hand is
+ * The builders below it are still exported, and spreading them by hand is
  * what both consumers were doing — one of them into a flat config, the other
  * into a legacy `.eslintrc`, and *both* of them had quietly left out
  * `renamedTokenRules`, so neither would have flagged a deprecated token name.

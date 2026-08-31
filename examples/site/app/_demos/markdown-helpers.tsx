@@ -5,11 +5,7 @@ import {
   readingTime,
 } from "@supertype.ai/foundations/essay";
 
-/**
- * Plain functions over raw markdown, with no DOM and no compiled MDX, so they
- * run at build time. The `# comment` inside the fence is not treated as a
- * heading.
- */
+/** Plain functions over raw markdown, so they run at build time. */
 const SOURCE = `## The queue
 
 Three months, one migration, and a queue that would not drain.
@@ -28,8 +24,7 @@ The slot was the problem all along.
 const headings = extractHeadings(SOURCE);
 const minutes = readingTime(SOURCE);
 
-// The same slugger the extractor uses, called directly to show the collision
-// rule: a repeated title gets a numeric suffix instead of a duplicate id.
+// A repeated title gets a numeric suffix instead of a duplicate id.
 const slug = createSlugger();
 const collisions = ["The queue", "The Queue!"].map((label) => [
   label,
@@ -40,7 +35,7 @@ export default function MarkdownHelpersDemo() {
   return (
     <div className="space-y-6 text-sm">
       <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <p className="mb-2 text-xs uppercase text-muted-foreground">
           extractHeadings(source)
         </p>
         <ul className="space-y-1">
@@ -56,7 +51,7 @@ export default function MarkdownHelpersDemo() {
       </div>
 
       <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <p className="mb-2 text-xs uppercase text-muted-foreground">
           createSlugger()
         </p>
         <ul className="space-y-1">
@@ -69,7 +64,7 @@ export default function MarkdownHelpersDemo() {
       </div>
 
       <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <p className="mb-2 text-xs uppercase text-muted-foreground">
           readingTime(source)
         </p>
         <p>{minutes} min. The fenced block is excluded from the count.</p>

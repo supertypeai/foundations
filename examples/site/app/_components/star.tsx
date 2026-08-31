@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { TypographyLabel } from "@supertype.ai/foundations";
 import { PILL } from "./pill";
 import { Icons } from "./icons";
-
-export const REPO_SLUG = "supertypeai/foundations";
-export const REPO_URL = `https://github.com/${REPO_SLUG}`;
+import { REPO_SLUG, REPO_URL } from "./repo";
 
 const COUNT_KEY = "foundations-stars";
 
@@ -16,9 +14,8 @@ const compact = new Intl.NumberFormat("en", {
 });
 
 /**
- * One request per page load, not one per button. Both the header and the footer
- * render a star, and the module-level promise is what keeps that from being two
- * calls against an API that allows 60 an hour from an address.
+ * One request per page load: the header and footer stars share this promise,
+ * against an API that allows 60 an hour from an address.
  */
 let pending: Promise<number | null> | null = null;
 
@@ -30,17 +27,13 @@ const stars = () =>
     )
     .catch(() => null));
 
-/**
- * Link to the repo, with the count when GitHub gives us one. The count is the
- * part that can fail — rate limits, an offline reader, a blocked request — so it
- * renders as an addition to a link that is already complete without it.
- */
+/** Link to the repo, with the count when GitHub gives us one. */
 export function StarButton({ label = "Star" }: { label?: string }) {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    // A cached count from earlier in the session, so a reload has a number to
-    // show before the request comes back and never flickers one in.
+    // A cached count from earlier in the session, so a reload shows a number
+    // before the request comes back, with no flicker.
     try {
       const cached = sessionStorage.getItem(COUNT_KEY);
       if (cached) setCount(Number(cached));
