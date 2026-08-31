@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
-    "@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.1.30",
+    "@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.1.31",
     "lucide-react": "^1.37.0",
     "next": "^15.5.7",
     "next-view-transitions": "^0.3.4",
