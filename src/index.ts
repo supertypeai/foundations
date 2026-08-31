@@ -7,7 +7,10 @@ export {
   toneClass,
   impliedTone,
   INK_ON_FILL,
-  inkOnSurface,
+  INK_ON_CARD,
+  INK_ON_POPOVER,
+  INK_ON_SIDEBAR,
+  inkOnSurfaceStyle,
   type Tone,
 } from "./tone.js";
 // Where an href goes, for the rare call site that styles someone else's element

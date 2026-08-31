@@ -2,7 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../cn.js";
 import { FOCUS_RING } from "./focus.js";
-import { inkOnSurface, toneClass } from "../tone.js";
+import { INK_ON_CARD, toneClass } from "../tone.js";
 import { resolveLink, type LinkBehavior } from "../href.js";
 
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
@@ -20,7 +20,7 @@ export function Cards({ className, children, ...props }: ComponentProps<"div">) 
  * only — the horizontal inset belongs to the slots, so bands can run edge to edge.
  */
 const CARD_CLASS =
-  `flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border ${inkOnSurface("--card-foreground")} ` +
+  `flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-border ${INK_ON_CARD} ` +
   "has-[>img:first-child]:pt-0 " +
   "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl";
 

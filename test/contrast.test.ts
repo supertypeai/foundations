@@ -318,3 +318,42 @@ describe("tokenCuts", () => {
     }
   });
 });
+
+describe("a tone an app declares in part", () => {
+  /**
+   * `brand` is the one tone whose tokens the package does not own, so it is the
+   * one an app can declare halfway. The fill lands, the label does not, and
+   * `var(--brand-foreground,var(--primary-foreground))` quietly paints the
+   * package's white on the app's bronze. Every other check skips a token it
+   * cannot find, which is right for a role an app declined and wrong for one it
+   * started and left open — that gap shipped ssite five solid badges at 2.80:1.
+   */
+  const bronze = ":root { --brand: #b1976b; }";
+
+  it("measures the fallback the cascade actually reaches for", () => {
+    const failures = checkSignals(read("tokens.css") + read("theme.css") + bronze);
+    const brand = failures.filter((f) => f.surface === "--brand");
+
+    expect(brand.length).toBeGreaterThan(0);
+    expect(brand[0].ink).toBe("--primary-foreground");
+    expect(brand[0].via).toBe("--brand-foreground");
+    expect(brand[0].ratio).toBeCloseTo(2.8, 1);
+  });
+
+  it("names the token that was missing, not just the pair that failed", () => {
+    const failures = checkSignals(read("tokens.css") + read("theme.css") + bronze);
+    expect(formatFailures(failures)).toContain("--brand-foreground is not declared");
+  });
+
+  it("says nothing once the app declares the cut it owes", () => {
+    const whole = `${bronze} :root { --brand-foreground: hsl(30 25% 12%); }`;
+    const failures = checkSignals(read("tokens.css") + read("theme.css") + whole);
+    expect(failures.filter((f) => f.surface === "--brand")).toEqual([]);
+  });
+
+  it("leaves an app that declares no brand at all alone", () => {
+    // Not a half-tone: every cut falls through together, onto tokens already measured.
+    const failures = checkSignals(read("tokens.css") + read("theme.css"));
+    expect(failures.filter((f) => f.surface === "--brand")).toEqual([]);
+  });
+});

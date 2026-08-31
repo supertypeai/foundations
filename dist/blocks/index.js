@@ -1,6 +1,7 @@
 export { Cards, Card, CardHeader, CardTitle, CardDescription, CardContent, } from "./card.js";
 export { Disclosure, DisclosureGroup } from "./accordion.js";
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent, } from "./interactive-accordion.js";
+export { Anchor } from "./anchor.js";
 export { Callout } from "./callout.js";
 export { Button, buttonVariants } from "./button.js";
 export { Badge, badgeVariants } from "./badge.js";

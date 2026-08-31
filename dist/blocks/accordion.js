@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Children, cloneElement, isValidElement } from "react";
 import { cn } from "../cn.js";
-import { inkOnSurface } from "../tone.js";
+import { INK_ON_CARD } from "../tone.js";
 /**
  * A disclosure group: `<details>`/`<summary>`, no JS, correct before hydration.
  *
@@ -56,5 +56,5 @@ function deriveGroupName(children) {
     return `accordion-${(hash >>> 0).toString(36)}`;
 }
 export function Disclosure({ title, children, className, ...props }) {
-    return (_jsxs("details", { className: cn("group bg-card", inkOnSurface("--card-foreground"), className), ...props, children: [_jsxs("summary", { className: "flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-foreground marker:hidden hover:bg-accent [&::-webkit-details-marker]:hidden", children: [title, _jsx("svg", { "aria-hidden": "true", className: "h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: "m6 9 6 6 6-6" }) })] }), _jsx("div", { className: "px-4 pb-4 text-sm text-muted-foreground", children: children })] }));
+    return (_jsxs("details", { className: cn("group bg-card", INK_ON_CARD, className), ...props, children: [_jsxs("summary", { className: "flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-foreground marker:hidden hover:bg-accent [&::-webkit-details-marker]:hidden", children: [title, _jsx("svg", { "aria-hidden": "true", className: "h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: "m6 9 6 6 6-6" }) })] }), _jsx("div", { className: "px-4 pb-4 text-sm text-muted-foreground", children: children })] }));
 }

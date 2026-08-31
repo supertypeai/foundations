@@ -13,6 +13,7 @@ export {
   AccordionTrigger,
   AccordionContent,
 } from "./interactive-accordion.js";
+export { Anchor } from "./anchor.js";
 export { Callout } from "./callout.js";
 export { Button, buttonVariants, type ButtonLook } from "./button.js";
 export { Badge, badgeVariants, type BadgeLook } from "./badge.js";

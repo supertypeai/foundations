@@ -45,6 +45,13 @@ export interface LegibilityFailure {
     surface: string;
     ratio: number;
     required: number;
+    /**
+     * The token the pair was *supposed* to use, set only when it was undeclared
+     * and the cascade fell through to the next link of its `var()` chain. Without
+     * it a report reads as though the app chose `--primary-foreground` for its
+     * brand fill, when in truth it chose nothing and CSS chose for it.
+     */
+    via?: string;
 }
 /**
  * Every ink on every surface, both themes. Missing or non-literal tokens are

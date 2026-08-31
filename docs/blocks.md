@@ -76,11 +76,11 @@ losing the weight that separates it from the description.
 | tone          | means                    | fill / ink / hue                                                 |
 | ------------- | ------------------------ | ---------------------------------------------------------------- |
 | `muted`       | nothing; chrome          | `--muted` / `--foreground` / `--foreground`, hairline `--border` |
-| `primary`     | the principal action     | `--primary` / `--primary-foreground` / `--primary`               |
+| `primary`     | the principal action     | `--primary` / `--primary-foreground` / `--primary-ink`           |
 | `secondary`   | the warm accent          | `--secondary` / `--secondary-foreground` / `--secondary-ink`     |
-| `brand`       | the app's own identity   | `--brand` / `--tint-foreground` / `--brand-ink`                  |
-| `success`     | it worked                | `--success` / `--tint-foreground` / `--success-ink`              |
-| `warn`        | a footgun                | `--warn` / `--tint-foreground` / `--warn-ink`                    |
+| `brand`       | the app's own identity   | `--brand` / `--brand-foreground` / `--brand-ink`                 |
+| `success`     | it worked                | `--success` / `--success-foreground` / `--success-ink`           |
+| `warn`        | a footgun                | `--warn` / `--warn-foreground` / `--warn-ink`                    |
 | `destructive` | it deletes, or it failed | `--destructive` / `--destructive-foreground` / `--destructive`   |
 
 **Seven tones, seven tokens, one to one.** That is the bar for admitting a new
@@ -126,7 +126,11 @@ a filled `Button` does and tints at 5%, so the words inside it still sit on the
 page and still want the page's ink.
 
 So the ink is handed down by whatever actually paints. Fill a surface and add
-`INK_ON_FILL`; tint a neutral one and use `inkOnSurface("--card-foreground")`.
+`INK_ON_FILL`; tint a neutral one and add `INK_ON_CARD`, `INK_ON_POPOVER` or
+`INK_ON_SIDEBAR`. They are constants rather than a function of the token because
+Tailwind generates only the classes it can read as text in the package, so a
+class assembled at runtime resolves to nothing at all. A surface the package does
+not name takes `inkOnSurfaceStyle(token)`, spread into `style`.
 Both set `--ink` and `--ink-muted`, which every type primitive reads with the
 page as its fallback:
 
@@ -147,9 +151,25 @@ On a hue fill `--ink-muted` collapses to `--ink`: mixing a label 20% toward its
 fill measures 4.22:1 on the dark theme. Nothing on a filled control may be
 quieter than its label — two rungs means you wanted a tinted surface.
 
-`brand` is the one token the package does not define. It falls back to
-`--primary`, so an app with no identity hue of its own gets its principal one
-rather than an invisible control.
+`brand` is the one row the package does not define. Each cut falls back to the
+matching cut of `primary`, so an app with no identity hue of its own gets its
+principal one rather than an invisible control.
+
+**Declare one cut and you owe the rest.** The fallbacks are per property, so an
+app that sets `--brand` and stops gets its own fill with the package's label on
+it — a bronze `--brand` took white from `--primary-foreground` and printed every
+solid brand badge at 2.80:1. Nothing renders wrong enough to notice, which is why
+`checkSignals` now resolves each cut the way the cascade does and measures
+whichever token actually answers. Declare `--brand`, and declare
+`--brand-foreground` and `--brand-ink` beside it:
+
+```css
+:root {
+  --brand: #b1976b;
+  --brand-foreground: hsl(30 25% 12%); /* the label printed on the fill, 4.5:1 */
+  --brand-ink: #8c6c3c;                /* the same hue as words, 4.5:1 on the page */
+}
+```
 
 `TypographyHighlight` deliberately does not take this type. Its palette is
 categorical — identity and kind, never state — which is the same distinction

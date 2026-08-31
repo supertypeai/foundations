@@ -1,3 +1,4 @@
+import { type ComponentProps } from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { type VariantProps } from "class-variance-authority";
 import { type LinkBehavior } from "../href.js";
@@ -6,7 +7,7 @@ declare const button: (props?: ({
     size?: "sm" | "xs" | "md" | "lg" | "xl" | null | undefined;
     icon?: boolean | null | undefined;
     pill?: boolean | null | undefined;
-    variant?: "link" | "solid" | "soft" | "outline" | "ghost" | null | undefined;
+    variant?: "solid" | "link" | "soft" | "outline" | "ghost" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type ButtonLook = VariantProps<typeof button>;
 /**
@@ -28,5 +29,17 @@ export declare function buttonVariants(props?: Parameters<typeof button>[0]): st
  */
 export declare function Button({ className, variant, tone, size, icon, pill, render, nativeButton, href, external, newTab, ...props }: ButtonPrimitive.Props & ButtonLook & LinkBehavior & {
     href?: string;
+    /**
+     * The one anchor attribute the `href` branch has to name itself. A download
+     * is a link that is not a navigation, so it is the case `href` alone cannot
+     * express — and `render={<a download />}`, which is how every call site said
+     * it before, is exactly what `linkRules()` now flags. Card already takes it,
+     * off `ComponentProps<"a">`; Button and Badge are anchors here too.
+     *
+     * Pair it with `external` for a same-origin route. `Link` steps aside on the
+     * click, but it still prefetches the href on viewport entry, which for an
+     * export endpoint means running the export to throw the rows away.
+     */
+    download?: ComponentProps<"a">["download"];
 }): import("react").JSX.Element;
 export {};

@@ -98,7 +98,12 @@ export function Badge({
   ...props
 }: ComponentProps<"span"> &
   BadgeLook &
-  LinkBehavior & { render?: ReactElement; href?: string }) {
+  LinkBehavior & {
+    render?: ReactElement;
+    href?: string;
+    /** A link that is not a navigation. See Button, which documents the pairing with `external`. */
+    download?: ComponentProps<"a">["download"];
+  }) {
   const resolved = tone ?? impliedTone(variant);
   const classes = cn(badge({ variant, tone: resolved, size, pill, className }));
   const marks = {

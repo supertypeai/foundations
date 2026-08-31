@@ -23,5 +23,7 @@ export declare function badgeVariants(props?: Parameters<typeof badge>[0]): stri
 export declare function Badge({ className, variant, tone, size, pill, render, href, external, newTab, ...props }: ComponentProps<"span"> & BadgeLook & LinkBehavior & {
     render?: ReactElement;
     href?: string;
+    /** A link that is not a navigation. See Button, which documents the pairing with `external`. */
+    download?: ComponentProps<"a">["download"];
 }): import("react").JSX.Element;
 export {};

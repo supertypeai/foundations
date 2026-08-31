@@ -134,7 +134,23 @@ export function Button({
   external,
   newTab,
   ...props
-}: ButtonPrimitive.Props & ButtonLook & LinkBehavior & { href?: string }) {
+}: ButtonPrimitive.Props &
+  ButtonLook &
+  LinkBehavior & {
+    href?: string;
+    /**
+     * The one anchor attribute the `href` branch has to name itself. A download
+     * is a link that is not a navigation, so it is the case `href` alone cannot
+     * express — and `render={<a download />}`, which is how every call site said
+     * it before, is exactly what `linkRules()` now flags. Card already takes it,
+     * off `ComponentProps<"a">`; Button and Badge are anchors here too.
+     *
+     * Pair it with `external` for a same-origin route. `Link` steps aside on the
+     * click, but it still prefetches the href on viewport entry, which for an
+     * export endpoint means running the export to throw the rows away.
+     */
+    download?: ComponentProps<"a">["download"];
+  }) {
   const resolved = tone ?? impliedTone(variant);
   const classes = cn(
     button({ variant, tone: resolved, size, icon, pill, className }),

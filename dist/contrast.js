@@ -3,6 +3,12 @@
  * and `.dark` separately measures an intention, and ssite shipped a `.dark` at a
  * healthy 15.7:1 while the page rendered white on white. Build-time only.
  */
+// The tone vocabulary, for the pairs it names. Value import, not just a type:
+// this file measures what `TONE` declares rather than keeping a second list of
+// it. tone.js resolves no React and imports nothing at runtime, so the bare-Node
+// contract this entry point owes still holds — `check-candidates` and the CLI
+// both import it from plain Node.
+import { TONE } from "./tone.js";
 /**
  * Specificity over what token blocks use. `:root` and `.dark` both score 1 —
  * the tie above. `:not(…)` contributes its argument's score, per spec.
@@ -290,17 +296,89 @@ const TERTIARY = ["--subtle-foreground"];
  * tone="warn" variant="solid"` renders one, and white on amber measured 2.44:1
  * on the dark theme for as long as the pair went unnamed here.
  */
-const ON_FILL = [
-    ["--primary", "--primary-foreground"],
-    ["--secondary", "--secondary-foreground"],
-    ["--destructive", "--destructive-foreground"],
-    ["--success", "--success-foreground"],
-    ["--warn", "--warn-foreground"],
+const ON_SURFACE = [
     ["--accent", "--accent-foreground"],
     ["--card", "--card-foreground"],
     ["--popover", "--popover-foreground"],
     ["--sidebar", "--sidebar-foreground"],
 ];
+/**
+ * Every cut a tone names, read off `TONE` instead of restated here.
+ *
+ * The tone rows used to be five hand-written pairs in the list above, which is
+ * the arrangement the comment on `tokenCuts` warns about: a palette checked
+ * against one taxonomy and declared from another drifts, and `brand` is the
+ * proof. It was in `TONE` from the day the vocabulary landed and never in this
+ * file, so the one tone whose tokens an app supplies was the one tone nothing
+ * measured.
+ *
+ * Parsed rather than shared as data because `TONE` has to stay a table of
+ * literal class strings — Tailwind scans this package as text and generates
+ * only the classes it can read, so a row assembled from a record would style
+ * nothing. Parsing the literal keeps one declaration; a second table would be
+ * the drift all over again.
+ */
+const TONE_CUT = /\[--tone-(fill|ink|hue):([^\]]*)\]/g;
+/**
+ * A cut's `var()` fallback chain, outermost first: `var(--brand,var(--primary))`
+ * is `["--brand", "--primary"]`. The order is the order CSS tries them in.
+ */
+const toneChains = (classes) => {
+    const chains = { fill: [], ink: [], hue: [] };
+    for (const [, cut, value] of classes.matchAll(TONE_CUT))
+        chains[cut] = [...value.matchAll(/--[a-z0-9-]+/g)].map((m) => m[0]);
+    return chains;
+};
+const TONE_CHAINS = Object.entries(TONE).map(([tone, classes]) => [tone, toneChains(classes)]);
+/** The pair a tone names, for the taxonomy `tokenCuts` reports. */
+const ON_FILL = [
+    ...TONE_CHAINS.map(([, c]) => [c.fill[0], c.ink[0]]),
+    ...ON_SURFACE,
+];
+/**
+ * A tone's label on a tone's fill, resolved the way a browser resolves it.
+ *
+ * `checkLegibility` skips a token it cannot find, and that is right: an app that
+ * declares no `--sidebar` has not failed a bar, it has declined a role. But a
+ * token missing *while its siblings are present* is a different animal. The tone
+ * still renders — `var(--brand-foreground,var(--primary-foreground))` simply
+ * moves to the next link — so the control is painted in a pair the app never
+ * chose and skipping it reads as a pass.
+ *
+ * That is how a bronze `--brand` shipped with a white label at 2.80:1: the fill
+ * was declared, the label was not, and nothing measured the pair that actually
+ * reached the screen. So this follows the chain to whichever link is really
+ * there, and measures that. An app declaring a whole tone is measured on its own
+ * tokens; one declaring none falls through to the package's, which are measured
+ * anyway; one declaring half hears about it in the only terms that matter, the
+ * two colours a reader is going to see.
+ */
+function checkToneCuts(css, { themes = ["light", "dark"] } = {}) {
+    const failures = [];
+    for (const theme of themes) {
+        const tokens = resolveTokens(css, theme);
+        const colorOf = (token) => parseColor(tokens[token] ?? "");
+        for (const [, chains] of TONE_CHAINS) {
+            const fill = chains.fill.find((token) => colorOf(token));
+            const ink = chains.ink.find((token) => colorOf(token));
+            if (!fill || !ink)
+                continue;
+            const ratio = contrast(colorOf(ink), colorOf(fill));
+            if (ratio >= 4.5)
+                continue;
+            failures.push({
+                theme,
+                ink,
+                surface: fill,
+                ratio,
+                required: 4.5,
+                // Only when the tone's own ink was not the one that answered.
+                ...(ink === chains.ink[0] ? {} : { via: chains.ink[0] }),
+            });
+        }
+    }
+    return failures;
+}
 /**
  * The cuts a token ships, read off the same three sets `checkSignals` measures.
  *
@@ -376,12 +454,18 @@ export function checkSignals(css, { themes = ["light", "dark"] } = {}) {
         }),
         ...checkLegibility(css, { inks: INKS_TINTED, themes }),
         ...checkLegibility(css, { inks: TERTIARY, minimum: 3, themes }),
-        ...ON_FILL.flatMap(([fill, label]) => checkLegibility(css, { inks: [label], surfaces: [fill], themes })),
+        ...ON_SURFACE.flatMap(([fill, label]) => checkLegibility(css, { inks: [label], surfaces: [fill], themes })),
+        ...checkToneCuts(css, { themes }),
     ];
 }
 /** A one-line report per failure, for a test's assertion message. */
 export function formatFailures(failures) {
     return failures
-        .map((f) => `${f.theme}: ${f.ink} on ${f.surface} is ${f.ratio.toFixed(2)}:1, below ${f.required}:1`)
+        .map((f) => {
+        const measured = `${f.theme}: ${f.ink} on ${f.surface} is ${f.ratio.toFixed(2)}:1, below ${f.required}:1`;
+        return f.via
+            ? `${measured} — ${f.via} is not declared, so ${f.surface} took ${f.ink} from the fallback`
+            : measured;
+    })
         .join("\n");
 }
