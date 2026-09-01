@@ -15,39 +15,37 @@ const TONES = [
 export default function Badges() {
   return (
     <div className="space-y-8">
-      <div className="overflow-x-auto">
-        <table className="border-separate border-spacing-3">
-          <thead>
-            <tr>
-              <th />
+      <table className="border-separate border-spacing-3">
+        <thead>
+          <tr>
+            <th />
+            {VARIANTS.map((variant) => (
+              <th
+                key={variant}
+                className="text-left text-xs text-muted-foreground"
+              >
+                {variant}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {TONES.map((tone) => (
+            <tr key={tone}>
+              <th className="pr-2 text-left text-xs text-muted-foreground">
+                {tone}
+              </th>
               {VARIANTS.map((variant) => (
-                <th
-                  key={variant}
-                  className="text-left text-xs text-muted-foreground"
-                >
-                  {variant}
-                </th>
+                <td key={variant}>
+                  <Badge variant={variant} tone={tone}>
+                    Queued
+                  </Badge>
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {TONES.map((tone) => (
-              <tr key={tone}>
-                <th className="pr-2 text-left text-xs text-muted-foreground">
-                  {tone}
-                </th>
-                {VARIANTS.map((variant) => (
-                  <td key={variant}>
-                    <Badge variant={variant} tone={tone}>
-                      Queued
-                    </Badge>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
 
       <div className="flex flex-wrap items-center gap-3">
         <Badge size="xs">7</Badge>

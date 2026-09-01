@@ -187,14 +187,13 @@ export default function BlocksPage() {
             means. A tone sets three custom properties, a variant spends them,
             and the grid below comes to thirty-five pairs from twelve
             declarations. The seven tones belong to the package rather than to
-            this component:{" "}
-            <TypographyInlineCode>Callout</TypographyInlineCode> and{" "}
-            <TypographyInlineCode>TypographyLink</TypographyInlineCode> take the
-            same list.
+            this component: <TypographyInlineCode>Callout</TypographyInlineCode>{" "}
+            and <TypographyInlineCode>TypographyLink</TypographyInlineCode> take
+            the same list.
           </>
         }
       >
-        <Demo source="app/_demos/buttons.tsx">
+        <Demo source="app/_demos/buttons.tsx" scroll>
           <ButtonsDemo />
         </Demo>
       </Section>
@@ -215,7 +214,7 @@ export default function BlocksPage() {
           </>
         }
       >
-        <Demo source="app/_demos/badges.tsx">
+        <Demo source="app/_demos/badges.tsx" scroll>
           <BadgesDemo />
         </Demo>
       </Section>
@@ -278,8 +277,8 @@ export default function BlocksPage() {
             <TypographyInlineCode>active</TypographyInlineCode> highlights an
             item, <TypographyInlineCode>nested</TypographyInlineCode> indents a
             sub-heading, and <TypographyInlineCode>render</TypographyInlineCode>{" "}
-            swaps the anchor for a router link. It runs without client hooks,
-            so it works in a server component.
+            swaps the anchor for a router link. It runs without client hooks, so
+            it works in a server component.
           </>
         }
       >
@@ -351,9 +350,23 @@ export default function BlocksPage() {
       <Section
         id="columns"
         title="EssayColumns"
-        note="A three-track grid: margin, measure, and an aside column that often sits empty. Reserving that third track holds the prose on one axis across pages with and without asides. The measure widens per step, and the aside appears once the container reaches 72rem. That is a container query rather than a viewport one, so a shell mounted in a narrow column drops the rail and centres the prose instead of drawing a margin too thin to hold a label."
+        note={
+          <>
+            A three-track grid: margin, measure, and an aside column that
+            usually stays empty. Reserving that third track keeps the prose
+            aligned across pages with and without asides. The measure grows with
+            each step, and the aside appears once the container reaches 72rem.
+            This is a container query rather than a viewport one, so a shell in
+            a narrow column drops the rail and centers the prose instead of
+            leaving a margin that is too narrow for a label. The preview uses
+            this page's column rather than forcing a width it cannot support, so
+            it shows the centered case. The{" "}
+            <TypographyLink href="/essay">specimen</TypographyLink> runs it at
+            page width, where the margin track appears.
+          </>
+        }
       >
-        <Demo source="app/_demos/essay-columns.tsx">
+        <Demo source="app/_demos/essay-columns.tsx" at="72rem">
           <EssayColumnsDemo />
         </Demo>
       </Section>
@@ -361,9 +374,22 @@ export default function BlocksPage() {
       <Section
         id="reading-layout"
         title="ReadingLayout"
-        note="EssayColumns with the reading rail already in its margin, for an article whose body the app supplies whole, as prose or compiled MDX. It is EssayLayout's counterpart: the same column, the same sticky offset, with the scroll-spied rail in place of the declared-section index. A piece with no headings drops the rail, so a short post gets a centred measure in place of a margin holding an empty nav. The body opens with EssayBody, the one piece that rules the seam under a header, so the narrow layout gets that line for free."
+        note={
+          <>
+            ReadingLayout combines EssayColumns with a reading rail in the
+            margin for articles whose body is supplied as prose or compiled MDX.
+            It works like EssayLayout, with the same column and sticky offset,
+            but uses a scroll-spied rail instead of the declared-section index.
+            If there are no headings, the rail disappears and the layout stays
+            centered. The preview uses that narrower layout for the same reason:
+            it is given the column rather than a fixed width. Expand the
+            container past 72rem, as in the{" "}
+            <TypographyLink href="/essay">specimen</TypographyLink>, and the
+            rail reappears.
+          </>
+        }
       >
-        <Demo source="app/_demos/reading-layout.tsx">
+        <Demo source="app/_demos/reading-layout.tsx" at="72rem">
           <ReadingLayoutDemo />
         </Demo>
       </Section>

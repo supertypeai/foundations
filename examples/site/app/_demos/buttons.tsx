@@ -15,39 +15,37 @@ const TONES = [
 export default function Buttons() {
   return (
     <div className="space-y-8">
-      <div className="overflow-x-auto">
-        <table className="border-separate border-spacing-3">
-          <thead>
-            <tr>
-              <th />
+      <table className="border-separate border-spacing-3">
+        <thead>
+          <tr>
+            <th />
+            {VARIANTS.map((variant) => (
+              <th
+                key={variant}
+                className="text-left text-xs text-muted-foreground"
+              >
+                {variant}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {TONES.map((tone) => (
+            <tr key={tone}>
+              <th className="pr-2 text-left text-xs text-muted-foreground">
+                {tone}
+              </th>
               {VARIANTS.map((variant) => (
-                <th
-                  key={variant}
-                  className="text-left text-xs text-muted-foreground"
-                >
-                  {variant}
-                </th>
+                <td key={variant}>
+                  <Button variant={variant} tone={tone} size="sm">
+                    Deploy
+                  </Button>
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {TONES.map((tone) => (
-              <tr key={tone}>
-                <th className="pr-2 text-left text-xs text-muted-foreground">
-                  {tone}
-                </th>
-                {VARIANTS.map((variant) => (
-                  <td key={variant}>
-                    <Button variant={variant} tone={tone} size="sm">
-                      Deploy
-                    </Button>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
 
       {/* One ladder, 24px to 40px. `md` is the product default. */}
       <div className="flex flex-wrap items-center gap-3">
