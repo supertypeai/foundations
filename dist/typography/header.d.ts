@@ -54,7 +54,8 @@ export declare function TypographyH3({ className, variant, children, ...props }:
 /** The card / panel title: 14px in the product, 20 on an editorial surface. */
 export declare function TypographyH4({ className, children, ...props }: React.ComponentProps<"h4">): import("react").JSX.Element;
 declare const eyebrowVariants: (props?: ({
-    tone?: "label" | "heading" | null | undefined;
+    tone?: "muted" | "label" | "heading" | "subtle" | null | undefined;
+    size?: "sm" | "xs" | "2xs" | "3xs" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * The eyebrow's ramp as a class, for a caller that cannot render our element —
@@ -62,7 +63,7 @@ declare const eyebrowVariants: (props?: ({
  * `headingClass`. It exists so a consumer needing the class can take ours rather
  * than hand-rolling a copy that drifts from the component.
  */
-export declare const eyebrowClass: (tone?: VariantProps<typeof eyebrowVariants>["tone"]) => string;
+export declare const eyebrowClass: (tone?: VariantProps<typeof eyebrowVariants>["tone"], size?: VariantProps<typeof eyebrowVariants>["size"]) => string;
 /**
  * An all-caps micro-label above a stat or a group of controls, and — since the
  * deck was folded into it — the standfirst that sits with a page title.
@@ -70,5 +71,5 @@ export declare const eyebrowClass: (tone?: VariantProps<typeof eyebrowVariants>[
  * `as` covers the case the span cannot: an eyebrow that is also the section's
  * heading. See `TypographyTag` in as.tsx for why the classes hold across tags.
  */
-export declare function TypographyEyebrow({ className, tone, as, children, ...props }: WithAs<VariantProps<typeof eyebrowVariants>>): import("react").JSX.Element;
+export declare function TypographyEyebrow({ className, tone, size, as, children, ...props }: WithAs<VariantProps<typeof eyebrowVariants>>): import("react").JSX.Element;
 export {};

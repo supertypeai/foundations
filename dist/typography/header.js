@@ -92,15 +92,32 @@ export function TypographyH4({ className, children, ...props }) {
 }
 const eyebrowVariants = cva("block uppercase tracking-wider", {
     variants: {
+        /** Ink and weight. Every tone states its ink: an eyebrow names the section
+         *  under it, and one that takes its colour from its surroundings is not a
+         *  heading. Weight is load-bearing too, since caps at this size lose their
+         *  shape at 400. */
         tone: {
-            /**
-             * Weight is load-bearing here: uppercase at this size loses shape at 400.
-             * Primary ink, stated not inherited — an eyebrow names the section under it,
-             * and one that turns red from its surroundings is not a heading.
-             */
             heading: "text-xs font-semibold text-[color:var(--ink,var(--foreground))]",
             /** Stat cards invert it: the figure is the headline, so the label yields. */
             label: "text-2xs font-medium text-accent-foreground",
+            /** The dense product default: a micro-label over a group of controls,
+             *  quiet enough that the rows under it stay the thing being read. */
+            muted: "text-2xs font-medium text-[color:var(--ink-muted,var(--muted-foreground))]",
+            /** A rung quieter again, for a label the reader only needs on the way past:
+             *  a column head in a mock, a rail marker, a key in a spec table. */
+            subtle: "text-2xs font-medium text-subtle-foreground",
+        },
+        /**
+         * The rung, when the tone's own is wrong for the surface — a dense table head
+         * wants the smallest one, a page standfirst the largest. Declared after the
+         * tone so the merge keeps this one, and omitted it leaves the tone's rung
+         * standing, which is what every existing call site relies on.
+         */
+        size: {
+            sm: "text-sm",
+            xs: "text-xs",
+            "2xs": "text-2xs",
+            "3xs": "text-3xs",
         },
     },
     defaultVariants: { tone: "heading" },
@@ -111,7 +128,7 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
  * `headingClass`. It exists so a consumer needing the class can take ours rather
  * than hand-rolling a copy that drifts from the component.
  */
-export const eyebrowClass = (tone) => eyebrowVariants({ tone });
+export const eyebrowClass = (tone, size) => eyebrowVariants({ tone, size });
 /**
  * An all-caps micro-label above a stat or a group of controls, and — since the
  * deck was folded into it — the standfirst that sits with a page title.
@@ -119,6 +136,6 @@ export const eyebrowClass = (tone) => eyebrowVariants({ tone });
  * `as` covers the case the span cannot: an eyebrow that is also the section's
  * heading. See `TypographyTag` in as.tsx for why the classes hold across tags.
  */
-export function TypographyEyebrow({ className, tone, as, children, ...props }) {
-    return (_jsx(TextAs, { as: as, className: cn(eyebrowVariants({ tone }), className), ...props, children: children }));
+export function TypographyEyebrow({ className, tone, size, as, children, ...props }) {
+    return (_jsx(TextAs, { as: as, className: cn(eyebrowVariants({ tone, size }), className), ...props, children: children }));
 }

@@ -55,10 +55,11 @@ export declare function TypographyProseList(props: Preset<ListProps, typeof PROS
  * `sm` is the default because meta is separated from body by ink, not size;
  * the smaller rungs are a deliberate step down, not the norm.
  *
- * Leading is pinned per size rather than left to the rung. Plenty of captions
- * are a wrapped sentence, and the ramp's tight setting sets those cramped —
- * descenders nearly on the caps below. `leading-normal` writes `--tw-leading`,
- * the variable the `text-*` step reads, so 1.5 wins at every rung.
+ * The two upper rungs open their leading past the ramp: plenty of captions are
+ * a wrapped sentence, and the ramp sets those cramped at reading rungs. The
+ * micro rung keeps whatever the ramp gives it, which is already tuned tight —
+ * half again the glyph height at 11px reads as a stray gap under a one-line
+ * note, and it is the rung the labels beside it are set on.
  *
  * `inherit` is the parenthetical inside a heading, an eyebrow or a stat. It
  * takes the size of whatever set it and resets the weight, because the only

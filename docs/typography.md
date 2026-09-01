@@ -191,8 +191,16 @@ face and name your own rung.
 ```tsx
 <TypographyEyebrow>Case study</TypographyEyebrow>              {/* tone="heading" */}
 <TypographyEyebrow tone="label">Monthly revenue</TypographyEyebrow>
+<TypographyEyebrow tone="muted">Awaiting review</TypographyEyebrow>
+<TypographyEyebrow tone="subtle" size="3xs">Source</TypographyEyebrow>
 ```
 
 `heading` (default) is primary ink at semibold, for an eyebrow that names the
 section under it. `label` is the inverse, for a stat card where the figure is the
-headline and the label should stay quiet.
+headline and the label should stay quiet. `muted` is the dense product default,
+a micro-label over a group of controls. `subtle` is a rung quieter again, for a
+column head or a rail marker the reader takes in on the way past.
+
+Each tone carries the rung it is usually set at, and `size` overrides that where
+the surface needs another: `sm`, `xs`, `2xs`, `3xs`. Omit it and the tone's own rung
+stands, so the prop changes nothing anywhere it is not passed.
