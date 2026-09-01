@@ -11,12 +11,19 @@ declare const pVariants: (props?: ({
     tone?: "muted" | "default" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type ParagraphVariants = VariantProps<typeof pVariants>;
-export declare function TypographyP({ className, variant, tone, children, ...props }: ComponentProps<"p"> & ParagraphVariants): import("react").JSX.Element;
+/**
+ * `as` is here for the reason the caption has it, one step further on: a
+ * component that hands its body to a caller cannot know whether what arrives is
+ * a sentence or a list, and a paragraph may hold neither a list nor a div. The
+ * HTML parser closes the `<p>` early and React reports a hydration error, so
+ * every wrapper of that shape (`Callout` was the one) renders `as="div"`.
+ */
+export declare function TypographyP({ className, variant, tone, as, children, ...props }: WithAs<ParagraphVariants>): import("react").JSX.Element;
 /** A preset's props: its base's, minus the axes it has decided. `keyof Pins` reads
  * the exclusion off the pinned object the preset also spreads, so the two cannot
  * drift — `<TypographyMuted tone="default">` used to compile and un-mute it. */
 type Preset<Base, Pins> = Omit<Base, keyof Pins>;
-type ParagraphProps = ComponentProps<"p"> & ParagraphVariants;
+type ParagraphProps = WithAs<ParagraphVariants>;
 /** The UI rung in the secondary ink. */
 declare const MUTED: {
     readonly tone: "muted";

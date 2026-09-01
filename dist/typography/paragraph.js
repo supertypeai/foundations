@@ -25,8 +25,15 @@ const pVariants = cva("", {
     },
     defaultVariants: { variant: "ui", tone: "default" },
 });
-export function TypographyP({ className, variant, tone, children, ...props }) {
-    return (_jsx("p", { className: cn(pVariants({ variant, tone }), className), ...props, children: children }));
+/**
+ * `as` is here for the reason the caption has it, one step further on: a
+ * component that hands its body to a caller cannot know whether what arrives is
+ * a sentence or a list, and a paragraph may hold neither a list nor a div. The
+ * HTML parser closes the `<p>` early and React reports a hydration error, so
+ * every wrapper of that shape (`Callout` was the one) renders `as="div"`.
+ */
+export function TypographyP({ className, variant, tone, as = "p", children, ...props }) {
+    return (_jsx(TextAs, { as: as, className: cn(pVariants({ variant, tone }), className), ...props, children: children }));
 }
 /** The UI rung in the secondary ink. */
 const MUTED = { tone: "muted" };

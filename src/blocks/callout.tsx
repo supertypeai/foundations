@@ -19,6 +19,10 @@ import {
 // already drifted on the radius. Hand-rolled type styles are also exactly what the project's own
 // guidance forbids, and six copies is how a rule like that gets broken without anyone deciding to.
 //
+// The body is a slot, so it renders as a div in both densities. A caller passes a list, a
+// pair of paragraphs or a mono block of delivery errors, none of which may sit inside a <p>:
+// the parser closes it early and React reports a hydration error on a callout that looks fine.
+//
 // Deliberately not a shadcn Alert. Alert is a page-level, role="alert" affordance for something
 // that just happened; these are quiet, permanent explanations sitting inside a panel, and they
 // must not announce themselves to a screen reader every time a sheet opens.
@@ -87,7 +91,10 @@ export function Callout({
                 {title}
               </TypographyLabel>
             )}
-            <TypographyMuted className={cn("leading-relaxed", bodyClassName)}>
+            <TypographyMuted
+              as="div"
+              className={cn("leading-relaxed", bodyClassName)}
+            >
               {children}
             </TypographyMuted>
             {action && (
@@ -108,7 +115,8 @@ export function Callout({
         </TypographySmall>
       )}
       <TypographyCaption
-        className={cn("mt-1 block leading-relaxed", bodyClassName)}
+        as="div"
+        className={cn("mt-1 leading-relaxed", bodyClassName)}
       >
         {children}
       </TypographyCaption>

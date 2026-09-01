@@ -71,3 +71,33 @@
 .editorial.font-heading {
   font-weight: var(--heading-weight);
 }
+
+/* A glyph set beside words, sized and seated so it belongs to the line.
+
+   Two numbers, both read off the font rather than chosen. Lucide draws its ink
+   across 22 of its 24 grid units, so a 0.8em box puts that ink at 1.02 times the
+   cap height of whatever rung it sits beside.
+
+   The seat corrects a bias the browser introduces. Centring aligns a glyph on the
+   middle of the line box, and the line box is built from the font's ascent and
+   descent rounded to whole pixels, which lands its middle below the middle of the
+   capitals: 0.31px low at the 11px rung, 0.46px at the 10px, 0.50px at the 13px.
+   So a centred glyph is always seated slightly low, by an amount that changes with
+   the rung, which is why hand nudges get written one place at a time and never
+   generalise. Lifting by 0.035em takes it back onto the cap band across the ramp.
+
+   A box pinned in pixels cannot hold the first number either, because the band it
+   has to match moves with the rung. Twelve pixels is 1.39 times the cap height at
+   the 11px rung and 1.53 at the 10px one, so the glyph climbs over the ascenders
+   and hangs well under the baseline while every letter beside it rests on it.
+
+   For a glyph inline with words. A glyph that stands alone, in a button, a nav
+   rail or an avatar slot, has no band to answer to and keeps a fixed size.
+
+   The 22-of-24 figure is lucide's grid. An app on a different icon set wants a
+   different box for the same ratio. */
+@utility icon-inline {
+  width: 0.8em;
+  height: 0.8em;
+  translate: 0 -0.035em;
+}

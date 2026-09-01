@@ -32,17 +32,29 @@ const pVariants = cva("", {
 
 export type ParagraphVariants = VariantProps<typeof pVariants>;
 
+/**
+ * `as` is here for the reason the caption has it, one step further on: a
+ * component that hands its body to a caller cannot know whether what arrives is
+ * a sentence or a list, and a paragraph may hold neither a list nor a div. The
+ * HTML parser closes the `<p>` early and React reports a hydration error, so
+ * every wrapper of that shape (`Callout` was the one) renders `as="div"`.
+ */
 export function TypographyP({
   className,
   variant,
   tone,
+  as = "p",
   children,
   ...props
-}: ComponentProps<"p"> & ParagraphVariants) {
+}: WithAs<ParagraphVariants>) {
   return (
-    <p className={cn(pVariants({ variant, tone }), className)} {...props}>
+    <TextAs
+      as={as}
+      className={cn(pVariants({ variant, tone }), className)}
+      {...props}
+    >
       {children}
-    </p>
+    </TextAs>
   );
 }
 
@@ -51,7 +63,7 @@ export function TypographyP({
  * drift — `<TypographyMuted tone="default">` used to compile and un-mute it. */
 type Preset<Base, Pins> = Omit<Base, keyof Pins>;
 
-type ParagraphProps = ComponentProps<"p"> & ParagraphVariants;
+type ParagraphProps = WithAs<ParagraphVariants>;
 
 /** The UI rung in the secondary ink. */
 const MUTED = { tone: "muted" } as const satisfies ParagraphVariants;
