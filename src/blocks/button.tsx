@@ -76,7 +76,7 @@ const button = cva(
         solid: `bg-(--tone-fill) text-(color:--tone-ink) hover:bg-(--tone-fill-hover) ${INK_ON_FILL}`,
         soft: "bg-(--tone-wash) text-(color:--tone-hue) hover:bg-(--tone-wash-hover)",
         outline:
-          "border-(color:--tone-line) bg-background text-(color:--tone-hue) hover:bg-(--tone-wash)",
+          "border-(color:--tone-line) text-(color:--tone-hue) hover:bg-(--tone-wash)",
         ghost: "text-(color:--tone-hue) hover:bg-(--tone-wash)",
         // No box of its own: a button that reads as a link has to sit on the
         // text baseline, not on a 32px control's centre line.
@@ -193,4 +193,3 @@ export function Button({
     />
   );
 }
-
