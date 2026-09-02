@@ -115,7 +115,7 @@ export declare function TypographyLabel({ className, size, as, children, ...prop
  * the tile around it already sets. Pinned tight, for the reason a badge is.
  */
 declare const statVariants: (props?: ({
-    size?: "display" | "base" | "section" | "inherit" | "page" | "sm" | "xs" | "2xs" | "3xs" | "lg" | "xl" | "2xl" | "card" | "panel" | null | undefined;
+    size?: "display" | "base" | "section" | "inherit" | "page" | "sm" | "xs" | "2xs" | "3xs" | "lg" | "xl" | "2xl" | "3xl" | "card" | "panel" | null | undefined;
     tone?: "muted" | "default" | null | undefined;
     figures?: "tabular" | "proportional" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;

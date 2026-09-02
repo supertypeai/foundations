@@ -291,6 +291,7 @@ const statVariants = cva("tracking-tight leading-none", {
       lg: "text-lg",
       xl: "text-xl",
       "2xl": "text-2xl",
+      "3xl": "text-3xl",
       card: "text-h4",
       panel: "text-h3",
       section: "text-h2",
