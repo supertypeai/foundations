@@ -241,14 +241,17 @@ export default function TokensPage() {
           contrast is running.
         </TypographyProse>
 
-        <TypographyH3 className="mt-10">Which one to reach for</TypographyH3>
+        <TypographyH3 className="mt-10">What measures to use?</TypographyH3>
         <TypographyProse className="mt-2">
-          Ratios for compliance, Lc for the ramp. An audit asks for AA, which is
-          what <TypographyInlineCode>checkLegibility</TypographyInlineCode> and{" "}
+          Ratios are for compliance;{" "}
+          <TypographyInlineCode>Lc</TypographyInlineCode> is for the ramp. An
+          audit asks for AA, and that&apos;s what{" "}
+          <TypographyInlineCode>checkLegibility</TypographyInlineCode> and{" "}
           <TypographyInlineCode>checkSignals</TypographyInlineCode> enforce:
-          4.5:1 for anything read, 3:1 for a mark. Whether your secondary ink
-          feels noticeably quieter than your primary, and whether it stayed that
-          way in dark mode, is an Lc question.
+          4.5:1 for readable text, 3:1 for a mark. If your secondary ink feels a
+          bit quieter than the primary, and it stays that way in dark mode,
+          that&apos;s an <TypographyInlineCode>Lc</TypographyInlineCode>{" "}
+          question.
         </TypographyProse>
         <div className="mt-4">
           <Code

@@ -18,7 +18,7 @@ export function RailLink({ active = false, nested = false, className, children, 
         // inactive neighbour keeps its line and nothing shifts when the active
         // item changes.
         "before:absolute before:inset-y-1 before:-left-px before:w-0.5 before:rounded-full before:bg-primary before:opacity-0 before:transition-opacity", active
-            ? "font-medium text-primary before:opacity-100"
+            ? "font-medium text-primary-ink before:opacity-100"
             : "text-muted-foreground hover:text-foreground", className),
         children,
     };

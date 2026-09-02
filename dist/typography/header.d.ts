@@ -31,11 +31,11 @@ import { type WithAs } from "./as.js";
  */
 export declare const headingFace = "font-heading font-[number:var(--heading-weight)]";
 declare const h1Variants: (props?: ({
-    variant?: "default" | "display" | null | undefined;
+    variant?: "display" | "default" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export declare function TypographyH1({ className, variant, children, ...props }: React.ComponentProps<"h1"> & VariantProps<typeof h1Variants>): import("react").JSX.Element;
 declare const h2Variants: (props?: ({
-    variant?: "default" | "display" | null | undefined;
+    variant?: "display" | "default" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /** The h2 ramp as a class, for a caller that must render its own element. */
 export declare const headingClass: (variant?: VariantProps<typeof h2Variants>["variant"]) => string;
@@ -48,7 +48,7 @@ export declare function TypographyH2({ className, variant, divider, children, ..
     divider?: boolean;
 }): import("react").JSX.Element;
 declare const h3Variants: (props?: ({
-    variant?: "default" | "display" | null | undefined;
+    variant?: "display" | "default" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export declare function TypographyH3({ className, variant, children, ...props }: React.ComponentProps<"h3"> & VariantProps<typeof h3Variants>): import("react").JSX.Element;
 /** The card / panel title: 14px in the product, 20 on an editorial surface. */

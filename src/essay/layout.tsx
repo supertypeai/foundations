@@ -243,7 +243,7 @@ export function TagPills({
       {tags.map((tag) => (
         <span
           key={tag}
-          className="rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary"
+          className="rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary-ink"
         >
           {tag}
         </span>

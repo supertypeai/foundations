@@ -55,11 +55,11 @@ export declare function TypographyProseList(props: Preset<ListProps, typeof PROS
  * `sm` is the default because meta is separated from body by ink, not size;
  * the smaller rungs are a deliberate step down, not the norm.
  *
- * The two upper rungs open their leading past the ramp: plenty of captions are
- * a wrapped sentence, and the ramp sets those cramped at reading rungs. The
- * micro rung keeps whatever the ramp gives it, which is already tuned tight —
- * half again the glyph height at 11px reads as a stray gap under a one-line
- * note, and it is the rung the labels beside it are set on.
+ * Leading comes from the rung, as it does for every other primitive here. Two
+ * of these rungs used to pin a fixed ratio on top of the ramp, which held a
+ * caption apart from the label beside it and overrode the retune an editorial
+ * subtree had just made. An app that wants more air under a wrapped caption
+ * moves the rung, which is where the rest of the page reads its leading from.
  *
  * `inherit` is the parenthetical inside a heading, an eyebrow or a stat. It
  * takes the size of whatever set it and resets the weight, because the only
@@ -108,13 +108,19 @@ export declare function TypographyLabel({ className, size, as, children, ...prop
  *
  * Tabular is right in a column and wrong in a headline, so it is an axis rather
  * than a constant. Keep `tabular` anywhere a value updates in place.
+ *
+ * Leading is the one thing here the rung does not decide. A stat sits on the
+ * body rungs, whose leading is room for the line that follows, and a value has
+ * no line following it: the ratio lands as dead space arguing with the padding
+ * the tile around it already sets. Pinned tight, for the reason a badge is.
  */
 declare const statVariants: (props?: ({
-    size?: "inherit" | "page" | "display" | "card" | "panel" | null | undefined;
+    size?: "display" | "base" | "section" | "inherit" | "page" | "sm" | "xs" | "2xs" | "3xs" | "lg" | "xl" | "2xl" | "card" | "panel" | null | undefined;
+    tone?: "muted" | "default" | null | undefined;
     figures?: "tabular" | "proportional" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type StatVariants = VariantProps<typeof statVariants>;
-export declare function TypographyStat({ className, size, figures, children, ...props }: ComponentProps<"span"> & StatVariants): import("react").JSX.Element;
+export declare function TypographyStat({ className, size, figures, tone, children, ...props }: ComponentProps<"span"> & StatVariants): import("react").JSX.Element;
 /**
  * A run of code inside a sentence: a command, a field name, a trigger.
  *

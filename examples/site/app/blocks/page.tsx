@@ -16,6 +16,7 @@ import StepsDemo from "../_demos/steps";
 import TabsDemo from "../_demos/tabs";
 import AccordionDemo from "../_demos/accordion";
 import DisclosureDemo from "../_demos/disclosure";
+import ColophonDemo from "../_demos/colophon";
 import RailDemo from "../_demos/rail";
 import ContentsDemo from "../_demos/contents";
 import ReadingRailDemo from "../_demos/reading-rail";
@@ -45,6 +46,7 @@ const GROUPS = [
       { id: "disclosure", label: "Disclosure" },
       { id: "accordion", label: "Accordion" },
       { id: "tabs", label: "Tabs" },
+      { id: "bulletin", label: "Bulletin" },
     ],
   },
   {
@@ -256,6 +258,16 @@ export default function BlocksPage() {
       >
         <Demo source="app/_demos/tabs.tsx">
           <TabsDemo />
+        </Demo>
+      </Section>
+
+      <Section
+        id="bulletin"
+        title="Bulletin and Colophon"
+        note="Bulletin is the panel shell without any copy. It gives you a top accent, an eyebrow, a headline, a short intro, a two-column list, and a footer action. Colophon is the same structure with the package's own message built in. A standalone attribution link variant is also provided for footers that need compactness."
+      >
+        <Demo source="app/_demos/colophon.tsx">
+          <ColophonDemo />
         </Demo>
       </Section>
 

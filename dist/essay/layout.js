@@ -105,5 +105,5 @@ export function ReadTime({ minutes, icon: Icon, className, }) {
 export function TagPills({ tags, className, }) {
     if (tags.length === 0)
         return null;
-    return (_jsx("span", { className: cn("flex flex-wrap gap-1.5", className), children: tags.map((tag) => (_jsx("span", { className: "rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary", children: tag }, tag))) }));
+    return (_jsx("span", { className: cn("flex flex-wrap gap-1.5", className), children: tags.map((tag) => (_jsx("span", { className: "rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary-ink", children: tag }, tag))) }));
 }

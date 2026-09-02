@@ -85,10 +85,26 @@ export function themeOverrideRules(): RestrictedSyntax[] {
  * role.
  */
 export function surfaceAsInkRules(): RestrictedSyntax[] {
-  return rule(
-    "/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/",
-    "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card.",
-  );
+  return [
+    ...rule(
+      "/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/",
+      "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card.",
+    ),
+    // The three fills with no legitimate use as a foreground, glyph or word.
+    // Each is a background whose lightness is chosen to hold a label, so read as
+    // ink against the page it lands under the tertiary rung: in dark, secondary
+    // measures 2.77:1, primary 3.36:1 and success 3.79:1, where
+    // `--subtle-foreground` is 6.75:1. An accent quieter than the quietest ink is
+    // the bug, and it reads the same way on an icon as it does in a sentence.
+    //
+    // Unconditional, unlike the opt-in rules above, because the sweep is done in
+    // both apps and there is no correct call site left to grandfather. `warn` and
+    // `info` stay out: their fills are bright enough to read (7.68:1 and 6.10:1).
+    ...rule(
+      "/(^| )(dark:|hover:|focus:|group-hover:)*text-(primary|secondary|success)($| )/",
+      "That is a fill token used as ink. A fill's lightness is chosen to hold a label printed on it, so against the page it reads under the tertiary ink in dark (primary 3.36:1, secondary 2.77:1, success 3.79:1). Each ships an `-ink` cut checked at 4.5:1 against the page. Add `-ink`.",
+    ),
+  ];
 }
 
 /**
@@ -153,6 +169,9 @@ export interface TypographyOptions {
    * migrated, and that migration is the intended end state.
    */
   axis?: boolean;
+  /** Flag a leading class on a typography primitive. Off by default: an app
+   *  adopting it has a backlog to clear first. */
+  leading?: boolean;
 }
 
 export function typographyRules({
@@ -160,6 +179,7 @@ export function typographyRules({
   ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up",
   pairing = false,
   axis = false,
+  leading = false,
 }: TypographyOptions = {}): RestrictedSyntax[] {
   return [
     // Alpha ink composites against whatever surface it lands on, so its
@@ -177,11 +197,10 @@ export function typographyRules({
     ),
     // A primitive that owns a size axis, reached past for a class that does the
     // same thing. The class wins on the page, so nothing looks wrong — what is
-    // lost is everything else the axis carries: `TypographyCaption` pins leading
-    // per rung because a wrapped caption sets cramped at the ramp's own setting,
-    // and `TypographyStat` pairs its rungs with the heading ladder so a figure
-    // and the heading beside it retune together on an editorial surface. A
-    // literal gets the size and silently drops the rest.
+    // lost is everything else the axis carries: `TypographyStat` pairs its rungs
+    // with the heading ladder, so a figure and the heading beside it retune
+    // together on an editorial surface, where a literal stays put. A literal
+    // gets the size and silently drops the rest.
     //
     // Matching the class node INSIDE the attribute, rather than the className
     // string on its own, lets this name the component. It reaches into `cn()`
@@ -196,6 +215,21 @@ export function typographyRules({
             selector: `JSXOpeningElement[name.name=/^Typography(Small|Caption|Stat|Eyebrow)$/] JSXAttribute[name.name="className"] ${node}=/(^| )text-(3xs|2xs|xs|sm|base|lg|xl|[2-9]xl|h[1-4])( |$)/]`,
             message:
               "This primitive owns its size: pass the axis (TypographySmall/Caption size=, TypographyStat size=, TypographyEyebrow tone=) rather than a text-* class, which takes the size and drops the leading and ladder that come with the rung.",
+          })),
+        ]
+      : []),
+    // Leading stated at a call site, on a primitive whose rung already carries
+    // one. The ramp is what an app retunes, and a class pins past it: the pinned
+    // value follows the component onto a surface tuned for different sizes and
+    // reports nothing when it no longer fits. Where a role genuinely needs a
+    // number the rung cannot give, the reading paragraph and the value being the
+    // two, the primitive states it and every call site inherits the decision.
+    ...(leading
+      ? [
+          ...["Literal[value", "TemplateElement[value.raw"].map((node) => ({
+            selector: `JSXOpeningElement[name.name=/^Typography[A-Z]/] JSXAttribute[name.name="className"] ${node}=/(^| )leading-/]`,
+            message:
+              "Leading comes from the rung, which is what an app retunes. Move the rung (size=), or state it on the primitive if every call site wants it.",
           })),
         ]
       : []),

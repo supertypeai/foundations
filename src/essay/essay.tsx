@@ -225,7 +225,7 @@ export function createEssay({
             key={title}
             className="border-t border-border/60 py-8 first:border-t-0 first:pt-0 last:pb-0 sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-6"
           >
-            <TypographyCaption className="block pt-2 font-mono tabular-nums text-primary max-sm:mb-2">
+            <TypographyCaption className="block pt-2 font-mono tabular-nums text-primary-ink max-sm:mb-2">
               {String(i + 1).padStart(2, "0")}
             </TypographyCaption>
             <div className="flex flex-col gap-3">

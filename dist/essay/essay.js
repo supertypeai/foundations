@@ -62,7 +62,7 @@ export function createEssay({ Reveal = PlainReveal, Glow = NoGlow, } = {}) {
        * An ordered list says that without an arrow — the ordinal is the ornament.
        */
     function EssayMovements({ items }) {
-        return (_jsx("ol", { className: "flex flex-col", children: items.map(({ title, body }, i) => (_jsxs("li", { className: "border-t border-border/60 py-8 first:border-t-0 first:pt-0 last:pb-0 sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-6", children: [_jsx(TypographyCaption, { className: "block pt-2 font-mono tabular-nums text-primary max-sm:mb-2", children: String(i + 1).padStart(2, "0") }), _jsxs("div", { className: "flex flex-col gap-3", children: [_jsx(TypographyH3, { children: title }), body] })] }, title))) }));
+        return (_jsx("ol", { className: "flex flex-col", children: items.map(({ title, body }, i) => (_jsxs("li", { className: "border-t border-border/60 py-8 first:border-t-0 first:pt-0 last:pb-0 sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-6", children: [_jsx(TypographyCaption, { className: "block pt-2 font-mono tabular-nums text-primary-ink max-sm:mb-2", children: String(i + 1).padStart(2, "0") }), _jsxs("div", { className: "flex flex-col gap-3", children: [_jsx(TypographyH3, { children: title }), body] })] }, title))) }));
     }
     /**
      * A reference document as data: the index derives from the sections, so a

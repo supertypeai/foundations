@@ -38,6 +38,21 @@
   --color-info-ink: var(--info-ink);
   --color-danger: var(--danger);
 
+  /* The one role with no value in this package, and registered anyway. A v4
+     utility exists only for a name in the namespace, so without these three
+     `bg-brand` compiles to nothing at all and the element keeps whatever ink it
+     inherited, silently. Naming a role is structural; the hue stays the app's.
+
+     The fallbacks are the chains tone.ts already reads, so an app that declares
+     no identity hue paints its principal one here too, and an app that declares
+     `--brand` alone still gets a readable ink and label rather than nothing. */
+  --color-brand: var(--brand, var(--primary));
+  --color-brand-ink: var(--brand-ink, var(--primary-ink, var(--primary)));
+  --color-brand-foreground: var(
+    --brand-foreground,
+    var(--primary-foreground)
+  );
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

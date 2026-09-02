@@ -59,8 +59,11 @@ export interface TypographyOptions {
      * migrated, and that migration is the intended end state.
      */
     axis?: boolean;
+    /** Flag a leading class on a typography primitive. Off by default: an app
+     *  adopting it has a backlog to clear first. */
+    leading?: boolean;
 }
-export declare function typographyRules({ weights, ramp, pairing, axis, }?: TypographyOptions): RestrictedSyntax[];
+export declare function typographyRules({ weights, ramp, pairing, axis, leading, }?: TypographyOptions): RestrictedSyntax[];
 /**
  * Every design rule, as one list.
  *

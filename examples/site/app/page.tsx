@@ -4,7 +4,12 @@ import {
   TypographyLink,
   TypographyInlineCode,
 } from "@supertype.ai/foundations";
-import { Cards, Card, Callout } from "@supertype.ai/foundations/blocks";
+import {
+  Cards,
+  Card,
+  Callout,
+  Colophon,
+} from "@supertype.ai/foundations/blocks";
 import type { Metadata } from "next";
 import { Code } from "./_components/code";
 import { ContrastHeadline, ContrastProof } from "./_components/contrast-proof";
@@ -76,7 +81,7 @@ export default function Home() {
       <PageTitle
         eyebrow="@supertype.ai/foundations"
         title="Better foundations"
-        lede="Pre-made shadcn and tailwind components for semantic and legible interfaces. Built for the Supertype assembly line and open-source."
+        lede="Ready-made shadcn-style and Tailwind components for semantic, legible interfaces. Built for the Supertype workflow and released as open source."
       />
 
       <section id="install" className="scroll-mt-24 pt-14">
@@ -130,14 +135,18 @@ npx foundations doctor    # checks the wiring`}
         </div>
       </section>
 
+      <section id="colophon" className="scroll-mt-24 pt-14">
+        <Colophon />
+      </section>
+
       <section id="agents" className="scroll-mt-24 pt-14">
         <TypographyH2 divider>If you use a coding agent</TypographyH2>
         <TypographyProse className="mt-3">
           The package ships an{" "}
           <TypographyInlineCode>llms.txt</TypographyInlineCode> alongside its{" "}
           <TypographyInlineCode>dist/</TypographyInlineCode>: the public API,
-          the rules, and the common mistakes that leave a build looking fine.
-          One line is enough to point an agent at it, so it stops writing{" "}
+          the rules, and the common mistakes that tend to sneak into a build.
+          One line is enough to point an agent at it, so it stops generating{" "}
           <TypographyInlineCode>
             text-sm text-muted-foreground
           </TypographyInlineCode>{" "}
@@ -157,25 +166,26 @@ npx foundations doctor    # checks the wiring`}
       </section>
 
       <section id="contrast" className="scroll-mt-24 pt-14">
-        <TypographyH2 divider>Contrast you can check</TypographyH2>
+        <TypographyH2 divider>Legibility with mathematical rigor</TypographyH2>
         <TypographyProse className="mt-3">
-          A WCAG ratio scores both polarities alike. Swap the ink and the ground
-          and it reports the same figure, while on screen dark glyphs on a
-          bright field thin out and light glyphs on a dark field bloat. The two
-          specimens below carry the same ratio to a tenth, both clear AA, and
-          read half a ramp apart.
+          WCAG is good for compliance. If you swap the ink and the ground, the
+          number stays the same, but on screen the feeling changes: dark letters
+          on a bright field can look thinner, and light letters on a dark field
+          can feel heavier. The two samples below carry the same ratio to a
+          tenth, both pass AA, and still read a little apart.
         </TypographyProse>
 
         <ContrastProof className="mt-6" />
 
         <TypographyProse className="mt-6">
-          So the package measures its palette twice.{" "}
+          The package measures its palette twice.{" "}
           <TypographyInlineCode>contrast</TypographyInlineCode> answers the
-          compliance question and{" "}
+          compliance question, and{" "}
           <TypographyInlineCode>lc</TypographyInlineCode> answers the design
           one: whether your secondary ink is meaningfully quieter than your
-          primary, and whether it survived the trip to dark. Both read the
-          resolved cascade, so what gets measured is the page a browser paints.
+          primary, and whether it still feels that way in dark mode. Both read
+          the resolved cascade, so what gets measured is the page a browser
+          actually paints.
         </TypographyProse>
 
         <div className="mt-6">

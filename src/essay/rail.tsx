@@ -52,7 +52,7 @@ export function RailLink({
       // item changes.
       "before:absolute before:inset-y-1 before:-left-px before:w-0.5 before:rounded-full before:bg-primary before:opacity-0 before:transition-opacity",
       active
-        ? "font-medium text-primary before:opacity-100"
+        ? "font-medium text-primary-ink before:opacity-100"
         : "text-muted-foreground hover:text-foreground",
       className,
     ),

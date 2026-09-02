@@ -1,5 +1,7 @@
-/* Editorial ramp: Tailwind's default sizes, untouched. Density is a product
-   concern — viably runs its own dense ramp and opts marketing back out to these. */
+/* The type ramp. A product may retune the body rungs at the root, where density
+   is its own concern; `.editorial` below restates the reading sizes so a marketing
+   or docs subtree inside a dense app lands back on them without the app copying
+   Tailwind's table into its own stylesheet. */
 
 @theme {
   /* Below Tailwind's 12px floor. Without them these get written as `text-[11px]`. */
@@ -49,6 +51,24 @@
   .editorial {
     --font-heading: var(--font-average, ui-serif), Georgia, serif;
     --heading-weight: 400;
+
+    /* Tailwind's own rungs, restated rather than inherited. A dense app has
+       already moved these at the root, and this is the surface that has to get
+       back to reading sizes: without them `.editorial` retunes the headings and
+       leaves the body under them at 13px, which is the ratio the ladder exists
+       to keep. Stated here, the class is the whole opt-out. */
+    --text-xs: 0.75rem;
+    --text-xs--line-height: calc(1 / 0.75);
+    --text-sm: 0.875rem;
+    --text-sm--line-height: calc(1.25 / 0.875);
+    --text-base: 1rem;
+    --text-base--line-height: calc(1.5 / 1);
+    --text-lg: 1.125rem;
+    --text-lg--line-height: calc(1.75 / 1.125);
+    --text-xl: 1.25rem;
+    --text-xl--line-height: calc(1.75 / 1.25);
+    --text-2xl: 1.5rem;
+    --text-2xl--line-height: calc(2 / 1.5);
 
     /* The same ladder off an 18px reading rung: 1.11 / 1.33 / 1.67 / 2. Every
        rung clears the body it sits over — the contract the product values above

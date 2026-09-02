@@ -4,10 +4,10 @@ import { type VariantProps } from "class-variance-authority";
 import { type LinkBehavior } from "../href.js";
 declare const button: (props?: ({
     tone?: "muted" | "primary" | "secondary" | "brand" | "success" | "warn" | "destructive" | null | undefined;
-    size?: "sm" | "xs" | "md" | "lg" | "xl" | null | undefined;
+    size?: "sm" | "xs" | "lg" | "xl" | "md" | null | undefined;
     icon?: boolean | null | undefined;
     pill?: boolean | null | undefined;
-    variant?: "solid" | "link" | "soft" | "outline" | "ghost" | null | undefined;
+    variant?: "link" | "solid" | "soft" | "outline" | "ghost" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type ButtonLook = VariantProps<typeof button>;
 /**

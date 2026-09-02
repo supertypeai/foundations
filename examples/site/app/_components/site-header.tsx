@@ -11,6 +11,7 @@ import { NAV } from "./seo";
 import { REPO_SLUG, REPO_URL } from "./repo";
 import { StarButton } from "./star";
 import { SurfaceSwitches } from "./surface";
+import { Colophon, FoundationsMark } from "@supertype.ai/foundations/blocks";
 
 /** From the one record that holds every page, so a new route reaches the nav by existing. */
 const PAGES = NAV;
@@ -19,8 +20,9 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:items-center md:gap-x-5">
-        <Link href="/" className="shrink-0">
-          <TypographyLabel as="span" size="xs" className="font-mono">
+        <Link href="/" className="shrink-0 flex items-center gap-2">
+          <FoundationsMark className="size-3.5 -mt-0.5" />
+          <TypographyLabel as="span" size="sm" className="font-mono">
             foundations
           </TypographyLabel>
         </Link>
@@ -73,9 +75,12 @@ export function PageTitle({
 export function SiteFooter({ version }: { version: string }) {
   return (
     <footer className="mt-24 border-t border-border">
-      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-8">
-        <TypographyCaption>MIT licensed by Supertype.</TypographyCaption>
-        <div className="flex flex-wrap items-center gap-4">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center justify-between">
+          <TypographyCaption>MIT licensed by Supertype.</TypographyCaption>
+          <Colophon variant="line" />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <TypographyCaption className="font-mono">
             <TypographyLink href={REPO_URL} addArrow>
               {REPO_SLUG}

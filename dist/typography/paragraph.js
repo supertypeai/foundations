@@ -86,11 +86,11 @@ export function TypographyProseList(props) {
  * `sm` is the default because meta is separated from body by ink, not size;
  * the smaller rungs are a deliberate step down, not the norm.
  *
- * The two upper rungs open their leading past the ramp: plenty of captions are
- * a wrapped sentence, and the ramp sets those cramped at reading rungs. The
- * micro rung keeps whatever the ramp gives it, which is already tuned tight —
- * half again the glyph height at 11px reads as a stray gap under a one-line
- * note, and it is the rung the labels beside it are set on.
+ * Leading comes from the rung, as it does for every other primitive here. Two
+ * of these rungs used to pin a fixed ratio on top of the ramp, which held a
+ * caption apart from the label beside it and overrode the retune an editorial
+ * subtree had just made. An app that wants more air under a wrapped caption
+ * moves the rung, which is where the rest of the page reads its leading from.
  *
  * `inherit` is the parenthetical inside a heading, an eyebrow or a stat. It
  * takes the size of whatever set it and resets the weight, because the only
@@ -100,8 +100,8 @@ export function TypographyProseList(props) {
 const captionVariants = cva("text-[color:var(--ink-muted,var(--muted-foreground))]", {
     variants: {
         size: {
-            sm: "text-sm leading-normal",
-            xs: "text-xs leading-normal",
+            sm: "text-sm",
+            xs: "text-xs",
             "2xs": "text-2xs",
             inherit: "font-normal",
         },
@@ -158,26 +158,60 @@ export function TypographyLabel({ className, size, as, children, ...props }) {
  *
  * Tabular is right in a column and wrong in a headline, so it is an axis rather
  * than a constant. Keep `tabular` anywhere a value updates in place.
+ *
+ * Leading is the one thing here the rung does not decide. A stat sits on the
+ * body rungs, whose leading is room for the line that follows, and a value has
+ * no line following it: the ratio lands as dead space arguing with the padding
+ * the tile around it already sets. Pinned tight, for the reason a badge is.
  */
-const statVariants = cva("font-semibold tracking-tight", {
+const statVariants = cva("tracking-tight leading-none", {
     variants: {
         /**
-         * Named rungs, because the ramp was reachable only by spelling a class. The
-         * three here are the ones call sites actually converged on: `display` is the
-         * figure a section is built around, `page` and `panel` ride the heading
-         * ladder so a stat and the heading beside it step together — and therefore
-         * retune together on an editorial surface, which a literal never would.
+         * Two ladders, because a figure sits in one of two places and they scale
+         * apart on an editorial surface. The rung names are the body ramp: a value
+         * in a table cell, a chip or a tile, beside interface copy it should step
+         * with. The surface names ride the heading ladder, for a figure that is
+         * itself the headline, so it and the heading beside it retune together.
          *
-         * `inherit` is the default and writes nothing: a stat inside a heading, a
-         * chip or a sentence takes the size that set it, and every existing call
-         * site keeps the size it passed.
+         * The heading half shipped alone and covered three call sites in eighteen.
+         * The other fifteen wanted a body rung, could not say so, and spelled a
+         * class instead, which takes the size and drops everything else the axis
+         * carries.
+         *
+         * `inherit` is the default and writes nothing: a stat inside a heading or a
+         * sentence takes the size that set it.
          */
         size: {
             inherit: "",
+            "3xs": "text-3xs",
+            "2xs": "text-2xs",
+            xs: "text-xs",
+            sm: "text-sm",
+            base: "text-base",
+            lg: "text-lg",
+            xl: "text-xl",
+            "2xl": "text-2xl",
             card: "text-h4",
             panel: "text-h3",
+            section: "text-h2",
             page: "text-h1",
             display: "text-6xl font-black",
+        },
+        /**
+         * How loud the value is. `muted` is the qualifier that follows a figure,
+         * "of 2,000" beside "1,284": a value, so it keeps the tight leading, and
+         * quiet, so it does not compete with what it qualifies. Unweighted for the
+         * reason the caption is, that colour and weight both saying "secondary" is
+         * one of them arguing with the other.
+         *
+         * `default` states no ink on purpose. A stat takes the ink around it, which
+         * inside a filled control is that control's label and in a muted row is the
+         * row's, and naming one here would repaint every stat that inherits a
+         * quieter ink deliberately.
+         */
+        tone: {
+            default: "font-semibold",
+            muted: "font-normal text-[color:var(--ink-muted,var(--muted-foreground))]",
         },
         figures: {
             /** Even advances stop a value jittering as it refreshes. */
@@ -186,10 +220,10 @@ const statVariants = cva("font-semibold tracking-tight", {
             proportional: "proportional-nums",
         },
     },
-    defaultVariants: { size: "inherit", figures: "tabular" },
+    defaultVariants: { size: "inherit", figures: "tabular", tone: "default" },
 });
-export function TypographyStat({ className, size, figures, children, ...props }) {
-    return (_jsx("span", { className: cn(statVariants({ size, figures }), className), ...props, children: children }));
+export function TypographyStat({ className, size, figures, tone, children, ...props }) {
+    return (_jsx("span", { className: cn(statVariants({ size, figures, tone }), className), ...props, children: children }));
 }
 /**
  * A run of code inside a sentence: a command, a field name, a trigger.

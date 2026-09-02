@@ -8,3 +8,5 @@ export { Badge, badgeVariants, type BadgeLook } from "./badge.js";
 export { Tabs, TabsList, TabsTrigger, TabsContent, TabGroup, type TabItem, } from "./tabs.js";
 export { SEGMENT } from "./segment.js";
 export { Steps, Step } from "./steps.js";
+export { Bulletin, Ribbon, EDITORIAL_INKS, type BulletinProps, type BulletinPoint, type RibbonHue, } from "./bulletin.js";
+export { Colophon, BuiltWithFoundations, FoundationsMark, FOUNDATIONS_URL, type ColophonProps, } from "./colophon.js";

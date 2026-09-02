@@ -166,8 +166,10 @@ whichever token actually answers. Declare `--brand`, and declare
 ```css
 :root {
   --brand: #b1976b;
-  --brand-foreground: hsl(30 25% 12%); /* the label printed on the fill, 4.5:1 */
-  --brand-ink: #8c6c3c;                /* the same hue as words, 4.5:1 on the page */
+  --brand-foreground: hsl(
+    30 25% 12%
+  ); /* the label printed on the fill, 4.5:1 */
+  --brand-ink: #8c6c3c; /* the same hue as words, 4.5:1 on the page */
 }
 ```
 
@@ -182,12 +184,12 @@ Every component that can be a link takes `href` and nothing more: `Button`,
 `resolveLink`, exported from the root for the rare call site that styles someone
 else's element:
 
-| the href        | renders                | why                                                            |
-| --------------- | ---------------------- | -------------------------------------------------------------- |
-| `/notes`        | the router's `Link`    | client navigation, and the view transition survives             |
-| `#section`      | a plain `<a>`          | the browser can already scroll there; routing it asks for a navigation |
-| `https://…`     | `<a target="_blank" rel="noopener noreferrer">` | it leaves the app          |
-| `mailto:`, `tel:` | `<a>`, no target     | it hands off to another app; there is no tab to open            |
+| the href          | renders                                         | why                                                                    |
+| ----------------- | ----------------------------------------------- | ---------------------------------------------------------------------- |
+| `/notes`          | the router's `Link`                             | client navigation, and the view transition survives                    |
+| `#section`        | a plain `<a>`                                   | the browser can already scroll there; routing it asks for a navigation |
+| `https://…`       | `<a target="_blank" rel="noopener noreferrer">` | it leaves the app                                                      |
+| `mailto:`, `tel:` | `<a>`, no target                                | it hands off to another app; there is no tab to open                   |
 
 `external` overrides the scheme sniff (an absolute URL that is home, a relative
 one that is not) and `newTab` overrides the target.
@@ -250,17 +252,17 @@ opens.
 </Button>
 ```
 
-| prop      | type                                                  | default                                 |
-| --------- | ----------------------------------------------------- | --------------------------------------- |
-| `variant` | `"solid" \| "soft" \| "outline" \| "ghost" \| "link"` | `solid`                                 |
-| `tone`    | `Tone` (see above)                                    | `primary` on `solid`, `muted` otherwise |
-| `size`    | `"xs" \| "sm" \| "md" \| "lg" \| "xl"`                | `md`                                    |
-| `icon`    | `boolean` — a square box for a lone glyph             | `false`                                 |
-| `pill`    | `boolean` — full-round corners                        | `false`                                 |
-| `href`    | `string` — makes it a link, routed by [`resolveLink`](#links)  | —                       |
-| `external`| `boolean` — override the scheme sniff                 | from the href                           |
-| `newTab`  | `boolean` — override the target                       | on for an `http(s)` href                |
-| `render`  | `ReactElement` — an element that is neither a button nor a link | a `<button>`                  |
+| prop       | type                                                            | default                                 |
+| ---------- | --------------------------------------------------------------- | --------------------------------------- |
+| `variant`  | `"solid" \| "soft" \| "outline" \| "ghost" \| "link"`           | `solid`                                 |
+| `tone`     | `Tone` (see above)                                              | `primary` on `solid`, `muted` otherwise |
+| `size`     | `"xs" \| "sm" \| "md" \| "lg" \| "xl"`                          | `md`                                    |
+| `icon`     | `boolean` — a square box for a lone glyph                       | `false`                                 |
+| `pill`     | `boolean` — full-round corners                                  | `false`                                 |
+| `href`     | `string` — makes it a link, routed by [`resolveLink`](#links)   | —                                       |
+| `external` | `boolean` — override the scheme sniff                           | from the href                           |
+| `newTab`   | `boolean` — override the target                                 | on for an `http(s)` href                |
+| `render`   | `ReactElement` — an element that is neither a button nor a link | a `<button>`                            |
 
 **Variant is how much ink the button spends; tone is what the ink means.** They
 are independent, and that separation is what makes the API useful. A list that
@@ -306,13 +308,13 @@ navigation. `render` remains for an element that is genuinely neither — a
 <Badge size="xs">12</Badge>                           {/* the toolbar count */}
 ```
 
-| prop      | type                                        | default                                 |
-| --------- | ------------------------------------------- | --------------------------------------- |
-| `variant` | `"solid" \| "soft" \| "outline" \| "ghost"` | `solid`                                 |
-| `tone`    | `Tone` (see above)                          | `primary` on `solid`, `muted` otherwise |
-| `size`    | `"xs" \| "sm"`                              | `sm`                                    |
-| `pill`    | `boolean`                                   | `false`                                 |
-| `href`    | `string` — a badge that leads somewhere, routed by [`resolveLink`](#links) | — |
+| prop      | type                                                                       | default                                 |
+| --------- | -------------------------------------------------------------------------- | --------------------------------------- |
+| `variant` | `"solid" \| "soft" \| "outline" \| "ghost"`                                | `solid`                                 |
+| `tone`    | `Tone` (see above)                                                         | `primary` on `solid`, `muted` otherwise |
+| `size`    | `"xs" \| "sm"`                                                             | `sm`                                    |
+| `pill`    | `boolean`                                                                  | `false`                                 |
+| `href`    | `string` — a badge that leads somewhere, routed by [`resolveLink`](#links) | —                                       |
 
 The same two axes as [Button](#button), spelled the same way, so knowing one
 component's vocabulary is knowing this one's. `link` is the single omission: no
@@ -453,6 +455,131 @@ lower rung, not a second way.
 The numbers come from a CSS counter rather than markup, so reordering the steps
 renumbers them, and the digits stay out of the accessibility tree and out of
 anything you copy.
+
+## Bulletin
+
+The panel shape, with no copy in it: an accent along the top edge, a kicker, a
+headline, a sentence, a two-up grid of short points, and a rule with a control
+on it. An announcement, a release note, a status post, a credits block.
+
+```tsx
+import { Bulletin, Ribbon, Button } from "@supertype.ai/foundations/blocks";
+
+const POINTS = [
+  {
+    mark: "bg-fern",
+    ink: "text-fern-ink",
+    title: "Scheduled exports",
+    body: "…",
+  },
+  {
+    mark: "bg-stone",
+    ink: "text-stone-ink",
+    title: "Faster cold starts",
+    body: "…",
+  },
+];
+
+<Bulletin
+  accent={<Ribbon className="h-1.5 w-full" />}
+  eyebrow="Release 4.2"
+  headline="Exports run on a schedule now."
+  lede="Two things shipped this week."
+  points={POINTS}
+  action={
+    <Button href="/notes" variant="outline" size="sm">
+      Read the notes
+    </Button>
+  }
+  footnote="Rolling out through Friday."
+/>;
+```
+
+| prop                          | what it is                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------- |
+| `variant`                     | `"card"` (the panel) or `"line"` (the same statement at one line: accent, action, sentence) |
+| `accent`                      | drawn along the top edge, full width, before the padding starts                             |
+| `eyebrow`, `headline`, `lede` | the opening                                                                                 |
+| `points`                      | `{ title, body, mark?, ink? }[]` — `mark` and `ink` are class names                         |
+| `action`                      | the control on the footer rule                                                              |
+| `footnote`                    | the line opposite it                                                                        |
+| `children`                    | under the rule                                                                              |
+
+Every slot is optional and an omitted one renders nothing rather than an empty
+box, so the same component covers a full credits panel and a headline with one
+button under it. One point takes the width; two or more go two-up from `sm`.
+
+`mark` and `ink` are class names rather than token names, so a point can carry
+any hue the app has — `bg-fern`/`text-fern-ink` from `theme.css`, or one of your
+own. `Ribbon` takes `hues` (default `EDITORIAL_INKS`, the eight categorical hues
+as data) and states no size of its own, since a panel wants `h-1.5 w-full` and a
+row wants `h-1 min-w-20 flex-1 rounded-full`.
+
+Whatever you pass has to be a literal in your own source. Tailwind reads the
+files it scans as text, so a class assembled from a variable is a class it never
+generates — the same rule the package follows in its own files.
+
+## Colophon
+
+A compact statement block for a page, a section, or a footer.
+
+```tsx
+import { Colophon } from "@supertype.ai/foundations/blocks";
+
+<Colophon />                 // the standard panel
+<Colophon variant="line" />  // a compact row
+```
+
+There is nothing to configure, so the whole call is `<Colophon />`. `children`
+renders under the rule on the panel, where a printed colophon carries the site's
+own credit — the faces it is set in, the people who wrote it, its licence — and
+`label` translates the link's words.
+
+The panel's own copy is not a prop, because this is a mark and a mark every site
+rewrites is not a mark. That is a constraint on the _words_; it used to be a
+constraint on the layout too, which was wrong — an announcement panel and a
+credits panel are the same shape. The shape is [`Bulletin`](#bulletin) above,
+and `Colophon` is a nine-line preset of it, the way `TypographyProse` is a
+preset of `TypographyP`. So if you want this look carrying your own words, that
+is `Bulletin`, not a reconfigured attribution.
+
+It draws all eight categorical hues as a ribbon and inks two of them, so it is
+the one place the palette appears whole. Those hues live in `theme.css`: an app
+that imported `tokens.css` alone gets a panel with an invisible ribbon and no
+error, which is the failure `doctor` exists to catch.
+
+### Colophon or BuiltWithFoundations
+
+```tsx
+import { BuiltWithFoundations } from "@supertype.ai/foundations/blocks";
+
+<footer className="flex items-center gap-4">
+  <span>© 2026 Your Company</span>
+  <a href="/privacy">Privacy</a>
+  <BuiltWithFoundations />
+</footer>;
+```
+
+A colophon is a block with something to say, and it needs a place to say it: a
+credits page, an about page, the foot of a long article, a footer with room for
+a row of its own. `BuiltWithFoundations` is one item in a row somebody else laid
+out, sitting next to a privacy link and a copyright line, and it says only where
+the site came from.
+
+The test is what the surface is for. If the attribution is going somewhere that
+already has its own columns, it is `BuiltWithFoundations`. If the block is the
+thing being placed, it is `Colophon`. There is deliberately no `Colophon`
+variant that renders the link alone: that would be a second name for a component
+that already has one.
+
+`BuiltWithFoundations` is a `Button variant="outline" size="sm"` carrying an
+`href`, so it is the same control, the same hairline and the same radius rung as
+every other button on the page — and the anchor is the button, which is where
+the routing and the `rel` come from.
+
+`FoundationsMark` is the eight-hue chip on its own, for a row that wants the
+mark beside its own wording, and `FOUNDATIONS_URL` is the bare href for a
+`<link rel>` or an analytics label.
 
 ## SEGMENT
 
