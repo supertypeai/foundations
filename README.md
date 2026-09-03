@@ -55,7 +55,15 @@ yarn add @supertype.ai/foundations
 # or: npm install @supertype.ai/foundations
 ```
 
-Peers are React 19+, Next 15+, `next-view-transitions` 0.3+ and `@base-ui/react` 1.4+.
+Peers are **Tailwind 4+**, React 19+, Next 15+, `next-view-transitions` 0.3+ and
+`@base-ui/react` 1.4+.
+
+**Tailwind v4 is required, not preferred.** `tokens.css` declares
+`@custom-variant` and `@theme inline`, and the `@source` line below is v4-only
+syntax; on v3 they are parse errors. If you are still on v3, run
+[`npx @tailwindcss/upgrade`](https://tailwindcss.com/docs/upgrade-guide) first —
+`foundations init` will tell you so rather than writing a block your build
+cannot parse.
 
 <details>
 <summary>Installing from a git tag instead</summary>
@@ -71,23 +79,47 @@ untagged git dependency resolves to a different commit on a fresh install.
 
 </details>
 
-### 2. Import the CSS, in this order
+### 2. Import the CSS
 
 ```css
-/* app/global.css */
+/* app/globals.css */
+@import "tailwindcss";
+@import "@supertype.ai/foundations";
+```
+
+That one line carries `tokens.css`, `theme.css`, `type.css` and `prose.css` in
+the order the cascade needs, and registers the package&rsquo;s own `@source` so
+Tailwind scans the components it ships. There is no path for you to work out and
+no order for you to keep: Tailwind v4 resolves `@source` relative to the file
+that declares it, so the package points at its own `dist/`, correctly, wherever
+it happens to be installed.
+
+Add `@import "@supertype.ai/foundations/shiki.css";` after it only if you render
+code fences.
+
+<details>
+<summary>Importing the parts separately</summary>
+
+The granular entry points are still exported and still supported, for the app
+that paints every colour role itself and wants `tokens.css` without `theme.css`.
+Taking them means owning the order and the scan path yourself:
+
+```css
+/* app/globals.css */
 @import "tailwindcss";
 @import "@supertype.ai/foundations/tokens.css"; /* structural tokens + dark variant */
 @import "@supertype.ai/foundations/theme.css"; /* the house palette */
 @import "@supertype.ai/foundations/type.css"; /* the type ramp + font roles */
 @import "@supertype.ai/foundations/prose.css"; /* inline-code rule */
-@import "@supertype.ai/foundations/shiki.css"; /* only if you render code fences */
 
 @source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 ```
 
-**The `@source` line is required.** Tailwind does not scan `node_modules` by
-default, so without it the package&rsquo;s classes get purged and the
-components render without styles.
+**The `@source` line is required in this form.** Tailwind does not scan
+`node_modules` by default, so without it the package&rsquo;s classes get purged
+and the components render without styles. The path is relative to your CSS file,
+so it changes with your layout — and in a workspace, where the package hoists to
+the repo root, `../node_modules` is not where it lives.
 
 **`theme.css` is required.** `tokens.css` names the colour roles, and
 `theme.css` gives them values. Without it, the colour utilities cannot be
@@ -96,6 +128,8 @@ carries `--secondary-ink`, `--subtle-foreground`, the four earth tones used
 for marker highlights, and the `accordion-down` and `accordion-up` keyframes.
 Skip it only if you declare every role yourself; `foundations doctor` fails if
 neither path is true.
+
+</details>
 
 ### 3. Bind the fonts
 

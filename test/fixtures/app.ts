@@ -48,6 +48,16 @@ export const DEFAULT_CSS = `@import "tailwindcss";
 @source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
 `;
 
+/**
+ * The one-line form: what `init` writes now, and what the README documents. The
+ * package registers its own `@source` and orders its own imports, so there is
+ * nothing here for a consumer to get wrong. DEFAULT_CSS stays on the granular
+ * form so both shapes keep their coverage.
+ */
+export const BUNDLE_CSS = `@import "tailwindcss";
+@import "@supertype.ai/foundations";
+`;
+
 const DEFAULT_LAYOUT = `import { Ubuntu_Sans, Ubuntu_Sans_Mono, Average } from "next/font/google";
 
 const sans = Ubuntu_Sans({ variable: "--font-ubuntu-sans", subsets: ["latin"] });
@@ -73,6 +83,7 @@ export const DEFAULT_PEERS: Record<string, string> = {
   next: "15.5.24",
   "next-view-transitions": "0.3.5",
   "@base-ui/react": "1.4.1",
+  tailwindcss: "4.1.11",
 };
 
 const write = (root: string, rel: string, body: string) => {

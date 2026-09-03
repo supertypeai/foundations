@@ -31,25 +31,33 @@ npx foundations init
 ```
 
 ```
-✔ patched app/global.css
-    @import "@supertype.ai/foundations/tokens.css";
-  + @import "@supertype.ai/foundations/theme.css";
-    @import "@supertype.ai/foundations/type.css";  /* the type ramp */
-    @import "@supertype.ai/foundations/prose.css";
-  + @source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
+✔ patched app/globals.css
+  + @import "@supertype.ai/foundations";
 ```
 
-It adds what is missing and reorders what is out of order, since the imports are
-a cascade and a later file re-points variables an earlier one defines. Lines you
-already wrote get moved rather than rewritten, so a trailing comment stays with
-its import, and the rest of the file is left alone.
+That is the whole patch. The package registers its own `@source` and imports its
+own files in order, so there is no path to work out and no cascade to arrange —
+see [Import the CSS](../README.md#2-import-the-css). `shiki.css` is not added,
+since an app that renders no code fences does not need it.
 
-The `@source` path is worked out from where the package is actually installed,
-so it is right under yarn's hoisting and in a monorepo where `node_modules` sits
-somewhere else. `shiki.css` is not added, since an app that renders no code
-fences does not need it.
+An app already on the granular form is repaired rather than rewritten: `init`
+adds what is missing, reorders what is out of order, and computes the `@source`
+path from where the package is actually installed — right under yarn's hoisting
+and in a workspace where `node_modules` sits at the repo root. Lines you already
+wrote get moved rather than rewritten, so a trailing comment stays with its
+import. It then mentions that the block can collapse to one line, and leaves the
+choice to you.
 
 Running it twice does nothing. Use `--dry-run` to see the patch without writing.
+
+The entry is searched for from the root of your app rather than in a fixed list
+of directories, in `.css`, `.pcss`, `.postcss` and `.scss`, and in both Tailwind
+dialects — so an app on v3, or one that keeps its stylesheet somewhere other
+than `app/`, is told what is actually wrong instead of being told it has no
+stylesheet. If more than one file imports Tailwind, the shallowest wins.
+
+On Tailwind v3, `init` writes nothing and says so: the block it would add is
+v4-only syntax, so patching would trade a building app for a parse error.
 
 Fonts are the one part it cannot do for you: `next/font` runs in your app and
 generates its variable names at build time, so `init` finishes by printing the
@@ -68,6 +76,7 @@ The markers are `✔` fine, `·` optional, `!` works but degrades, `✖` broken.
 
 | check | what it catches |
 |---|---|
+| Tailwind is v4 | `tokens.css` needs `@custom-variant` and `@theme inline`, and `@source` is v4-only. This is the one peer whose absence breaks every other check, so it is reported before them |
 | the dependency is pinned | a `#main` or untagged git dependency re-resolves to a different commit on any fresh install. A registry range is pinned by the lockfile, so it is not checked |
 | installed version matches the tag | an unreleased `yarn sync`, which is fine to iterate against but not to ship against |
 | not a symlink | `yarn link` gives you two copies of React (invalid hook call) and a path outside the project root that Turbopack fails on |
@@ -79,10 +88,12 @@ The markers are `✔` fine, `·` optional, `!` works but degrades, `✖` broken.
 
 | check | what it catches |
 |---|---|
-| a CSS entry importing `tailwindcss` exists | nothing else can be checked without one |
-| every required entry point is imported | `tokens.css`, `type.css` and `prose.css` are structural; `theme.css` is the palette, and doctor names the roles left unpainted without it |
-| the imports are in order | a later file re-points variables the earlier one defines |
-| `@source` is present and resolves | the loudest failure of the lot: without it Tailwind never scans the package and every class is purged |
+| a CSS entry importing Tailwind exists | nothing else can be checked without one. Both dialects count, so a v3 app is diagnosed rather than reported as having no stylesheet |
+| that entry is v4 | on v3 every check below fails for one upstream reason, so `doctor` reports the reason and stops |
+| the style layer is imported after Tailwind | on the single import that is the only thing left to get wrong, since the package owns the order and the scan path |
+| every required entry point is imported | granular form only: `tokens.css`, `type.css` and `prose.css` are structural; `theme.css` is the palette, and doctor names the roles left unpainted without it |
+| the imports are in order | granular form only: a later file re-points variables the earlier one defines |
+| `@source` is present and resolves | granular form only, and the loudest failure of the lot: without it Tailwind never scans the package and every class is purged |
 | no second `@custom-variant dark` | `tokens.css` already binds `dark:` to `.dark`, and with two declarations the later one wins |
 
 ### Contrast
@@ -115,6 +126,6 @@ package they ship with.
 
 | flag | |
 |---|---|
-| `--cwd <dir>` | run against another app instead of the current directory |
+| `--cwd <dir>` | run against another app instead of the current directory. May be given before or after the command |
 | `--dry-run` | `init` only: print the patch without writing it |
 | `NO_COLOR=1` | plain output, which is also the default when stdout is not a TTY |

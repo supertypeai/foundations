@@ -16,7 +16,7 @@ yarn dev:sync    # same, on every save under src/
 ```
 
 It writes to `node_modules/@supertype.ai/foundations` in `ssite` and
-`viably/on_next`, looked up under `~/Work` then `~/fun` (pass paths as arguments
+`viably/on_next`, looked up under `~/fun` (pass paths as arguments
 for anywhere else). Nothing else changes: the consumer's `package.json` and
 lockfile still name the tag, so CI and production install what they did before,
 and running `yarn install` there undoes the sync.
@@ -71,7 +71,7 @@ checking.
 Test it against a real app, not this repo (it refuses to run on itself):
 
 ```sh
-node bin/foundations.mjs doctor --cwd ~/Work/ssite
+node bin/foundations.mjs doctor --cwd ~/fun/ssite
 ```
 
 ## Tests
@@ -98,7 +98,7 @@ Four kinds of test, in `test/`:
   package's own `tokens.css` and `theme.css`, so a token change that makes text
   unreadable fails the build.
 - **`types.test.ts`** runs `tsc -p tsconfig.typetest.json` over `test/types/`.
-  Every `@ts-expect-error` there asserts that the line below it does *not*
+  Every `@ts-expect-error` there asserts that the line below it does _not_
   compile. If a preset stops pinning its prop, TypeScript reports the directive
   as unused and the test fails.
 

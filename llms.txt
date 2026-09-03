@@ -187,14 +187,16 @@ Code samples and commit messages stay conventional. This is about prose.
 - `<TypographyMuted tone="default">`: a type error. Use `TypographyP`.
 - Binding fonts with `font.className` instead of `font.variable`. The className
   form sets `font-family` on the element and leaves the roles unresolved.
-- Omitting `@source '../node_modules/@supertype.ai/foundations/dist/**/*.js'` from
-  the CSS entry. Tailwind then purges every class the package ships.
-- Omitting `@import "@supertype.ai/foundations/theme.css"`. `tokens.css` names the
-  colour roles but holds no values, so the whole palette resolves to nothing.
+- Writing the style layer out by hand. `@import "@supertype.ai/foundations";` after
+  `@import "tailwindcss";` is the whole of it: it carries tokens, theme, type and
+  prose in order and registers the package's own `@source`. Split into the granular
+  imports, an app owns the order, the palette and the scan path — and a wrong
+  `@source` path purges every class the package ships, silently.
 - Using `Accordion` for a static FAQ. `Disclosure` runs on the browser alone.
 - Adding a second `@custom-variant dark`. `tokens.css` already binds it.
 
-Run `npx foundations doctor` in the app to check the last four.
+Run `npx foundations doctor` in the app to check the font binding, the style layer
+and the dark variant.
 
 ## Surfaces
 

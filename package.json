@@ -38,9 +38,11 @@
   },
   "exports": {
     ".": {
+      "style": "./src/index.css",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./index.css": "./src/index.css",
     "./blocks": {
       "types": "./dist/blocks/index.d.ts",
       "default": "./dist/blocks/index.js"
@@ -109,7 +111,8 @@
     "@base-ui/react": ">=1.4",
     "next": ">=15",
     "next-view-transitions": ">=0.3",
-    "react": ">=19"
+    "react": ">=19",
+    "tailwindcss": ">=4"
   },
   "devDependencies": {
     "@base-ui/react": "^1.4.1",

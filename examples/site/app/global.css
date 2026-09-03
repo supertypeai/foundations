@@ -1,10 +1,5 @@
 /* The install block from the README, unedited. If this file drifts from what
    the README documents, the README is wrong — this app is what proves it. */
 @import "tailwindcss";
-@import "@supertype.ai/foundations/tokens.css";
-@import "@supertype.ai/foundations/theme.css";
-@import "@supertype.ai/foundations/type.css";
-@import "@supertype.ai/foundations/prose.css";
-@import "@supertype.ai/foundations/shiki.css";
-
-@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';
+@import "@supertype.ai/foundations";
+@import "@supertype.ai/foundations/shiki.css"; /* this site renders code fences */

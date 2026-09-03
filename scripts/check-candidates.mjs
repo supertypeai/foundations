@@ -2,7 +2,7 @@
 /**
  * Checks that no built file hands Tailwind a class it cannot resolve.
  *
- * A consumer's CSS entry carries `@source '.../dist/**\/*.js'`, and Tailwind v4
+ * The package's own index.css carries `@source '../dist/**\/*.js'`, and Tailwind v4
  * reads those files as plain text. It has no idea it is looking at JavaScript,
  * so a class assembled in a template literal is scanned verbatim: the candidate
  * `[--ink:var(${ink})]` becomes the declaration `--ink: var(${ink})`, which is

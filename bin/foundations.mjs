@@ -22,7 +22,7 @@
  * that changes in the package changes here on the next release.
  */
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PKG_NAME = "@supertype.ai/foundations";
@@ -80,11 +80,19 @@ const readJson = (file) => {
   }
 };
 
+/**
+ * Directories that never hold an app's own source: dependencies, and the build
+ * output that mirrors it. Walking from the app root rather than a list of
+ * blessed directories means these have to be named, but naming what is not
+ * source is a much shorter and much more stable list than guessing what is.
+ */
+const NOT_SOURCE = new Set(["node_modules", "dist", "build", "out", "coverage", "public", "vendor", "target"]);
+
 /** Files under `dir` with one of `exts`, depth-limited and blind to build output. */
 const walk = (dir, exts, depth = 4, out = []) => {
   if (depth < 0 || !existsSync(dir)) return out;
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
+    if (entry.name.startsWith(".") || NOT_SOURCE.has(entry.name)) continue;
     const full = join(dir, entry.name);
     if (entry.isDirectory()) walk(full, exts, depth - 1, out);
     else if (exts.some((ext) => entry.name.endsWith(ext))) out.push(full);
@@ -120,15 +128,94 @@ const findAppRoot = (from) => {
   }
 };
 
+/**
+ * `name` as Node would resolve it from `dir`: the first `node_modules` on the
+ * way up that actually holds it. A workspace hoists dependencies to the repo
+ * root, so the copy an app runs against is routinely nowhere near its own
+ * package.json, and assuming otherwise is how a check ends up reporting a
+ * missing peer that is installed and an `@source` path that points at nothing.
+ */
+const resolveDep = (dir, name) => {
+  const segments = name.split("/");
+  let at = resolve(dir);
+  for (;;) {
+    const candidate = join(at, "node_modules", ...segments);
+    if (existsSync(candidate)) return candidate;
+    const up = dirname(at);
+    if (up === at) return null;
+    at = up;
+  }
+};
+
+/**
+ * The installed Tailwind's major version, or null when it is not installed yet
+ * — which is the normal case for `npx … init` run before the first install, and
+ * not something to fail on.
+ *
+ * This is read from the installed package rather than inferred from which
+ * directives the app's CSS uses, because the two questions are genuinely
+ * separate: `@tailwind utilities;` is still legal in v4, and a v3 app being
+ * upgraded passes through states where its CSS and its lockfile disagree.
+ */
+const tailwindMajor = (appRoot) => {
+  const at = resolveDep(appRoot, "tailwindcss");
+  const meta = at ? readJson(join(at, "package.json")) : null;
+  return meta ? (versionParts(meta.version)?.[0] ?? null) : null;
+};
+
+/**
+ * The dialect a stylesheet is written in, for when the installed copy cannot
+ * answer — an app running `npx … init` before its first install. v4 imports the
+ * framework; v3 uses `@tailwind base`/`components`, which v4 removed.
+ * `@tailwind utilities` is deliberately not listed: it is still legal in v4, so
+ * it is not evidence of anything.
+ */
+const dialectOf = (css) => {
+  if (/@import\s+["']tailwindcss(?:\/[\w./-]+)?["']/.test(css)) return 4;
+  if (/@tailwind\s+(?:base|components)\b/.test(css)) return 3;
+  return null;
+};
+
+/**
+ * Which Tailwind this app is on, best evidence first: the installed copy, then
+ * the dialect of its entry stylesheet. Null when neither can say, which is a
+ * normal state and not a failure — a fresh app has no CSS and no install yet.
+ */
+const tailwindOf = (appRoot, cssFile) =>
+  tailwindMajor(appRoot) ?? (cssFile ? dialectOf(stripComments(read(cssFile) ?? "")) : null);
+
+/** Everything the style layer does is v4 syntax, so this is the one way out. */
+const TAILWIND_UPGRADE =
+  "Upgrade first: `npx @tailwindcss/upgrade` — https://tailwindcss.com/docs/upgrade-guide";
+
+/** Why v4 is not negotiable, said the same way wherever it comes up. */
+const TAILWIND_WHY =
+  "tokens.css declares @custom-variant and @theme inline, and the @source line is v4-only syntax.";
+
 /* -------------------------------------------------- what the package wants */
 
 /**
- * The CSS entry points, in the order they have to be imported: tokens, then
- * theme, then type. `exports` is already in that order, which is also the order
- * the README documents.
+ * The one import that carries the whole style layer. index.css registers the
+ * package's own `@source` and imports its own files in the one order the
+ * cascade accepts, so an app taking this single line cannot get the order, the
+ * path, or the completeness wrong — there is nothing left for it to get wrong.
+ */
+const BUNDLE = PKG_NAME;
+
+/** Either spelling: the bare specifier, or the file named outright. */
+const isBundle = (spec) => spec === PKG_NAME || spec === `${PKG_NAME}/index.css`;
+
+/**
+ * The granular entry points, in the order they have to be imported: tokens,
+ * then theme, then type. `exports` is already in that order, which is also the
+ * order the README documented before the bundle existed.
+ *
+ * They remain exported, and remain supported, for the app that paints every
+ * colour role itself and wants tokens.css without theme.css. index.css is not
+ * one of them: it is the whole, not a part.
  */
 const cssEntries = Object.keys(pkgJson.exports)
-  .filter((key) => key.endsWith(".css"))
+  .filter((key) => key.endsWith(".css") && key !== "./index.css")
   .map((key) => `${PKG_NAME}/${key.slice(2)}`);
 
 /** Only needed if the app renders code fences. */
@@ -164,11 +251,47 @@ const fontVars = (() => {
 
 /* -------------------------------------------------------- consumer probing */
 
-/** The CSS file that starts the cascade, i.e. the one importing Tailwind. */
+/** What Tailwind is processed from. v4 drops the preprocessors; v3 apps use them. */
+const STYLE_EXTS = [".css", ".pcss", ".postcss", ".scss"];
+
+/**
+ * A file that starts a Tailwind cascade, in either dialect: v4 pulls the
+ * framework in with `@import` (including the layered form, where the three
+ * layers are imported separately), v3 with `@tailwind`. Both name the same
+ * file — the one the app's styles begin at — so finding it does not depend on
+ * which version is installed, and must not, or an app on the wrong version
+ * gets told it has no stylesheet at all.
+ */
+const TAILWIND_ENTRY =
+  /@import\s+["']tailwindcss(?:\/[\w./-]+)?["']|@tailwind\s+(?:base|components|utilities)\b/;
+
+/** Conventional entry names, best first. Only ever used to break a tie. */
+const ENTRY_NAMES = ["globals", "global", "index", "main", "app", "styles", "tailwind"];
+
+/**
+ * The CSS file that starts the cascade. Searched from the app root rather than
+ * a list of blessed directories, because `app/`, `src/` and `styles/` are three
+ * of the places it lives and not the only three.
+ *
+ * More than one file can import Tailwind — an embed, a Storybook preview, an
+ * email template. The real entry is the shallowest, and among equals the one
+ * named the way the scaffolds name it.
+ */
 const findCssEntry = (appRoot) => {
-  const roots = ["app", "src", "styles"].map((d) => join(appRoot, d));
-  const files = roots.flatMap((dir) => walk(dir, [".css"]));
-  return files.find((file) => /@import\s+["']tailwindcss["']/.test(read(file) ?? "")) ?? null;
+  const candidates = walk(appRoot, STYLE_EXTS, 6).filter((file) =>
+    TAILWIND_ENTRY.test(stripComments(read(file) ?? "")),
+  );
+  const rank = (file) => {
+    const rel = relative(appRoot, file);
+    const at = ENTRY_NAMES.indexOf(basename(rel).replace(/\.[^.]+$/, ""));
+    return [rel.split(sep).length, at === -1 ? ENTRY_NAMES.length : at, rel];
+  };
+  return (
+    candidates
+      .map((file) => [rank(file), file])
+      .sort(([a], [b]) => (a[0] - b[0]) || (a[1] - b[1]) || (a[2] < b[2] ? -1 : 1))
+      .map(([, file]) => file)[0] ?? null
+  );
 };
 
 const LAYOUTS = ["app/layout.tsx", "src/app/layout.tsx", "app/layout.jsx", "src/app/layout.jsx"];
@@ -213,6 +336,13 @@ const stripComments = (css) => {
 /** `@import` targets in source order, so one parse gives presence and ordering. */
 const importsOf = (css) => [...css.matchAll(/@import\s+["']([^"']+)["']/g)].map((m) => m[1]);
 
+/**
+ * An import of the framework itself. v4's layered form names three files rather
+ * than one, and the block has to land after the last of them, so anywhere the
+ * code asks "is this Tailwind coming in here" has to accept both spellings.
+ */
+const isTailwindImport = (spec) => spec === "tailwindcss" || spec.startsWith("tailwindcss/");
+
 const sourceDirectives = (css) => [...css.matchAll(/@source\s+["']([^"']+)["']/g)].map((m) => m[1]);
 
 /** Consts assigned from a next/font call, so we can check how they are used. */
@@ -234,7 +364,11 @@ const fontConsts = (src) => {
 
 /** The @source line for this app, relative to the CSS file wherever yarn put us. */
 const sourceGlob = (appRoot, cssFile) => {
-  const installed = join(appRoot, "node_modules", ...PKG_NAME.split("/"));
+  // Where it actually is, which in a workspace is the repo root rather than
+  // this app. The conventional path is the fallback for an app that has not
+  // installed the package yet, where there is nothing to resolve.
+  const installed =
+    resolveDep(appRoot, PKG_NAME) ?? join(appRoot, "node_modules", ...PKG_NAME.split("/"));
   let path = relative(dirname(cssFile), join(installed, "dist"));
   path = path.split(sep).join("/");
   if (!path.startsWith(".")) path = `./${path}`;
@@ -255,7 +389,7 @@ const isGitSpec = (spec) =>
 const checkInstall = (appRoot) => {
   const out = [];
   const appPkg = readJson(join(appRoot, "package.json"));
-  const installed = join(appRoot, "node_modules", ...PKG_NAME.split("/"));
+  const installed = resolveDep(appRoot, PKG_NAME);
 
   const spec = appPkg?.dependencies?.[PKG_NAME] ?? appPkg?.devDependencies?.[PKG_NAME] ?? null;
 
@@ -298,7 +432,7 @@ const checkInstall = (appRoot) => {
     }
   }
 
-  if (existsSync(installed)) {
+  if (installed) {
     if (lstatSync(installed).isSymbolicLink()) {
       out.push(
         finding(
@@ -328,7 +462,8 @@ const checkInstall = (appRoot) => {
 
   for (const [peer, range] of Object.entries(pkgJson.peerDependencies ?? {})) {
     const soft = peer === "@base-ui/react"; // Only Accordion and Tabs need it.
-    const meta = readJson(join(appRoot, "node_modules", ...peer.split("/"), "package.json"));
+    const at = resolveDep(appRoot, peer);
+    const meta = at ? readJson(join(at, "package.json")) : null;
     if (!meta) {
       out.push(
         finding(
@@ -345,25 +480,80 @@ const checkInstall = (appRoot) => {
   return out;
 };
 
-const checkStyles = (appRoot) => {
+const checkStyles = (appRoot, major) => {
   const out = [];
   const cssFile = findCssEntry(appRoot);
   if (!cssFile) {
     out.push(
-      finding("error", "no CSS entry importing tailwindcss", "looked under app/, src/, styles/", "Create one (app/global.css), then run `foundations init`."),
+      finding(
+        "error",
+        "no CSS entry importing Tailwind",
+        `looked for a ${STYLE_EXTS.join(", ")} file under ${appRoot}`,
+        "Create one (app/globals.css), then run `foundations init`.",
+      ),
     );
     return out;
   }
 
   const css = stripComments(read(cssFile) ?? "");
   const rel = relative(appRoot, cssFile);
+
+  // Every check below reads a v4 cascade. Running them against a v3 stylesheet
+  // reports four separate failures that are all one cause, and buries it.
+  if (major !== null && major < 4) {
+    out.push(
+      finding(
+        "error",
+        `${rel} is a Tailwind v${major} stylesheet, and the package needs v4`,
+        TAILWIND_WHY,
+        TAILWIND_UPGRADE,
+      ),
+    );
+    return out;
+  }
   const order = importsOf(css);
+  const tailwindAt = order.reduce((at, spec, i) => (isTailwindImport(spec) ? i : at), -1);
+
+  // Applies to either shape, so it is asked before they diverge.
+  if (/@custom-variant\s+dark/.test(css)) {
+    out.push(
+      finding(
+        "warn",
+        "this app declares its own dark variant",
+        rel,
+        "tokens.css already binds dark: to the .dark class. With two declarations the later one wins, and nothing tells you which.",
+      ),
+    );
+  }
+
+  // The bundle carries the @source line and fixes the order inside the package,
+  // so the only thing an app can still get wrong is putting it before Tailwind.
+  const bundleAt = order.findIndex(isBundle);
+  if (bundleAt !== -1) {
+    out.push(
+      bundleAt < tailwindAt
+        ? finding(
+            "error",
+            `${BUNDLE} is imported before Tailwind`,
+            rel,
+            "It re-points variables Tailwind defines, so it has to come after.",
+          )
+        : finding("ok", "the style layer is complete", `${rel} → ${BUNDLE}`),
+    );
+    if (!order.some((spec) => OPTIONAL_CSS.has(spec))) {
+      out.push(
+        finding("info", `${[...OPTIONAL_CSS][0]} is not imported`, "only needed if you render code fences", "Add it when you add Shiki."),
+      );
+    }
+    return out;
+  }
+
   const seen = new Map(order.map((spec, i) => [spec, i]));
 
   const missing = [];
   /** Set when theme.css is absent but the app declares every role itself. */
   let selfPainted = false;
-  let last = seen.get("tailwindcss") ?? -1;
+  let last = tailwindAt;
   for (const entry of cssEntries) {
     const at = seen.get(entry);
     if (at === undefined) {
@@ -421,17 +611,6 @@ const checkStyles = (appRoot) => {
     out.push(finding("error", "the @source path does not resolve", `${ours} — from ${rel}`, `expected ${sourceGlob(appRoot, cssFile)}`));
   } else {
     out.push(finding("ok", "@source scans the package", ours));
-  }
-
-  if (/@custom-variant\s+dark/.test(css)) {
-    out.push(
-      finding(
-        "warn",
-        "this app declares its own dark variant",
-        rel,
-        "tokens.css already binds dark: to the .dark class. With two declarations the later one wins, and nothing tells you which.",
-      ),
-    );
   }
 
   const required = missing.filter(
@@ -500,8 +679,16 @@ const expandImports = (file, { includePackage }, seen = new Set()) => {
   if (seen.has(file)) return "";
   seen.add(file);
   return (read(file) ?? "").replace(/@import\s+["']([^"']+)["'];?/g, (_line, spec) => {
-    if (spec.startsWith(`${PKG_NAME}/`))
-      return includePackage ? (read(join(pkgRoot, "src", spec.slice(PKG_NAME.length + 1))) ?? "") : "";
+    // The bundle is ours too, and it pulls the rest in relatively — so it has to
+    // be followed rather than read. Reading it would yield four @import lines
+    // and no palette, and every role would measure as unpainted.
+    const ours = isBundle(spec)
+      ? "index.css"
+      : spec.startsWith(`${PKG_NAME}/`)
+        ? spec.slice(PKG_NAME.length + 1)
+        : null;
+    if (ours !== null)
+      return includePackage ? expandImports(join(pkgRoot, "src", ours), { includePackage }, seen) : "";
     if (spec.startsWith(".")) return expandImports(resolve(dirname(file), spec), { includePackage }, seen);
     return "";
   });
@@ -561,10 +748,14 @@ const serif = Average({ variable: "--font-average", weight: "400", subsets: ["la
 <html className={\`\${sans.variable} \${mono.variable} \${serif.variable} font-sans\`}>`;
 
 const doctor = async (appRoot) => {
+  // Asked once, because it decides what the rest of the report can mean.
+  const major = tailwindOf(appRoot, findCssEntry(appRoot));
   const install = checkInstall(appRoot);
-  const styles = checkStyles(appRoot);
+  const styles = checkStyles(appRoot, major);
   const fonts = checkFonts(appRoot);
-  const contrast = await checkContrast(appRoot);
+  // On v3 the cascade never assembles, so measuring the colours it did not
+  // produce would fill the report with failures that all have one cause.
+  const contrast = major !== null && major < 4 ? [] : await checkContrast(appRoot);
   const all = [...install, ...styles, ...fonts, ...contrast];
 
   console.log(`\n${bold(PKG_NAME)} ${dim(`doctor · ${appRoot}`)}`);
@@ -588,12 +779,27 @@ const doctor = async (appRoot) => {
 
 const init = (appRoot, { dryRun }) => {
   const cssFile = findCssEntry(appRoot);
+  const major = tailwindOf(appRoot, cssFile);
+
+  // Patching a v3 stylesheet would trade a working build for a pile of parse
+  // errors, so this stops at the diagnosis instead. Nothing is written.
+  if (major !== null && major < 4) {
+    console.log(`\n${paint(31, "✖")} this app is on ${bold(`Tailwind v${major}`)}, and the package needs v4.`);
+    if (cssFile) console.log(`  ${dim(`${relative(appRoot, cssFile)} is the entry, and it is in the v3 dialect.`)}`);
+    console.log(`  ${dim(TAILWIND_WHY)} ${dim("On v3 they are parse errors.")}`);
+    console.log(`\n  ${dim("→")} ${TAILWIND_UPGRADE}`);
+    console.log(`\nThen run ${bold("foundations init")} again.\n`);
+    return 1;
+  }
+
   if (!cssFile) {
-    console.log(`\nNo CSS entry importing tailwindcss under ${appRoot}.`);
-    console.log("Create app/global.css with:\n");
-    console.log(
-      ['@import "tailwindcss";', ...cssEntries.map((e) => `@import "${e}";`), "", `@source '../node_modules/${PKG_NAME}/dist/**/*.js';`].join("\n"),
-    );
+    // Named where the scaffolds actually put it, so the instruction matches the
+    // file the reader is about to create.
+    const target = existsSync(join(appRoot, "src/app")) ? "src/app/globals.css" : "app/globals.css";
+    console.log(`\nNo CSS entry importing Tailwind under ${appRoot}.`);
+    console.log(dim(`Looked for a ${STYLE_EXTS.join(", ")} file that imports it.`));
+    console.log(`\nCreate ${bold(target)} with:\n`);
+    console.log(`@import "tailwindcss";\n@import "${BUNDLE}";`);
     console.log();
     return 1;
   }
@@ -602,13 +808,52 @@ const init = (appRoot, { dryRun }) => {
   const live = stripComments(before);
   const rel = relative(appRoot, cssFile);
   const lines = before.split("\n");
-
-  // Lift the package's own @import lines out, then lay them back down in the
-  // one order the cascade accepts. Lifting the whole LINE keeps a trailing
-  // comment attached to the import a consumer wrote it against, and makes a
-  // file that is merely out of order repairable rather than only diagnosable.
-  const existing = new Map();
   const present = new Set(importsOf(live));
+
+  /** After Tailwind itself: everything the package ships re-points its variables. */
+  const anchorIn = (from) =>
+    from.reduce((at, line, i) => (importsOf(stripComments(line)).some(isTailwindImport) ? i : at), -1);
+
+  if ([...present].some(isBundle)) {
+    console.log(`\n${rel} already imports the style layer.`);
+  } else if (!cssEntries.some((entry) => present.has(entry))) {
+    // Nothing of ours in the file yet, so it gets the single import. There is
+    // no order to arrange and no @source to compute: the package does both.
+    const line = `@import "${BUNDLE}";`;
+    lines.splice(anchorIn(lines) + 1, 0, line);
+    if (dryRun) {
+      console.log(`\n${bold(rel)} ${dim("(dry run — nothing written)")}`);
+    } else {
+      writeFileSync(cssFile, lines.join("\n"));
+      console.log(`\n${paint(32, "✔")} patched ${bold(rel)}`);
+    }
+    console.log(`  ${paint(32, "+")} ${line}`);
+  } else {
+    legacy(appRoot, cssFile, { before, live, rel, lines, present, anchorIn, dryRun });
+  }
+
+  console.log(`\n${bold("Bind the fonts")} in your root layout. The package cannot load them for you:\n`);
+  console.log(fontSnippet());
+  console.log(`\n${bold("If you use a coding agent")}, point it at the API summary:\n`);
+  console.log(`  ${dim("# CLAUDE.md, AGENTS.md, or your agent's equivalent")}`);
+  console.log(`  @node_modules/${PKG_NAME}/llms.txt`);
+  console.log(`\nThen: ${bold("foundations doctor")}\n`);
+  return 0;
+};
+
+/**
+ * The old shape: the four entry points written out by the consumer, plus an
+ * `@source` line it had to path itself. Still supported, and still repaired —
+ * an app on it is not broken, and rewriting a file someone else wrote is not
+ * this command's call. `init` only offers the one-line form.
+ *
+ * Lift the package's own @import lines out, then lay them back down in the
+ * one order the cascade accepts. Lifting the whole LINE keeps a trailing
+ * comment attached to the import a consumer wrote it against, and makes a file
+ * that is merely out of order repairable rather than only diagnosable.
+ */
+const legacy = (appRoot, cssFile, { live, rel, lines, present, anchorIn, dryRun }) => {
+  const existing = new Map();
   const kept = lines.filter((line) => {
     const [spec] = importsOf(stripComments(line));
     // `present` keeps a commented-out import where it is instead of reviving it.
@@ -635,9 +880,7 @@ const init = (appRoot, { dryRun }) => {
   if (!added.length && !reordered && !needsSource) {
     console.log(`\n${rel} already imports the style layer, in order, and scans the package.`);
   } else {
-    // After Tailwind itself: the tokens re-point variables it defines.
-    const anchor = kept.reduce((at, line, i) => (/@import\s+["']tailwindcss["']/.test(line) ? i : at), -1);
-    kept.splice(anchor + 1, 0, ...block);
+    kept.splice(anchorIn(kept) + 1, 0, ...block);
 
     if (dryRun) {
       console.log(`\n${bold(rel)} ${dim("(dry run — nothing written)")}`);
@@ -652,18 +895,9 @@ const init = (appRoot, { dryRun }) => {
     if (reordered) console.log(`  ${dim("reordered: later files re-point variables the earlier ones define")}`);
   }
 
-  console.log(`\n${bold("Bind the fonts")} in your root layout. The package cannot load them for you:\n`);
-  console.log(fontSnippet());
-
-  // The package ships an llms.txt for whatever coding agent the app runs. It is
-  // only useful if the agent is pointed at it, and that is one line in a file
-  // this command should not edit on its own.
-  console.log(`\n${bold("If you use a coding agent")}, point it at the API summary:\n`);
-  console.log(`  ${dim("# CLAUDE.md, AGENTS.md, or your agent's equivalent")}`);
-  console.log(`  @node_modules/${PKG_NAME}/llms.txt`);
-
-  console.log(`\nThen: ${bold("foundations doctor")}\n`);
-  return 0;
+  console.log(
+    `\n${dim(`These ${cssEntries.filter((e) => !OPTIONAL_CSS.has(e)).length} lines and the @source can now be one: @import "${BUNDLE}";`)}`,
+  );
 };
 
 const usage = () => {
@@ -682,7 +916,9 @@ Options
 /* ------------------------------------------------------------------- entry */
 
 const args = process.argv.slice(2);
-const command = args.find((a) => !a.startsWith("--")) ?? "help";
+/** Flags that take a value, so the value is not mistaken for the command. */
+const VALUED = new Set(["--cwd"]);
+const command = args.find((a, i) => !a.startsWith("--") && !VALUED.has(args[i - 1])) ?? "help";
 const flag = (name) => args.includes(`--${name}`);
 const value = (name) => {
   const at = args.indexOf(`--${name}`);

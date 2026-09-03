@@ -3,7 +3,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
-import { makeApp, cleanupApps, repoPkg, DEFAULT_PEERS, DEFAULT_CSS } from "./fixtures/app.js";
+import {
+  makeApp,
+  cleanupApps,
+  repoPkg,
+  DEFAULT_PEERS,
+  DEFAULT_CSS,
+  BUNDLE_CSS,
+  CURRENT_TAG,
+} from "./fixtures/app.js";
 
 const CLI = fileURLToPath(new URL("../bin/foundations.mjs", import.meta.url));
 
@@ -29,6 +37,33 @@ describe("doctor", () => {
     const { code, out } = doctor(makeApp());
     expect(out).toContain("no problems");
     expect(code).toBe(0);
+  });
+
+  it("passes an app on the single import, with no @source of its own", () => {
+    const { code, out } = doctor(makeApp({ css: BUNDLE_CSS }));
+    expect(out).toContain("the style layer is complete");
+    expect(out).not.toContain("no @source line");
+    expect(code).toBe(0);
+  });
+
+  it("fails when the single import comes before Tailwind", () => {
+    const app = makeApp({
+      css: `@import "@supertype.ai/foundations";\n@import "tailwindcss";\n`,
+    });
+    const { code, out } = doctor(app);
+    expect(out).toContain("is imported before Tailwind");
+    expect(code).toBe(1);
+  });
+
+  // The bundle imports its own files relatively, so the contrast pass has to
+  // follow it rather than read it — reading it would find four @import lines,
+  // no palette, and report every role as unpainted.
+  it("measures the palette through the single import", () => {
+    const app = makeApp({ css: `${BUNDLE_CSS}\n:root { --muted-foreground: hsl(0 0% 88%); }\n` });
+    const { code, out } = doctor(app);
+    expect(out).toContain("structural ink below 4.5:1");
+    expect(out).toContain("--muted-foreground");
+    expect(code).toBe(1);
   });
 
   it("fails when the @source line is missing", () => {
@@ -217,9 +252,9 @@ export default function RootLayout() {
     expect(code).toBe(1);
   });
 
-  it("fails when no CSS entry imports tailwindcss", () => {
+  it("fails when no CSS entry imports Tailwind", () => {
     const { code, out } = doctor(makeApp({ css: "body { color: red; }\n" }));
-    expect(out).toContain("no CSS entry importing tailwindcss");
+    expect(out).toContain("no CSS entry importing Tailwind");
     expect(code).toBe(1);
   });
 
@@ -250,6 +285,46 @@ export default function RootLayout() {
         `DEFAULT_PEERS.${name} is ${DEFAULT_PEERS[name]}, below the declared ${range}`,
       ).toBe(true);
     }
+  });
+
+  // sectors is on Tailwind 3.3.2 with a v3 `src/app/globals.css`. Every check
+  // in this block used to answer "no CSS entry importing tailwindcss", which is
+  // both wrong and unactionable: the entry is there, the version is not.
+  const V3_CSS = "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n";
+
+  it("names Tailwind v3 as the cause rather than reporting no entry", () => {
+    const app = makeApp({ css: V3_CSS, peers: { tailwindcss: "3.3.2" } });
+    const { code, out } = doctor(app);
+    expect(out).toContain("is a Tailwind v3 stylesheet");
+    expect(out).toContain("tailwindcss@3.3.2 is below the peer range");
+    expect(out).not.toContain("no CSS entry");
+    expect(code).toBe(1);
+  });
+
+  // The install is the fact; the dialect is the fallback for an app running
+  // `npx … init` before it has installed anything.
+  it("falls back to the stylesheet's dialect when Tailwind is not installed", () => {
+    const app = makeApp({ css: V3_CSS, peers: { tailwindcss: null } });
+    expect(doctor(app).out).toContain("is a Tailwind v3 stylesheet");
+  });
+
+  it("finds an entry outside app/, src/ and styles/", () => {
+    const app = makeApp({ css: null, files: { "assets/globals.css": DEFAULT_CSS } });
+    const { out } = doctor(app);
+    expect(out).not.toContain("no CSS entry");
+    // The @source line is measured from wherever the entry actually is.
+    expect(out).toContain("assets/globals.css");
+  });
+
+  it("finds an entry written in v4's layered import form", () => {
+    const app = makeApp({
+      css: `@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+`,
+    });
+    expect(doctor(app).out).not.toContain("no CSS entry");
   });
 
   it("refuses to run against the package itself", () => {
@@ -368,18 +443,24 @@ describe("doctor: CSS comments are not directives", () => {
 describe("init", () => {
   const readCss = (app: string) => readFileSync(join(app, "app/global.css"), "utf8");
 
-  it("adds the missing imports and the @source line", () => {
+  it("adds the single import to an entry with nothing of ours in it", () => {
     const app = makeApp({ css: `@import "tailwindcss";\n` });
     run(["init"], app);
     const css = readCss(app);
 
-    for (const entry of ["tokens", "theme", "type", "prose"]) {
-      expect(css).toContain(`@import "@supertype.ai/foundations/${entry}.css";`);
-    }
-    expect(css).toContain("@source '../node_modules/@supertype.ai/foundations/dist/**/*.js';");
-    // Not added: an app with no code fences should not pay for it.
-    expect(css).not.toContain("shiki.css");
+    expect(css).toContain(`@import "@supertype.ai/foundations";`);
+    // The package registers its own sources now, so neither of these is the
+    // app's business any more.
+    expect(css).not.toContain("@source");
+    expect(css).not.toContain("tokens.css");
     expect(doctor(app).code).toBe(0);
+  });
+
+  it("puts the import after Tailwind, not before it", () => {
+    const app = makeApp({ css: `body { color: red; }\n@import "tailwindcss";\n` });
+    run(["init"], app);
+    const css = readCss(app);
+    expect(css.indexOf(`"tailwindcss"`)).toBeLessThan(css.indexOf(`"@supertype.ai/foundations"`));
   });
 
   it("repairs the order and keeps a trailing comment with its import", () => {
@@ -417,6 +498,7 @@ describe("init", () => {
   it("does not revive a commented-out import", () => {
     const app = makeApp({
       css: `@import "tailwindcss";
+@import "@supertype.ai/foundations/tokens.css";
 /* @import "@supertype.ai/foundations/theme.css"; */
 `,
     });
@@ -434,6 +516,72 @@ describe("init", () => {
     const { out } = run(["init", "--dry-run"], app);
     expect(readCss(app)).toBe(before);
     expect(out).toContain("dry run");
+  });
+
+  // The whole point of the v3 gate: the block it would write is v4 syntax, so
+  // patching would trade a building app for a pile of parse errors.
+  it("writes nothing to a Tailwind v3 stylesheet", () => {
+    const css = "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n";
+    const app = makeApp({ css, peers: { tailwindcss: "3.3.2" } });
+    const { code, out } = run(["init"], app);
+
+    expect(readCss(app)).toBe(css);
+    expect(out).toContain("this app is on Tailwind v3");
+    expect(out).toContain("@tailwindcss/upgrade");
+    expect(code).toBe(1);
+  });
+
+  it("lands the block after the last import of v4's layered form", () => {
+    const app = makeApp({
+      css: `@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+`,
+    });
+    run(["init"], app);
+    const css = readCss(app);
+    expect(css.indexOf("tailwindcss/utilities.css")).toBeLessThan(
+      css.indexOf(`"@supertype.ai/foundations"`),
+    );
+    expect(doctor(app).code).toBe(0);
+  });
+
+  // A workspace hoists the package to the repo root, so the path measured from
+  // the app's own package.json points at nothing and Tailwind silently scans
+  // nothing — which renders every component unstyled, with no error anywhere.
+  it("points @source at the package where it is actually installed", () => {
+    const root = makeApp({
+      files: {
+        "apps/web/package.json": JSON.stringify({
+          name: "web",
+          dependencies: { "@supertype.ai/foundations": CURRENT_TAG },
+        }),
+        // The granular form, so init takes the legacy path and has an @source
+        // line to compute in the first place.
+        "apps/web/app/globals.css": `@import "tailwindcss";
+@import "@supertype.ai/foundations/tokens.css";
+`,
+      },
+    });
+    const app = join(root, "apps/web");
+    run(["init"], app);
+
+    const css = readFileSync(join(app, "app/globals.css"), "utf8");
+    expect(css).toContain("@source '../../../node_modules/@supertype.ai/foundations/dist/**/*.js';");
+    expect(doctor(app).out).toContain("@source scans the package");
+  });
+
+  it("leaves an entry that already takes the single import alone", () => {
+    const app = makeApp({ css: BUNDLE_CSS });
+    run(["init"], app);
+    expect(readCss(app)).toBe(BUNDLE_CSS);
+    expect(run(["init"], app).out).toContain("already imports the style layer");
+  });
+
+  it("tells an app on the granular form that it can collapse to one line", () => {
+    const { out } = run(["init"], makeApp({ css: DEFAULT_CSS }));
+    expect(out).toContain(`can now be one: @import "@supertype.ai/foundations";`);
   });
 
   it("prints the font binding and the agent pointer", () => {
