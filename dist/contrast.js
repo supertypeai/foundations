@@ -41,16 +41,15 @@ function matches(selector, theme) {
 export function resolveTokens(css, theme) {
     const declarations = [];
     let order = 0;
-    // Comments are stripped first. A selector is read back to the previous `}`,
-    // so a comment sitting above one becomes part of it and the rule is silently
-    // skipped — which is how a stylesheet that documents its overrides gets less
-    // checking than one that does not.
-    // A statement at-rule (`@import`, `@source`, `@custom-variant`, `@apply`) ends
-    // in a semicolon, and a selector is read back to the previous `}` — so leaving
-    // one in makes the block that follows it look like an at-rule and be skipped.
+    // Comments are stripped first, then the statement at-rules. The lookbehind is the
+    // whole of it: matching the delimiter would consume the `;` that ends one statement,
+    // and the next one could no longer find a delimiter in front of it. That cleared only
+    // every second statement, so a `:root` under two `@import`s parsed as
+    // `@import "…"; :root`, was read as an at-rule, and its whole palette was dropped —
+    // leaving every check on it reporting a clean sheet. Zero-width, so they all go.
     const source0 = css
         .replace(/\/\*[\s\S]*?\*\//g, "")
-        .replace(/(^|[;{}])\s*@[\w-]+[^;{}]*;/g, "$1");
+        .replace(/(?<=^|[;{}])\s*@[\w-]+[^;{}]*;/g, "");
     // Walk the text, tracking whether the current block sits inside `@layer`.
     const walk = (source, layered) => {
         for (let i = 0; i < source.length; i++) {

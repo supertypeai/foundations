@@ -66,7 +66,6 @@ silently. Full reference: https://github.com/supertypeai/foundations
 | an article whose body is prose or MDX | `EssayHeader` + `ReadingLayout` | `/essay` |
 | a post meta row (date, read time, tags) | `PostMetaRow` and friends | `/essay` |
 | a table of contents | `TableOfContents`, `ReadingRail` | `/essay` |
-| where a centred mark lands on a rung | `checkOptical` | `/optical` |
 | page metadata and JSON-LD | `createSeo` | `/seo` |
 | an OG image | `ogCard`, `OG_SIZE` | `/og` |
 | to merge classnames | `cn` | root |
@@ -82,7 +81,6 @@ silently. Full reference: https://github.com/supertypeai/foundations
 | `@supertype.ai/foundations/seo` | `createSeo`. Types: `SeoConfig`, `ArticleAuthor`, `ArticleOptions`, `PageMetadata` |
 | `@supertype.ai/foundations/og` | `ogCard`, `OG_SIZE`. Types: `OgCardOptions` |
 | `@supertype.ai/foundations/eslint` | `designRules`: every rule as one array, to spread into a `no-restricted-syntax` entry. The set is assembled inside, so it cannot drift. Types: `DesignRuleOptions`, `RestrictedSyntax` |
-| `@supertype.ai/foundations/optical` | `checkOptical`: each rung of a ramp whose centred mark misses the letters by enough to see, worst first. Types: `FontMetrics`, `TypeRung`, `OpticalOffset`. Build-time only |
 | `@supertype.ai/foundations/rehype` | `rehypeProseCode`, `PROSE_THEMES`. Build-time only, must not resolve React |
 | `@supertype.ai/foundations/contrast` | `checkLegibility` (inks at 4.5:1), `checkSignals` (fills at 3:1, tinted inks at 4.5:1, `--subtle-foreground` at the 3:1 it is documented for, labels against their own fill), `checkHairlines` (`--border` and `--input` at 1.4:1 on `--background` and `--card`, `--sidebar-border` on `--sidebar`), `resolveTokens`, `formatFailures`, `specificity`, `parseColor`, `luminance`, `contrast` (WCAG ratio), `lc` (APCA lightness contrast), `tokenCuts`. Types: `Rgb`, `Theme`, `LegibilityFailure`, `TokenCuts`. Build-time only |
 

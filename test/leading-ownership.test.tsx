@@ -12,6 +12,7 @@ import {
   TypographySmall,
   TypographyStat,
 } from "../dist/index.js";
+import { Button } from "../dist/blocks/index.js";
 
 /**
  * Who owns leading, as one table.
@@ -71,5 +72,25 @@ describe("leading ownership", () => {
         <TypographyEyebrow className={CAP_TRIM}>Best reach</TypographyEyebrow>,
       ),
     ).toContain(CAP_TRIM);
+  });
+
+  /**
+   * What a control does to its own label, in one place.
+   *
+   * The padding is what keeps a clipping label's descenders inside the clip box; the pull
+   * is what keeps the trimmed box the thing the row centres on. Drop the pull and every
+   * trimmed label grows by the descender room. Drop the padding and `truncate` shears the
+   * tails off again. On a browser with no `text-box` the two cancel, which is the whole of
+   * the fallback, so this also pins that nothing shifts there.
+   */
+  it("trims a control's label without letting the room reach the layout box", () => {
+    const room = /pb-\[([\d.]+em)\]/.exec(CAP_TRIM)?.[1];
+    expect(room).toBeTruthy();
+    expect(CAP_TRIM).toContain(`-mb-[${room}]`);
+
+    // The wrapper is anatomy, so it carries a slot like every other part Button marks.
+    const markup = renderToStaticMarkup(<Button size="sm">Revoke</Button>);
+    expect(markup).toContain('data-slot="label"');
+    expect(markup).toContain("text-box");
   });
 });

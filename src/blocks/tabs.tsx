@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "../cn.js"
 import { toneClass, type Tone } from "../tone.js"
 import { SEGMENT } from "./segment.js"
+import { trimLabels } from "./trim-labels.js"
 
 function Tabs({
   className,
@@ -128,7 +129,7 @@ function TabsList({
   )
 }
 
-function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
+function TabsTrigger({ className, children, ...props }: TabsPrimitive.Tab.Props) {
   return (
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
@@ -137,7 +138,9 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         // Ink only — the surface and the underline belong to the indicator. The radius is
         // for the hover wash, and matches the marker that wash previews.
         "rounded-sm text-muted-foreground hover:text-foreground data-active:text-foreground",
-        "px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        // The mark is sized off `text-sm`, the same rung Button's `md` sets it from, and
+        // both paths agree: a tab composed by hand and one `TabGroup` builds get one size.
+        "px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-3.5",
         // An icon sits inside the label's gap, so the padding on that side comes off.
         // `TabGroup` writes the `data-icon` these two read.
         "has-data-[icon=inline-start]:pl-1 has-data-[icon=inline-end]:pr-1",
@@ -154,7 +157,9 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         className
       )}
       {...props}
-    />
+    >
+      {trimLabels(children)}
+    </TabsPrimitive.Tab>
   )
 }
 
@@ -197,7 +202,7 @@ function TabIconSlot({
   return (
     <span
       data-icon={position}
-      className="flex items-center transition-colors [&_svg]:size-4 [&_svg]:shrink-0"
+      className="flex items-center transition-colors [&_svg]:size-3.5 [&_svg]:shrink-0"
     >
       {icon}
     </span>

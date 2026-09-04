@@ -23,7 +23,7 @@ declare const tabsListVariants: (props?: ({
 declare function TabsList({ className, variant, tone, children, ...props }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants> & {
     tone?: Tone;
 }): import("react").JSX.Element;
-declare function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props): import("react").JSX.Element;
+declare function TabsTrigger({ className, children, ...props }: TabsPrimitive.Tab.Props): import("react").JSX.Element;
 declare function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props): import("react").JSX.Element;
 /** One tab, whole: what it is called, what marks it, and what it shows. */
 export type TabItem = {

@@ -283,6 +283,31 @@ export interface DesignRuleOptions extends ColourOptions, TypographyOptions {
   typography?: boolean;
 }
 
+/**
+ * A `size-` class on a mark inside a control that already sizes its own marks.
+ *
+ * `Button` and `TabsTrigger` size the svg off their text rung, through a descendant
+ * selector that outranks a class on the icon itself. So a `size-4` written here is
+ * inert: it changes nothing, it reads as though it does, and the next person either
+ * thinks the icon system is broken or reaches for `!size-4` and reopens the drift
+ * this rule exists to keep closed. Drop the token; the rung decides.
+ *
+ * Nested elements only. The control's own `className="size-8"` is its box, a real and
+ * different thing, and the element's own attributes ARE descendants of it in the AST —
+ * so the selector steps through a second `JSXElement` to reach the children. Without
+ * that step this rule strips the box off every icon button.
+ */
+function markSizeRules(): RestrictedSyntax[] {
+  return [
+    {
+      selector:
+        'JSXElement[openingElement.name.name=/^(Button|TabsTrigger)$/] JSXElement JSXAttribute[name.name="className"] Literal[value=/(^| )size-[\\d.]+($| )/]',
+      message:
+        "Button and TabsTrigger size their own icons off the text rung, so this class is inert. Remove the size- token. A control that genuinely needs a bigger mark says so on the control: className=\"[&_svg]:size-5\".",
+    },
+  ];
+}
+
 export function designRules({
   accents,
   typography = true,
@@ -295,5 +320,6 @@ export function designRules({
     ...themeOverrideRules(),
     ...surfaceAsInkRules(),
     ...renamedTokenRules(),
+    ...markSizeRules(),
   ];
 }

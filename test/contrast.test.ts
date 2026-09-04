@@ -357,3 +357,26 @@ describe("a tone an app declares in part", () => {
     expect(failures.filter((f) => f.surface === "--brand")).toEqual([]);
   });
 });
+
+describe("the statement at-rule stripper", () => {
+  /**
+   * The bug this pins cleared only every second statement, because matching the
+   * delimiter consumed the `;` that ended the one before. A `:root` under two
+   * `@import`s then read as `@import "…"; :root`, was taken for an at-rule, and its
+   * whole palette went unparsed — so every check against it reported a clean sheet
+   * and one stylesheet grew a comment asking people to keep a block behind a brace.
+   * Three statements, because two is the smallest case that passes by accident.
+   */
+  it("clears every statement, not every second one", () => {
+    const css = [
+      '@import "tailwindcss";',
+      '@import "@supertype.ai/foundations";',
+      '@source "../node_modules/pkg/**/*.js";',
+      ":root { --foreground: oklch(0.2 0 0); --background: oklch(1 0 0); }",
+    ].join("\n");
+    expect(resolveTokens(css, "light")).toMatchObject({
+      "--foreground": "oklch(0.2 0 0)",
+      "--background": "oklch(1 0 0)",
+    });
+  });
+});

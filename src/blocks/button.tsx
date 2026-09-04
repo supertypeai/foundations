@@ -7,6 +7,7 @@ import { renderAs } from "./render-as.js";
 import { resolveLink, type LinkBehavior } from "../href.js";
 import { FOCUS_RING } from "./focus.js";
 import { INK_ON_FILL, TONE, TONE_SURFACE, impliedTone } from "../tone.js";
+import { trimLabels } from "./trim-labels.js";
 
 // ---------------------------------------------------------------------------
 // The control both apps were re-declaring. viably and ssite each carried their
@@ -43,7 +44,7 @@ const button = cva(
     "active:not-aria-[haspopup]:translate-y-px",
     "disabled:pointer-events-none disabled:opacity-50",
     "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
-    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+    "[&_svg]:pointer-events-none [&_svg]:shrink-0",
     TONE_SURFACE,
   ),
   {
@@ -60,13 +61,20 @@ const button = cva(
        * rungs. `--radius-lg` is 10px and theme.css already labels it "buttons,
        * default control"; the two rungs below borrow `md`, because a 10px radius
        * on a 24px box reads as a lozenge.
+       *
+       * The icon is sized off the text rung rather than the box, so the two rungs
+       * sharing `text-xs` share a mark and the three sharing `text-sm` share
+       * theirs. It used to skip any icon carrying its own `size-`, which meant
+       * every call site re-picked the ratio and the ladder governed almost
+       * nothing. A button that genuinely wants a bigger mark says so with
+       * `className="[&_svg]:size-5"`, which merges over this.
        */
       size: {
-        xs: "h-6 gap-1 rounded-md px-2 text-xs [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 rounded-md px-2.5 text-[0.8rem] [&_svg:not([class*='size-'])]:size-3.5",
-        md: "h-8 gap-1.5 rounded-lg px-3 text-sm",
-        lg: "h-9 gap-2 rounded-lg px-4 text-sm",
-        xl: "h-10 gap-2 rounded-lg px-6 text-sm",
+        xs: "h-6 gap-1 rounded-md px-2 text-xs [&_svg]:size-3",
+        sm: "h-7 gap-1 rounded-md px-2.5 text-xs [&_svg]:size-3",
+        md: "h-8 gap-1.5 rounded-lg px-3 text-sm [&_svg]:size-3.5",
+        lg: "h-9 gap-2 rounded-lg px-4 text-sm [&_svg]:size-3.5",
+        xl: "h-10 gap-2 rounded-lg px-6 text-sm [&_svg]:size-3.5",
       },
       /** A square box for a lone glyph, on whichever rung you are already on. No second ladder of `icon-sm` names to keep aligned with the first. */
       icon: { true: "px-0", false: "" },
@@ -152,6 +160,7 @@ export function Button({
     download?: ComponentProps<"a">["download"];
   }) {
   const resolved = tone ?? impliedTone(variant);
+  const children = trimLabels(props.children);
   const classes = cn(
     button({ variant, tone: resolved, size, icon, pill, className }),
   );
@@ -171,6 +180,7 @@ export function Button({
         {...link}
         className={classes}
         {...(props as ComponentProps<"a">)}
+        children={children}
       />
     );
   }
@@ -180,7 +190,7 @@ export function Button({
   const as =
     isValidElement(render) && render.type === "button"
       ? null
-      : renderAs(render, classes, { ...marks, ...props });
+      : renderAs(render, classes, { ...marks, ...props, children });
   if (as) return as;
 
   return (
@@ -190,6 +200,7 @@ export function Button({
       render={render}
       nativeButton={nativeButton ?? true}
       {...props}
+      children={children}
     />
   );
 }

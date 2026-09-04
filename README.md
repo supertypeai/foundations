@@ -390,8 +390,8 @@ drops the type rules for a surface that sets its own ramp.
 `proseCodeOptions` are what that plugin is built from rather than things to pass.
 
 New in the same release: `CAP_TRIM` and `ON_FIRST_LINE` for lining a mark up with
-the words beside it, and `/optical`, which reads a face's metrics and names the
-rungs where a centred mark misses the letters.
+the words beside it. `Button` and `TabsTrigger` apply the trim to their own labels,
+so a control lines up without the call site knowing the rule.
 
 ---
 

@@ -5,6 +5,7 @@ import { cva } from "class-variance-authority";
 import { cn } from "../cn.js";
 import { toneClass } from "../tone.js";
 import { SEGMENT } from "./segment.js";
+import { trimLabels } from "./trim-labels.js";
 function Tabs({ className, orientation = "horizontal", ...props }) {
     return (_jsx(TabsPrimitive.Root, { "data-slot": "tabs", "data-orientation": orientation, className: cn(
         // Base UI writes the orientation as `data-orientation="horizontal|vertical"`, so
@@ -72,11 +73,14 @@ const tabsIndicatorVariants = cva("pointer-events-none absolute left-0 top-0 w-(
 function TabsList({ className, variant = "default", tone = "primary", children, ...props }) {
     return (_jsxs(TabsPrimitive.List, { "data-slot": "tabs-list", "data-variant": variant, className: cn("relative", toneClass(tone), tabsListVariants({ variant }), className), ...props, children: [_jsx(TabsPrimitive.Indicator, { renderBeforeHydration: true, className: tabsIndicatorVariants({ variant }) }), children] }));
 }
-function TabsTrigger({ className, ...props }) {
+function TabsTrigger({ className, children, ...props }) {
     return (_jsx(TabsPrimitive.Tab, { "data-slot": "tabs-trigger", className: cn(SEGMENT.item, 
         // Ink only — the surface and the underline belong to the indicator. The radius is
         // for the hover wash, and matches the marker that wash previews.
-        "rounded-sm text-muted-foreground hover:text-foreground data-active:text-foreground", "px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", 
+        "rounded-sm text-muted-foreground hover:text-foreground data-active:text-foreground", 
+        // The mark is sized off `text-sm`, the same rung Button's `md` sets it from, and
+        // both paths agree: a tab composed by hand and one `TabGroup` builds get one size.
+        "px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-3.5", 
         // An icon sits inside the label's gap, so the padding on that side comes off.
         // `TabGroup` writes the `data-icon` these two read.
         "has-data-[icon=inline-start]:pl-1 has-data-[icon=inline-end]:pr-1", 
@@ -89,14 +93,14 @@ function TabsTrigger({ className, ...props }) {
         // Hover moves toward the marker's surface, so it previews the selection.
         "group-data-[variant=default]/tabs-list:not-data-active:hover:bg-card/60", 
         // The active icon takes the ink the marker is drawn in.
-        "group-data-[variant=line]/tabs-list:data-active:[&_[data-icon]]:text-(color:--tone-hue)", className), ...props }));
+        "group-data-[variant=line]/tabs-list:data-active:[&_[data-icon]]:text-(color:--tone-hue)", className), ...props, children: trimLabels(children) }));
 }
 function TabsContent({ className, ...props }) {
     return (_jsx(TabsPrimitive.Panel, { "data-slot": "tabs-content", className: cn("flex-1 text-sm outline-none", className), ...props }));
 }
 /** `data-icon` is the hook the trigger's padding and tone selectors read. */
 function TabIconSlot({ icon, position, }) {
-    return (_jsx("span", { "data-icon": position, className: "flex items-center transition-colors [&_svg]:size-4 [&_svg]:shrink-0", children: icon }));
+    return (_jsx("span", { "data-icon": position, className: "flex items-center transition-colors [&_svg]:size-3.5 [&_svg]:shrink-0", children: icon }));
 }
 /**
  * The declarative shorthand: the tabs as data. `TabGroup` is to `Tabs` what

@@ -28,16 +28,27 @@
  * `text-box` keeps the untrimmed box, which is the behaviour of every consumer
  * today.
  *
- * Never on a string that also clips. The bottom edge is the baseline, so
- * descenders sit outside the box, and `truncate` or any other overflow hidden
- * cuts the tails off every g and p in it.
+ * Safe on a string that clips. The trimmed box ends at the baseline, so on its own
+ * `truncate` would shear the tail off every g and p. The padding puts that room back
+ * inside the clip box and the negative margin takes it straight out of the layout box
+ * again, so the row still centres on cap-to-baseline and nothing is cut. 0.35em is an
+ * upper bound on a Latin descender rather than a measurement of one, so it needs no
+ * metrics and cannot drift: too small shears a tail where anyone can see it, and too
+ * large costs paint room inside a clip box and nothing else. The padding and the pull
+ * must stay equal and opposite, which test/leading-ownership.test.tsx pins: on a
+ * browser with no `text-box` they cancel, so the box is the untrimmed line box and the
+ * row lands exactly where it did before. Nothing degrades, nothing shifts, and no
+ * fallback is possible anyway once the metrics table is gone.
+ *
+ * Vertical padding and margin do nothing on an inline box, so this wants a flex item or
+ * a block, which is what `text-box` needs anyway.
  *
  * Uppercase is where it pays. A cap band fills half of an 11px line box and the
  * mark beside it lands a whole device pixel low, where 13px mixed case measures
  * the same trimmed or not: ascenders reach the top of the line box on their own,
  * so there is little leading left to take.
  */
-export const CAP_TRIM = "[text-box:trim-both_cap_alphabetic]";
+export const CAP_TRIM = "[text-box:trim-both_cap_alphabetic] pb-[0.35em] -mb-[0.35em]";
 /**
  * A box one line tall with the mark centred in it, for a mark that belongs to the
  * first line of something taller.
