@@ -172,3 +172,51 @@ mode renders on a white surface.
 
 `specificity`, `parseColor`, `luminance` and `contrast` are exported too, for a
 test that needs one piece of this.
+
+## Optical offset
+
+```ts
+import { checkOptical, formatOffsets } from "@supertype.ai/foundations/optical";
+
+const UBUNTU_SANS = { unitsPerEm: 1000, ascent: 940, descent: 260, capHeight: 727 };
+
+const out = checkOptical(UBUNTU_SANS, [
+  { name: "2xs", fontSize: 11 },
+  { name: "sm", fontSize: 13 },
+  { name: "h1", fontSize: 22 },
+]);
+// 2xs comes back: an icon centred beside it lands half a pixel under the
+// letters, a sixteenth of the cap band, so that text wants CAP_TRIM. 13px is
+// flat, and the same half pixel at 22px is 3% of a much taller band.
+```
+
+`items-center` centres line boxes, and a line box holds leading, ascent and
+descent that the letters may not use. Whether the ink inside it is centred too is
+a property of the face, so it is worth computing once for a ramp instead of
+discovering it a call site at a time.
+
+The arithmetic is one line, and the rounding is the whole reason it earns a file.
+In ratios a face has one tilt at every size, 0.0235em for Ubuntu Sans, which says
+nothing about where to spend a trim. Browsers quantise ascent, descent and cap
+height to whole pixels before they lay a line out, and rounded, the same face is
+half a pixel out at 11px, flat at 13px, and half a pixel out again at 22px. The
+rendered pages show that shape at roughly double the size, because paint rounds
+the baseline a second time in the same direction.
+
+Feed it metrics you have checked. `next/font`'s table gives Ubuntu Sans a cap
+height of 693 where the browser measures 727, through `actualBoundingBoxAscent`
+on a canvas-drawn H, and the wrong figure reports the page title rung as flat
+when it renders a pixel out. Ascent and descent in that table are right, so cap
+height is the one worth confirming.
+
+The verdict is a share rather than a pixel, and that is the part worth
+understanding. Half a pixel is most of a ramp: on Ubuntu Sans only 13px and 24px
+land flat. What separates a rung a reader sees from one nobody does is what the
+miss is half a pixel of, a sixteenth of an 11px cap band against a thirty-second
+of a 36px one, so `tolerance` is a fraction of the cap band and defaults to 0.05.
+Pass 0 to see the whole ramp.
+
+Two more things follow for reading the output. Leading is not a lever, since
+half-leading cancels and a rung that is out stays out however it is set. And the
+number is a floor rather than a verdict, so treat a rung that comes back as one
+to trim and not as a pixel count to subtract.

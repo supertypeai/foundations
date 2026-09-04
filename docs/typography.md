@@ -204,3 +204,34 @@ column head or a rail marker the reader takes in on the way past.
 Each tone carries the rung it is usually set at, and `size` overrides that where
 the surface needs another: `sm`, `xs`, `2xs`, `3xs`. Omit it and the tone's own rung
 stands, so the prop changes nothing anywhere it is not passed.
+
+## Text beside a mark
+
+```tsx
+<div className="flex min-h-3.5 items-center gap-1">
+  <TypographyEyebrow tone="label" className={CAP_TRIM}>Best reach</TypographyEyebrow>
+  <InfoHint hint="The furthest a single post reached." />
+</div>
+```
+
+`items-center` centres boxes, and a line box holds room for ascenders and
+descenders the string may not use. Uppercase is where that shows: an eleven pixel
+label paints an eight pixel band of ink inside a fifteen pixel box, so the icon
+beside it centres on the box and lands about a pixel under the letters.
+`CAP_TRIM` makes the element as tall as its own ink, and the row then centres
+what the reader sees.
+
+It belongs on the text rather than the row, because `text-box` is not inherited.
+The floor on the row is the other half: a trimmed label is shorter than an
+untrimmed one, so a card whose label carries no mark would make a shorter row
+than the cards beside it and lift its figure out of line. Firefox has no
+`text-box` yet and keeps the untrimmed box, which is what every browser did
+before.
+
+Two limits decide where it goes. The trimmed box ends at the baseline, so
+descenders hang outside it and `truncate` on the same element cuts the tail off
+every g and p: a title that clips takes the pixel instead. And the size of the
+win tracks how much leading there is to take. Beside an eleven pixel uppercase
+label the mark moves a whole device pixel; a thirteen pixel mixed-case label
+measures the same trimmed or not, because its ascenders already reach the top of
+the line box.

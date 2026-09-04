@@ -2,7 +2,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import {
+  CAP_TRIM,
   TypographyCaption,
+  TypographyEyebrow,
   TypographyH2,
   TypographyLabel,
   TypographyMuted,
@@ -53,5 +55,21 @@ describe("leading ownership", () => {
         lead(renderToStaticMarkup(<TypographyLabel size={size}>l</TypographyLabel>)),
       );
     }
+  });
+
+  /**
+   * The cap trim is the row's business, not a primitive's. Shipping it on one
+   * would shorten every call site's box to its ink, which is right only where a
+   * mark sits beside the text and the two have to centre on each other.
+   */
+  it("keeps the cap trim opt-in", () => {
+    for (const [, render] of OWNS_ITS_LEADING) {
+      expect(renderToStaticMarkup(render())).not.toContain("text-box");
+    }
+    expect(
+      renderToStaticMarkup(
+        <TypographyEyebrow className={CAP_TRIM}>Best reach</TypographyEyebrow>,
+      ),
+    ).toContain(CAP_TRIM);
   });
 });
