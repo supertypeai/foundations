@@ -32,10 +32,18 @@ const POINTER = `# CLAUDE.md, AGENTS.md, or your agent's equivalent
 @node_modules/@supertype.ai/foundations/llms.txt`;
 
 const ESLINT = `// eslint.config.js
-import { designConfig } from "@supertype.ai/foundations/eslint";
+import { designRules } from "@supertype.ai/foundations/eslint";
 
 export default [
-  ...designConfig({ accents: "the brand tints", weights: true }),
+  {
+    files: ["app/**/*.tsx", "components/**/*.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        ...designRules({ accents: "the brand tints", weights: true }),
+      ],
+    },
+  },
 ];`;
 
 const CI = `- run: npx foundations doctor`;
@@ -46,7 +54,7 @@ export default function AgentsPage() {
       <PageTitle
         eyebrow="Setup"
         title="Coding agents"
-        lede="A new agent usually writes text-sm text-muted-foreground until it learns the primitive exists. The package ships a summary for that, plus two checks that catch the gaps the summary misses."
+        lede="A new agent usually writes text-sm text-muted-foreground until it learns the primitive exists. This package ships a summary for that, plus two checks that catch the gaps the summary misses."
       />
 
       <Section
@@ -73,7 +81,7 @@ export default function AgentsPage() {
       <Section
         id="contents"
         title="What is in the file"
-        note={`${LLMS_LINES} lines, in ${LLMS_SECTIONS.length} sections: ${LLMS_SECTIONS.join(", ")}. Written for an agent seeing the package for the first time, so it leads with the rules and gets to the API after.`}
+        note={`${LLMS_LINES} lines, in ${LLMS_SECTIONS.length} sections: ${LLMS_SECTIONS.join(", ")}. It is written for a first-time agent, so it leads with the rules and gets to the API afterward.`}
       >
         <div className="mt-4">
           <Code lang="markdown" code={llmsSection("Rules")} />

@@ -2,6 +2,8 @@
 /**
  * Bump, verify, commit, tag, push, publish.
  *
+ *   yarn release [patch|minor|major]     default patch
+ *
  * A release is a tag and a registry version, and they have to be the same
  * commit. Consumers install from npm; the git remote still resolves for anyone
  * pinning a commit ahead of a release. The bump is part of releasing rather
@@ -109,8 +111,26 @@ const resume =
   capture("git", ["rev-list", "-n", "1", `v${pkg.version}`]) === head &&
   !published().includes(pkg.version);
 
-const [major, minor, patch] = pkg.version.split(".").map(Number);
-const version = resume ? pkg.version : `${major}.${minor}.${patch + 1}`;
+/**
+ * How far to move. A breaking change needs a minor on a 0.x line, and this could
+ * only ever compute patch + 1, so the release that removed an export was the one
+ * release the tool could not cut. `resume` ignores the level: a version that is
+ * tagged and unpublished is finished as it stands, whatever was asked for.
+ *
+ *   yarn release            0.1.37 → 0.1.38
+ *   yarn release minor      0.1.37 → 0.2.0
+ */
+const STEP = {
+  patch: ([major, minor, patch]) => [major, minor, patch + 1],
+  minor: ([major, minor]) => [major, minor + 1, 0],
+  major: ([major]) => [major + 1, 0, 0],
+};
+
+const level = process.argv[2] ?? "patch";
+if (!(level in STEP)) die(`unknown bump "${level}"; pass patch, minor or major`);
+
+const current = pkg.version.split(".").map(Number);
+const version = resume ? pkg.version : STEP[level](current).join(".");
 const tag = `v${version}`;
 
 if (!resume && capture("git", ["tag", "--list", tag])) {

@@ -3,14 +3,16 @@
  * Checks that llms.txt still lists every public export.
  *
  * llms.txt is written by hand, because the useful part is the guidance rather
- * than a dump of names. What rots is completeness: someone adds a component and
- * the agents reading this file never hear about it. So the prose stays manual
- * and the coverage is checked here, against the real exports of every entry
- * point as TypeScript sees them.
+ * than a dump of names. What rots is completeness in both directions: someone
+ * adds a component and the agents reading this file never hear about it, or
+ * someone deletes one and its row stands for as long as nobody rereads the file.
+ * A stale row is the worse half, since it sends a reader to an import that does
+ * not resolve. So the prose stays manual and both directions are checked here,
+ * against the real exports of every entry point as TypeScript sees them.
  *
  *   node scripts/check-llms.mjs
  */
-import { readFileSync } from "node:fs";
+import { globSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
@@ -44,6 +46,44 @@ for (const [entry, file] of entries) {
     // Word boundary, so `Card` does not match inside `CardHeader`.
     if (!new RegExp(`\\b${name}\\b`).test(llms)) missing.push(`${entry} → ${name}`);
   }
+}
+
+/**
+ * The other direction: a name the table still advertises that no longer exists.
+ * Read against every declaration the build emits rather than the entry points
+ * alone, because a row's prose names internals too — the contrast row explains
+ * that its tone rows are read off `TONE`, which is real and not importable.
+ * Only backticked identifiers count, so `no-restricted-syntax` and `--brand` are
+ * not candidates. `designConfig`, the day after it was deleted, was.
+ */
+const known = new Set();
+for (const file of globSync("dist/**/*.d.ts", { cwd: root })) {
+  const source = readFileSync(new URL(`../dist/${file.slice(5)}`, import.meta.url), "utf8");
+  for (const [, name] of source.matchAll(/export (?:declare )?(?:function|const|class|interface|type) (\w+)/g)) {
+    known.add(name);
+  }
+  // Re-export lists, `type` ones included, which is how the barrels carry the
+  // client components and how a deprecated name stays reachable.
+  for (const [, list] of source.matchAll(/export\s*(?:type\s*)?\{([^}]*)\}/g)) {
+    for (const part of list.split(",")) {
+      const name = part.trim().split(/\s+as\s+/).pop()?.trim();
+      if (name && /^[A-Za-z_$][\w$]*$/.test(name)) known.add(name);
+    }
+  }
+}
+
+const stale = [];
+for (const row of llms.split("\n").filter((l) => l.startsWith("| `@supertype.ai/foundations"))) {
+  for (const [, name] of row.matchAll(/`([A-Za-z][A-Za-z0-9_]*)`/g)) {
+    if (!known.has(name) && !stale.includes(name)) stale.push(name);
+  }
+}
+
+if (stale.length) {
+  console.error(`\nllms.txt advertises ${stale.length} name(s) nothing exports:\n`);
+  for (const name of stale) console.error(`  ${name}`);
+  console.error("\nDelete the mention, or the export came back under another name.\n");
+  process.exit(1);
 }
 
 if (missing.length) {

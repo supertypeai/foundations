@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { capBandOffset, checkOptical } from "../dist/optical.js";
+import { checkOptical } from "../dist/optical.js";
 
 /**
  * Ubuntu Sans, the face both apps bind. Ascent and descent are the table
@@ -30,22 +30,24 @@ const RENDERED: [name: string, fontSize: number, predicted: number, measured: nu
 ];
 
 describe("optical offset", () => {
+  /** One rung's miss, through the only door the module has. */
+  const offsetAt = (metrics: typeof UBUNTU_SANS, fontSize: number) =>
+    checkOptical(metrics, [{ name: "x", fontSize }], { tolerance: 0 })[0]?.offset ?? 0;
+
   it.each(RENDERED)("%s", (_name, fontSize, predicted, measured) => {
-    const offset = capBandOffset(UBUNTU_SANS, fontSize);
-    expect(offset).toBe(predicted);
-    expect(Math.sign(offset)).toBe(Math.sign(measured));
+    expect(offsetAt(UBUNTU_SANS, fontSize)).toBe(predicted);
+    expect(Math.sign(offsetAt(UBUNTU_SANS, fontSize))).toBe(Math.sign(measured));
   });
 
   /**
-   * Half-leading cancels out of the arithmetic, so a rung that is out cannot be
-   * tuned back in by loosening or tightening its leading. Worth pinning: the
-   * first instinct on seeing a mark sit low is to reach for the line height.
+   * The table's cap height, the one number in it that disagrees with the browser:
+   * it reports the page title as flat, which the render contradicts. Leading needs
+   * no test of its own, since it is not a parameter: half-leading cancels out of
+   * the arithmetic, so there is no way to pass one in and no way for it to matter.
    */
-  it("turns on the metrics, not the ramp's leading", () => {
-    // The table's cap height, the one number in it that disagrees with the
-    // browser: it reports the page title as flat, which the render contradicts.
-    expect(capBandOffset({ ...UBUNTU_SANS, capHeight: 693 }, 22)).toBe(0);
-    expect(capBandOffset(UBUNTU_SANS, 22)).toBe(0.5);
+  it("turns on the metrics", () => {
+    expect(offsetAt({ ...UBUNTU_SANS, capHeight: 693 }, 22)).toBe(0);
+    expect(offsetAt(UBUNTU_SANS, 22)).toBe(0.5);
   });
 
   /**

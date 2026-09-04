@@ -93,6 +93,7 @@
     "test": "yarn build && vitest run",
     "test:watch": "vitest",
     "check:llms": "node scripts/check-llms.mjs",
+    "check:consumers": "node scripts/consumers.mjs",
     "check:pins": "node scripts/pins.mjs",
     "release": "node scripts/release.mjs",
     "sync": "node scripts/sync.mjs",

@@ -28,7 +28,7 @@ const px = (value, fontSize, unitsPerEm) => Math.round((value * fontSize) / unit
  * Paint rounds the baseline a second time, in the same direction, so treat this
  * as the floor of the error rather than the whole of it.
  */
-export function capBandOffset(metrics, fontSize) {
+function capBandOffset(metrics, fontSize) {
     const ascent = px(metrics.ascent, fontSize, metrics.unitsPerEm);
     const descent = px(metrics.descent, fontSize, metrics.unitsPerEm);
     const capHeight = px(metrics.capHeight, fontSize, metrics.unitsPerEm);
@@ -47,22 +47,10 @@ export function capBandOffset(metrics, fontSize) {
 export function checkOptical(metrics, rungs, { tolerance = 0.05 } = {}) {
     return rungs
         .map((rung) => {
-        const used = {
-            ascent: px(metrics.ascent, rung.fontSize, metrics.unitsPerEm),
-            descent: px(metrics.descent, rung.fontSize, metrics.unitsPerEm),
-            capHeight: px(metrics.capHeight, rung.fontSize, metrics.unitsPerEm),
-        };
-        const offset = used.capHeight / 2 - (used.ascent - used.descent) / 2;
-        return { ...rung, offset, share: Math.abs(offset) / used.capHeight, used };
+        const offset = capBandOffset(metrics, rung.fontSize);
+        const capHeight = px(metrics.capHeight, rung.fontSize, metrics.unitsPerEm);
+        return { ...rung, offset, share: Math.abs(offset) / capHeight };
     })
         .filter((rung) => rung.share > tolerance)
         .sort((a, b) => b.share - a.share);
-}
-/** The failures as lines, on the model of `formatFailures` in contrast.ts. */
-export function formatOffsets(offsets) {
-    return offsets
-        .map(({ name, fontSize, offset, used }) => `  ${name} (${fontSize}px)  mark sits ${Math.abs(offset)}px ${offset > 0 ? "below" : "above"} the cap band` +
-        `, ${Math.round((Math.abs(offset) / used.capHeight) * 100)}% of it` +
-        `  [ascent ${used.ascent}, descent ${used.descent}, cap ${used.capHeight}]`)
-        .join("\n");
 }

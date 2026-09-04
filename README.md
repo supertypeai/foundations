@@ -43,10 +43,13 @@ npx @supertype.ai/foundations init      # edits your CSS entry, prints the rest
 npx @supertype.ai/foundations doctor    # checks this app against everything below
 ```
 
-`init` edits one file: the CSS entry that imports Tailwind. It adds the imports
-you are missing and reorders anything that is out of place. Run it with `--dry-run` first to preview the patch. Everything else it prints for you to paste is the font binding and the `llms.txt` lines for a coding agent.
+`init` edits one file: the CSS entry that imports Tailwind. It adds any missing
+imports and reorders the existing ones if needed. Run it with `--dry-run` first
+to preview the patch. It also prints the font bindings and the `llms.txt` snippet
+your coding agent should read.
 
-The steps performed by `init` are written out below anyway. See [the CLI](docs/cli.md) for the full list of checks and details.
+The steps performed by `init` are listed below. See [the CLI](docs/cli.md) for
+the full list of checks and details.
 
 ### 1. Add the package
 
@@ -89,10 +92,10 @@ untagged git dependency resolves to a different commit on a fresh install.
 
 That one line carries `tokens.css`, `theme.css`, `type.css` and `prose.css` in
 the order the cascade needs, and registers the package&rsquo;s own `@source` so
-Tailwind scans the components it ships. There is no path for you to work out and
-no order for you to keep: Tailwind v4 resolves `@source` relative to the file
-that declares it, so the package points at its own `dist/`, correctly, wherever
-it happens to be installed.
+Tailwind scans the components it ships. You do not need to work out a path or
+keep an order: Tailwind v4 resolves `@source` relative to the file that declares
+it, so the package points at its own `dist/`, correctly, wherever it happens to
+be installed.
 
 Add `@import "@supertype.ai/foundations/shiki.css";` after it only if you render
 code fences.
@@ -239,8 +242,8 @@ Two rules cover most of the API:
 `yarn example` (above) builds the package, syncs it in and starts the dev
 server. `yarn example:build` is what CI would run.
 
-It installs the package from a git tag rather than from the registry and updates
-it with `yarn sync`.
+It installs the package from a git tag rather than the registry and updates it
+with `yarn sync`.
 
 `/recipes` holds whole pages rather than single components: a marketing hero, a
 metrics panel, pricing tiers, a docs page, an article index, and examples of MDX-rendered pages. Each one lives in
@@ -268,19 +271,19 @@ package.
 
 ## Entry points
 
-| import                                                                | contains                                                                 | docs                                         |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------- |
-| `@supertype.ai/foundations`                                           | all typography primitives, `cn`                                          | [Typography](docs/typography.md)             |
+| import                                                                | contains                                                                          | docs                                         |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------- |
+| `@supertype.ai/foundations`                                           | all typography primitives, `cn`                                                   | [Typography](docs/typography.md)             |
 | `@supertype.ai/foundations/blocks`                                    | `Button`, `Badge`, `Card`, `Callout`, `Steps`, `TabGroup`, `Accordion`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
-| `@supertype.ai/foundations/mdx`                                       | `proseMdxComponents` — the MDX element map                               | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                        | [Essay](docs/essay.md)                       |
-| `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype.ai/foundations/og`                                        | `ogCard`, `OG_SIZE` — an element for `next/og`                           | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype.ai/foundations/eslint`                                    | the design rules as ESLint selectors                                     | [Tooling](docs/tooling.md#lint-rules)        |
-| `@supertype.ai/foundations/rehype`                                    | `rehypeProseCode` — **build-time only**                                  | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype.ai/foundations/contrast`                                  | token resolution + legibility checks, build-time only                    | [Tooling](docs/tooling.md#contrast-checks)   |
-| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                          | [Tokens and theming](#tokens-and-theming)    |
-| `foundations` (bin)                                                   | `init` and `doctor`                                                      | [The CLI](docs/cli.md)                       |
+| `@supertype.ai/foundations/mdx`                                       | `proseMdxComponents` — the MDX element map                                        | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                                 | [Essay](docs/essay.md)                       |
+| `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                             | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype.ai/foundations/og`                                        | `ogCard`, `OG_SIZE` — an element for `next/og`                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype.ai/foundations/eslint`                                    | the design rules as ESLint selectors                                              | [Tooling](docs/tooling.md#lint-rules)        |
+| `@supertype.ai/foundations/rehype`                                    | `rehypeProseCode` — **build-time only**                                           | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/contrast`                                  | token resolution + legibility checks, build-time only                             | [Tooling](docs/tooling.md#contrast-checks)   |
+| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                                   | [Tokens and theming](#tokens-and-theming)    |
+| `foundations` (bin)                                                   | `init` and `doctor`                                                               | [The CLI](docs/cli.md)                       |
 
 ---
 
@@ -341,12 +344,12 @@ surfaces set body at different sizes: 13px in the product, 18px on `.editorial`.
 
 1. **The package owns its final classnames.** Retune with CSS custom properties
    (the `--text-*`, `--heading-weight`, the colour tokens) rather than by
-   patching classes. A property the package declares is read by the package —
-   `test/tokens-live.test.ts` fails on one that is not, because a knob that
-   turns nothing is worse than no knob at all.
+   patching classes. A property the package declares is read by the package; if a
+   knob turns nothing, `test/tokens-live.test.ts` fails on it; that is worse
+   than no knob at all.
 2. **No variant props on the MDX map.** Elements that MDX renders automatically
-   take no options, because there is no call site to make the choice. Components
-   you invoke by hand can have variants.
+   take no options. No call site exists to make the choice. Components you invoke
+   by hand can have variants.
 3. **Use the platform first, and a library only where it falls short.**
    `Disclosure` is a `<details>`/`<summary>` pair: no JavaScript, correct before
    hydration, and available to an MDX author. `Accordion` and `Tabs` use Base UI,
@@ -357,6 +360,38 @@ surfaces set body at different sizes: 13px in the product, 18px on `.editorial`.
    substitute its own element and strip the classes off it, but it cannot strip a
    child combinator. Both the Shiki theming and the inline-code rule rely on
    this.
+
+---
+
+## Upgrading to 0.2
+
+Two entry points lost exports. Both had one function doing the work and several
+more standing beside it, and the extras are what a config got wrong.
+
+**`/eslint` is one function.** `designRules` assembles every rule, so replace
+`designConfig({ accents, weights })` with your own flat-config entry around it:
+
+```js
+{
+  files: ["app/**/*.tsx", "components/**/*.tsx"],
+  rules: {
+    "no-restricted-syntax": ["error", ...designRules({ accents: "the brand tints" })],
+  },
+}
+```
+
+`colourRules`, `typographyRules`, `linkRules`, `themeOverrideRules`,
+`surfaceAsInkRules` and `renamedTokenRules` are internal now. Spreading a subset
+was how a config came to be running four of the six sets, unaware of the other
+two, so the whole set is what the package hands out. `typography: false` still
+drops the type rules for a surface that sets its own ramp.
+
+**`/rehype` is `rehypeProseCode` and `PROSE_THEMES`.** `PROSE_LANGS` and
+`proseCodeOptions` are what that plugin is built from rather than things to pass.
+
+New in the same release: `CAP_TRIM` and `ON_FIRST_LINE` for lining a mark up with
+the words beside it, and `/optical`, which reads a face's metrics and names the
+rungs where a centred mark misses the letters.
 
 ---
 

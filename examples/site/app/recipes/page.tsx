@@ -19,7 +19,7 @@ import { pageMetadata } from "../_components/seo";
 
 export const metadata: Metadata = pageMetadata("recipes");
 
-/** The three files that wire the MDX map up. Config, so there is nothing to preview. */
+/** The three files that wire the MDX map up. This is config, not preview code. */
 const MDX_COMPONENTS = `// mdx-components.tsx — the file convention @next/mdx calls with no arguments
 import type { MDXComponents } from "mdx/types";
 import { proseMdxComponents } from "@supertype.ai/foundations/mdx";

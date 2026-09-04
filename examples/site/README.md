@@ -15,10 +15,10 @@ Then http://localhost:3000.
 
 This app installs `@supertype.ai/foundations` from a git tag, the same way `ssite`
 and `viably` do, and `yarn example` copies the local build over the installed
-copy using the same `yarn sync` those two use. No workspace and no `yarn link`,
-because a symlink gives you two copies of React and a path outside the project
-root — the failure the README warns about. An example that skips the install
-contract cannot check it.
+copy using the same `yarn sync` those two use. No workspace and no `yarn link`:
+a symlink gives you two copies of React and a path outside the project root, the
+same failure the README warns about. An example that skips the install contract
+cannot check it.
 
 So `app/global.css` is the README's install block unchanged, and
 `app/layout.tsx` is the README's font binding unchanged. If either drifts from

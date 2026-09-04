@@ -35,22 +35,30 @@ const CALL_SITES = `<TypographyMuted>Only what the product needs to run.</Typogr
 <TypographyCaption as="p">Last reviewed Sep 2026</TypographyCaption>
 <TypographyEyebrow>Guides</TypographyEyebrow>`;
 
-/** The whole install for the design rules. One entry, one `no-restricted-syntax`,
- *  because flat config replaces a rule's options rather than merging them. */
+/** The standard config for the design rules. One spread, because `designRules`
+ * assembles the whole set in one place. */
 const LINT_CONFIG = `// eslint.config.js
-import { designConfig } from "@supertype.ai/foundations/eslint";
+import { designRules } from "@supertype.ai/foundations/eslint";
 
 export default [
-  ...designConfig({ accents: "the brand tints", weights: true }),
+  {
+    files: ["app/**/*.tsx", "components/**/*.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        ...designRules({ accents: "the brand tints", weights: true }),
+      ],
+    },
+  },
 ];`;
 
-/** Longer than the nav label, so the page keeps its own headline. */
+/** The page headline is longer than the nav label, so it keeps its own title. */
 const TITLE = "Why foundations";
 
-/** Shared with the tab and the card, so the schema cannot disagree with them. */
+/** Shared with the tab and the card so the schema stays consistent with them. */
 const { description } = PAGES.find((page) => page.slug === "philosophy")!;
 
-/** The byline the page prints, and the same person the schema names. */
+/** The byline printed on the page and the same person named in the schema. */
 const AUTHOR = { name: "Samuel Chan", url: "https://supertype.ai/p/samuel" };
 
 export default function PhilosophyPage() {
@@ -207,7 +215,7 @@ export default function PhilosophyPage() {
             same set from one line of config.
           </TypographyProse>
 
-          <EssayFigure caption="designConfig returns a single flat-config entry holding a single no-restricted-syntax rule.">
+          <EssayFigure caption="designRules returns every rule as one array, for one no-restricted-syntax entry.">
             <Code code={LINT_CONFIG} lang="js" />
           </EssayFigure>
 

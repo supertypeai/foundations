@@ -1,21 +1,16 @@
 import { describe, expect, it } from "vitest";
-import {
-  colourRules,
-  typographyRules,
-  themeOverrideRules,
-  surfaceAsInkRules,
-  renamedTokenRules,
-  linkRules,
-  designConfig,
-} from "../dist/eslint.js";
+import { designRules } from "../dist/eslint.js";
 
-/** Every rule is a selector plus a message, which is all ESLint is handed. */
-const allRules = () => [
-  ...colourRules(),
-  ...typographyRules({ weights: true }),
-  ...themeOverrideRules(),
-  ...surfaceAsInkRules(),
-];
+/**
+ * The rules as a consumer receives them, which is one call.
+ *
+ * This file used to drive the six builders directly, and exporting them for that
+ * is what widened the entry point to fourteen names for an app that imports one.
+ * Every assertion below reaches its rule by what the rule says, so the set can be
+ * refactored underneath without the test noticing.
+ */
+const messageWith = (needle: string, options?: Parameters<typeof designRules>[0]) =>
+  designRules(options).filter((rule) => rule.message.includes(needle));
 
 /** The regex inside a `Literal[value=/…/]` selector, as esquery would read it. */
 const patterns = (rules: { selector: string }[]) =>
@@ -24,8 +19,10 @@ const patterns = (rules: { selector: string }[]) =>
     .filter((p): p is string => Boolean(p));
 
 describe("rule shape", () => {
+  const all = designRules({ weights: true });
+
   it("gives every rule a selector and a message", () => {
-    for (const rule of allRules()) {
+    for (const rule of all) {
       expect(rule.selector, JSON.stringify(rule)).toBeTruthy();
       expect(rule.message, rule.selector).toBeTruthy();
     }
@@ -35,98 +32,62 @@ describe("rule shape", () => {
     // ESLint 8's bundled esquery ends a pattern at the first slash it sees,
     // however it is escaped, and hands RegExp the truncated half. Escapes have
     // to be written \x2f.
-    for (const pattern of patterns(allRules())) {
+    for (const pattern of patterns(all)) {
       expect(pattern.includes("/"), pattern).toBe(false);
     }
   });
 
   it("compiles every embedded pattern", () => {
-    const found = patterns(allRules());
+    const found = patterns(all);
     expect(found.length).toBeGreaterThan(0);
     for (const pattern of found) expect(() => new RegExp(pattern)).not.toThrow();
   });
-});
 
-describe("colourRules", () => {
-  it("puts the caller's accent names in the message", () => {
-    const [first] = colourRules({ accents: "the brand tints" });
-    expect(first.message).toContain("the brand tints");
-  });
-
-  it("has a default so the argument is optional", () => {
-    expect(colourRules()[0].message).toContain("a brand accent");
-  });
-});
-
-describe("typographyRules", () => {
-  it("leaves the weight rule out by default", () => {
-    const withWeights = JSON.stringify(typographyRules({ weights: true }));
-    const without = JSON.stringify(typographyRules());
-    expect(withWeights.length).toBeGreaterThan(without.length);
-  });
-
-  it("quotes the ramp back in the message when given one", () => {
-    const rules = typographyRules({ ramp: "text-xs 12 / text-sm 13" });
-    expect(JSON.stringify(rules)).toContain("text-xs 12");
-  });
-});
-
-describe("the rules that take no options", () => {
   it("returns the same set every call, since nothing varies per app", () => {
-    expect(themeOverrideRules()).toEqual(themeOverrideRules());
-    expect(surfaceAsInkRules()).toEqual(surfaceAsInkRules());
-  });
-
-  it("restricts the solid dark: form and leaves an alpha scrim alone", () => {
-    const solid = JSON.stringify(themeOverrideRules());
-    // `dark:bg-destructive/20` against a `/10` is the same token at a different
-    // density, so the patterns must not match a value carrying an alpha suffix.
-    for (const pattern of patterns(themeOverrideRules())) {
-      const re = new RegExp(pattern);
-      expect(re.test(" dark:bg-destructive/20"), pattern).toBe(false);
-    }
-    expect(solid).toContain("dark:");
+    expect(designRules()).toEqual(designRules());
   });
 });
 
-describe("designConfig", () => {
-  it("is one flat-config entry holding one no-restricted-syntax rule", () => {
-    const config = designConfig();
-    expect(config).toHaveLength(1);
-    expect(Object.keys(config[0].rules)).toEqual(["no-restricted-syntax"]);
-    expect(config[0].name).toBe("@supertype.ai/foundations/design");
+describe("what a consumer configures", () => {
+  it("names the caller's accents, and has a default so the argument is optional", () => {
+    expect(messageWith("the brand tints", { accents: "the brand tints" }).length).toBeGreaterThan(0);
+    expect(messageWith("a brand accent").length).toBeGreaterThan(0);
   });
 
-  it("carries every rule, since a second entry would replace the first", () => {
-    const [severity, ...rules] = designConfig()[0].rules["no-restricted-syntax"] as [string, ...object[]];
-    expect(severity).toBe("error");
-    expect(rules).toHaveLength(
-      colourRules().length +
-        typographyRules().length +
-        linkRules().length +
-        themeOverrideRules().length +
-        surfaceAsInkRules().length +
-        renamedTokenRules().length,
+  it("quotes the ramp back, and leaves the weight rule out by default", () => {
+    expect(messageWith("text-xs 12", { ramp: "text-xs 12 / text-sm 13" }).length).toBeGreaterThan(0);
+    expect(JSON.stringify(designRules({ weights: true })).length).toBeGreaterThan(
+      JSON.stringify(designRules()).length,
     );
   });
 
-  it("passes its options through to the builders", () => {
-    const config = designConfig({ accents: "the brand tints", weights: true });
-    const json = JSON.stringify(config);
-    expect(json).toContain("the brand tints");
-    expect(json).toContain("font-semibold");
-  });
-
-  it("defaults to every source file and takes a narrower list", () => {
-    expect(designConfig()[0].files).toEqual(["**/*.{ts,tsx,js,jsx}"]);
-    expect(designConfig({ files: ["app/**/*.tsx"] })[0].files).toEqual(["app/**/*.tsx"]);
+  /**
+   * The one flag, and the reason it is a flag: a surface that sets its own ramp
+   * still has to spell its colours in tokens. Picking the colour half by hand is
+   * what this replaced, and how an app once ran four of the six sets.
+   */
+  it("drops the type rules and keeps the colour ones", () => {
+    const without = designRules({ typography: false });
+    expect(without.length).toBeLessThan(designRules().length);
+    expect(without.filter((r) => r.message.includes("a brand accent")).length).toBeGreaterThan(0);
   });
 });
 
-describe("linkRules", () => {
+describe("the rules themselves", () => {
+  it("restricts the solid dark: form and leaves an alpha scrim alone", () => {
+    // `dark:bg-destructive/20` against a `/10` is the same token at a different
+    // density, so the patterns must not match a value carrying an alpha suffix.
+    const dark = designRules().filter((r) => r.selector.includes("dark:"));
+    expect(dark.length).toBeGreaterThan(0);
+    for (const pattern of patterns(dark)) {
+      expect(new RegExp(pattern).test(" dark:bg-destructive/20"), pattern).toBe(false);
+    }
+  });
+
   it("matches a bare anchor in a render prop, on the components that take href", () => {
-    const [{ selector, message }] = linkRules();
-    expect(selector).toContain('JSXAttribute[name.name="render"]');
+    const [{ selector, message }] = designRules().filter((r) =>
+      r.selector.includes('JSXAttribute[name.name="render"]'),
+    );
     expect(selector).toContain("JSXExpressionContainer");
     // The rendered element: only a bare <a>. `render={<Link/>}` still routes.
     expect(selector.endsWith('JSXOpeningElement[name.name="a"]')).toBe(true);
@@ -139,13 +100,5 @@ describe("linkRules", () => {
     for (const name of ["RailLink", "Tabs", "div"]) expect(match.test(name), name).toBe(false);
     // The message has to name the fix, since the rule fires on a line that looks fine.
     expect(message).toContain("href");
-  });
-
-  it("ships in the full set, so neither app can miss it", () => {
-    const [, ...rules] = designConfig()[0].rules["no-restricted-syntax"] as [
-      string,
-      ...{ selector: string }[],
-    ];
-    expect(rules.map((r) => r.selector)).toContain(linkRules()[0].selector);
   });
 });

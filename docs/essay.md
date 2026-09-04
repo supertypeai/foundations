@@ -13,9 +13,14 @@ also exports the individual pieces, which an MDX article composes directly.
 import { createEssay } from "@supertype.ai/foundations/essay";
 
 export const {
-  EssayHeader, EssayLayout, EssaySection, EssayPullQuote,
-  EssayFigure, EssayMovements, EssayDocument,
-} = createEssay({ Reveal, Glow });   // both optional
+  EssayHeader,
+  EssayLayout,
+  EssaySection,
+  EssayPullQuote,
+  EssayFigure,
+  EssayMovements,
+  EssayDocument,
+} = createEssay({ Reveal, Glow }); // both optional
 ```
 
 `createEssay` is the one factory left in the package. Motion and gradient belong
@@ -38,7 +43,9 @@ directly.
   <EssayLayout index={[{ id: "queue", label: "The queue" }]}>
     <EssaySection id="queue" heading="The queue">
       <TypographyProse>…</TypographyProse>
-      <EssayPullQuote>One per essay. A page with three has decided nothing.</EssayPullQuote>
+      <EssayPullQuote>
+        One per essay. A page with three has decided nothing.
+      </EssayPullQuote>
       <EssayFigure caption="Backlog, by hour">{chart}</EssayFigure>
     </EssaySection>
   </EssayLayout>
@@ -46,7 +53,7 @@ directly.
 ```
 
 `EssayHeader` sets its own measure and runs full-bleed, so the opening can carry
-a backdrop edge to edge while the prose stays in its column. Put it *above*
+a backdrop edge to edge while the prose stays in its column. Put it _above_
 `EssayLayout`, not inside it.
 
 ## A reference document
@@ -57,7 +64,10 @@ a backdrop edge to edge while the prose stays in its column. Put it *above*
   title="Privacy"
   sections={[
     { heading: "What we collect", body: "Only what the product needs to run." },
-    { heading: "What we don't collect", body: <TypographyProse>…</TypographyProse> },
+    {
+      heading: "What we don't collect",
+      body: <TypographyProse>…</TypographyProse>,
+    },
   ]}
 />
 ```
@@ -108,7 +118,7 @@ Also exported: `TableOfContents` (the static margin index), `EssayAside` (the
 sticky positioner both layouts put in the margin), `ReadingProgressBar`,
 `Rail` and `RailLink` (the rail's own primitives — the one link in the package
 that takes a router element through `render` rather than routing an `href`
-itself, because this module has to import without Next), `formatPostDate` (the same
+itself; this module has to import without Next), `formatPostDate` (the same
 formatter outside React, so an OG image and a card cannot print different dates),
 `createSlugger`, and the `useReadingProgress` and `useScrollSpy` hooks.
 

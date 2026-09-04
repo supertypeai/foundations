@@ -13,12 +13,12 @@ You pick the level, the type ramp picks the size. `--text-h1` through
 `--text-h4` in `type.css` set the sizes, and `.editorial` retunes all four
 together.
 
-| component | size (product / editorial) | props |
-|---|---|---|
-| `TypographyH1` | 22px / 36px | `variant?: "default" \| "display"` |
-| `TypographyH2` | 18px / 30px | `variant?`, `divider?: boolean` |
-| `TypographyH3` | 16px / 24px | `variant?: "default" \| "display"` |
-| `TypographyH4` | 14px / 20px | — |
+| component      | size (product / editorial) | props                              |
+| -------------- | -------------------------- | ---------------------------------- |
+| `TypographyH1` | 22px / 36px                | `variant?: "default" \| "display"` |
+| `TypographyH2` | 18px / 30px                | `variant?`, `divider?: boolean`    |
+| `TypographyH3` | 16px / 24px                | `variant?: "default" \| "display"` |
+| `TypographyH4` | 14px / 20px                | —                                  |
 
 ```tsx
 <TypographyH1>Settings</TypographyH1>
@@ -36,13 +36,13 @@ a separate prop so you can pick a size without committing to a border.
 
 ## Body copy
 
-| component | renders |
-|---|---|
-| `TypographyP` | `variant?: "ui" \| "prose"` (default `ui`), `tone?: "default" \| "muted"` |
-| `TypographyMuted` | `TypographyP` with `tone` pinned to `muted` |
-| `TypographyProse` | `TypographyP` at reading size, muted |
-| `TypographyList` | `variant?: "ui" \| "prose"`, `ordered?: boolean` |
-| `TypographyProseList` | `TypographyList` with `variant` pinned to `prose` |
+| component             | renders                                                                   |
+| --------------------- | ------------------------------------------------------------------------- |
+| `TypographyP`         | `variant?: "ui" \| "prose"` (default `ui`), `tone?: "default" \| "muted"` |
+| `TypographyMuted`     | `TypographyP` with `tone` pinned to `muted`                               |
+| `TypographyProse`     | `TypographyP` at reading size, muted                                      |
+| `TypographyList`      | `variant?: "ui" \| "prose"`, `ordered?: boolean`                          |
+| `TypographyProseList` | `TypographyList` with `variant` pinned to `prose`                         |
 
 ```tsx
 <TypographyP>Interface copy, 13px.</TypographyP>
@@ -63,11 +63,11 @@ will not compile. Use `TypographyP` when you need to set the tone yourself.
 
 ## Meta and labels
 
-| component | props | use |
-|---|---|---|
+| component           | props                                              | use                                              |
+| ------------------- | -------------------------------------------------- | ------------------------------------------------ |
 | `TypographyCaption` | `size?: "sm" \| "xs" \| "2xs" \| "inherit"`, `as?` | timestamps, counts, the value in a key/value row |
-| `TypographySmall` | same, `as` pinned to `p` | small print as a block |
-| `TypographyLabel` | `size?: "sm" \| "xs" \| "2xs" \| "inherit"`, `as?` | form labels, column headers, the key |
+| `TypographySmall`   | same, `as` pinned to `p`                           | small print as a block                           |
+| `TypographyLabel`   | `size?: "sm" \| "xs" \| "2xs" \| "inherit"`, `as?` | form labels, column headers, the key             |
 
 ```tsx
 <TypographyLabel as="p" size="xs">Workspace</TypographyLabel>
@@ -75,9 +75,9 @@ will not compile. Use `TypographyP` when you need to set the tone yourself.
 <TypographySmall>Rates exclude tax.</TypographySmall>
 ```
 
-Labels and captions share one size scale because they usually appear together as
-a key and its value, and those two should be set at the same size. Use `inherit`
-inside a heading or a chip, where the container has already picked a size.
+Labels and captions share one size scale. They usually appear together as a key
+and its value, and the two should be set at the same size. Use `inherit` inside
+a heading or a chip when the container already picks the size.
 
 ## Stats, code, highlight
 
@@ -105,16 +105,16 @@ figure usually looks better proportional.
 
 `TypographyHighlight` paints a felt-tip swipe as the background of the run it
 wraps. `tone` is `primary` (default), `success`, `ochre`, `terracotta`, `sage` or
-`fig`. They carry emphasis, not status, so there is no `warn`, `info` or
-`destructive` tone.
+`fig`. They carry emphasis, not status; use the set for emphasis, not warning,
+info, or destructive states.
 
-`seed` is any integer, `3` by default. It is not a size or a strength — `41` is
-not a heavier swipe than `3`, only a different one. It seeds the deterministic
-noise that decides where along the run the felt tip wobbled and where the grain
-dragged, so the same seed always paints the same swipe (server and browser
-included) and a different one repaints it without touching the hue. Vary it when
-the same phrase is highlighted more than once on a page; leave it alone
-otherwise.
+`seed` is any integer, `3` by default. It is a pattern selector, not a size or a
+strength; `41` is a different swipe, not a heavier one. It seeds the
+deterministic noise that decides where along the run the felt tip wobbled and
+where the grain dragged, so the same seed always paints the same swipe (server
+and browser included) and a different one repaints it without touching the hue.
+Vary it when the same phrase is highlighted more than once on a page; leave it
+alone otherwise.
 
 The words keep their own lightness and borrow the swipe's hue, so a `color` set
 on the children only contributes its lightness. That lightness comes from
@@ -145,7 +145,7 @@ overrides the sniff itself.
 
 ## Rendering your own element
 
-There are two options, depending on whether you need a different tag or a
+There are two patterns, depending on whether you need a different tag or a
 different component.
 
 **A different tag** — the `as` prop, on `TypographyEyebrow`, `TypographyCaption`
@@ -173,18 +173,18 @@ Use `as` when you want a different tag and the function when you want a differen
 component. Please do not add a third way: the last time these were hand-rolled we
 ended up with five slightly different copies of the heading styles.
 
-**Something that is not a heading** — `headingFace` is the face and weight alone,
-for text that wears the heading type without being part of the outline. A pull
-quote, a stat, a lockup:
+**A heading-like style** — `headingFace` is the face and weight alone, for text
+that wears the heading type without being part of the outline. A pull quote, a
+stat, a lockup:
 
 ```tsx
 <blockquote className={cn(headingFace, "text-h2 leading-snug")}>
 ```
 
-`headingClass()` is not the tool there. It carries `scroll-m-20` for an anchor a
+`headingClass()` is the wrong tool here. It carries `scroll-m-20` for an anchor a
 blockquote does not have and a `first:mt-0` reset for a margin it does not set,
-and taking it means claiming a level in a ladder the element is not on. Take the
-face and name your own rung.
+so it claims a level in a ladder the element does not belong to. Use the face and
+name your own rung.
 
 ## Eyebrow
 
@@ -202,14 +202,16 @@ a micro-label over a group of controls. `subtle` is a rung quieter again, for a
 column head or a rail marker the reader takes in on the way past.
 
 Each tone carries the rung it is usually set at, and `size` overrides that where
-the surface needs another: `sm`, `xs`, `2xs`, `3xs`. Omit it and the tone's own rung
-stands, so the prop changes nothing anywhere it is not passed.
+the surface needs another: `sm`, `xs`, `2xs`, `3xs`. Omit it and the tone's own
+rung stands; the prop only changes things where it is passed.
 
 ## Text beside a mark
 
 ```tsx
 <div className="flex min-h-3.5 items-center gap-1">
-  <TypographyEyebrow tone="label" className={CAP_TRIM}>Best reach</TypographyEyebrow>
+  <TypographyEyebrow tone="label" className={CAP_TRIM}>
+    Best reach
+  </TypographyEyebrow>
   <InfoHint hint="The furthest a single post reached." />
 </div>
 ```
@@ -221,17 +223,37 @@ beside it centres on the box and lands about a pixel under the letters.
 `CAP_TRIM` makes the element as tall as its own ink, and the row then centres
 what the reader sees.
 
-It belongs on the text rather than the row, because `text-box` is not inherited.
-The floor on the row is the other half: a trimmed label is shorter than an
-untrimmed one, so a card whose label carries no mark would make a shorter row
-than the cards beside it and lift its figure out of line. Firefox has no
-`text-box` yet and keeps the untrimmed box, which is what every browser did
-before.
+Put it on the text rather than the row; `text-box` is not inherited. The other
+half is the row floor: a trimmed label is shorter than an untrimmed one, so a
+card whose label carries no mark would make a shorter row than the cards beside
+it and lift its figure out of line. Firefox still has no `text-box`, so it keeps
+the untrimmed box, which is what every browser did before.
 
-Two limits decide where it goes. The trimmed box ends at the baseline, so
+That is the one-line case. Where the text runs on and the mark names only the
+first line of it, the row is `items-start` and the fix comes from the other side:
+
+```tsx
+<li className="flex items-start gap-2">
+  <span className={ON_FIRST_LINE}>
+    <Icons.Clock className="size-4" />
+  </span>
+  <div>
+    <TypographyLabel>Nothing collected yet</TypographyLabel>
+    <TypographyMuted>Posts appear once the first sync has run.</TypographyMuted>
+  </div>
+</li>
+```
+
+`ON_FIRST_LINE` is a wrapper one line tall with the mark centred inside it, since
+a height on the mark itself stretches the glyph. It replaces the top margin this
+shape usually carries, and the margin is worth deleting rather than tuning: 2px
+lands a 14px mark within a quarter pixel at 13px text and leaves a 16px mark over
+a pixel low, so the number is right at one pairing and quietly wrong at the rest.
+
+Two limits decide where `CAP_TRIM` goes. The trimmed box ends at the baseline, so
 descenders hang outside it and `truncate` on the same element cuts the tail off
-every g and p: a title that clips takes the pixel instead. And the size of the
-win tracks how much leading there is to take. Beside an eleven pixel uppercase
-label the mark moves a whole device pixel; a thirteen pixel mixed-case label
-measures the same trimmed or not, because its ascenders already reach the top of
-the line box.
+every g and p: a title that clips takes the pixel instead. The size of the win
+tracks how much leading there is to take. Beside an eleven pixel uppercase label
+the mark moves a whole device pixel; a thirteen pixel mixed-case label measures
+the same trimmed or not, because its ascenders already reach the top of the line
+box.

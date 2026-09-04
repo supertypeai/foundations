@@ -12,7 +12,7 @@ const rule = (pattern, message) => classString(pattern).map((selector) => ({ sel
 const VARIANTS = "(dark:|hover:|focus:|group-hover:|active:|disabled:|sm:|md:|lg:|xl:)*";
 const PALETTE = "(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)";
 /** Applies everywhere, marketing included — the tints exist for those pages. */
-export function colourRules({ accents = "a brand accent", } = {}) {
+function colourRules({ accents = "a brand accent", } = {}) {
     return [
         ...rule(`/(^| )${VARIANTS}(text|bg|border|ring|from|to|via|fill|stroke|divide|outline|placeholder|shadow|decoration|accent|caret)-${PALETTE}-\\d+/`, `Raw Tailwind palette. Use a token — text-foreground / text-muted-foreground / text-subtle-foreground, bg-background / bg-card / bg-muted, border-border — a status token (success, warn, destructive), or ${accents}.`),
         // Split by prefix: alpha on a fill is a scrim (the effect), on ink or a
@@ -35,7 +35,7 @@ const COLOUR_PREFIX = "text|bg|border|ring|from|to|via|fill|stroke|divide|placeh
  * is wrong. Only the solid form is restricted — `dark:bg-destructive/20` against
  * a `/10` is the same token at the density a darker ground needs.
  */
-export function themeOverrideRules() {
+function themeOverrideRules() {
     return rule(`/(^| )dark:(${COLOUR_PREFIX})-(${TOKEN})($| )/`, "A `dark:` override on a token means the token is wrong — fix it in theme.css, where one change covers every call site, rather than here. Alpha variants (dark:bg-destructive/20) stay legal: those tune a wash's density, not the token.");
 }
 /**
@@ -43,7 +43,7 @@ export function themeOverrideRules() {
  * it shipped at 17 sites. `text-background` stays legal: inverse ink is a real
  * role.
  */
-export function surfaceAsInkRules() {
+function surfaceAsInkRules() {
     return [
         ...rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/", "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card."),
         // The three fills with no legitimate use as a foreground, glyph or word.
@@ -70,7 +70,7 @@ export function surfaceAsInkRules() {
  * fill, and `Button tone="warn" variant="solid"` is what reads it.
  */
 const RENAMED_INKS = "terracotta|ochre|moss|fern|sage|stone|fig|cocoa";
-export function renamedTokenRules() {
+function renamedTokenRules() {
     return rule(`/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke|decoration)-(${RENAMED_INKS})-foreground($| )/`, "That is the deprecated name for the same hue's `-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as words, and none of these hues has a printed-on label — they are checked at 4.5:1 against the page, and printing one on its own fill measures about 1.2:1. Use `-ink`.");
 }
 /**
@@ -87,7 +87,7 @@ export function renamedTokenRules() {
  * bare `<a>`: `render={<Link/>}` is redundant beside `href` but it still routes,
  * so it is not a bug.
  */
-export function linkRules() {
+function linkRules() {
     return [
         {
             selector: 'JSXOpeningElement[name.name=/^(Button|Badge|Card)$/] > JSXAttribute[name.name="render"] > JSXExpressionContainer > JSXElement > JSXOpeningElement[name.name="a"]',
@@ -95,7 +95,7 @@ export function linkRules() {
         },
     ];
 }
-export function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up", pairing = false, axis = false, leading = false, } = {}) {
+function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up", pairing = false, axis = false, leading = false, } = {}) {
     return [
         // Alpha ink composites against whatever surface it lands on, so its
         // contrast is unmeasurable. The ink tokens are measured.
@@ -170,28 +170,5 @@ export function designRules({ accents, typography = true, ...type } = {}) {
         ...themeOverrideRules(),
         ...surfaceAsInkRules(),
         ...renamedTokenRules(),
-    ];
-}
-/**
- * Every rule in one flat-config entry, ready to spread into eslint.config.js:
- *
- *   import { designConfig } from "@supertype.ai/foundations/eslint";
- *   export default [ ...designConfig({ accents: "the brand tints" }) ];
- *
- * One entry is not a detail. Flat config replaces a rule's options rather than
- * merging them, so two blocks covering overlapping files leave only the last
- * one's rules in effect. Combining them here is what stops a consumer losing
- * half the set by accident. If you need a second scope, call this again with a
- * different `files` and no overlap.
- */
-export function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], ...options } = {}) {
-    return [
-        {
-            name: "@supertype.ai/foundations/design",
-            files,
-            rules: {
-                "no-restricted-syntax": ["error", ...designRules(options)],
-            },
-        },
     ];
 }

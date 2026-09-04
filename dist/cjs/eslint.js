@@ -5,14 +5,7 @@
  * They see values, never the shape of a class list; a primitive fixes that.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.colourRules = colourRules;
-exports.themeOverrideRules = themeOverrideRules;
-exports.surfaceAsInkRules = surfaceAsInkRules;
-exports.renamedTokenRules = renamedTokenRules;
-exports.linkRules = linkRules;
-exports.typographyRules = typographyRules;
 exports.designRules = designRules;
-exports.designConfig = designConfig;
 /** A className written as a plain string, or as a chunk of a template literal. */
 const classString = (pattern) => [
     `Literal[value=${pattern}]`,
@@ -180,28 +173,5 @@ function designRules({ accents, typography = true, ...type } = {}) {
         ...themeOverrideRules(),
         ...surfaceAsInkRules(),
         ...renamedTokenRules(),
-    ];
-}
-/**
- * Every rule in one flat-config entry, ready to spread into eslint.config.js:
- *
- *   import { designConfig } from "@supertype.ai/foundations/eslint";
- *   export default [ ...designConfig({ accents: "the brand tints" }) ];
- *
- * One entry is not a detail. Flat config replaces a rule's options rather than
- * merging them, so two blocks covering overlapping files leave only the last
- * one's rules in effect. Combining them here is what stops a consumer losing
- * half the set by accident. If you need a second scope, call this again with a
- * different `files` and no overlap.
- */
-function designConfig({ files = ["**/*.{ts,tsx,js,jsx}"], ...options } = {}) {
-    return [
-        {
-            name: "@supertype.ai/foundations/design",
-            files,
-            rules: {
-                "no-restricted-syntax": ["error", ...designRules(options)],
-            },
-        },
     ];
 }

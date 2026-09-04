@@ -7,41 +7,11 @@ export interface RestrictedSyntax {
     selector: string;
     message: string;
 }
-export interface ColourOptions {
+interface ColourOptions {
     /** Named in the message: "use a token" without naming one sends people hunting. */
     accents?: string;
 }
-/** Applies everywhere, marketing included — the tints exist for those pages. */
-export declare function colourRules({ accents, }?: ColourOptions): RestrictedSyntax[];
-/**
- * A token already knows what it does in the dark; `dark:` on one says the token
- * is wrong. Only the solid form is restricted — `dark:bg-destructive/20` against
- * a `/10` is the same token at the density a darker ground needs.
- */
-export declare function themeOverrideRules(): RestrictedSyntax[];
-/**
- * `--muted` is a fill at L92%, so `text-muted` lands at ~1.1:1. Invisible, and
- * it shipped at 17 sites. `text-background` stays legal: inverse ink is a real
- * role.
- */
-export declare function surfaceAsInkRules(): RestrictedSyntax[];
-export declare function renamedTokenRules(): RestrictedSyntax[];
-/**
- * `render={<a href="…" />}` on a component that takes an `href`. It reads as a
- * styling choice and is a routing one: the cloned anchor skips the router, so
- * the page fully reloads and the view transition is lost, and an off-site href
- * never grows a `rel`. Button, Badge and Card each decide internal vs external
- * from the href itself, so the anchor is never needed and cannot be right more
- * often than the one shared rule is.
- *
- * Narrow on both axes, so it never fires on a line that is correct. Only those
- * three components — `RailLink` deliberately takes a router element through
- * `render`, because its module has to stay importable without Next. And only a
- * bare `<a>`: `render={<Link/>}` is redundant beside `href` but it still routes,
- * so it is not a bug.
- */
-export declare function linkRules(): RestrictedSyntax[];
-export interface TypographyOptions {
+interface TypographyOptions {
     /** Three-weight ramp. Off for editorial, where 700 is a register not a shout. */
     weights?: boolean;
     /** The rungs, named in the message, since they differ per consumer. */
@@ -63,7 +33,6 @@ export interface TypographyOptions {
      *  adopting it has a backlog to clear first. */
     leading?: boolean;
 }
-export declare function typographyRules({ weights, ramp, pairing, axis, leading, }?: TypographyOptions): RestrictedSyntax[];
 /**
  * Every design rule, as one list.
  *
@@ -86,26 +55,4 @@ export interface DesignRuleOptions extends ColourOptions, TypographyOptions {
     typography?: boolean;
 }
 export declare function designRules({ accents, typography, ...type }?: DesignRuleOptions): RestrictedSyntax[];
-/** A flat-config entry, described structurally so the package needs no ESLint dependency. */
-export interface FlatConfigEntry {
-    name: string;
-    files: string[];
-    rules: Record<string, unknown>;
-}
-export interface DesignConfigOptions extends DesignRuleOptions {
-    /** What the rules apply to. Narrow it to exclude generated or vendored code. */
-    files?: string[];
-}
-/**
- * Every rule in one flat-config entry, ready to spread into eslint.config.js:
- *
- *   import { designConfig } from "@supertype.ai/foundations/eslint";
- *   export default [ ...designConfig({ accents: "the brand tints" }) ];
- *
- * One entry is not a detail. Flat config replaces a rule's options rather than
- * merging them, so two blocks covering overlapping files leave only the last
- * one's rules in effect. Combining them here is what stops a consumer losing
- * half the set by accident. If you need a second scope, call this again with a
- * different `files` and no overlap.
- */
-export declare function designConfig({ files, ...options }?: DesignConfigOptions): FlatConfigEntry[];
+export {};

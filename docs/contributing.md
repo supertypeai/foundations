@@ -52,8 +52,8 @@ code that rendered the preview. A new component needs a demo file and one
 `<Demo source="…">` on the relevant page.
 
 Recipes use the same mechanism at page scale, in `app/_recipes/`: a whole page
-someone can paste into their app. They have one rule — import only from
-`@supertype.ai/foundations`, with no relative imports and no `@/` alias — because a
+someone can paste into their app. They have one rule: import only from
+`@supertype.ai/foundations`, with no relative imports and no `@/` alias. A
 recipe that reaches for a helper from the example site will not compile once it
 is copied out. `scripts/check-recipes.mjs` runs as `prebuild` and fails the
 build if one does. If a file genuinely needs a local helper, put it in
@@ -108,12 +108,12 @@ There are no render tests yet. Adding them means happy-dom and a stub for
 ## llms.txt
 
 `llms.txt` is the API summary consumers point their coding agents at. It is
-written by hand, because the useful part is the guidance — which component to
-reach for, and which mistakes produce no error — rather than a list of names.
+written by hand: the useful part is the guidance — which component to reach
+for, and which mistakes produce no error — not the list of names.
 
-What does rot is coverage, so `scripts/check-llms.mjs` checks it against the real
-exports of every entry point (via the TypeScript compiler, not a regex) and runs
-as the last step of `yarn build`. Adding a component means adding it to the entry
+Coverage rots, so `scripts/check-llms.mjs` checks it against the real exports of
+every entry point (via the TypeScript compiler, not a regex) and runs as the
+last step of `yarn build`. Adding a component means adding it to the entry
 points table, and to the lookup table if an app would reach for it directly.
 
 ## Releasing

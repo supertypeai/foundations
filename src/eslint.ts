@@ -24,13 +24,13 @@ const VARIANTS =
 const PALETTE =
   "(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)";
 
-export interface ColourOptions {
+interface ColourOptions {
   /** Named in the message: "use a token" without naming one sends people hunting. */
   accents?: string;
 }
 
 /** Applies everywhere, marketing included — the tints exist for those pages. */
-export function colourRules({
+function colourRules({
   accents = "a brand accent",
 }: ColourOptions = {}): RestrictedSyntax[] {
   return [
@@ -72,7 +72,7 @@ const COLOUR_PREFIX =
  * is wrong. Only the solid form is restricted — `dark:bg-destructive/20` against
  * a `/10` is the same token at the density a darker ground needs.
  */
-export function themeOverrideRules(): RestrictedSyntax[] {
+function themeOverrideRules(): RestrictedSyntax[] {
   return rule(
     `/(^| )dark:(${COLOUR_PREFIX})-(${TOKEN})($| )/`,
     "A `dark:` override on a token means the token is wrong — fix it in theme.css, where one change covers every call site, rather than here. Alpha variants (dark:bg-destructive/20) stay legal: those tune a wash's density, not the token.",
@@ -84,7 +84,7 @@ export function themeOverrideRules(): RestrictedSyntax[] {
  * it shipped at 17 sites. `text-background` stays legal: inverse ink is a real
  * role.
  */
-export function surfaceAsInkRules(): RestrictedSyntax[] {
+function surfaceAsInkRules(): RestrictedSyntax[] {
   return [
     ...rule(
       "/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/",
@@ -119,7 +119,7 @@ export function surfaceAsInkRules(): RestrictedSyntax[] {
  */
 const RENAMED_INKS = "terracotta|ochre|moss|fern|sage|stone|fig|cocoa";
 
-export function renamedTokenRules(): RestrictedSyntax[] {
+function renamedTokenRules(): RestrictedSyntax[] {
   return rule(
     `/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke|decoration)-(${RENAMED_INKS})-foreground($| )/`,
     "That is the deprecated name for the same hue's `-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as words, and none of these hues has a printed-on label — they are checked at 4.5:1 against the page, and printing one on its own fill measures about 1.2:1. Use `-ink`.",
@@ -140,7 +140,7 @@ export function renamedTokenRules(): RestrictedSyntax[] {
  * bare `<a>`: `render={<Link/>}` is redundant beside `href` but it still routes,
  * so it is not a bug.
  */
-export function linkRules(): RestrictedSyntax[] {
+function linkRules(): RestrictedSyntax[] {
   return [
     {
       selector:
@@ -151,7 +151,7 @@ export function linkRules(): RestrictedSyntax[] {
   ];
 }
 
-export interface TypographyOptions {
+interface TypographyOptions {
   /** Three-weight ramp. Off for editorial, where 700 is a register not a shout. */
   weights?: boolean;
   /** The rungs, named in the message, since they differ per consumer. */
@@ -174,7 +174,7 @@ export interface TypographyOptions {
   leading?: boolean;
 }
 
-export function typographyRules({
+function typographyRules({
   weights = false,
   ramp = "text-3xs 10 / text-2xs 11 / text-xs 12 / text-sm 14 / text-base 16 and up",
   pairing = false,
@@ -295,44 +295,5 @@ export function designRules({
     ...themeOverrideRules(),
     ...surfaceAsInkRules(),
     ...renamedTokenRules(),
-  ];
-}
-
-/** A flat-config entry, described structurally so the package needs no ESLint dependency. */
-export interface FlatConfigEntry {
-  name: string;
-  files: string[];
-  rules: Record<string, unknown>;
-}
-
-export interface DesignConfigOptions extends DesignRuleOptions {
-  /** What the rules apply to. Narrow it to exclude generated or vendored code. */
-  files?: string[];
-}
-
-/**
- * Every rule in one flat-config entry, ready to spread into eslint.config.js:
- *
- *   import { designConfig } from "@supertype.ai/foundations/eslint";
- *   export default [ ...designConfig({ accents: "the brand tints" }) ];
- *
- * One entry is not a detail. Flat config replaces a rule's options rather than
- * merging them, so two blocks covering overlapping files leave only the last
- * one's rules in effect. Combining them here is what stops a consumer losing
- * half the set by accident. If you need a second scope, call this again with a
- * different `files` and no overlap.
- */
-export function designConfig({
-  files = ["**/*.{ts,tsx,js,jsx}"],
-  ...options
-}: DesignConfigOptions = {}): FlatConfigEntry[] {
-  return [
-    {
-      name: "@supertype.ai/foundations/design",
-      files,
-      rules: {
-        "no-restricted-syntax": ["error", ...designRules(options)],
-      },
-    },
   ];
 }

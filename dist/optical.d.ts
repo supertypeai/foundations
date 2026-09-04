@@ -40,22 +40,7 @@ export interface OpticalOffset extends TypeRung {
      *  a twelfth of an 11px cap band and a thirty-second of a 36px one, so this is
      *  the number that says whether a reader sees it. */
     share: number;
-    /** The rounded metrics the offset came out of, for a message worth reading. */
-    used: {
-        ascent: number;
-        descent: number;
-        capHeight: number;
-    };
 }
-/**
- * The gap between the line box's centre and the cap band's, at one size.
- *
- * Half-leading cancels, so line height does not appear: a rung that is out stays
- * out however loosely it is set, and no retune of the ramp's leading fixes it.
- * Paint rounds the baseline a second time, in the same direction, so treat this
- * as the floor of the error rather than the whole of it.
- */
-export declare function capBandOffset(metrics: FontMetrics, fontSize: number): number;
 /**
  * Every rung whose centred mark misses the letters by enough to see, worst first.
  *
@@ -69,5 +54,3 @@ export declare function capBandOffset(metrics: FontMetrics, fontSize: number): n
 export declare function checkOptical(metrics: FontMetrics, rungs: readonly TypeRung[], { tolerance }?: {
     tolerance?: number;
 }): OpticalOffset[];
-/** The failures as lines, on the model of `formatFailures` in contrast.ts. */
-export declare function formatOffsets(offsets: readonly OpticalOffset[]): string;

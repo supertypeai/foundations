@@ -94,18 +94,17 @@ tone="muted"`).
 - `info` — a real token, but `success | warn | destructive` is already the whole
   good/careful/bad triad, and neither app had ever reached for a fourth.
 
-One list, because there used to be three: `Callout` had `muted`,
-`TypographyLink` had `foreground`, and a button's `default` was the same idea a
-third time.
+One list: `Callout` used to have `muted`, `TypographyLink` used to have
+`foreground`, and a button's `default` was the same idea a third time.
 
 `muted`'s hue is `--foreground`, not `--muted-foreground`. The tone says the
 control carries no _meaning_, not that it carries less contrast — a Cancel button
-beside a Save button is quiet because it is not filled in, and its label still has
-to be read.
+beside a Save button is quiet when it is unfilled, and its label still has to be
+read.
 
-Three values per row, not one, because a fill is a mark that clears 3:1 and an
-ink is read and clears 4.5:1. `--tone-fill` is the surface, `--tone-ink` the
-label printed on it, `--tone-hue` the same colour as words. `/contrast`'s
+Three values per row, not one: a fill is a mark that clears 3:1, and an ink is
+read and clears 4.5:1. `--tone-fill` is the surface, `--tone-ink` is the label
+printed on it, and `--tone-hue` is the same colour as words. `/contrast`'s
 `checkSignals` is the test.
 
 A component spends what a tone declares — `--tone-line` for a hairline,
@@ -189,7 +188,7 @@ else's element:
 | `/notes`          | the router's `Link`                             | client navigation, and the view transition survives                    |
 | `#section`        | a plain `<a>`                                   | the browser can already scroll there; routing it asks for a navigation |
 | `https://…`       | `<a target="_blank" rel="noopener noreferrer">` | it leaves the app                                                      |
-| `mailto:`, `tel:` | `<a>`, no target                                | it hands off to another app; there is no tab to open                   |
+| `mailto:`, `tel:` | `<a>`, no target                                | it hands off to another app; no tab opens                              |
 
 `external` overrides the scheme sniff (an absolute URL that is home, a relative
 one that is not) and `newTab` overrides the target.
@@ -197,10 +196,10 @@ one that is not) and `newTab` overrides the target.
 **Do not pass an anchor through `render`.** `render={<a href="/x" />}` reads as a
 styling escape hatch and is a routing decision made in the wrong place: the
 cloned anchor never reaches the router, so the page fully reloads and the view
-transition is lost, and an off-site href gets no `rel`. It was written that way
-because `Button` had no `href`; now it does. `linkRules()` in the lint set flags
-the old form on `Button`, `Badge` and `Card`, and `render` keeps its real job —
-an element that is genuinely not a link.
+transition is lost, and an off-site href gets no `rel`. `Button` now accepts
+`href`, so this old pattern is no longer the way to do it. `linkRules()` in the
+lint set flags the old form on `Button`, `Badge` and `Card`, and `render` keeps
+its real job — an element that is genuinely not a link.
 
 `RailLink` is the exception, and the comment in `essay/rail.tsx` says why: its
 module is reached from `contents.tsx`, `reading.tsx` and `layout.tsx`, which have
@@ -236,9 +235,8 @@ through `render`. Its own links are `#hash` anchors, which want no router.
 the docs form: body copy at reading size and a 3px accent rail, so the surface
 around it can stay quiet.
 
-This is not a shadcn `Alert`. These are permanent explanations inside a panel,
-and they should not announce themselves to a screen reader every time a sheet
-opens.
+This is a permanent explanation inside a panel, not a shadcn `Alert`, and it
+should not announce itself to a screen reader every time a sheet opens.
 
 ## Button
 
@@ -317,8 +315,8 @@ navigation. `render` remains for an element that is genuinely neither — a
 | `href`    | `string` — a badge that leads somewhere, routed by [`resolveLink`](#links) | —                                       |
 
 The same two axes as [Button](#button), spelled the same way, so knowing one
-component's vocabulary is knowing this one's. `link` is the single omission: no
-badge has ever used it, because a badge is not a link.
+component's vocabulary is knowing this one's. `link` is the single omission: badge
+labels are not links.
 
 Both apps had grown a private list instead. ssite's carried `warning` and
 `supertype` — the package's `warn` and `brand` tones under invented names, which
@@ -420,7 +418,7 @@ from a server page is a function crossing the RSC boundary, and React refuses th
 what `defaultValue` and `onValueChange` speak.
 
 An MDX author writes `<Tabs items={[…]}>` with a `<Tab>` per panel, paired by
-position. That shape lives in the MDX map alone; it is not the component API.
+position. That shape belongs to the MDX map, not the component API.
 
 ### Composing by hand
 
@@ -530,18 +528,18 @@ import { Colophon } from "@supertype.ai/foundations/blocks";
 <Colophon variant="line" />  // a compact row
 ```
 
-There is nothing to configure, so the whole call is `<Colophon />`. `children`
+This component takes no configuration. Call it as `<Colophon />`. `children`
 renders under the rule on the panel, where a printed colophon carries the site's
 own credit — the faces it is set in, the people who wrote it, its licence — and
 `label` translates the link's words.
 
-The panel's own copy is not a prop, because this is a mark and a mark every site
+The panel's own copy is not a prop: this is a mark, and a mark every site
 rewrites is not a mark. That is a constraint on the _words_; it used to be a
 constraint on the layout too, which was wrong — an announcement panel and a
 credits panel are the same shape. The shape is [`Bulletin`](#bulletin) above,
 and `Colophon` is a nine-line preset of it, the way `TypographyProse` is a
-preset of `TypographyP`. So if you want this look carrying your own words, that
-is `Bulletin`, not a reconfigured attribution.
+preset of `TypographyP`. If you want this look with your own words, use
+`Bulletin`, not a reconfigured attribution.
 
 It draws all eight categorical hues as a ribbon and inks two of them, so it is
 the one place the palette appears whole. Those hues live in `theme.css`: an app
@@ -622,8 +620,8 @@ export function useMDXComponents(): MDXComponents {
 }
 ```
 
-It is a plain object rather than a factory, since the router and the image
-component come from the package and there is nothing left to inject.
+It is a plain object rather than a factory; the router and image component come
+from the package, and nothing remains to inject.
 
 It binds the markdown elements (`h1`–`h4`, `p`, `ul`/`ol`, `blockquote`, `a`,
 `pre`, `img`, `table`…) and exposes these for authors to call by hand:
@@ -636,9 +634,9 @@ It binds the markdown elements (`h1`–`h4`, `p`, `ul`/`ol`, `blockquote`, `a`,
 | `<Tabs>` `<Tab>`             | `TabGroup`, via the MDX map’s positional shim    |
 | `<Steps>` `<Step>`           | the step sequence                                |
 
-Elements that MDX renders automatically take no options, since there is no call
-site to make the choice. Retune them in CSS by moving the `--text-*` rung they
-sit on, or scope `.editorial` over the subtree to move the whole ladder.
+MDX-rendered elements take no options. No call site exists to make the choice.
+Retune them in CSS by moving the `--text-*` rung they sit on, or scope
+`.editorial` over the subtree to move the whole ladder.
 
 For code fences, add the Shiki plugin at build time:
 

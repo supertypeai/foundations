@@ -4,7 +4,7 @@ import rehypeShiki, {} from "@shikijs/rehype";
  * Anything unlisted falls back to `text`: content uses labels that are not real
  * grammars (`tree`, `spark-defaults`), and dying over a fence label is a bad trade.
  */
-export const PROSE_LANGS = [
+const PROSE_LANGS = [
     "bash",
     "csv",
     "diff",
@@ -27,7 +27,7 @@ export const PROSE_THEMES = {
  * of a baked colour, so one compiled document serves both themes; `shiki.css`
  * maps them. A `[plugin, options]` tuple, so it drops into `rehypePlugins`.
  */
-export const proseCodeOptions = {
+const proseCodeOptions = {
     themes: PROSE_THEMES,
     defaultColor: false,
     langs: [...PROSE_LANGS],
