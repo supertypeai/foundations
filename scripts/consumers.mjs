@@ -27,10 +27,15 @@ const here = fileURLToPath(new URL("..", import.meta.url));
 
 /**
  * The apps to read, found rather than listed: `examples/site`, which every clone
- * has, plus any checkout beside this one that depends on the package, one level
- * down as well, since a monorepo keeps its apps in subdirectories. A hardcoded
- * list would be one maintainer's home directory, which is no more portable than
- * the list that was in their head.
+ * has, plus any checkout beside this one that both depends on the package and
+ * names it in its source, one level down as well, since a monorepo keeps its
+ * apps in subdirectories. A hardcoded list would be one maintainer's home
+ * directory, which is no more portable than the list that was in their head.
+ *
+ * Both halves of that test earn their place. A declared dependency alone found
+ * an app pinned to 0.1 that imports nothing and runs Tailwind v3, which this
+ * package cannot be installed into: listing it as a consumer invites someone to
+ * hold an export alive for a reader that does not exist.
  */
 const dependsOnUs = (dir) => {
   try {
@@ -53,9 +58,23 @@ const dirs = (dir) => {
   }
 };
 
+/** Names the package anywhere a build would read: an import, or a CSS layer. */
+const usesUs = (dir) => {
+  try {
+    execFileSync("grep", ["-rlq", "--include=*.ts", "--include=*.tsx", "--include=*.css",
+      "--include=*.mjs", "--include=*.js", "--exclude-dir=node_modules", "--exclude-dir=.next",
+      "@supertype.ai/foundations", dir]);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const consumes = (dir) => dependsOnUs(dir) && usesUs(dir);
+
 const found = dirs(join(here, ".."))
   .filter((sibling) => sibling !== here.replace(/\/$/, ""))
-  .flatMap((sibling) => (dependsOnUs(sibling) ? [sibling] : dirs(sibling).filter(dependsOnUs)));
+  .flatMap((sibling) => (consumes(sibling) ? [sibling] : dirs(sibling).filter(consumes)));
 
 const example = join(here, "examples", "site");
 const roots = process.argv.slice(2).length
