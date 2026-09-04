@@ -83,17 +83,61 @@ try {
 
 const branch = capture("git", ["rev-parse", "--abbrev-ref", "HEAD"]);
 
+/**
+ * The bump reads local state, so local state has to be the whole story.
+ *
+ * Releases are cut from more than one machine. A clone that has not pulled
+ * still says 0.1.20 in package.json and still has no v0.2.0 tag, so every
+ * guard here passes and `yarn release` computes 0.1.21 — a version behind
+ * what is already published, under a tag that would have to be forced past
+ * the remote. Fetching first, tags included (the fetch refspec is heads-only,
+ * so tags cut elsewhere never arrive on their own), makes both the version and
+ * the "tag already exists" check see what the rest of the world sees.
+ *
+ * Being ahead of origin is fine — those are the commits being released. Being
+ * behind or diverged is not: the release would be cut from the wrong tree.
+ */
+run("git", ["fetch", "origin", "--tags"]);
+
+let upstream;
+try {
+  upstream = capture("git", ["rev-parse", `origin/${branch}`]);
+} catch {
+  die(`no origin/${branch}; push the branch before releasing from it`);
+}
+
+// `merge-base --is-ancestor` exits non-zero, and so throws, when origin holds a
+// commit this clone does not — behind or diverged, both fatal here.
+const contains = (ref) => {
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", ref, "HEAD"], {
+      cwd: process.cwd(),
+      stdio: "ignore",
+    });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+if (!contains(upstream)) {
+  die(
+    `${branch} is behind or diverged from origin/${branch}; pull first ` +
+      `(a stale clone bumps from a stale version and cuts a release that already exists)`,
+  );
+}
+
 const pkgPath = new URL("../package.json", import.meta.url);
 const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
 
 /** Versions the registry already has. An unpublished package has none. */
-const published = () => {
+const published = (() => {
   try {
     return JSON.parse(npmCapture(["view", pkg.name, "versions", "--json"], { quiet: true }));
   } catch {
     return [];
   }
-};
+})();
 
 /**
  * A release that got as far as the tag and no further.
@@ -109,7 +153,7 @@ const head = capture("git", ["rev-parse", "HEAD"]);
 const resume =
   capture("git", ["tag", "--list", `v${pkg.version}`]) &&
   capture("git", ["rev-list", "-n", "1", `v${pkg.version}`]) === head &&
-  !published().includes(pkg.version);
+  !published.includes(pkg.version);
 
 /**
  * How far to move. A breaking change needs a minor on a 0.x line, and this could
@@ -135,6 +179,14 @@ const tag = `v${version}`;
 
 if (!resume && capture("git", ["tag", "--list", tag])) {
   die(`tag ${tag} already exists`);
+}
+
+// Last line of defence, and the one that holds when the fetch above cannot run
+// (offline, or a remote that has moved). The registry is the record of what has
+// shipped; a bump that lands on or below it came from a version this clone had
+// no business bumping from.
+if (!resume && published.includes(version)) {
+  die(`${version} is already on the registry (latest there is ${published.at(-1)})`);
 }
 
 if (resume) {
