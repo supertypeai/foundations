@@ -4,3 +4,4 @@ next-env.d.ts
 out/
 # Rendered by scripts/og.mjs at build time.
 public/og/
+tsconfig.tsbuildinfo

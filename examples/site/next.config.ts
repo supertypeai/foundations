@@ -28,6 +28,8 @@ const basePath = process.env.FOUNDATIONS_BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: fileURLToPath(new URL(".", import.meta.url)),
+  // Next 16 writes AGENTS.md and CLAUDE.md here on `next dev`; nothing reads them.
+  agentRules: false,
   ...(staticExport
     ? {
         output: "export" as const,

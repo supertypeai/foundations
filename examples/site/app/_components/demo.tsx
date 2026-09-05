@@ -45,7 +45,12 @@ export function Demo({
   /** Container width the block needs before its layout resolves, e.g. `72rem`. */
   at?: string;
 }) {
-  const code = readFileSync(join(process.cwd(), source), "utf8");
+  // The literal "app" scopes the read; Turbopack traces a bare
+  // `join(cwd, source)` as the whole project.
+  const code = readFileSync(
+    join(process.cwd(), "app", source.replace(/^app\//, "")),
+    "utf8",
+  );
 
   // The slack is for rounding: landing on the query's own threshold to the
   // pixel is a coin toss, and losing it drops the layout being demonstrated.
