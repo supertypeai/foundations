@@ -27,6 +27,7 @@ const INDEX: EssayIndexEntry[] = [
   { id: "meaning", label: "Naming tokens" },
   { id: "platform", label: "The platform first" },
   { id: "one-place", label: "One place for the rules" },
+  { id: "silent", label: "The mistakes that pass review" },
   { id: "contrast", label: "Contrast, measured" },
   { id: "proof", label: "Docs as a build step" },
 ];
@@ -177,8 +178,8 @@ export default function PhilosophyPage() {
             18px on a dense product screen and 30px in an essay to say the same
             thing. <TypographyInlineCode>.editorial</TypographyInlineCode>{" "}
             retunes the whole ladder and hands the heading role to the serif at
-            weight 400, because Average only ships the one weight. Put it on a
-            div, a route group, or{" "}
+            weight 400; Average only ships that one weight. Put it on a div, a
+            route group, or{" "}
             <TypographyInlineCode>&lt;html&gt;</TypographyInlineCode>. There is
             a switch for it in the header of this site if you want to see what
             it does to this page. The{" "}
@@ -227,6 +228,96 @@ export default function PhilosophyPage() {
             instead if you are on{" "}
             <TypographyInlineCode>.eslintrc</TypographyInlineCode> or composing
             the rule yourself.
+          </TypographyProse>
+        </EssaySection>
+
+        <EssaySection id="silent" heading="The mistakes that pass review">
+          <TypographyProse>
+            Every rule in the set was a bug in shipped code first. An icon held
+            into line by a negative margin that fitted one text size and missed
+            every other. A hex in a gradient stop, one prefix past where the
+            colour rule stopped looking. A paragraph set in{" "}
+            <TypographyInlineCode>
+              text-sm text-muted-foreground
+            </TypographyInlineCode>{" "}
+            beside forty others that had each drifted a step apart.
+          </TypographyProse>
+
+          <EssayPullQuote>
+            The types check. The page renders. A reviewer reads straight past:
+            the line looks like every other line on the screen.
+          </EssayPullQuote>
+
+          <TypographyProse>
+            Lint is the only reader that catches this class of defect, so the
+            rules travel with the components they protect.
+          </TypographyProse>
+
+          <TypographyProseList>
+            <li>
+              <strong>Colour.</strong> The raw palette (
+              <TypographyInlineCode>bg-zinc-800</TypographyInlineCode>), solid
+              white and black, and a hex anywhere a token belongs, gradient
+              stops included.{" "}
+              <TypographyInlineCode>inlineStyle</TypographyInlineCode> extends
+              that to a literal inside a{" "}
+              <TypographyInlineCode>style</TypographyInlineCode> object, the one
+              place a className rule cannot reach.
+            </li>
+            <li>
+              <strong>Type.</strong> An arbitrary font size in any unit. A rung
+              passed as a class to a primitive that already owns a size prop. A
+              type style hand-written on a{" "}
+              <TypographyInlineCode>&lt;p&gt;</TypographyInlineCode> or an{" "}
+              <TypographyInlineCode>&lt;h2&gt;</TypographyInlineCode>, where the
+              tag has already said the content is text.
+            </li>
+            <li>
+              <strong>Marks.</strong> A vertical margin nudging an icon into
+              line with the words beside it. Three classes replace it:{" "}
+              <TypographyInlineCode>align-middle</TypographyInlineCode> inside a
+              sentence,{" "}
+              <TypographyInlineCode>ON_FIRST_LINE</TypographyInlineCode> beside
+              a block, <TypographyInlineCode>CAP_TRIM</TypographyInlineCode> on
+              a single-line row.
+            </li>
+            <li>
+              <strong>Tokens.</strong> A deprecated{" "}
+              <TypographyInlineCode>-foreground</TypographyInlineCode> spelling,
+              a <TypographyInlineCode>dark:</TypographyInlineCode> override that
+              swaps one token for another, a surface token printed as ink.
+            </li>
+            <li>
+              <strong>Routing.</strong>{" "}
+              <TypographyInlineCode>
+                render={"{"}&lt;a href&gt;{"}"}
+              </TypographyInlineCode>{" "}
+              on a component that takes{" "}
+              <TypographyInlineCode>href</TypographyInlineCode> and would have
+              picked the router, the{" "}
+              <TypographyInlineCode>rel</TypographyInlineCode> and the view
+              transition together.
+            </li>
+          </TypographyProseList>
+
+          <TypographyProse>
+            Four rules ship off by default.{" "}
+            <TypographyInlineCode>axis</TypographyInlineCode>,{" "}
+            <TypographyInlineCode>pairing</TypographyInlineCode> and{" "}
+            <TypographyInlineCode>leading</TypographyInlineCode> each name a
+            sweep you finish before switching them on.{" "}
+            <TypographyInlineCode>inlineStyle</TypographyInlineCode> stays off
+            for a different reason: a card rendered by Satori has to state its
+            colours literally, since{" "}
+            <TypographyInlineCode>next/og</TypographyInlineCode> resolves no
+            custom properties.
+          </TypographyProse>
+
+          <TypographyProse>
+            Add a rule here and it reaches every app on the next version bump.{" "}
+            <TypographyHighlight tone="fig">
+              The review comment gets written once.
+            </TypographyHighlight>
           </TypographyProse>
         </EssaySection>
 

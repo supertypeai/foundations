@@ -122,8 +122,24 @@ package ships ESM and CommonJS builds under `dist/cjs`, so both a flat config's
 Only the things that genuinely vary per app are arguments: the accent names used
 in the message, the size ramp, and `weights`, which holds a file to three weights.
 `weights` is off by default because 700 is a reasonable headline weight on an
-editorial surface. `themeOverrideRules()` and `surfaceAsInkRules()` take no
-arguments, since what they forbid should not vary per app.
+editorial surface. The token and surface rules take no arguments, since what they
+forbid should not vary per app.
+
+Four rules ship off. `axis`, `pairing` and `leading` each name a sweep an app
+finishes before switching one on. `inlineStyle` flags a literal colour inside a
+`style` object, the one place no className rule can see, and stays off for a
+different reason: a card rendered by Satori has to state its colours literally,
+since `next/og` resolves no custom properties. Turn it on for the directories
+that render for a browser and leave the OG routes out.
+
+What the set covers, in one pass: the raw Tailwind palette, solid white and
+black, a hex on any colour utility including gradient stops, an arbitrary font
+size in any unit, a type style hand-written on a `<p>` or a heading, a rung
+passed as a class to a primitive that owns a size prop, a deprecated
+`-foreground` spelling, a `dark:` override of a token, a surface token printed as
+ink, a `size-` class on a mark inside a control that sizes its own, a vertical
+margin nudging an inline mark into line, and `render={<a href>}` on a component
+that takes `href`.
 
 The rules live in the package because keeping a copy in each app did not work.
 The colour rules were kept in step by hand and the typography rules never made it

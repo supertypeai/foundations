@@ -3,15 +3,10 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
- * Average is drawn at one weight. A 600 asked of it is synthesised, and a synthesised
- * serif smears its hairlines worst at exactly the display sizes editorial uses. So the
- * face and the weight are not free to drift apart: both change under `.editorial` or
- * neither does, and a literal `font-semibold` beside the face survives into editorial
- * and synthesises without anything throwing.
- *
- * Both apps read this, so the package asserts it. viably's font-tokens suite used to,
- * which meant one consumer was policing a decision it does not own and the other was
- * not policing it at all.
+ * Average is drawn at one weight, and a synthesised serif smears its hairlines
+ * worst at display sizes. So the face and the weight change together under
+ * `.editorial` or neither does. Both apps read this, so the package asserts it
+ * rather than one consumer policing a decision it does not own.
  */
 const read = (rel: string) =>
   readFileSync(fileURLToPath(new URL(rel, import.meta.url)), "utf8");

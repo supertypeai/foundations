@@ -4,19 +4,10 @@
  *
  *   yarn release [patch|minor|major]     default patch
  *
- * A release is a tag and a registry version, and they have to be the same
- * commit. Consumers install from npm; the git remote still resolves for anyone
- * pinning a commit ahead of a release. The bump is part of releasing rather
- * than a step to remember: yarn pins the resolved commit, and a tag that moves
- * after the fact leaves consumers on code nobody chose. One tag per version
- * avoids that, and `npm publish` refuses a version it already has, so the two
- * cannot drift apart without the release failing.
- *
- * dist/ is committed rather than rebuilt by a `prepare` script on the consumer
- * side. A prepare step makes every consumer run a nested `yarn install` that
- * shares one cache with the install that spawned it, and the two race on any
- * package both need — which corrupted the cache and failed CI. Shipping the
- * build output means a consumer clones a package that is already usable.
+ * A tag and a registry version have to be the same commit, and `npm publish`
+ * refuses a version it already has, so the two cannot drift without the release
+ * failing. dist/ is committed rather than built by a consumer `prepare` script,
+ * which raced its parent install on a shared cache and corrupted it.
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
@@ -30,14 +21,10 @@ const capture = (cmd, args) =>
   execFileSync(cmd, args, { encoding: "utf8", cwd: process.cwd() }).trim();
 
 /**
- * npm, with yarn's registry out of the way.
- *
- * `yarn run` exports `npm_config_registry=https://registry.yarnpkg.com` into
- * every script it starts, and npm reads it. The auth token in ~/.npmrc is
- * scoped to `//registry.npmjs.org/`, so npm looks up credentials for a host it
- * has none for and reports ENEEDAUTH — while the same `npm whoami` outside
- * yarn succeeds, which makes it look like the login did not take. Both npm
- * calls below name the registry themselves and drop the inherited value.
+ * npm, with yarn's registry out of the way. `yarn run` exports
+ * `npm_config_registry` into every script it starts, and the token in ~/.npmrc is
+ * scoped to registry.npmjs.org, so npm reports ENEEDAUTH for a host it has no
+ * credentials for. Both npm calls below name the registry themselves.
  */
 const REGISTRY = "https://registry.npmjs.org/";
 const npmEnv = () => {
@@ -84,18 +71,10 @@ try {
 const branch = capture("git", ["rev-parse", "--abbrev-ref", "HEAD"]);
 
 /**
- * The bump reads local state, so local state has to be the whole story.
- *
- * Releases are cut from more than one machine. A clone that has not pulled
- * still says 0.1.20 in package.json and still has no v0.2.0 tag, so every
- * guard here passes and `yarn release` computes 0.1.21 — a version behind
- * what is already published, under a tag that would have to be forced past
- * the remote. Fetching first, tags included (the fetch refspec is heads-only,
- * so tags cut elsewhere never arrive on their own), makes both the version and
- * the "tag already exists" check see what the rest of the world sees.
- *
- * Being ahead of origin is fine — those are the commits being released. Being
- * behind or diverged is not: the release would be cut from the wrong tree.
+ * The bump reads local state, so local state has to be the whole story. A clone
+ * that has not pulled computes a version behind what is published, under a tag it
+ * would have to force past the remote. Fetching first, tags included, makes both
+ * the version and the "tag already exists" check see what everyone else sees.
  */
 run("git", ["fetch", "origin", "--tags"]);
 
@@ -140,14 +119,10 @@ const published = (() => {
 })();
 
 /**
- * A release that got as far as the tag and no further.
- *
- * `npm publish` is the last step and the only irreversible one, so it is the
- * one most likely to be the first thing a new credential fails at — a 403 for
- * 2FA leaves the tag pushed and the version missing from the registry. Bumping
- * again would strand it there permanently, under a tag nobody can install. So
- * the current version is finished rather than skipped, and only the steps it
- * has not reached are run.
+ * A release that got as far as the tag and no further. `npm publish` is the last
+ * step and the only irreversible one, so a 403 leaves the tag pushed and the
+ * version missing. Bumping again would strand it there, so the current version is
+ * finished rather than skipped.
  */
 const head = capture("git", ["rev-parse", "HEAD"]);
 const resume =

@@ -47,13 +47,9 @@ export interface RibbonHue {
     fill: string;
 }
 /**
- * The categorical palette in ribbon order: warm through green through cool and
- * back to earth, so the run reads as one spectrum rather than eight swatches.
- *
- * Written out one full classname at a time, never assembled from the name.
- * Tailwind generates the classes it can see as literals, and a template string
- * would leave every one of them purged with nothing to report. A consumer
- * passing hues of their own is subject to the same rule in their own source.
+ * The categorical palette in ribbon order, warm through green through cool, so
+ * the run reads as one spectrum. Written out one full classname at a time:
+ * Tailwind generates only what it sees, and a template string would purge them all.
  */
 export declare const EDITORIAL_INKS: readonly RibbonHue[];
 /**

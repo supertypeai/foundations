@@ -1,16 +1,14 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Children, cloneElement, isValidElement } from "react";
 import { cn } from "../cn.js";
-import { INK_ON_CARD } from "../tone.js";
+import { toneClass } from "../tone.js";
+import { DISCLOSURE, DisclosureChevron } from "./disclosure.js";
 /**
  * A disclosure group: `<details>`/`<summary>`, no JS, correct before hydration.
- *
- * Named for what it is rather than `Accordion`, the interactive Base UI
- * component next door. The two are not variants of each other — this one is a
- * server component an MDX author gets for free, that one animates and manages
- * state. Sharing a name is how a call site ends up with the wrong one.
+ * Named for what it is rather than `Accordion`, the interactive Base UI component
+ * next door. Sharing a name is how a call site ends up with the wrong one.
  */
-export function DisclosureGroup({ className, children, type = "multiple", defaultValue, name, ...props }) {
+export function DisclosureGroup({ className, children, type = "multiple", defaultValue, name, tone = "primary", ...props }) {
     // Single-open comes from the shared `name` attribute, which browsers implement
     // natively and which degrades to all-open where they do not — a fine failure
     // for a disclosure group, and far cheaper than shipping state for it.
@@ -33,7 +31,7 @@ export function DisclosureGroup({ className, children, type = "multiple", defaul
             open: child.props.open ?? defaultOpen,
         });
     });
-    return (_jsx("div", { className: cn("my-6 divide-y divide-border overflow-hidden rounded-xl border border-border", className), ...props, children: items }));
+    return (_jsx("div", { className: cn(toneClass(tone), DISCLOSURE.group, className), ...props, children: items }));
 }
 /**
  * `<details name>` must match across siblings, server and client, and builds — a
@@ -56,5 +54,5 @@ function deriveGroupName(children) {
     return `accordion-${(hash >>> 0).toString(36)}`;
 }
 export function Disclosure({ title, children, className, ...props }) {
-    return (_jsxs("details", { className: cn("group bg-card", INK_ON_CARD, className), ...props, children: [_jsxs("summary", { className: "flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-foreground marker:hidden hover:bg-accent [&::-webkit-details-marker]:hidden", children: [title, _jsx("svg", { "aria-hidden": "true", className: "h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: "m6 9 6 6 6-6" }) })] }), _jsx("div", { className: "px-4 pb-4 text-sm text-muted-foreground", children: children })] }));
+    return (_jsxs("details", { className: cn("group/disclosure", DISCLOSURE.item, className), ...props, children: [_jsxs("summary", { className: cn(DISCLOSURE.row, "list-none marker:hidden [&::-webkit-details-marker]:hidden"), children: [title, _jsx(DisclosureChevron, {})] }), _jsx("div", { className: DISCLOSURE.panel, children: children })] }));
 }

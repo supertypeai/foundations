@@ -1,17 +1,9 @@
 import type { ComponentProps, ReactElement } from "react";
 /**
- * Where a link goes, decided once.
- *
- * This branch — scheme test, router `Link` or plain `<a>`, `rel` on the way out
- * — was written three times: Card, TypographyLink, and (by omission) every call
- * site that reached for `render={<a href="…" />}` because the component it was
- * calling had no `href` of its own. The last of those is the expensive copy: it
- * looks like a styling escape hatch and is actually a routing decision, made at
- * the call site, wrongly. A hero CTA written that way full-page-reloads past the
- * router and drops the view transition, and nothing in the type system says so.
- *
- * So components take `href`, not an anchor. `render` stays for what it is for:
- * an element that is genuinely not an anchor.
+ * Where a link goes, decided once. This branch was written three times, the
+ * expensive copy being every call site reaching for `render={<a href>}`: it looks
+ * like a styling escape hatch and is a routing decision made wrongly, and a hero
+ * CTA written that way reloads past the router. Components take `href`.
  */
 /** A scheme (`mailto:`, `https:`) means the href leaves the app entirely. */
 export declare function isExternalHref(href: string): boolean;

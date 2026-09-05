@@ -5,39 +5,18 @@ import { renderAs } from "./render-as.js";
 import { resolveLink } from "../href.js";
 import { FOCUS_RING } from "./focus.js";
 import { INK_ON_FILL, TONE, TONE_SURFACE, impliedTone } from "../tone.js";
-// ---------------------------------------------------------------------------
-// A label that is not a control. Same two axes as Button, and for the same
-// reason: the two apps had each grown their own list, and the lists disagreed
-// with each other and with the rest of the package.
-//
-// ssite's read `default | secondary | destructive | outline | success | warning
-// | supertype | tint`. Two of those are the package's tones under invented
-// spellings — `warning` for `warn`, `supertype` for `brand` — which is precisely
-// the second vocabulary a design system exists to prevent. `secondary` was
-// `bg-muted/80 text-foreground` against a `default` of `bg-muted
-// text-muted-foreground`: a distinction no reader could name, let alone use.
-//
-// viably's read `default | secondary | destructive | outline | ghost | link`,
-// which is a copy of the button list it was cargo-culted from — including the
-// `link` variant, which no badge has ever used, because a badge is not a link.
-//
-// So: `variant` for how much ink, `tone` for what it means, both spelled exactly
-// as Button spells them. `link` is absent because it was never real; everything
-// else about the vocabulary is the same list, so knowing one component's axes is
-// knowing this one's.
-// ---------------------------------------------------------------------------
+// A label that is not a control. Same two axes as Button, spelled the same way:
+// `variant` for how much ink, `tone` for what it means. The apps' own lists had
+// invented spellings for tones the package already named, and viably's carried a
+// `link` variant cargo-culted from the button, which no badge ever used.
 const badge = cva(cn("inline-flex w-fit shrink-0 items-center justify-center gap-1", "overflow-hidden border border-transparent font-medium whitespace-nowrap", cn("transition focus-visible:border-ring", FOCUS_RING), "aria-invalid:border-destructive aria-invalid:ring-destructive/20", "[&>svg]:pointer-events-none [&>svg]:size-3!", TONE_SURFACE), {
     // Same cascade order as Button: `pill` beats `size` on radius.
     variants: {
         tone: TONE,
         /**
-         * Two rungs, because a badge has two jobs. `sm` is the label riding beside
-         * a title; `xs` is the figure riding beside a toolbar control — a filter
-         * tally, an unread count.
-         *
-         * `leading-none` restates the default on purpose: `text-3xs` carries a
-         * line-height of its own, which lands after the base class and wins.
-         * Stating it per size is what keeps `!leading-none` out of call sites.
+         * Two rungs: `sm` is the label beside a title, `xs` the figure beside a
+         * toolbar control. `leading-none` restates the default on purpose, since
+         * `text-3xs` carries its own line-height and lands after the base class.
          */
         size: {
             xs: "h-4 min-w-4 rounded px-1 text-3xs leading-none",
@@ -57,15 +36,9 @@ export function badgeVariants(props = {}) {
     return badge({ tone: props?.tone ?? impliedTone(props?.variant), ...props });
 }
 /**
- * A `span`, an anchor when given an `href` — a tag pill leading to its listing —
- * and whatever `render` says otherwise — cloned rather than run through a
- * `useRender` hook, which is what viably's badge did. A hook would make every
- * badge in the tree a client component to serve the one call site that renders
- * an anchor, and a badge is a label: it should cost nothing on the server. This
- * is the same mechanism `Button` uses for the same reason.
- *
- * The `[a]:hover` rules above light up on their own when an anchor is the parent
- * or the rendered element.
+ * A `span`, an anchor when given an `href`, and whatever `render` says otherwise.
+ * Cloned rather than run through a `useRender` hook, which would make every badge
+ * in the tree a client component to serve the one call site rendering an anchor.
  */
 export function Badge({ className, variant, tone, size, pill, render, href, external, newTab, ...props }) {
     const resolved = tone ?? impliedTone(variant);

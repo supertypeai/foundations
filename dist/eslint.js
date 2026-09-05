@@ -11,15 +11,29 @@ const classString = (pattern) => [
 const rule = (pattern, message) => classString(pattern).map((selector) => ({ selector, message }));
 const VARIANTS = "(dark:|hover:|focus:|group-hover:|active:|disabled:|sm:|md:|lg:|xl:)*";
 const PALETTE = "(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)";
+/** Every utility that takes a colour, named once. Written out per rule, the
+ *  palette rule covered gradient stops and the hex rule beside it did not. */
+const COLOUR_UTIL = "text|bg|border|ring|from|to|via|fill|stroke|divide|outline|placeholder|shadow|decoration|accent|caret";
 /** Applies everywhere, marketing included — the tints exist for those pages. */
-function colourRules({ accents = "a brand accent", } = {}) {
+function colourRules({ accents = "a brand accent", inlineStyle = false, } = {}) {
     return [
-        ...rule(`/(^| )${VARIANTS}(text|bg|border|ring|from|to|via|fill|stroke|divide|outline|placeholder|shadow|decoration|accent|caret)-${PALETTE}-\\d+/`, `Raw Tailwind palette. Use a token — text-foreground / text-muted-foreground / text-subtle-foreground, bg-background / bg-card / bg-muted, border-border — a status token (success, warn, destructive), or ${accents}.`),
+        ...rule(`/(^| )${VARIANTS}(${COLOUR_UTIL})-${PALETTE}-\\d+/`, `Raw Tailwind palette. Use a token — text-foreground / text-muted-foreground / text-subtle-foreground, bg-background / bg-card / bg-muted, border-border — a status token (success, warn, destructive), or ${accents}.`),
         // Split by prefix: alpha on a fill is a scrim (the effect), on ink or a
         // hairline it is just an undeclared colour.
         ...rule(`/(^| )${VARIANTS}(bg|from|to|via|shadow)-(white|black)($| )/`, "Solid white/black is a hand-rolled surface. Use bg-card / bg-background, or bg-tint for a tinted panel. Alpha scrims (bg-black/50) stay legal — there the point is the transparency, not the hue."),
         ...rule(`/(^| )${VARIANTS}(text|border|ring|divide|fill|stroke|decoration|outline|placeholder)-(white|black)($| |\\x2f)/`, "White/black ink and hairlines are hand-rolled colour, alpha or not. Use text-foreground / text-background for ink, text-tint-foreground for ink on a tinted surface, and border-border for a hairline — the token already carries the alpha the theme wants."),
-        ...rule("/(^| )(text|bg|border|fill|stroke|ring)-\\[#/", "Hex colours bypass the token system entirely. Add a token if the colour is real; use an existing one if it is not."),
+        // Every colour utility and variant, matching the palette rule above.
+        ...rule(`/(^| )${VARIANTS}(${COLOUR_UTIL})-\\[#/`, "Hex colours bypass the token system entirely, gradient stops included. Add a token if the colour is real; use an existing one if it is not."),
+        // The blind spot in the rules above, which all read classNames.
+        // `var(--token)` stays legal: that is what `inkOnSurfaceStyle` returns.
+        ...(inlineStyle
+            ? [
+                {
+                    selector: 'JSXAttribute[name.name="style"] Literal[value=/#[0-9a-fA-F]{3,8}/]',
+                    message: "A literal colour in a style object. Every colour rule reads classNames, so nothing else here can see this one. Use a token class, or `var(--token)` in the style object when a class cannot carry it. An OG card is the exception, since next/og resolves no custom properties.",
+                },
+            ]
+            : []),
     ];
 }
 /**
@@ -46,46 +60,21 @@ function themeOverrideRules() {
 function surfaceAsInkRules() {
     return [
         ...rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/", "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card."),
-        // The three fills with no legitimate use as a foreground, glyph or word.
-        // Each is a background whose lightness is chosen to hold a label, so read as
-        // ink against the page it lands under the tertiary rung: in dark, secondary
-        // measures 2.77:1, primary 3.36:1 and success 3.79:1, where
-        // `--subtle-foreground` is 6.75:1. An accent quieter than the quietest ink is
-        // the bug, and it reads the same way on an icon as it does in a sentence.
-        //
-        // Unconditional, unlike the opt-in rules above, because the sweep is done in
-        // both apps and there is no correct call site left to grandfather. `warn` and
-        // `info` stay out: their fills are bright enough to read (7.68:1 and 6.10:1).
+        // Three fills that read under the tertiary ink in dark (2.77:1, 3.36:1,
+        // 3.79:1, against 6.75:1). `warn` and `info` stay out, bright enough to read.
         ...rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(primary|secondary|success)($| )/", "That is a fill token used as ink. A fill's lightness is chosen to hold a label printed on it, so against the page it reads under the tertiary ink in dark (primary 3.36:1, secondary 2.77:1, success 3.79:1). Each ships an `-ink` cut checked at 4.5:1 against the page. Add `-ink`."),
     ];
 }
-/**
- * `-foreground` means the label printed on a fill; `-ink` means the hue as
- * words. The eight categorical `-foreground` tokens were always inks, under the
- * other name. The old spellings still resolve, so nothing breaks on the day of
- * the rename; this is what stops them surviving it.
- *
- * `warn` left this list when the status tones gained real on-fill labels:
- * `--warn-foreground` now means what its name says, the ink printed on the warn
- * fill, and `Button tone="warn" variant="solid"` is what reads it.
- */
+/** `-foreground` is the label printed on a fill, `-ink` the hue as words. The old
+ *  spellings still resolve, so only this stops them surviving the rename. */
 const RENAMED_INKS = "terracotta|ochre|moss|fern|sage|stone|fig|cocoa";
 function renamedTokenRules() {
     return rule(`/(^| )(dark:|hover:|focus:|group-hover:)*(text|bg|border|ring|fill|stroke|decoration)-(${RENAMED_INKS})-foreground($| )/`, "That is the deprecated name for the same hue's `-ink`. In this package `-foreground` is the label printed on a fill and `-ink` is the hue used as words, and none of these hues has a printed-on label — they are checked at 4.5:1 against the page, and printing one on its own fill measures about 1.2:1. Use `-ink`.");
 }
 /**
- * `render={<a href="…" />}` on a component that takes an `href`. It reads as a
- * styling choice and is a routing one: the cloned anchor skips the router, so
- * the page fully reloads and the view transition is lost, and an off-site href
- * never grows a `rel`. Button, Badge and Card each decide internal vs external
- * from the href itself, so the anchor is never needed and cannot be right more
- * often than the one shared rule is.
- *
- * Narrow on both axes, so it never fires on a line that is correct. Only those
- * three components — `RailLink` deliberately takes a router element through
- * `render`, because its module has to stay importable without Next. And only a
- * bare `<a>`: `render={<Link/>}` is redundant beside `href` but it still routes,
- * so it is not a bug.
+ * `render={<a href>}` on a component that takes `href`. The cloned anchor skips
+ * the router and gets no `rel` off-site. Narrow deliberately: `RailLink` takes a
+ * router element through `render`, and `render={<Link/>}` still routes.
  */
 function linkRules() {
     return [
@@ -102,24 +91,23 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
         // `\x2f`, never a literal slash: ESLint 8's esquery ends the regex at the
         // first `/` it sees, however escaped, and hands RegExp the truncated half.
         ...rule("/text-(foreground|muted-foreground|subtle-foreground)\\x2f\\d+/", "Alpha on a text token has unmeasurable contrast (it composites against whatever surface it lands on). Use text-foreground (primary), text-muted-foreground (secondary), or text-subtle-foreground (tertiary)."),
-        // px only: a rem value at display scale is an ornament, not a rung.
-        ...rule("/(^| )text-\\[\\d+px\\]/", `Arbitrary font sizes bypass the type ramp. Use a rung (${ramp}).`),
-        // A primitive that owns a size axis, reached past for a class that does the
-        // same thing. The class wins on the page, so nothing looks wrong — what is
-        // lost is everything else the axis carries: `TypographyStat` pairs its rungs
-        // with the heading ladder, so a figure and the heading beside it retune
-        // together on an editorial surface, where a literal stays put. A literal
-        // gets the size and silently drops the rest.
-        //
-        // Matching the class node INSIDE the attribute, rather than the className
-        // string on its own, lets this name the component. It reaches into `cn()`
-        // for free, since the argument sits in the same subtree.
+        // Any unit, not px alone: an ornament in rem is still a size nothing else can
+        // reach for. Digits then a unit, so `text-[color:var(--ink)]` is untouched.
+        ...rule(`/(^| )${VARIANTS}text-\\[[\\d.]+(px|rem|em|pt|ch|vw|vh|vmin|vmax)\\]/`, `Arbitrary font sizes bypass the type ramp. Use a rung (${ramp}).`),
+        // Rule 1 of llms.txt, which had no rule behind it. Every value can be fine
+        // and the primitive still skipped: `text-sm text-muted-foreground` on a
+        // paragraph is `TypographyMuted`. Only `<p>` and headings, which are text by
+        // definition; a `<span>` with a rung measured 166 hits to this one's ten.
+        ...["Literal[value", "TemplateElement[value.raw"].map((node) => ({
+            selector: `JSXOpeningElement[name.name=/^(p|h1|h2|h3|h4|h5|h6)$/] JSXAttribute[name.name="className"] ${node}=/(^| )(text-(3xs|2xs|xs|sm|base|lg|xl|[2-9]xl)|text-(muted|subtle)-foreground|font-(medium|semibold|bold)|leading-(none|tight|snug|relaxed|loose))( |$)/]`,
+            message: `A type style written by hand on a text element. There is a primitive for it: TypographyP or TypographyMuted for copy, TypographyH1-H4 for a heading, TypographyEyebrow for a kicker, TypographyCaption or TypographyLabel for a value and its key. The class sets the size and drops the ink variable and the leading that come with the rung (${ramp}).`,
+        })),
+        // A primitive that owns a size axis, reached past for a class. The class wins
+        // and drops the ladder the axis carries. Matching inside the attribute names
+        // the component, and reaches into `cn()` for free.
         ...(axis
             ? [
-                // Both node kinds, for the same reason `classString` above covers both: a
-                // class list assembled in a template literal is the shape a call site
-                // reaches for precisely when it is doing something conditional, which
-                // is where a stray rung is most likely to be hiding.
+                // Both node kinds: a conditional class list is where a stray rung hides.
                 ...["Literal[value", "TemplateElement[value.raw"].map((node) => ({
                     selector: `JSXOpeningElement[name.name=/^Typography(Small|Caption|Stat|Eyebrow)$/] JSXAttribute[name.name="className"] ${node}=/(^| )text-(3xs|2xs|xs|sm|base|lg|xl|[2-9]xl|h[1-4])( |$)/]`,
                     message: "This primitive owns its size: pass the axis (TypographySmall/Caption size=, TypographyStat size=, TypographyEyebrow tone=) rather than a text-* class, which takes the size and drops the leading and ladder that come with the rung.",
@@ -127,11 +115,7 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
             ]
             : []),
         // Leading stated at a call site, on a primitive whose rung already carries
-        // one. The ramp is what an app retunes, and a class pins past it: the pinned
-        // value follows the component onto a surface tuned for different sizes and
-        // reports nothing when it no longer fits. Where a role genuinely needs a
-        // number the rung cannot give, the reading paragraph and the value being the
-        // two, the primitive states it and every call site inherits the decision.
+        // one. A class pins past the ramp and reports nothing when it stops fitting.
         ...(leading
             ? [
                 ...["Literal[value", "TemplateElement[value.raw"].map((node) => ({
@@ -140,15 +124,9 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
                 })),
             ]
             : []),
-        // Two valid primitives forming an invalid pair, which the value rules above
-        // cannot see: `<TypographyP>` is the 14px interface rung, and the list under
-        // it reads at the prose rung, so one passage lands two rungs apart.
-        //
-        // `~` and never `+`: JSX puts a whitespace text node between sibling
-        // elements, and an adjacent-sibling selector will not cross it — measured,
-        // `+` matches nothing at all here. The cost of `~` is that it means "any
-        // later sibling", so it can reach past an intervening paragraph; on a corpus
-        // of 168 files it fired four times and was right four times.
+        // Two valid primitives forming an invalid pair: one passage, two rungs.
+        // `~` and never `+`, which will not cross the whitespace node JSX puts
+        // between siblings. On 168 files it fired four times and was right four times.
         ...(pairing
             ? [
                 {
@@ -163,18 +141,9 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
     ];
 }
 /**
- * A `size-` class on a mark inside a control that already sizes its own marks.
- *
- * `Button` and `TabsTrigger` size the svg off their text rung, through a descendant
- * selector that outranks a class on the icon itself. So a `size-4` written here is
- * inert: it changes nothing, it reads as though it does, and the next person either
- * thinks the icon system is broken or reaches for `!size-4` and reopens the drift
- * this rule exists to keep closed. Drop the token; the rung decides.
- *
- * Nested elements only. The control's own `className="size-8"` is its box, a real and
- * different thing, and the element's own attributes ARE descendants of it in the AST —
- * so the selector steps through a second `JSXElement` to reach the children. Without
- * that step this rule strips the box off every icon button.
+ * A `size-` class on a mark inside a control that sizes its own. `Button` and
+ * `TabsTrigger` beat it with a descendant selector, so the class is inert. The
+ * second `JSXElement` step is what keeps this off the control's own box.
  */
 function markSizeRules() {
     return [
@@ -184,14 +153,26 @@ function markSizeRules() {
         },
     ];
 }
-export function designRules({ accents, typography = true, ...type } = {}) {
+/**
+ * A vertical margin holding a mark into line with the words beside it. The pixel
+ * fits one pairing of mark size and rung and misses every other; one consumer
+ * carried 84 across 27 files. `inline(?![-\w])` keeps `inline-flex` out, where a
+ * top margin is ordinary spacing.
+ */
+const INLINE = "inline(?![-\\w])";
+const MARGIN_TOP = "-?mt-[\\d.]+(?![\\w-])";
+function markAlignRules() {
+    return rule(`/(^| )${MARGIN_TOP}[^\\n]*${INLINE}|${INLINE}[^\\n]*(^| )${MARGIN_TOP}/`, "A vertical margin on an inline mark is a nudge that fits one rung and no other. Use `align-middle` for a mark inside a run of words, `ON_FIRST_LINE` for a mark beside a block of text, and `CAP_TRIM` on the text of a single-line row.");
+}
+export function designRules({ accents, inlineStyle, typography = true, ...type } = {}) {
     return [
-        ...colourRules({ accents }),
+        ...colourRules({ accents, inlineStyle }),
         ...(typography ? typographyRules(type) : []),
         ...linkRules(),
         ...themeOverrideRules(),
         ...surfaceAsInkRules(),
         ...renamedTokenRules(),
         ...markSizeRules(),
+        ...markAlignRules(),
     ];
 }

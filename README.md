@@ -391,7 +391,10 @@ drops the type rules for a surface that sets its own ramp.
 
 New in the same release: `CAP_TRIM` and `ON_FIRST_LINE` for lining a mark up with
 the words beside it. `Button` and `TabsTrigger` apply the trim to their own labels,
-so a control lines up without the call site knowing the rule.
+so a control lines up without the call site knowing the rule. The third case needs
+no export: a mark set inside a run of words takes `align-middle`, which centres it
+on the baseline plus half an x-height at whatever size the run is set in. Reach for
+one of the three rather than a top margin, which fits one rung and misses the rest.
 
 ---
 

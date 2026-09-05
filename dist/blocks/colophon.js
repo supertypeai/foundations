@@ -2,18 +2,10 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { cn } from "../cn.js";
 import { Button } from "./button.js";
 import { Bulletin, EDITORIAL_INKS, Ribbon, } from "./bulletin.js";
-// ---------------------------------------------------------------------------
-// A compact statement block for a footer, a section, or a page.
-//
-// Colophon keeps the name because it matches the role: a short note about the
-// system behind the site. The layout is shared with Bulletin, while the copy
-// here is the package's own preset.
-//
-// The panel uses the editorial inks and the row uses the same mark in a tighter
-// layout. The content is mostly fixed, but the label and children can be
-// replaced for a site that wants its own wording.
-// ---------------------------------------------------------------------------
-/** Where the mark points. Exported because a footer sometimes wants the bare
+// A compact statement block for a footer, a section, or a page. The layout is
+// Bulletin's; the copy here is the package's own preset. The panel uses the
+// editorial inks and the row the same mark in a tighter layout.
+/** Where the mark points. Exported for the cases where a footer wants the bare
  *  href — a `<link rel="…">`, a sitemap entry, an analytics label. */
 export const FOUNDATIONS_URL = "https://github.com/supertypeai/foundations";
 /**

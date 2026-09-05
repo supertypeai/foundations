@@ -1,27 +1,16 @@
 /* The whole style layer, in one import.
  *
- * An app used to write these four imports itself, in this order, plus an
- * `@source` line pointing back into node_modules — and every part of that was
- * something to get wrong. The order is a cascade, so a file out of place
- * re-points variables an earlier one defines. The `@source` path is relative to
- * the app's CSS file, so it moved with the app's layout and broke outright in a
- * workspace, where the package hoists to the repo root: Tailwind then scanned
- * nothing, purged every class this package ships, and rendered the components
- * unstyled with no error anywhere.
- *
- * None of it was ever the app's business. Tailwind v4 resolves `@source`
- * relative to the file that declares it, so the package can register its own
- * content — and then the order, the path and the completeness are all decided
- * here, where they are the same for everyone.
+ * An app used to write four imports in cascade order plus an `@source` path back
+ * into node_modules, and every part of that was something to get wrong: in a
+ * workspace the path broke outright, Tailwind scanned nothing, and every class the
+ * package ships was purged with no error anywhere.
  *
  *   @import "tailwindcss";
  *   @import "@supertype.ai/foundations";
  *
- * shiki.css is deliberately not here: an app that renders no code fences should
- * not pay for it. Import it separately when you add Shiki.
- *
- * The granular entry points remain exported, for the one app in a hundred that
- * paints every colour role itself and wants tokens.css without theme.css.
+ * shiki.css is deliberately not here: an app rendering no code fences should not
+ * pay for it. The granular entry points remain exported for the app that paints
+ * every colour role itself.
  */
 @import "./tokens.css";
 @import "./theme.css";

@@ -10,18 +10,20 @@ export interface RestrictedSyntax {
 interface ColourOptions {
     /** Named in the message: "use a token" without naming one sends people hunting. */
     accents?: string;
+    /**
+     * Flag a literal colour inside a `style` object, which no className rule sees.
+     * Off by default: Satori resolves no custom properties, so an OG card states
+     * its colours literally. Turn it on for the directories that render for a browser.
+     */
+    inlineStyle?: boolean;
 }
 interface TypographyOptions {
     /** Three-weight ramp. Off for editorial, where 700 is a register not a shout. */
     weights?: boolean;
     /** The rungs, named in the message, since they differ per consumer. */
     ramp?: string;
-    /**
-     * Flag a `ui` paragraph standing over a prose list. Off by default: it is the
-     * one rule here that reads shape rather than a value, and a consumer has to
-     * have migrated its dense-card lists to `TypographyList variant="ui"` before
-     * it can pass. Turn it on once that is done.
-     */
+    /** Flag a `ui` paragraph over a prose list. Off until an app has moved its
+     *  dense-card lists to `TypographyList variant="ui"`. */
     pairing?: boolean;
     /**
      * Flag a size class on a primitive that already owns a size axis. Off by
@@ -34,25 +36,14 @@ interface TypographyOptions {
     leading?: boolean;
 }
 /**
- * Every design rule, as one list.
- *
- * The builders below it are still exported, and spreading them by hand is
- * what both consumers were doing — one of them into a flat config, the other
- * into a legacy `.eslintrc`, and *both* of them had quietly left out
- * `renamedTokenRules`, so neither would have flagged a deprecated token name.
- * That is not a mistake either author made; it is what a five-name API costs
- * every time somebody wires it up. Spread this instead, and a rule added here
- * arrives in both apps on their next bump.
+ * Every design rule, as one list. Both consumers used to spread the builders by
+ * hand and both had quietly left one out, which is what a five-name API costs
+ * every time somebody wires it up. A rule added here arrives on the next bump.
  */
 export interface DesignRuleOptions extends ColourOptions, TypographyOptions {
-    /**
-     * Off for a surface that sets its own type ramp — a marketing page under
-     * `.editorial`, a mockup drawing the product at reduced scale. Everything
-     * about colour still applies: a deprecated token name is wrong on every
-     * surface, which is why this is a flag rather than an invitation to pick
-     * three of the five builders by hand.
-     */
+    /** Off for a surface that sets its own type ramp. Colour still applies: a
+     *  deprecated token name is wrong on every surface. */
     typography?: boolean;
 }
-export declare function designRules({ accents, typography, ...type }?: DesignRuleOptions): RestrictedSyntax[];
+export declare function designRules({ accents, inlineStyle, typography, ...type }?: DesignRuleOptions): RestrictedSyntax[];
 export {};

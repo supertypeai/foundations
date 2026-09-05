@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { TypographyProse, TypographyLink, TypographyLabel } from "@supertype.ai/foundations";
+import {
+  TypographyProse,
+  TypographyLink,
+  TypographyLabel,
+} from "@supertype.ai/foundations";
 import {
   EssayHeader,
   EssayLayout,
@@ -56,14 +60,16 @@ export default function EssayPage() {
 
         <EssaySection id="queue" heading="The queue">
           <TypographyProse>
-            The shell gives you one measure, one body size, and a margin index derived from
-            the sections themselves. Keep that index in a list beside them and a renamed
-            section ends up with a rail link to nowhere.
+            The shell gives you one measure, one body size, and a margin index
+            derived from the sections themselves. Keep that index in a list
+            beside them and a renamed section ends up with a rail link to
+            nowhere.
           </TypographyProse>
           <TypographyProse>
-            Turn on the editorial switch in the header to see what this page is designed for.
-            The heading ladder retunes against an 18px body, and the serif takes the heading
-            role at weight 400, because Average has exactly one.
+            Turn on the editorial switch in the header to see what this page is
+            designed for. The heading ladder retunes against an 18px body, and
+            the serif takes the heading role at weight 400; Average only ships
+            that one weight.
           </TypographyProse>
 
           <EssayPullQuote>
@@ -73,9 +79,10 @@ export default function EssayPage() {
 
         <EssaySection id="measure" heading="The measure">
           <TypographyProse>
-            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink> is three tracks,
-            the third often empty. Two tracks would push the prose off-centre the moment an
-            aside appeared, setting body copy on a different axis per page.
+            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink>{" "}
+            is three tracks, the third often empty. Two tracks would push the
+            prose off-centre the moment an aside appeared, setting body copy on
+            a different axis per page.
           </TypographyProse>
 
           <EssayFigure caption="Backlog, by hour. The figure slot takes any node.">
@@ -94,12 +101,15 @@ export default function EssayPage() {
         <EssaySection id="rail" heading="The rail">
           <TypographyProse>
             An MDX article composes the pieces instead of using the shell whole:{" "}
-            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink> with a{" "}
-            <TypographyLink href="/blocks#reading">ReadingRail</TypographyLink> in the aside, its
-            headings from{" "}
-            <TypographyLink href="/blocks#markdown">extractHeadings(source)</TypographyLink>.
-            Both the rail and the progress bar read shared stores, so mounting both costs a
-            single scroll subscription.
+            <TypographyLink href="/blocks#columns">EssayColumns</TypographyLink>{" "}
+            with a{" "}
+            <TypographyLink href="/blocks#reading">ReadingRail</TypographyLink>{" "}
+            in the aside, its headings from{" "}
+            <TypographyLink href="/blocks#markdown">
+              extractHeadings(source)
+            </TypographyLink>
+            . Both the rail and the progress bar read shared stores, so mounting
+            both costs a single scroll subscription.
           </TypographyProse>
         </EssaySection>
       </EssayLayout>
@@ -111,8 +121,8 @@ export default function EssayPage() {
         aside={<TableOfContents sections={INDEX} />}
       >
         <TypographyProse>
-          The same content in EssayColumns with a static margin index, which is how an MDX
-          route composes it when the sections come from the markdown.
+          The same content in EssayColumns with a static margin index, which is
+          how an MDX route composes it when the sections come from the markdown.
         </TypographyProse>
       </EssayColumns>
     </article>

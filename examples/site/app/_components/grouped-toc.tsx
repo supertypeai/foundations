@@ -1,5 +1,6 @@
 "use client";
 
+import { TypographyEyebrow } from "@supertype.ai/foundations";
 import { Rail, RailLink, useScrollSpy } from "@supertype.ai/foundations/essay";
 
 export type TocGroup = {
@@ -21,9 +22,9 @@ export function GroupedToc({ groups }: { groups: readonly TocGroup[] }) {
 
   return (
     <nav aria-label="Page sections">
-      <p className="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+      <TypographyEyebrow as="p" tone="muted" className="mb-4">
         On this page
-      </p>
+      </TypographyEyebrow>
       <Rail>
         {groups.flatMap((group) => [
           <RailLink key={group.id} href={`#${group.id}`} active={active === group.id}>

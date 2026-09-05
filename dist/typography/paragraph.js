@@ -49,21 +49,11 @@ export function TypographyProse(props) {
     return _jsx(TypographyP, { ...props, ...PROSE });
 }
 /**
- * A list, on the same rung axis as the paragraph beside it.
- *
- * The rung composes `pVariants` rather than restating one, so a list cannot
- * drift from the copy it sits under. The old `proseClass` held that property for
- * the prose rung alone.
- *
- * `variant` is here because a list is not always reading copy. A tier card or a
- * bento cell sets its paragraphs in `ui`, and a list pinned to `prose` inside one
- * lands two rungs above the sentence introducing it, with no prop to say so. Call
- * sites answered that by hand-rolling `<ul className="list-disc text-sm">`, which
- * is the shape this replaces.
- *
- * Tone stays pinned to `muted`: a list is body copy, secondary for the same
- * reason the paragraph presets are, and a weight-or-ink argument at the marker
- * is not a thing a call site should be able to start.
+ * A list, on the same rung axis as the paragraph beside it, composed from
+ * `pVariants` so it cannot drift from the copy above it. `variant` is here for
+ * the cases where a tier card sets its paragraphs in `ui`, while a list pinned to
+ * `prose` lands two rungs above the sentence introducing it. Tone stays pinned
+ * to `muted`.
  */
 const listClass = (variant, ordered) => cn("my-4 flex flex-col gap-1 pl-6 [&>li]:pl-1.5", ordered ? "list-decimal" : "list-disc", pVariants({ variant, tone: "muted" }));
 export function TypographyList({ className, children, ordered, variant, ...props }) {
@@ -80,22 +70,9 @@ export function TypographyProseList(props) {
 }
 /**
  * Meta beside content: timestamps, counts, bylines, the key in a key-value row.
- *
- * Always the secondary ink and never a weight — a caption is secondary because
- * it is muted, and 500 on top would have the colour and the weight arguing.
- * `sm` is the default because meta is separated from body by ink, not size;
- * the smaller rungs are a deliberate step down, not the norm.
- *
- * Leading comes from the rung, as it does for every other primitive here. Two
- * of these rungs used to pin a fixed ratio on top of the ramp, which held a
- * caption apart from the label beside it and overrode the retune an editorial
- * subtree had just made. An app that wants more air under a wrapped caption
- * moves the rung, which is where the rest of the page reads its leading from.
- *
- * `inherit` is the parenthetical inside a heading, an eyebrow or a stat. It
- * takes the size of whatever set it and resets the weight, because the only
- * reason to sit there is to be quieter than the thing you qualify — and every
- * container that sets a size for you sets a weight too.
+ * Always secondary ink and never a weight, since colour and weight both saying
+ * "secondary" is one arguing with the other. `inherit` is the parenthetical
+ * inside a heading or a stat, taking the size that set it.
  */
 const captionVariants = cva("text-[color:var(--ink-muted,var(--muted-foreground))]", {
     variants: {
@@ -126,17 +103,9 @@ export function TypographySmall(props) {
     return _jsx(TypographyCaption, { ...props, ...BLOCK });
 }
 /**
- * The label role: a form label, a column header, the key a reader scans for.
- * 500 is the only weight bump a dense surface needs below a heading.
- *
- * The rungs are the caption's, deliberately. A label and a caption are one pair
- * — the key and the value, the name and the note — and a pair that cannot be set
- * at one size is not a pair. Pinning the label to `sm` while the caption had an
- * axis is what sent a key next to an `xs` value out to `font-medium text-xs` in
- * a className, leaving the weight arguing with the rung it landed on.
- *
- * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
- * names its sections at this size, and those names are the page's outline.
+ * The label role: a form label, a column header, the key a reader scans for. The
+ * rungs are the caption's, deliberately, since a label and a caption are one pair
+ * and a pair that cannot be set at one size is not a pair.
  */
 const labelVariants = cva("font-medium text-[color:var(--ink,var(--foreground))]", {
     variants: {
@@ -154,32 +123,16 @@ export function TypographyLabel({ className, size, as, children, ...props }) {
     return (_jsx(TextAs, { as: as, className: cn(labelVariants({ size }), className), ...props, children: children }));
 }
 /**
- * A numeric readout. Size and colour ride in via className per use.
- *
- * Tabular is right in a column and wrong in a headline, so it is an axis rather
- * than a constant. Keep `tabular` anywhere a value updates in place.
- *
- * Leading is the one thing here the rung does not decide. A stat sits on the
- * body rungs, whose leading is room for the line that follows, and a value has
- * no line following it: the ratio lands as dead space arguing with the padding
- * the tile around it already sets. Pinned tight, for the reason a badge is.
+ * A numeric readout. Tabular is right in a column and wrong in a headline, so it
+ * is an axis. Leading is pinned tight: a value has no line following it, so the
+ * body ramp's ratio lands as dead space.
  */
 const statVariants = cva("tracking-tight leading-none", {
     variants: {
         /**
-         * Two ladders, because a figure sits in one of two places and they scale
-         * apart on an editorial surface. The rung names are the body ramp: a value
-         * in a table cell, a chip or a tile, beside interface copy it should step
-         * with. The surface names ride the heading ladder, for a figure that is
-         * itself the headline, so it and the heading beside it retune together.
-         *
-         * The heading half shipped alone and covered three call sites in eighteen.
-         * The other fifteen wanted a body rung, could not say so, and spelled a
-         * class instead, which takes the size and drops everything else the axis
-         * carries.
-         *
-         * `inherit` is the default and writes nothing: a stat inside a heading or a
-         * sentence takes the size that set it.
+         * Two ladders: the body rungs for a value beside interface copy, the surface
+         * names for a figure that is itself the headline. The heading half shipped
+         * alone and covered three call sites in eighteen. `inherit` writes nothing.
          */
         size: {
             inherit: "",
@@ -199,16 +152,9 @@ const statVariants = cva("tracking-tight leading-none", {
             display: "text-6xl font-black",
         },
         /**
-         * How loud the value is. `muted` is the qualifier that follows a figure,
-         * "of 2,000" beside "1,284": a value, so it keeps the tight leading, and
-         * quiet, so it does not compete with what it qualifies. Unweighted for the
-         * reason the caption is, that colour and weight both saying "secondary" is
-         * one of them arguing with the other.
-         *
-         * `default` states no ink on purpose. A stat takes the ink around it, which
-         * inside a filled control is that control's label and in a muted row is the
-         * row's, and naming one here would repaint every stat that inherits a
-         * quieter ink deliberately.
+         * How loud the value is. `muted` is the qualifier following a figure, "of
+         * 2,000" beside "1,284". `default` states no ink on purpose, so a stat takes
+         * the ink around it rather than repainting one that inherits a quieter one.
          */
         tone: {
             default: "font-semibold",
@@ -239,15 +185,7 @@ export function TypographyInlineCode({ className, children, ...props }) {
 /**
  * A statement about the surface, not the link: `muted` inside a paragraph,
  * `primary` when the link is the main thing on the line, `secondary` for a note
- * beneath a hero where `primary` would compete with the CTA beside it. The other
- * four come free, and a link inside a warning should be able to say so.
- *
- * This was `foreground | primary | secondary`, a private list whose first member
- * was "no meaning at all" spelled a third way — `foreground` here, `muted` in
- * Callout, `default` on a button. Now it is ../tone.ts, the same seven the other
- * two take, and the weight is uniform: `secondary` alone used to skip
- * `font-medium`, which read as a lighter link rather than a differently-coloured
- * one.
+ * beneath a hero. The other four come free from ../tone.ts.
  */
 const INHERITED_INK = "text-[color:var(--ink,var(--foreground))]";
 const LINK_DECORATION = "underline decoration-dotted decoration-1 decoration-muted-foreground decoration-skip-ink-none underline-offset-2 hover:decoration-solid hover:decoration-current/70";
@@ -259,22 +197,13 @@ const LINK_DECORATION = "underline decoration-dotted decoration-1 decoration-mut
  */
 const linkClass = (tone, className) => cn(tone ? cn(toneClass(tone), "text-(color:--tone-hue)") : INHERITED_INK, "font-medium", LINK_DECORATION, className);
 /**
- * The inline link.
- *
- * Internal and external are decided from the href, never at the call site —
- * ../href.ts holds that decision, and Button, Badge and Card make the same one.
- * `newTab` and `external` are the overrides. Call-site props apply last, so a
- * passed `target`/`rel` still wins.
- *
- * The router is `next-view-transitions`, imported rather than injected. Every
- * project on this package is a Next app and wants the same link, and a factory
- * bought router-agnosticism nobody used at the price of a component that could
- * not be imported by name. One call site ended up on the unbound version that
- * way and lost its decoration.
+ * The inline link. Internal and external are decided from the href in ../href.ts,
+ * never at the call site; `newTab` and `external` are the overrides, and call-site
+ * props apply last. The router is `next-view-transitions`, imported by name.
  */
 export function TypographyLink({ href, children, tone = "muted", external: leavesApp, newTab, addArrow, className, ...props }) {
     const style = linkClass(tone, className);
-    const { Component, props: link, external } = resolveLink(href, {
+    const { Component, props: link, external, } = resolveLink(href, {
         external: leavesApp,
         newTab,
     });

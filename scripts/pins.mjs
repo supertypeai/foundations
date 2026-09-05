@@ -1,16 +1,8 @@
 #!/usr/bin/env node
 /**
  * Every place that names a release tag, held to the version in package.json.
- *
- * Consumers install a git tag, so the tag is written out by hand in the install
- * instructions and in the example app's own package.json. Nothing linked those
- * to the version being released: `release.mjs` bumped package.json and left the
- * rest at whatever they said, which is how the README and the example both sat
- * two releases behind while every build stayed green. A reader copying the
- * install line got an older package than the docs they were reading.
- *
- * So the tag has one writer. This file knows where the pins are; `release.mjs`
- * rewrites them as part of the bump, and `yarn build` fails if one has drifted.
+ * Nothing linked them before, so the README and the example both sat two releases
+ * behind while every build stayed green. The tag has one writer now.
  *
  *   node scripts/pins.mjs            check, exit non-zero on a stale pin
  *   node scripts/pins.mjs --write    rewrite them to package.json's version

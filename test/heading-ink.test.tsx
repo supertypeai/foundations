@@ -12,19 +12,10 @@ import {
 } from "../dist/index.js";
 
 /**
- * A primitive has to survive its own `cn`.
- *
- * `text-h1`…`text-h4` are this package's rungs and tailwind-merge has never
- * heard of them, so it used to classify them as colours and drop whatever
- * colour stood beside them. See src/cn.ts for the mechanism. The bug was
- * invisible: a heading with no ink class inherits `color` from the body, which
- * is correct on a page and wrong on every surface that hands one down, so
- * nothing in either app looked broken while `INK_ON_CARD` did nothing for any
- * heading in the package.
- *
- * These assert the rendered markup rather than the merge, because the merge is
- * the thing that was wrong. A test spelling out what `cn` should return would
- * have been written against the same wrong belief.
+ * A primitive has to survive its own `cn`. tailwind-merge used to classify
+ * `text-h1`…`text-h4` as colours and drop whatever colour stood beside them, which
+ * was invisible: a heading with no ink inherits from the body. These assert the
+ * rendered markup rather than the merge, since the merge is what was wrong.
  */
 
 /** The class attribute a primitive actually ships. */

@@ -6,15 +6,10 @@ import { Callout } from "../dist/blocks/callout.js";
 import { TypographyP } from "../dist/typography/paragraph.js";
 
 /**
- * A block that takes `children` takes flow content: the caller decides whether what
- * arrives is a sentence, a list or two paragraphs, and the component cannot know.
- * Wrapping that slot in a `<p>` is the one shape where the failure is invisible here
- * and loud in the app. The HTML parser closes the paragraph the moment a block opens
- * inside it, so the server markup and the client tree disagree and React reports a
- * hydration error against a callout that renders correctly.
- *
- * `Callout` shipped that way in both densities. Every other slot in the package was
- * already a div, which is what made it look intentional rather than missed.
+ * A block that takes `children` takes flow content, so wrapping the slot in a `<p>`
+ * is the one shape whose failure is invisible here and loud in the app: the parser
+ * closes the paragraph, and React reports a hydration error against a callout that
+ * renders correctly. `Callout` shipped that way in both densities.
  */
 /** What a `<p>` or a `<span>` in the output is holding. Both take phrasing content
  *  only: the paragraph is the case the parser rewrites and React reports, the span

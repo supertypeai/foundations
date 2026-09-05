@@ -7,6 +7,7 @@ export { Button, buttonVariants } from "./button.js";
 export { Badge, badgeVariants } from "./badge.js";
 export { Tabs, TabsList, TabsTrigger, TabsContent, TabGroup, } from "./tabs.js";
 export { SEGMENT } from "./segment.js";
+export { DISCLOSURE } from "./disclosure.js";
 export { Steps, Step } from "./steps.js";
 export { Bulletin, Ribbon, EDITORIAL_INKS, } from "./bulletin.js";
 export { Colophon, BuiltWithFoundations, FoundationsMark, FOUNDATIONS_URL, } from "./colophon.js";

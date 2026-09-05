@@ -1,4 +1,4 @@
-import { TypographyInlineCode } from "@supertype.ai/foundations";
+import { TypographyEyebrow, TypographyInlineCode } from "@supertype.ai/foundations";
 import {
   extractHeadings,
   createSlugger,
@@ -35,9 +35,9 @@ export default function MarkdownHelpersDemo() {
   return (
     <div className="space-y-6 text-sm">
       <div>
-        <p className="mb-2 text-xs uppercase text-muted-foreground">
+        <TypographyEyebrow as="p" tone="muted" className="mb-2">
           extractHeadings(source)
-        </p>
+        </TypographyEyebrow>
         <ul className="space-y-1">
           {headings.map((h) => (
             <li key={h.id} className={h.depth === 3 ? "pl-6" : undefined}>
@@ -51,9 +51,9 @@ export default function MarkdownHelpersDemo() {
       </div>
 
       <div>
-        <p className="mb-2 text-xs uppercase text-muted-foreground">
+        <TypographyEyebrow as="p" tone="muted" className="mb-2">
           createSlugger()
-        </p>
+        </TypographyEyebrow>
         <ul className="space-y-1">
           {collisions.map(([label, id]) => (
             <li key={id}>
@@ -64,9 +64,9 @@ export default function MarkdownHelpersDemo() {
       </div>
 
       <div>
-        <p className="mb-2 text-xs uppercase text-muted-foreground">
+        <TypographyEyebrow as="p" tone="muted" className="mb-2">
           readingTime(source)
-        </p>
+        </TypographyEyebrow>
         <p>{minutes} min. The fenced block is excluded from the count.</p>
       </div>
     </div>

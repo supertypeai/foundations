@@ -26,6 +26,7 @@ export {
   type TabItem,
 } from "./tabs.js";
 export { SEGMENT } from "./segment.js";
+export { DISCLOSURE } from "./disclosure.js";
 export { Steps, Step } from "./steps.js";
 export {
   Bulletin,

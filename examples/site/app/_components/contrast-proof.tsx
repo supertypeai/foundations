@@ -12,6 +12,7 @@ import {
   cn,
   TypographyCaption,
   TypographyLabel,
+  TypographyP,
   TypographyStat,
 } from "@supertype.ai/foundations";
 
@@ -96,10 +97,10 @@ export function PolarityPair() {
           className="overflow-hidden rounded-lg border border-border"
         >
           <div className="p-5" style={{ background: ground, color: ink }}>
-            <p className="text-sm">
+            <TypographyP>
               Six weeks after the migration the queue drained on its own, which
               nobody had predicted and nobody could explain.
-            </p>
+            </TypographyP>
           </div>
           <figcaption className="flex items-baseline justify-between gap-3 border-t border-border px-5 py-3">
             <span className="text-xs font-medium">{label}</span>

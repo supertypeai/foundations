@@ -1,14 +1,8 @@
 #!/usr/bin/env node
 /**
- * Checks that llms.txt still lists every public export.
- *
- * llms.txt is written by hand, because the useful part is the guidance rather
- * than a dump of names. What rots is completeness in both directions: someone
- * adds a component and the agents reading this file never hear about it, or
- * someone deletes one and its row stands for as long as nobody rereads the file.
- * A stale row is the worse half, since it sends a reader to an import that does
- * not resolve. So the prose stays manual and both directions are checked here,
- * against the real exports of every entry point as TypeScript sees them.
+ * Checks that llms.txt still lists every public export. The prose stays manual,
+ * since the useful part is guidance rather than a dump of names; what rots is
+ * completeness in both directions, and a stale row is the worse half.
  *
  *   node scripts/check-llms.mjs
  */
@@ -49,12 +43,9 @@ for (const [entry, file] of entries) {
 }
 
 /**
- * The other direction: a name the table still advertises that no longer exists.
- * Read against every declaration the build emits rather than the entry points
- * alone, because a row's prose names internals too — the contrast row explains
- * that its tone rows are read off `TONE`, which is real and not importable.
- * Only backticked identifiers count, so `no-restricted-syntax` and `--brand` are
- * not candidates. `designConfig`, the day after it was deleted, was.
+ * The other direction: a name the table advertises that no longer exists. Read
+ * against every declaration the build emits, since a row's prose names internals
+ * too. Only backticked identifiers count, so `--brand` is not a candidate.
  */
 const known = new Set();
 for (const file of globSync("dist/**/*.d.ts", { cwd: root })) {

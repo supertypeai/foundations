@@ -10,7 +10,10 @@ export const SITE_ORIGIN = (
   process.env.FOUNDATIONS_SITE_ORIGIN ?? "https://supertypeai.github.io"
 ).replace(/\/$/, "");
 
-export const BASE_PATH = (process.env.FOUNDATIONS_BASE_PATH ?? "").replace(/\/$/, "");
+export const BASE_PATH = (process.env.FOUNDATIONS_BASE_PATH ?? "").replace(
+  /\/$/,
+  "",
+);
 
 /** The absolute URL of the site root. Used where a full URL is required outright. */
 export const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
@@ -19,12 +22,11 @@ export const SITE_NAME = "Foundations";
 export const SITE_TITLE = HOME.title;
 export const SITE_DESCRIPTION = HOME.description;
 
-
 /** A route as served: under the base path, with the trailing slash the export resolves at. */
 export const canonicalPath = (path: string) =>
   `${BASE_PATH}/${path === "/" ? "" : `${path.replace(/^\/|\/$/g, "")}/`}`;
 
-/** The card for a route, absolute because a static host resolves no base path for us. */
+/** The card for a route, absolute; a static host resolves no base path for us. */
 const cardUrl = (card: string) => `${SITE_URL}/og/${card}.png`;
 
 const card = (alt: string, name: string) => [
@@ -50,7 +52,10 @@ export const seo = createSeo({
  */
 export function pageMetadata(slug: string): Metadata {
   const page = PAGES.find((p) => p.slug === slug);
-  if (!page) throw new Error(`No page copy for "${slug}": add it to app/_components/pages.ts`);
+  if (!page)
+    throw new Error(
+      `No page copy for "${slug}": add it to app/_components/pages.ts`,
+    );
   const { title, description } = page;
   const url = canonicalPath(slug);
   return {
@@ -68,7 +73,12 @@ export function pageMetadata(slug: string): Metadata {
       url,
       images: card(`${title} · ${SITE_NAME}`, slug),
     },
-    twitter: { card: "summary_large_image", title, description, images: [cardUrl(slug)] },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [cardUrl(slug)],
+    },
   };
 }
 
@@ -86,7 +96,11 @@ export const homeMetadata: Metadata = {
 };
 
 /** The pages this site publishes, in order. Drives the sitemap and the home rail. */
-export const ROUTES = PAGES.map(({ slug, title }) => [`/${slug}`, title] as const);
+export const ROUTES = PAGES.map(
+  ({ slug, title }) => [`/${slug}`, title] as const,
+);
 
 /** The same list for the header, where the shorter labels are used. */
-export const NAV = PAGES.map(({ slug, title, nav }) => [`/${slug}`, nav ?? title] as const);
+export const NAV = PAGES.map(
+  ({ slug, title, nav }) => [`/${slug}`, nav ?? title] as const,
+);

@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
-import { TypographyH2, TypographyH3, TypographyProse } from "@supertype.ai/foundations";
+import {
+  TypographyCaption,
+  TypographyH2,
+  TypographyH3,
+  TypographyProse,
+} from "@supertype.ai/foundations";
 
 /** A linkable heading, an optional note, and whatever the section shows. */
 export function Section({
@@ -20,7 +25,7 @@ export function Section({
     <section id={id} className="scroll-mt-24 pt-14">
       <TypographyH2 divider>{title}</TypographyH2>
       {from ? (
-        <p className="mt-2 font-mono text-xs text-muted-foreground">{from}</p>
+        <TypographyCaption as="p" size="xs" className="mt-2 font-mono">{from}</TypographyCaption>
       ) : null}
       {note ? <TypographyProse className="mt-3">{note}</TypographyProse> : null}
       {children}
@@ -44,7 +49,7 @@ export function SectionGroup({
     <div id={id} className="scroll-mt-24 pt-20">
       <div className="rounded-lg border border-border bg-muted/30 p-6">
         <TypographyH3>{title}</TypographyH3>
-        <p className="mt-1 font-mono text-xs text-muted-foreground">{from}</p>
+        <TypographyCaption as="p" size="xs" className="mt-1 font-mono">{from}</TypographyCaption>
         <TypographyProse className="mt-3">{note}</TypographyProse>
       </div>
     </div>

@@ -75,7 +75,7 @@ silently. Full reference: https://github.com/supertypeai/foundations
 | import | exports |
 |---|---|
 | `@supertype.ai/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyProseList`, `TypographyCaption`, `TypographySmall`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `headingClass`, `headingFace`, `eyebrowClass`, `toneClass`, `impliedTone`, `resolveLink`, `isExternalHref`, `CAP_TRIM`, `ON_FIRST_LINE`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `Tone`, `HighlightTone`, `LinkBehavior`, `ResolvedLink` |
-| `@supertype.ai/foundations/blocks` | `Anchor`, `Cards`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `Callout`, `Button`, `buttonVariants`, `Badge`, `badgeVariants`, `Steps`, `Step`, `Disclosure`, `DisclosureGroup`, `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`, `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `TabGroup`, `SEGMENT`, `Bulletin`, `Ribbon`, `EDITORIAL_INKS`, `Colophon`, `BuiltWithFoundations`, `FoundationsMark`, `FOUNDATIONS_URL`. Types: `ButtonLook`, `BadgeLook`, `TabItem`, `BulletinProps`, `BulletinPoint`, `RibbonHue`, `ColophonProps` |
+| `@supertype.ai/foundations/blocks` | `Anchor`, `Cards`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `Callout`, `Button`, `buttonVariants`, `Badge`, `badgeVariants`, `Steps`, `Step`, `Disclosure`, `DisclosureGroup`, `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`, `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `TabGroup`, `SEGMENT`, `DISCLOSURE`, `Bulletin`, `Ribbon`, `EDITORIAL_INKS`, `Colophon`, `BuiltWithFoundations`, `FoundationsMark`, `FOUNDATIONS_URL`. Types: `ButtonLook`, `BadgeLook`, `TabItem`, `BulletinProps`, `BulletinPoint`, `RibbonHue`, `ColophonProps` |
 | `@supertype.ai/foundations/mdx` | `proseMdxComponents` |
 | `@supertype.ai/foundations/essay` | `createEssay`, `EssayHeader`, `EssayLayout`, `EssaySection`, `EssayPullQuote`, `EssayFigure`, `EssayMovements`, `EssayDocument`, `EssayColumns`, `EssayAside`, `EssayBody`, `ReadingLayout`, `TableOfContents`, `ReadingRail`, `ReadingProgressBar`, `Rail`, `RailLink`, `PostMetaRow`, `PostDate`, `ReadTime`, `TagPills`, `MetaDot`, `formatPostDate`, `extractHeadings`, `readingTime`, `createSlugger`, `useReadingProgress`, `useScrollSpy`. Types: `TocHeading`, `EssayDecorations`, `EssayIndexEntry`, `EssayDocSection`, `EssayMovement`, `PostDateFormat` |
 | `@supertype.ai/foundations/seo` | `createSeo`. Types: `SeoConfig`, `ArticleAuthor`, `ArticleOptions`, `PageMetadata` |
@@ -101,6 +101,7 @@ silently. Full reference: https://github.com/supertypeai/foundations
 - `Tone` is the semantic colour vocabulary shared by `Button`, `Badge`, `Callout`, `TypographyLink` and `TabsList`: `"muted" | "primary" | "secondary" | "brand" | "success" | "warn" | "destructive"`, defaulting to `muted` everywhere except a solid `Button`.
 - **`CAP_TRIM` centres a mark on the letters.** `items-center` centres line boxes, which reserve room for ascenders and descenders the string may not use. Put `CAP_TRIM` on the text element, never on the row.
 - **`ON_FIRST_LINE` is the same fix from the mark's side.** For rows where a mark names the first line, use `items-start` and `ON_FIRST_LINE` so the mark sits in a wrapper one line tall.
+- **`align-middle` is the third case: a mark inside a run of words.** An inline icon sits on the baseline, so its box hangs below the letters. `align-middle` centres it on the baseline plus half an x-height, read from the font at whatever size the run is set in. Never a top margin: that is a pixel that fits one rung and no other, and lint flags it.
 - **Ink is handed down by whatever paints.** `toneClass(tone)` is a palette and sets no ink. A filled surface adds `INK_ON_FILL`; a tinted one adds `INK_ON_CARD`, `INK_ON_POPOVER` or `INK_ON_SIDEBAR`. If a surface does not declare them, spread `inkOnSurfaceStyle(token)` into `style` instead of building a class.
 - `Button`: `variant?: "solid" | "soft" | "outline" | "ghost" | "link"` (default `solid`), `tone?: Tone`, `size?: "xs" | "sm" | "md" | "lg" | "xl"` (default `md`), `icon?: boolean`, `pill?: boolean`, `href` to make it a link, `render` for an element that is neither a button nor a link.
 - `Badge`: `variant?: "solid" | "soft" | "outline" | "ghost"` (default `solid`), `tone?: Tone`, `size?: "xs" | "sm"` (default `sm`), `pill?: boolean`, `href` for a badge that leads somewhere.
@@ -146,6 +147,7 @@ Code samples and commit messages should stay conventional. This is about prose.
 
 - `<p className="text-sm text-muted-foreground">`: use `<TypographyMuted>`.
 - `<h2 className="text-lg font-semibold">`: use `<TypographyH2>`, or `headingClass()`.
+  Lint enforces this on `<p>` and `<h1>`-`<h6>`, where the tag says the content is text.
 - Importing `Card`, `Callout` or `Button` from `@supertype.ai/foundations`. They live in `@supertype.ai/foundations/blocks`.
 - `<Button variant="destructive">` or `variant="secondary"`: those are tones. Write `variant="soft" tone="destructive"`, `variant="solid" tone="secondary"`.
 - `<Button size="icon-sm">`: one size ladder. Write `size="sm" icon`.
@@ -158,6 +160,8 @@ Code samples and commit messages should stay conventional. This is about prose.
 - Writing the style layer out by hand. `@import "@supertype.ai/foundations";` after `@import "tailwindcss";` is the whole of it.
 - Using `Accordion` for a static FAQ. `Disclosure` is the browser-native version.
 - Adding a second `@custom-variant dark`. `tokens.css` already binds it.
+- `-mt-0.5` on an inline icon to bring it into line. Write `align-middle`, or `ON_FIRST_LINE` when the mark sits beside a block rather than inside a sentence.
+- `text-[10rem]` for a display ornament. The ramp goes to `text-9xl`; past that, name the size in CSS so something else can share it.
 
 Run `npx foundations doctor` in the app to check the font binding, the style layer and the dark variant.
 

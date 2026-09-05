@@ -3,18 +3,25 @@
  *
  * `Disclosure`/`DisclosureGroup` next door is the `<details>` version an MDX
  * author gets with no JS. Neither is a variant of the other, so they no longer
- * share a name.
+ * share a name — but they are one control, so every surface here comes from
+ * `DISCLOSURE` and the two look identical on the page.
  */
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
 
 import { cn } from "../cn.js"
-import { FOCUS_RING } from "./focus.js"
+import { toneClass, type Tone } from "../tone.js"
+import { DISCLOSURE, DisclosureChevron } from "./disclosure.js"
 
-function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
+/** `tone` inks the open mark, and only it. See `TabsList`, which states the same. */
+function Accordion({
+  className,
+  tone = "primary",
+  ...props
+}: AccordionPrimitive.Root.Props & { tone?: Tone }) {
   return (
     <AccordionPrimitive.Root
       data-slot="accordion"
-      className={cn("flex w-full flex-col", className)}
+      className={cn(toneClass(tone), DISCLOSURE.group, className)}
       {...props}
     />
   )
@@ -24,7 +31,7 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn("not-last:border-b", className)}
+      className={cn(DISCLOSURE.item, className)}
       {...props}
     />
   )
@@ -40,15 +47,14 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          FOCUS_RING,
-          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-left text-sm font-medium transition hover:underline focus-visible:border-ring focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
+          DISCLOSURE.row,
+          "flex-1 aria-disabled:pointer-events-none aria-disabled:opacity-50",
           className
         )}
         {...props}
       >
         {children}
-        <Chevron className="group-aria-expanded/accordion-trigger:hidden" />
-        <Chevron up className="hidden group-aria-expanded/accordion-trigger:inline" />
+        <DisclosureChevron />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   )
@@ -62,37 +68,20 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-content"
-      className="overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
+      className="overflow-hidden data-open:animate-accordion-down data-closed:animate-accordion-up"
       {...props}
     >
       <div
         className={cn(
-          "h-(--accordion-panel-height) pt-0 pb-2.5 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+          DISCLOSURE.panel,
+          "h-(--accordion-panel-height) data-ending-style:h-0 data-starting-style:h-0",
+          "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
           className
         )}
       >
         {children}
       </div>
     </AccordionPrimitive.Panel>
-  )
-}
-
-/** Inline, not an icon import — one glyph is not a dependency. */
-function Chevron({ up, className }: { up?: boolean; className?: string }) {
-  return (
-    <svg
-      data-slot="accordion-trigger-icon"
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={cn("pointer-events-none shrink-0", className)}
-    >
-      <path d={up ? "m18 15-6-6-6 6" : "m6 9 6 6 6-6"} />
-    </svg>
   )
 }
 

@@ -12,18 +12,14 @@ import {
 import { TONE, INK_ON_FILL, toneClass } from "../dist/tone.js";
 
 /**
- * `checkSignals` measures token pairs. A pair can pass while the page fails,
- * because what a reader sees is a composition: an ink the type primitive names,
- * on a fill the surface around it painted. `TypographyLabel` inside a filled
- * `Button` printed `--foreground` on `--primary` at 2.34:1 for eleven releases,
- * and every token in that sentence measured correctly on its own.
- *
- * So this walks the compositions instead. It reads the ink each primitive
- * resolves to, the fill each surface paints, and measures one against the other
- * in both themes. It is the check that makes the pair check sufficient.
+ * `checkSignals` measures token pairs, but what a reader sees is a composition: an
+ * ink the primitive names on a fill the surface painted. `TypographyLabel` inside a
+ * filled `Button` printed 2.34:1 for eleven releases while every token in that
+ * sentence measured correctly on its own.
  */
 
-const read = (name: string) => readFileSync(new URL(`../src/${name}`, import.meta.url), "utf8");
+const read = (name: string) =>
+  readFileSync(new URL(`../src/${name}`, import.meta.url), "utf8");
 const CSS = `${read("tokens.css")}\n${read("theme.css")}`;
 
 const rgb = (value: string): Rgb => {
@@ -51,7 +47,8 @@ const toneColour = (
   if (!match) throw new Error(`${tone} declares no ${property}`);
   const chain = [...match[1].matchAll(/--[a-z-]+/g)].map((m) => m[0]);
   const named = chain.find((token) => tokens[token]);
-  if (!named) throw new Error(`${tone}'s ${property} resolves to nothing: ${match[1]}`);
+  if (!named)
+    throw new Error(`${tone}'s ${property} resolves to nothing: ${match[1]}`);
   return rgb(tokens[named]);
 };
 
@@ -109,38 +106,43 @@ const SURFACES = (): Surface[] => {
 const THEMES: Theme[] = ["light", "dark"];
 
 describe("the ink a surface hands down", () => {
-  it.each(THEMES)("clears 4.5:1 for every primitive on every surface, %s", (theme) => {
-    const tokens = resolveTokens(CSS, theme);
-    const failures: string[] = [];
+  it.each(THEMES)(
+    "clears 4.5:1 for every primitive on every surface, %s",
+    (theme) => {
+      const tokens = resolveTokens(CSS, theme);
+      const failures: string[] = [];
 
-    for (const surface of SURFACES()) {
-      const fill = surface.fill(tokens);
-      for (const [primitive, fallback] of Object.entries(PRIMITIVES)) {
-        // What the primitive actually renders: the surface's ink where it
-        // declares one, its own fallback where the surface hands down nothing.
-        const ink = surface.ink ? surface.ink(tokens) : rgb(tokens[fallback]);
-        const ratio = contrast(ink, fill);
-        if (ratio < 4.5) {
-          failures.push(
-            `${surface.label} · ${primitive}: ${ratio.toFixed(2)}:1 (Lc ${lc(ink, fill).toFixed(1)})`,
-          );
+      for (const surface of SURFACES()) {
+        const fill = surface.fill(tokens);
+        for (const [primitive, fallback] of Object.entries(PRIMITIVES)) {
+          // What the primitive actually renders: the surface's ink where it
+          // declares one, its own fallback where the surface hands down nothing.
+          const ink = surface.ink ? surface.ink(tokens) : rgb(tokens[fallback]);
+          const ratio = contrast(ink, fill);
+          if (ratio < 4.5) {
+            failures.push(
+              `${surface.label} · ${primitive}: ${ratio.toFixed(2)}:1 (Lc ${lc(ink, fill).toFixed(1)})`,
+            );
+          }
         }
       }
-    }
 
-    expect(failures).toEqual([]);
-  });
+      expect(failures).toEqual([]);
+    },
+  );
 });
 
 describe("the one-ink rule", () => {
-  it("collapses the muted rung on a fill, because a hue fill has no second one", () => {
+  it("collapses the muted rung on a fill: a hue fill has no second one", () => {
     expect(INK_ON_FILL).toContain("[--ink-muted:var(--tone-ink)]");
   });
 
   it("keeps both rungs on a tinted surface", () => {
     const tokens = resolveTokens(CSS, "light");
     const card = rgb(tokens["--card"]);
-    expect(contrast(rgb(tokens["--muted-foreground"]), card)).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrast(rgb(tokens["--muted-foreground"]), card),
+    ).toBeGreaterThanOrEqual(4.5);
   });
 });
 
@@ -160,14 +162,21 @@ describe("no primitive pins a page ink of its own", () => {
   /**
    * The contract only holds while the type layer reads it. A preset that spells
    * `text-foreground` in its base wins over the ink its surface handed down —
-   * literally the bug, restored — and the matrix above cannot see it, because it
-   * measures what the surface declares rather than what the class list says.
+   * literally the bug, restored — and the matrix above cannot see it: it measures
+   * what the surface declares rather than what the class list says.
    */
-  it.each(["typography/paragraph.tsx", "typography/header.tsx"])("%s", (file) => {
-    const source = read(file);
-    const pinned = [...source.matchAll(/"[^"]*\btext-(foreground|muted-foreground)\b[^"]*"/g)];
-    expect(pinned.map((m) => m[0])).toEqual([]);
-  });
+  it.each(["typography/paragraph.tsx", "typography/header.tsx"])(
+    "%s",
+    (file) => {
+      const source = read(file);
+      const pinned = [
+        ...source.matchAll(
+          /"[^"]*\btext-(foreground|muted-foreground)\b[^"]*"/g,
+        ),
+      ];
+      expect(pinned.map((m) => m[0])).toEqual([]);
+    },
+  );
 });
 
 /**
@@ -205,7 +214,9 @@ describe("a role means the same thing in both themes", () => {
   it("keeps the fill legible as a mark in both", () => {
     for (const theme of THEMES) {
       const t = resolveTokens(CSS, theme);
-      expect(contrast(rgb(t["--primary"]), rgb(t["--background"]))).toBeGreaterThanOrEqual(3);
+      expect(
+        contrast(rgb(t["--primary"]), rgb(t["--background"])),
+      ).toBeGreaterThanOrEqual(3);
     }
   });
 });
@@ -236,8 +247,11 @@ describe("a hover is visible in both themes", () => {
 
     for (const tone of Object.keys(TONE) as (keyof typeof TONE)[]) {
       const fill = toneColour(tokens, tone, "--tone-fill");
-      const step = Math.abs(lightness(mix(fill, toward, 0.18)) - lightness(fill));
-      if (step < HOVER_LC_STEP) short.push(`solid ${tone}: ${step.toFixed(1)} ΔL*`);
+      const step = Math.abs(
+        lightness(mix(fill, toward, 0.18)) - lightness(fill),
+      );
+      if (step < HOVER_LC_STEP)
+        short.push(`solid ${tone}: ${step.toFixed(1)} ΔL*`);
     }
     expect(short).toEqual([]);
   });
@@ -252,7 +266,8 @@ describe("a hover is visible in both themes", () => {
       const step = Math.abs(
         lightness(over(hue, page, 0.2)) - lightness(over(hue, page, 0.1)),
       );
-      if (step < HOVER_LC_STEP) short.push(`soft ${tone}: ${step.toFixed(1)} ΔL*`);
+      if (step < HOVER_LC_STEP)
+        short.push(`soft ${tone}: ${step.toFixed(1)} ΔL*`);
     }
     expect(short).toEqual([]);
   });

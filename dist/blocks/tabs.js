@@ -103,14 +103,9 @@ function TabIconSlot({ icon, position, }) {
     return (_jsx("span", { "data-icon": position, className: "flex items-center transition-colors [&_svg]:size-3.5 [&_svg]:shrink-0", children: icon }));
 }
 /**
- * The declarative shorthand: the tabs as data. `TabGroup` is to `Tabs` what
- * `DisclosureGroup` is to `Accordion`: the shape to reach for. An app that rebuilds it
- * over the primitives ends up re-adding the icon, the change handler and the stable value
- * by hand.
- *
- * Everything below the adapter is the same component the product surfaces use, so a tab
- * strip in the docs and one on a dashboard behave identically. The positional
- * `items`-plus-children shape lives in the MDX map, the only thing that speaks it.
+ * The declarative shorthand, tabs as data. `TabGroup` is to `Tabs` what
+ * `DisclosureGroup` is to `Accordion`: the shape to reach for, since an app that
+ * rebuilds it re-adds the icon, the handler and the stable value by hand.
  */
 export function TabGroup({ tabs, defaultValue, value, onValueChange, variant, tone, iconPosition = "inline-start", className, }) {
     return (

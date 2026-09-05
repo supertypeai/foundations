@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-/** Where the mark points. Exported because a footer sometimes wants the bare
+/** Where the mark points. Exported for the cases where a footer wants the bare
  *  href — a `<link rel="…">`, a sitemap entry, an analytics label. */
 export declare const FOUNDATIONS_URL = "https://github.com/supertypeai/foundations";
 /**

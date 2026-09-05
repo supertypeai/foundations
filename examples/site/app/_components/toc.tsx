@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "next-view-transitions";
+import { TypographyEyebrow } from "@supertype.ai/foundations";
 import {
   EssayAside,
   Rail,
@@ -40,9 +41,9 @@ export function RouteRail({
 }) {
   return (
     <nav aria-label={label}>
-      <p className="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+      <TypographyEyebrow as="p" tone="muted" className="mb-4">
         {label}
-      </p>
+      </TypographyEyebrow>
       <Rail>
         {routes.map(([href, text]) => (
           <RailLink key={href} render={<Link href={href} />}>

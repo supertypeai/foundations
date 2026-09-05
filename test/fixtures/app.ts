@@ -4,18 +4,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * A throwaway consumer app for the CLI to inspect.
- *
- * The CLI reads what to expect from its own installed location, and the tests
- * run it straight out of this repo, so a fixture only needs the parts the checks
- * actually look at: a package.json, a CSS entry, a root layout, and enough of
- * node_modules to resolve versions against.
- *
- * A default fixture is a *correctly wired* app, so anything doctor compares
- * against the package's own metadata is derived from that metadata rather than
- * written out here. Tests for the mismatch cases pass the wrong value in
- * explicitly. The alternative — a literal version — turns every release into a
- * failure in tests that are not about versions at all.
+ * A throwaway consumer app for the CLI to inspect. The CLI reads what to expect
+ * from its own installed location, so a fixture only needs the parts the checks
+ * look at. The default fixture is a correctly wired app, so anything doctor
+ * complains about is what the test deliberately broke.
  */
 export const repoPkg = JSON.parse(
   readFileSync(fileURLToPath(new URL("../../package.json", import.meta.url)), "utf8"),

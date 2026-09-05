@@ -36,19 +36,25 @@ describe("a wrong href says what happened", () => {
    * The failure this replaces: a constant exported from a `"use client"` module
    * reached a server component as a boundary stub, and the only report was
    * `href.startsWith is not a function` with an empty stack, on every route at
-   * once because the link sat in a layout.
+   * once; the link sat in a layout.
    */
   it("names the client-boundary stub, which is what a function here means", () => {
     const stub = () => {
       throw new Error("Attempted to call REPO_URL() from the server");
     };
-    expect(() => resolveLink(stub as unknown as string)).toThrow(/must be a string/);
-    expect(() => resolveLink(stub as unknown as string)).toThrow(/"use client"/);
+    expect(() => resolveLink(stub as unknown as string)).toThrow(
+      /must be a string/,
+    );
+    expect(() => resolveLink(stub as unknown as string)).toThrow(
+      /"use client"/,
+    );
     expect(() => resolveLink(stub as unknown as string)).toThrow(/REPO_URL/);
   });
 
   it("prints the value for anything else that is not a string", () => {
-    expect(() => resolveLink(undefined as unknown as string)).toThrow(/undefined/);
+    expect(() => resolveLink(undefined as unknown as string)).toThrow(
+      /undefined/,
+    );
     expect(() => resolveLink({ pathname: "/x" } as unknown as string)).toThrow(
       /object: \{"pathname":"\/x"\}/,
     );
@@ -99,10 +105,14 @@ describe("Anchor is where the href goes, and nothing else", () => {
   });
 
   it("leaves a same-origin route alone, and keeps `external` off the router", () => {
-    expect(renderToStaticMarkup(<Anchor href="/join" />)).not.toContain("target=");
+    expect(renderToStaticMarkup(<Anchor href="/join" />)).not.toContain(
+      "target=",
+    );
     // The escape hatch: a path that is not a route. A plain anchor, so nothing
     // prefetches it, and still no target — it is not leaving the tab.
-    const api = renderToStaticMarkup(<Anchor href="/api/slack/install" external />);
+    const api = renderToStaticMarkup(
+      <Anchor href="/api/slack/install" external />,
+    );
     expect(api).toMatch(/^<a /);
     expect(api).not.toContain("target=");
   });

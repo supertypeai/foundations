@@ -9,30 +9,10 @@ import { FOCUS_RING } from "./focus.js";
 import { INK_ON_FILL, TONE, TONE_SURFACE, impliedTone } from "../tone.js";
 import { trimLabels } from "./trim-labels.js";
 
-// ---------------------------------------------------------------------------
-// The control both apps were re-declaring. viably and ssite each carried their
-// own `cva` with its own variant list — `default | secondary | accent |
-// destructive | ghost | outline | link` in one, the same names minus two plus a
-// `rose` in the other — and the two had already drifted on radius, on height,
-// and on what `destructive` even means (a solid red fill in ssite, a tinted wash
-// in viably).
-//
-// The fix is not a longer shared list. Those names answer two questions at once:
-//
-//   variant — how much ink the button spends. Filled, washed, hairline, bare.
-//   tone    — what the ink means. See ../tone.ts; Callout and TypographyLink
-//             take the same seven, because a component does not get to invent a
-//             name for a colour the package has already named. Its default is
-//             the one the variant implies — see `impliedTone`.
-//
-// `destructive` is a tone. `ghost` is a variant. A list holding both can only
-// express the pairs someone thought to add, which is why neither app could write
-// a quiet destructive button without a className.
-//
-// Everything else is a modifier, and both are boolean because both have exactly
-// two states: `icon` squares the box, `pill` rounds it off. They compose — a
-// round icon button is `icon pill` — which is why they are not one `shape` enum.
-// ---------------------------------------------------------------------------
+// Two axes, not one list: `variant` is how much ink the button spends, `tone` is
+// what the ink means. A single list can only express the pairs someone thought to
+// add, so neither app could write a quiet destructive button. `icon` and `pill`
+// stay separate booleans so they compose.
 
 const button = cva(
   cn(
@@ -56,18 +36,10 @@ const button = cva(
     variants: {
       tone: TONE,
       /**
-       * One ladder, 24px to 40px on a 4px step. `md` is the product default —
-       * dense rows of controls beside a table — and `lg`/`xl` the marketing
-       * rungs. `--radius-lg` is 10px and theme.css already labels it "buttons,
-       * default control"; the two rungs below borrow `md`, because a 10px radius
-       * on a 24px box reads as a lozenge.
-       *
-       * The icon is sized off the text rung rather than the box, so the two rungs
-       * sharing `text-xs` share a mark and the three sharing `text-sm` share
-       * theirs. It used to skip any icon carrying its own `size-`, which meant
-       * every call site re-picked the ratio and the ladder governed almost
-       * nothing. A button that genuinely wants a bigger mark says so with
-       * `className="[&_svg]:size-5"`, which merges over this.
+       * One ladder, 24px to 40px on a 4px step. `md` is the product default,
+       * `lg`/`xl` the marketing rungs; the two below `md` borrow its radius,
+       * since 10px on a 24px box reads as a lozenge. The icon is sized off the
+       * text rung, so rungs sharing a rung share a mark.
        */
       size: {
         xs: "h-6 gap-1 rounded-md px-2 text-xs [&_svg]:size-3",
@@ -119,15 +91,10 @@ export function buttonVariants(props: Parameters<typeof button>[0] = {}) {
 }
 
 /**
- * `href` makes the button a link — the anchor is the button, and where the href
- * goes is ../href.ts's decision, not the call site's. `render={<a href="…" />}`
- * did this before, and got a bare anchor: no router, so a CTA reloaded the page
- * and lost the view transition, and an off-site href never grew a `rel`.
- *
- * Either way a non-`<button>` element bypasses the primitive on purpose: Base UI
- * always stamps `type="button"` or `role="button"`, and the latter drops an
- * anchor out of screen-reader link navigation. `render` remains for an element
- * that is genuinely neither — a `<label>`, a menu item.
+ * `href` makes the button a link, and where it goes is ../href.ts's decision.
+ * `render={<a href>}` did this before and got a bare anchor: no router, no `rel`
+ * off-site. `render` remains for an element that is genuinely neither, a
+ * `<label>` or a menu item.
  */
 export function Button({
   className,
@@ -147,15 +114,10 @@ export function Button({
   LinkBehavior & {
     href?: string;
     /**
-     * The one anchor attribute the `href` branch has to name itself. A download
-     * is a link that is not a navigation, so it is the case `href` alone cannot
-     * express — and `render={<a download />}`, which is how every call site said
-     * it before, is exactly what `linkRules()` now flags. Card already takes it,
-     * off `ComponentProps<"a">`; Button and Badge are anchors here too.
-     *
-     * Pair it with `external` for a same-origin route. `Link` steps aside on the
-     * click, but it still prefetches the href on viewport entry, which for an
-     * export endpoint means running the export to throw the rows away.
+     * The one anchor attribute `href` cannot express: a download is a link that
+     * is not a navigation. Pair it with `external` for a same-origin route, since
+     * `Link` still prefetches on viewport entry, which for an export endpoint
+     * means running the export to throw the rows away.
      */
     download?: ComponentProps<"a">["download"];
   }) {

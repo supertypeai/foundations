@@ -1,18 +1,9 @@
 #!/usr/bin/env node
 /**
- * Checks that no built file hands Tailwind a class it cannot resolve.
- *
- * The package's own index.css carries `@source '../dist/**\/*.js'`, and Tailwind v4
- * reads those files as plain text. It has no idea it is looking at JavaScript,
- * so a class assembled in a template literal is scanned verbatim: the candidate
- * `[--ink:var(${ink})]` becomes the declaration `--ink: var(${ink})`, which is
- * not CSS. Every consumer's dev server then fails to parse the stylesheet, at a
- * line number in their file rather than ours.
- *
- * The quieter half is worse. A class the scanner never sees is never generated,
- * so the component renders with a class name that matches no rule — no error,
- * no style. That is why every class string in tone.ts is a literal, and this is
- * the check that keeps it that way.
+ * Checks that no built file hands Tailwind a class it cannot resolve. Tailwind
+ * reads `dist/**\/*.js` as plain text, so `[--ink:var(${ink})]` becomes a
+ * declaration that is not CSS and every consumer's dev server fails to parse it.
+ * The quieter half is a class the scanner never sees: no error, no style.
  *
  *   node scripts/check-candidates.mjs
  */
@@ -23,14 +14,10 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("..", import.meta.url));
 
 /**
- * An arbitrary property or value carrying an interpolation: `[` … `]` with no
- * closing bracket, whitespace or quote inside, and a `:` before the `${`.
- *
- * The colon is what makes it a utility rather than a variant. `dist/eslint.js`
- * builds ESLint selectors like `[value=${pattern}]`, which look identical to
- * this regex without it — and Tailwind leaves those alone, because an attribute
- * selector is only a candidate when something follows the `]`. Matching them
- * would make this check cry wolf on the one file that is allowed to.
+ * An arbitrary property or value carrying an interpolation. The colon is what
+ * makes it a utility rather than a variant: `dist/eslint.js` builds selectors like
+ * `[value=${pattern}]`, which Tailwind leaves alone since an attribute selector is
+ * only a candidate when something follows the `]`.
  */
 const UNRESOLVED = /\[[^\]\s"'`]*:[^\]\s"'`]*\$\{[^}]*\}[^\]\s"'`]*\]/g;
 

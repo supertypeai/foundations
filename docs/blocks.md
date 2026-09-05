@@ -141,7 +141,7 @@ page as its fallback:
 
 Skip it and a nested `TypographyLabel` prints `--foreground` on your fill.
 That shipped: a hand-rolled anchor styled `bg-primary text-primary-foreground`
-with a `TypographyLabel` inside measured **2.34:1**, because the preset's own ink
+with a `TypographyLabel` inside measured **2.34:1**. The preset's own ink had
 won over the colour it inherited. `test/composition.test.ts` measures every
 surface against every primitive in both themes, which is what makes the token
 pair check sufficient.
@@ -322,16 +322,13 @@ Both apps had grown a private list instead. ssite's carried `warning` and
 `supertype` — the package's `warn` and `brand` tones under invented names, which
 is exactly the second vocabulary a design system exists to prevent — plus a
 `secondary` that was `bg-muted/80 text-foreground` against a `default` of
-`bg-muted text-muted-foreground`, a distinction no reader could name. viably's
-was a copy of the old button list, `link` variant and all.
+`bg-muted text-muted-foreground`, a distinction no reader could put a name to.
+viably's was a copy of the old button list, `link` variant and all.
 
 Two rungs, not five: `sm` is the label beside a title, `xs` the figure beside a
 toolbar control.
 
 ## Disclosure and Accordion
-
-Two components rather than two variants, with different names, because call sites
-reaching for the wrong one used to cause real bugs.
 
 **`Disclosure` / `DisclosureGroup`** — a `<details>`/`<summary>` pair. No
 JavaScript, correct before hydration, and available to an MDX author:
@@ -362,6 +359,30 @@ JavaScript, correct before hydration, and available to an MDX author:
 ```
 
 It needs `theme.css` for its open and close keyframes.
+
+Both wear one look, from `DISCLOSURE` in `blocks/disclosure.tsx`, so a row opened
+in an MDX FAQ and a row opened in a client panel are visibly the same control. It
+is `Tabs`' `line` variant turned on its side: no box and no fill, a hairline
+between rows, and one 2px mark in `--tone-hue` drawing itself down the open row.
+Ink carries the state the way a tab label does — muted at rest, `--foreground`
+open — and hover moves the ink and nothing else.
+
+`tone` on either root inks that mark, and only it:
+
+```tsx
+<DisclosureGroup tone="brand">…</DisclosureGroup>
+<Accordion tone="brand">…</Accordion>
+```
+
+The two engines report "open" differently — `<details>` writes `open` on itself,
+Base UI writes `aria-expanded` on the trigger — so `DISCLOSURE.row` spells out
+both selectors. The one that does not apply matches nothing, which is why there
+is one set of classes rather than two that drift. The cost is one class the
+constant cannot supply for itself: `<details>` carries its state on the ancestor,
+so `Disclosure` marks it `group/disclosure`.
+
+`DISCLOSURE` is four strings — `group`, `item`, `row`, `panel` — and `row` already
+carries its own open state, since no call site has wanted one without the other.
 
 ## Tabs
 
@@ -450,9 +471,23 @@ lower rung, not a second way.
 </Steps>
 ```
 
-The numbers come from a CSS counter rather than markup, so reordering the steps
+It renders an `<ol>`, so a screen reader counts the steps and says how many are
+left. The numerals on the page are a CSS counter rather than markup: reordering
 renumbers them, and the digits stay out of the accessibility tree and out of
-anything you copy.
+anything you copy, since the list already carries the count.
+
+Three columns, at 0, 28 and 40px: the numeral, the spine, the copy. The numeral
+sits in its own gutter rather than centred on the rail — centring it there means
+covering the hairline with a plate in the page's colour, which is a component
+asserting what surface it is on, and a visible chip the moment a step list lands
+inside a card. Out in the gutter the rule runs unbroken and nothing has to know
+the background. It is also the better setting: right-aligned and `tabular-nums`,
+so 9 to 10 moves the digits and not the spine.
+
+The rail is a pseudo-element rather than a left border, so the last step drops it
+outright instead of painting it transparent. `tone` inks the numerals and nothing
+else; title and body are `TypographyLabel` and `TypographyMuted`, so both read
+`--ink`/`--ink-muted` and a step list on a card takes the card's ink.
 
 ## Bulletin
 

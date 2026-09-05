@@ -20,17 +20,10 @@ import {
 } from "./typography/paragraph.js";
 
 /**
- * `<Tabs items={["npm","pnpm"]}>` with a `<Tab>` per panel: the shape an MDX author
- * writes, and the only place in the package that speaks it.
- *
- * Children pair with `items` **by position**, since a caller writing markdown has no
- * value to bind. `value` on a `<Tab>` is for the author's eye and is not matched —
- * matching it would silently drop a panel the moment a label was edited. The label is
- * the value here, so the strip still survives a reorder.
- *
- * This lived in `TabGroup` and made `TabGroup` unusable everywhere else: an app has data,
- * not positional children, so every one of them rebuilt the adapter by hand. Positional
- * children are an authoring convenience, not a component API, so they stop here.
+ * The tab shape an MDX author writes, and the only place in the package that
+ * speaks it. Children pair with `items` by position, since a caller writing
+ * markdown has no value to bind; matching `value` would drop a panel the moment a
+ * label was edited. This lived in `TabGroup` and made it unusable everywhere else.
  */
 function MdxTabs({ items, children }: { items: string[]; children: ReactNode }) {
   const panels = Children.toArray(children);

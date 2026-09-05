@@ -1,19 +1,9 @@
 #!/usr/bin/env node
 /**
- * Which public exports no consumer imports.
- *
- * The package holds every CSS custom property it declares to "something reads
- * this", in test/tokens-live.test.ts, and held nothing to it for exports. So
- * `formatOffsets` shipped, was documented in two places, and was called by
- * nobody, and a hand-run grep over two of the three consumers reported half a
- * dozen live components as dead. Both are the same defect: the consumer list
- * lived in somebody's head.
- *
- * A report rather than a gate, and deliberately so. An unimported export is a
- * question, not a failure: INK_ON_FILL is the rule that keeps a nested label off
- * a 2.34:1 fill and is unused because no app has painted one yet, where
- * designConfig was unused because nothing ever wanted it. Read the list, decide
- * one at a time.
+ * Which public exports no consumer imports. `formatOffsets` shipped, was
+ * documented twice and called by nobody, because the consumer list lived in
+ * somebody's head. A report rather than a gate: an unimported export is a
+ * question, not a failure.
  *
  *   node scripts/consumers.mjs [root...]
  */
@@ -26,16 +16,10 @@ import ts from "typescript";
 const here = fileURLToPath(new URL("..", import.meta.url));
 
 /**
- * The apps to read, found rather than listed: `examples/site`, which every clone
- * has, plus any checkout beside this one that both depends on the package and
- * names it in its source, one level down as well, since a monorepo keeps its
- * apps in subdirectories. A hardcoded list would be one maintainer's home
- * directory, which is no more portable than the list that was in their head.
- *
- * Both halves of that test earn their place. A declared dependency alone found
- * an app pinned to 0.1 that imports nothing and runs Tailwind v3, which this
- * package cannot be installed into: listing it as a consumer invites someone to
- * hold an export alive for a reader that does not exist.
+ * The apps to read, found rather than listed: `examples/site` plus any checkout
+ * beside this one that both depends on the package and names it in its source. A
+ * declared dependency alone found an app on 0.1 that imports nothing and runs
+ * Tailwind v3, which this package cannot be installed into.
  */
 const dependsOnUs = (dir) => {
   try {

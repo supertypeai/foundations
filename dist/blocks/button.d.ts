@@ -17,28 +17,18 @@ export type ButtonLook = VariantProps<typeof button>;
  */
 export declare function buttonVariants(props?: Parameters<typeof button>[0]): string;
 /**
- * `href` makes the button a link — the anchor is the button, and where the href
- * goes is ../href.ts's decision, not the call site's. `render={<a href="…" />}`
- * did this before, and got a bare anchor: no router, so a CTA reloaded the page
- * and lost the view transition, and an off-site href never grew a `rel`.
- *
- * Either way a non-`<button>` element bypasses the primitive on purpose: Base UI
- * always stamps `type="button"` or `role="button"`, and the latter drops an
- * anchor out of screen-reader link navigation. `render` remains for an element
- * that is genuinely neither — a `<label>`, a menu item.
+ * `href` makes the button a link, and where it goes is ../href.ts's decision.
+ * `render={<a href>}` did this before and got a bare anchor: no router, no `rel`
+ * off-site. `render` remains for an element that is genuinely neither, a
+ * `<label>` or a menu item.
  */
 export declare function Button({ className, variant, tone, size, icon, pill, render, nativeButton, href, external, newTab, ...props }: ButtonPrimitive.Props & ButtonLook & LinkBehavior & {
     href?: string;
     /**
-     * The one anchor attribute the `href` branch has to name itself. A download
-     * is a link that is not a navigation, so it is the case `href` alone cannot
-     * express — and `render={<a download />}`, which is how every call site said
-     * it before, is exactly what `linkRules()` now flags. Card already takes it,
-     * off `ComponentProps<"a">`; Button and Badge are anchors here too.
-     *
-     * Pair it with `external` for a same-origin route. `Link` steps aside on the
-     * click, but it still prefetches the href on viewport entry, which for an
-     * export endpoint means running the export to throw the rows away.
+     * The one anchor attribute `href` cannot express: a download is a link that
+     * is not a navigation. Pair it with `external` for a same-origin route, since
+     * `Link` still prefetches on viewport entry, which for an export endpoint
+     * means running the export to throw the rows away.
      */
     download?: ComponentProps<"a">["download"];
 }): import("react").JSX.Element;

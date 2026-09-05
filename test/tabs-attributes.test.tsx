@@ -13,19 +13,10 @@ import {
 } from "../dist/blocks/tabs.js";
 
 /**
- * A Tailwind variant that names an attribute nothing sets is silent: the class compiles,
- * the selector never matches, and the only symptom is a layout that looks like a bug
- * somewhere else. It has happened twice here. `data-horizontal` was asked for where Base
- * UI writes `data-orientation="horizontal"`, so the root kept its row direction and laid
- * the panels beside the strip; and `has-data-[icon=...]` waited on a `data-icon` nothing
- * in the package wrote until `TabGroup` started writing it.
- *
- * So the check is: every `data-*` a variant in the rendered markup selects on has to be
- * an attribute that markup actually carries. Written against the output rather than the
- * source, so it keeps holding when the primitive changes what it emits.
- *
- * This lived in a consumer's suite, which meant an app was policing a decision the
- * package owns — and only the one app that happened to have written it.
+ * A Tailwind variant naming an attribute nothing sets is silent: the class
+ * compiles, the selector never matches, and the symptom looks like a bug
+ * elsewhere. So every `data-*` a variant selects on has to be an attribute the
+ * rendered markup carries.
  */
 const render = (ui: React.ReactNode) => renderToStaticMarkup(ui);
 

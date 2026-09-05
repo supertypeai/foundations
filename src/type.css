@@ -10,17 +10,11 @@
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1.35;
 
-  /* The heading ladder, and the reason it is four rungs of its own rather than
-     four picks off the body ramp: a heading's size is a RATIO to the body under
-     it, and the two surfaces set body at different rungs — 13px in the product,
-     18px on `.editorial`. A heading pinned to `--text-base` therefore reads one
-     step above body on one surface and two steps BELOW it on the other, which is
-     how h3 and h4 ended up smaller than the paragraphs they introduce and why
-     `larger` and `entry` were added to climb back out. No shared rung can be
-     both 14px and 20px; a rung of the heading's own can.
-
-     Dense values here, editorial below — the same shape `--heading-weight` uses.
-     The ladder off 13px body: 1.08 / 1.23 / 1.38 / 1.69. */
+  /* The heading ladder, four rungs of its own rather than four picks off the body
+     ramp: a heading's size is a ratio to the body under it, and the two surfaces
+     set body at 13px and 18px. A heading pinned to `--text-base` reads one step
+     above body on one and two below it on the other. The ladder off 13px body is
+     1.08 / 1.23 / 1.38 / 1.69. */
   --text-h4: 0.875rem; /* 14 — the card / panel title */
   --text-h4--line-height: 1.35;
   --text-h3: 1rem; /* 16 */
@@ -92,30 +86,11 @@
   font-weight: var(--heading-weight);
 }
 
-/* A glyph set beside words, sized and seated so it belongs to the line.
-
-   Two numbers, both read off the font rather than chosen. Lucide draws its ink
-   across 22 of its 24 grid units, so a 0.8em box puts that ink at 1.02 times the
-   cap height of whatever rung it sits beside.
-
-   The seat corrects a bias the browser introduces. Centring aligns a glyph on the
-   middle of the line box, and the line box is built from the font's ascent and
-   descent rounded to whole pixels, which lands its middle below the middle of the
-   capitals: 0.31px low at the 11px rung, 0.46px at the 10px, 0.50px at the 13px.
-   So a centred glyph is always seated slightly low, by an amount that changes with
-   the rung, which is why hand nudges get written one place at a time and never
-   generalise. Lifting by 0.035em takes it back onto the cap band across the ramp.
-
-   A box pinned in pixels cannot hold the first number either, because the band it
-   has to match moves with the rung. Twelve pixels is 1.39 times the cap height at
-   the 11px rung and 1.53 at the 10px one, so the glyph climbs over the ascenders
-   and hangs well under the baseline while every letter beside it rests on it.
-
-   For a glyph inline with words. A glyph that stands alone, in a button, a nav
-   rail or an avatar slot, has no band to answer to and keeps a fixed size.
-
-   The 22-of-24 figure is lucide's grid. An app on a different icon set wants a
-   different box for the same ratio. */
+/* A glyph set beside words, sized and seated so it belongs to the line. Lucide
+   draws its ink across 22 of its 24 grid units, so a 0.8em box puts that ink at
+   1.02 times the cap height of the rung beside it, and the 0.035em lift corrects
+   the line box's own bias (0.31px low at 11px, 0.50px at 13px). A glyph standing
+   alone has no band to answer to and keeps a fixed size. */
 @utility icon-inline {
   width: 0.8em;
   height: 0.8em;

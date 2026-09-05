@@ -21,13 +21,9 @@ export function Bulletin({ variant = "card", accent, eyebrow, headline, lede, po
                     _jsx("ul", { className: cn("mt-7 grid gap-6", points.length > 1 && "sm:grid-cols-2"), children: points.map(({ title, body, mark, ink }, i) => (_jsxs("li", { children: [_jsxs(TypographyLabel, { as: "p", size: "xs", className: cn("flex items-center gap-2", ink), children: [mark && (_jsx("span", { "aria-hidden": true, className: cn("size-2 rounded-full", mark) })), title] }), _jsx(TypographyCaption, { as: "p", size: "xs", className: "mt-1.5", children: body })] }, i))) })), rule && (_jsxs("div", { className: "mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-5", children: [action, footnote && (_jsx(TypographyCaption, { size: "2xs", children: footnote }))] })), children && (_jsx(TypographyCaption, { as: "div", size: "xs", className: cn(rule && "mt-5"), children: children }))] })] }));
 }
 /**
- * The categorical palette in ribbon order: warm through green through cool and
- * back to earth, so the run reads as one spectrum rather than eight swatches.
- *
- * Written out one full classname at a time, never assembled from the name.
- * Tailwind generates the classes it can see as literals, and a template string
- * would leave every one of them purged with nothing to report. A consumer
- * passing hues of their own is subject to the same rule in their own source.
+ * The categorical palette in ribbon order, warm through green through cool, so
+ * the run reads as one spectrum. Written out one full classname at a time:
+ * Tailwind generates only what it sees, and a template string would purge them all.
  */
 export const EDITORIAL_INKS = [
     { name: "terracotta", fill: "bg-terracotta" },

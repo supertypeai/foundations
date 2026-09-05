@@ -15,16 +15,9 @@ import {
 import { Button } from "../dist/blocks/index.js";
 
 /**
- * Who owns leading, as one table.
- *
- * A rung carries its own, and an app retunes the ramp to move it. A primitive
- * states one of its own only where it shares a rung with a role that needs a
- * different number: the reading paragraph, which sits on the section-heading
- * rung, and a value, which sits on the body rungs and never wraps.
- *
- * Both halves had drifted. The caption stated one, which held it apart from the
- * label it forms a pair with and overrode the retune an editorial subtree had
- * just made. The stat stated none, so every call site spelled one by hand.
+ * Who owns leading, as one table. A rung carries its own, and a primitive states
+ * one only where it shares a rung with a role needing a different number. Both
+ * halves had drifted: the caption stated one it should not, the stat stated none.
  */
 const OWNS_ITS_LEADING: [string, () => React.ReactElement, boolean][] = [
   ["heading", () => <TypographyH2>h</TypographyH2>, false],
@@ -75,13 +68,9 @@ describe("leading ownership", () => {
   });
 
   /**
-   * What a control does to its own label, in one place.
-   *
-   * The padding is what keeps a clipping label's descenders inside the clip box; the pull
-   * is what keeps the trimmed box the thing the row centres on. Drop the pull and every
-   * trimmed label grows by the descender room. Drop the padding and `truncate` shears the
-   * tails off again. On a browser with no `text-box` the two cancel, which is the whole of
-   * the fallback, so this also pins that nothing shifts there.
+   * What a control does to its own label, in one place. The padding keeps a
+   * clipping label's descenders inside the clip box and the pull keeps the trimmed
+   * box the thing the row centres on. On a browser with no `text-box` they cancel.
    */
   it("trims a control's label without letting the room reach the layout box", () => {
     const room = /pb-\[([\d.]+em)\]/.exec(CAP_TRIM)?.[1];

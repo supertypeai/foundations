@@ -9,23 +9,10 @@ import {
 } from "../typography/paragraph.js";
 import { TypographyEyebrow, TypographyH3 } from "../typography/header.js";
 
-// ---------------------------------------------------------------------------
 // The panel a page uses to say one thing at length: an announcement, a release
-// note, a status bulletin, a credits block.
-//
-// It exists because `Colophon` was the shape and the words at once. The words
-// are fixed on purpose — an attribution every site rewrites is not an
-// attribution — but locking them locked the layout with them, and the layout is
-// the reusable half: an accent along the top edge, a kicker, a headline, a
-// sentence, a two-up grid of short points, and a rule with a control on it.
-// Nothing about that is about this package.
-//
-// So the shape is here with no copy in it at all, and `Colophon` is a preset of
-// it, the way `TypographyProse` is a preset of `TypographyP`. A consumer
-// wanting the look for their own announcement composes this one; a consumer
-// wanting to credit the package renders `<Colophon />` and still cannot edit a
-// word of it.
-// ---------------------------------------------------------------------------
+// note, a credits block. `Colophon` was the shape and the words at once, and the
+// words are fixed on purpose, which locked the reusable half with them. So the
+// shape lives here with no copy in it, and `Colophon` is a preset of it.
 
 /** One cell of the grid. `mark` and `ink` are class names, so they can be any
  *  hue the consuming app has: `bg-fern`/`text-fern-ink` from theme.css, or a
@@ -185,13 +172,9 @@ export interface RibbonHue {
 }
 
 /**
- * The categorical palette in ribbon order: warm through green through cool and
- * back to earth, so the run reads as one spectrum rather than eight swatches.
- *
- * Written out one full classname at a time, never assembled from the name.
- * Tailwind generates the classes it can see as literals, and a template string
- * would leave every one of them purged with nothing to report. A consumer
- * passing hues of their own is subject to the same rule in their own source.
+ * The categorical palette in ribbon order, warm through green through cool, so
+ * the run reads as one spectrum. Written out one full classname at a time:
+ * Tailwind generates only what it sees, and a template string would purge them all.
  */
 export const EDITORIAL_INKS: readonly RibbonHue[] = [
   { name: "terracotta", fill: "bg-terracotta" },

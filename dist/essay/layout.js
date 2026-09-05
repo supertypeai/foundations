@@ -3,25 +3,10 @@ import { cn } from "../cn.js";
 import { ReadingRail } from "./reading.js";
 /**
  * Three tracks with the third empty: two would push the prose off-centre the
- * moment an aside appeared, setting body copy on a different axis per page.
- * The measure grows per step — a comfortable line length is a range.
- *
- * The margin track is what the third one buys, and appears only where the
- * container can pay for it:
- *
- *   aside = (container − 3rem padding − measure) ÷ 2 − 2.5rem gutter
- *
- * At 72rem, the grid's own first cap, that is 11rem — enough for a rail. At
- * `lg` (64rem), where this used to switch on, it is 7rem, and a `text-sm` label
- * past about thirteen characters wraps. So the reveal is pinned to the width
- * the three tracks were drawn for rather than to a viewport step that happens
- * to be near it.
- *
- * A container query, not a media query, because the answer depends on the room
- * this shell was given and not on the size of the window. Mounted in something
- * narrower — a docs page with its own 64rem column — it now drops the rail and
- * sets the prose centred, which is a layout, where before it drew a 5.5rem
- * margin and called it one.
+ * moment an aside appeared. The margin track appears only where the container can
+ * pay for it, which at 72rem is 11rem and at 64rem is 7rem, where a `text-sm`
+ * label wraps. A container query, since the answer depends on the room this shell
+ * was given rather than the window.
  */
 export function EssayColumns({ aside, children, className, ...props }) {
     return (_jsx("div", { className: "@container w-full", children: _jsxs("div", { className: cn("mx-auto grid w-full max-w-6xl gap-10 px-6", "@6xl:grid-cols-[1fr_minmax(0,42rem)_1fr] @6xl:gap-0", "@7xl:max-w-7xl @7xl:grid-cols-[1fr_minmax(0,44rem)_1fr]", "@min-[84rem]:max-w-[84rem] @min-[84rem]:grid-cols-[1fr_minmax(0,46rem)_1fr]", className), ...props, children: [_jsx("div", { className: "hidden @6xl:block @6xl:pr-10", children: aside }), _jsx("div", { className: "mx-auto w-full min-w-0 max-w-2xl @6xl:max-w-none", children: children }), _jsx("div", { className: "hidden @6xl:block" })] }) }));
@@ -78,13 +63,10 @@ const DATE_FMT = {
     }),
 };
 /**
- * The date string, outside React. An OG image builds one in a plain function and
- * the index builds one in a component; two formatters is how the two drift.
- *
- * Fixed to `en-US`, not the visitor's locale: server and client must agree or
- * React reports a hydration mismatch, and the server cannot see their locale.
- * The index abbreviates because its dates sit inside a card's metadata line; an
- * article spells the month out under a display title.
+ * The date string, outside React, since an OG image builds one in a plain function
+ * and the index builds one in a component. Fixed to `en-US`: server and client
+ * must agree or React reports a hydration mismatch. The index abbreviates; an
+ * article spells the month out.
  */
 export const formatPostDate = (date, format = "short") => DATE_FMT[format].format(typeof date === "string" ? new Date(date) : date);
 /** `<time datetime>` carries the machine value beside the human one. */

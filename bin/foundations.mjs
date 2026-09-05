@@ -1,25 +1,15 @@
 #!/usr/bin/env node
 /**
- * The consumer-side CLI: `foundations doctor` and `foundations init`.
- *
- * Everything this package needs from an app fails quietly when it is missing. A
- * missing `@source` line purges every class the package ships, so the
- * components render unstyled. A skipped `theme.css` leaves every colour role
- * unpainted, so `bg-background` resolves to nothing. A font bound with
- * `.className` instead of
- * `.variable` renders one typeface on <html> and another on every utility that
- * asks for a role. None of them throw an error, and all of them are easy enough
- * to check mechanically, which is what this file does.
+ * The consumer-side CLI: `foundations doctor` and `foundations init`. Everything
+ * this package needs from an app fails quietly when missing: a lost `@source`
+ * purges every class, a skipped `theme.css` leaves colour roles unpainted, a font
+ * bound with `.className` renders the wrong face. The checks read what to expect
+ * from the installed package rather than hardcoding it.
  *
  *   npx foundations doctor          check this app against the contract
  *   npx foundations init            write the CSS block, print the font binding
  *   npx foundations init --dry-run  show the patch without writing it
  *   npx foundations doctor --cwd ../other-app
- *
- * The checks read what to expect from the installed package instead of
- * hardcoding it: CSS entry points come from `exports` in package.json, font
- * variables from type.css, peer ranges from peerDependencies. That way a rule
- * that changes in the package changes here on the next release.
  */
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
@@ -206,13 +196,9 @@ const BUNDLE = PKG_NAME;
 const isBundle = (spec) => spec === PKG_NAME || spec === `${PKG_NAME}/index.css`;
 
 /**
- * The granular entry points, in the order they have to be imported: tokens,
- * then theme, then type. `exports` is already in that order, which is also the
- * order the README documented before the bundle existed.
- *
- * They remain exported, and remain supported, for the app that paints every
- * colour role itself and wants tokens.css without theme.css. index.css is not
- * one of them: it is the whole, not a part.
+ * The granular entry points, in the order they have to be imported. They stay
+ * supported for the app that paints every colour role itself. index.css is not one
+ * of them: it is the whole, not a part.
  */
 const cssEntries = Object.keys(pkgJson.exports)
   .filter((key) => key.endsWith(".css") && key !== "./index.css")
@@ -269,13 +255,9 @@ const TAILWIND_ENTRY =
 const ENTRY_NAMES = ["globals", "global", "index", "main", "app", "styles", "tailwind"];
 
 /**
- * The CSS file that starts the cascade. Searched from the app root rather than
- * a list of blessed directories, because `app/`, `src/` and `styles/` are three
- * of the places it lives and not the only three.
- *
- * More than one file can import Tailwind — an embed, a Storybook preview, an
- * email template. The real entry is the shallowest, and among equals the one
- * named the way the scaffolds name it.
+ * The CSS file that starts the cascade, searched from the app root rather than a
+ * list of blessed directories. More than one file can import Tailwind, so the real
+ * entry is the shallowest, and among equals the one the scaffolds name.
  */
 const findCssEntry = (appRoot) => {
   const candidates = walk(appRoot, STYLE_EXTS, 6).filter((file) =>
@@ -842,15 +824,10 @@ const init = (appRoot, { dryRun }) => {
 };
 
 /**
- * The old shape: the four entry points written out by the consumer, plus an
- * `@source` line it had to path itself. Still supported, and still repaired —
- * an app on it is not broken, and rewriting a file someone else wrote is not
- * this command's call. `init` only offers the one-line form.
- *
- * Lift the package's own @import lines out, then lay them back down in the
- * one order the cascade accepts. Lifting the whole LINE keeps a trailing
- * comment attached to the import a consumer wrote it against, and makes a file
- * that is merely out of order repairable rather than only diagnosable.
+ * The old shape: four entry points written out by the consumer plus a hand-pathed
+ * `@source`. Still supported and still repaired, since rewriting a file someone
+ * else wrote is not this command's call. Lifting the whole line keeps a trailing
+ * comment attached to the import it was written against.
  */
 const legacy = (appRoot, cssFile, { live, rel, lines, present, anchorIn, dryRun }) => {
   const existing = new Map();

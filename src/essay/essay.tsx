@@ -171,13 +171,10 @@ export function createEssay({
   }
 
   /**
-   * One per essay: a page with three of them has decided nothing.
-   *
-   * The face and a rung, not the whole `headingClass()` ramp — see `headingFace` in
-   * typography/header.tsx for why a non-heading takes one and not the other. `text-pretty`
-   * over `text-balance`: this is prose set large, so it fills the measure rather than being
-   * set in even lines like a headline. The rung is the section heading's, so one pull quote
-   * stands level with them and retunes with them under `.editorial`.
+   * One per essay: a page with three has decided nothing. The face and a rung
+   * rather than the whole ramp, and `text-pretty` over `text-balance`, since this
+   * is prose set large. The rung is the section heading's, so the two retune
+   * together under `.editorial`.
    */
   function EssayPullQuote({ children }: { children: ReactNode }) {
     return (
@@ -284,17 +281,10 @@ export function createEssay({
 }
 
 /**
- * The undecorated shell, bound once.
- *
- * The factory takes an app's motion and gradient, and an app that has neither
- * still had to call it — at module scope, passing nothing — because there was
- * no other way to reach the components. These are that call, made here, so a
- * consumer without decorations imports them by name like the rest of the
- * package. `createEssay` stays for the consumers that do decorate.
- *
- * Module scope is not incidental. The factory defines its components per call,
- * so one made during a render hands React a new type on every pass and remounts
- * everything under it.
+ * The undecorated shell, bound once, so a consumer without decorations imports
+ * these by name. `createEssay` stays for the consumers that do decorate. Module
+ * scope is not incidental: the factory defines its components per call, so one
+ * made during a render hands React a new type and remounts everything under it.
  */
 export const {
   EssayHeader,

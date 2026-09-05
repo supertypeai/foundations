@@ -129,12 +129,19 @@ export default function AgentsPage() {
           <Code lang="javascript" code={ESLINT} />
         </div>
         <TypographyProse className="mt-4">
-          They catch hand-rolled colour (
-          <TypographyInlineCode>bg-zinc-800</TypographyInlineCode>, hex
-          literals, <TypographyInlineCode>dark:</TypographyInlineCode> overrides
-          of a token), a size class on a primitive that owns its size, and a
-          surface token used as ink. Plain data, no plugin, ESM and CommonJS
-          builds both. See{" "}
+          An agent reaches for a utility class before a primitive, so the rules
+          are written around that habit. They catch hand-rolled colour (
+          <TypographyInlineCode>bg-zinc-800</TypographyInlineCode>, a hex, a{" "}
+          <TypographyInlineCode>dark:</TypographyInlineCode> override of a
+          token), a type style written out on a{" "}
+          <TypographyInlineCode>&lt;p&gt;</TypographyInlineCode> where a
+          primitive exists, a size class on a component that owns its size, a
+          surface token printed as ink, and a margin nudging an icon into line.
+          Plain data, no plugin, ESM and CommonJS builds both. The{" "}
+          <TypographyLink href="/philosophy#silent" addArrow>
+            philosophy
+          </TypographyLink>{" "}
+          page has the full set and why each one is there. See{" "}
           <TypographyLink
             href="https://github.com/supertypeai/foundations/blob/main/docs/tooling.md#lint-rules"
             addArrow

@@ -1,15 +1,13 @@
 import { Children, cloneElement, isValidElement, type ComponentProps, type ReactNode } from "react";
 
 import { cn } from "../cn.js";
-import { INK_ON_CARD } from "../tone.js";
+import { toneClass, type Tone } from "../tone.js";
+import { DISCLOSURE, DisclosureChevron } from "./disclosure.js";
 
 /**
  * A disclosure group: `<details>`/`<summary>`, no JS, correct before hydration.
- *
- * Named for what it is rather than `Accordion`, the interactive Base UI
- * component next door. The two are not variants of each other — this one is a
- * server component an MDX author gets for free, that one animates and manages
- * state. Sharing a name is how a call site ends up with the wrong one.
+ * Named for what it is rather than `Accordion`, the interactive Base UI component
+ * next door. Sharing a name is how a call site ends up with the wrong one.
  */
 export function DisclosureGroup({
   className,
@@ -17,6 +15,7 @@ export function DisclosureGroup({
   type = "multiple",
   defaultValue,
   name,
+  tone = "primary",
   ...props
 }: Omit<ComponentProps<"div">, "defaultValue"> & {
   /** `single` closes siblings when one opens. Defaults to `multiple`. */
@@ -25,6 +24,11 @@ export function DisclosureGroup({
   defaultValue?: string | string[];
   /** Explicit group name; one is derived from `type` when omitted. */
   name?: string;
+  /**
+   * Inks the open mark, and only it — the same contract `TabsList` states. The
+   * label is read rather than signalled, so it stays on the page's ink ladder.
+   */
+  tone?: Tone;
 }) {
   // Single-open comes from the shared `name` attribute, which browsers implement
   // natively and which degrades to all-open where they do not — a fine failure
@@ -55,10 +59,7 @@ export function DisclosureGroup({
 
   return (
     <div
-      className={cn(
-        "my-6 divide-y divide-border overflow-hidden rounded-xl border border-border",
-        className,
-      )}
+      className={cn(toneClass(tone), DISCLOSURE.group, className)}
       {...props}
     >
       {items}
@@ -101,25 +102,21 @@ export function Disclosure({
 }: DisclosureProps) {
   return (
     <details
-      className={cn("group bg-card", INK_ON_CARD, className)}
+      className={cn("group/disclosure", DISCLOSURE.item, className)}
       {...props}
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-foreground marker:hidden hover:bg-accent [&::-webkit-details-marker]:hidden">
+      {/* `list-none` plus the WebKit pseudo is the whole marker suppression: the
+          chevron below is the mark, and a browser triangle beside it is two. */}
+      <summary
+        className={cn(
+          DISCLOSURE.row,
+          "list-none marker:hidden [&::-webkit-details-marker]:hidden",
+        )}
+      >
         {title}
-        <svg
-          aria-hidden="true"
-          className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
+        <DisclosureChevron />
       </summary>
-      <div className="px-4 pb-4 text-sm text-muted-foreground">{children}</div>
+      <div className={DISCLOSURE.panel}>{children}</div>
     </details>
   );
 }

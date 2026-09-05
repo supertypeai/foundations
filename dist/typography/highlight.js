@@ -1,15 +1,9 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { cn } from "../cn.js";
 /**
- * Inks only. A fill token (`--secondary`, `--accent`) has no chroma to wash with —
- * at 44% alpha it is invisible, and the `luminosity` blend then strips the text's
- * hue for nothing. That is why the earth tones enter as `-foreground`: those are
- * the ink-grade pair, mixed to hold at text weight in both themes.
- *
- * Emphasis, never status. Warn and info and destructive are absent on purpose.
- *
- * The four earth tones are one palette, not a menu: each is a different hue,
- * because two a reader cannot tell apart are one tone with two names.
+ * Inks only. A fill token has no chroma to wash with, so the earth tones enter as
+ * `-foreground`, the ink-grade pair. Emphasis, never status: warn, info and
+ * destructive are absent on purpose.
  */
 const MARKER_TONES = {
     primary: "var(--primary)",
@@ -85,11 +79,9 @@ const markerFill = (seed) => {
     return fill;
 };
 /**
- * Marker highlight for inline text. Painted as the run's own background, never a
- * mask — a mask would shave the glyph tops. `luminosity` lets letters borrow the
- * marker's hue while keeping their own lightness, so contrast holds in both themes.
- * That lightness comes from `--marker-ink`, a deepened `--foreground`, so the run
- * still reads as the emphasised one rather than sinking into its own wash.
+ * Marker highlight for inline text, painted as the run's own background rather
+ * than a mask, which would shave the glyph tops. `luminosity` lets letters borrow
+ * the marker's hue while keeping their lightness, which comes from `--marker-ink`.
  */
 export function TypographyHighlight({ tone = "primary", seed = 3, className, style, children, ...props }) {
     return (_jsx("span", { className: cn("isolate inline px-[0.3em] py-[0.06em]", "[-webkit-box-decoration-break:clone] [box-decoration-break:clone]", "[--marker-alpha:44%] dark:[--marker-alpha:58%]", 

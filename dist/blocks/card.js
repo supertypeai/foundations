@@ -16,26 +16,19 @@ const CARD_CLASS = `flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 
     "has-[>img:first-child]:pt-0 " +
     "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl";
 /**
- * What a card does when it is a link, which is the only time it does anything: two pixels
- * up, a shadow under it, the ring firming from `--border` to a cut of the page's own ink.
- * Following a link is not a colour, so nothing here is one — `--elevation-raised` is the
- * token for a layer leaving the page plane, and that is the whole gesture. The lift is
- * `motion-safe:` and the shadow is not, so reduced motion keeps the affordance.
- *
- * `toneClass` is declared here so the icon below can take `--tone-hue` rather than naming
- * a token, the way every other tinted role in the package reads it.
+ * What a card does when it is a link, the only time it does anything: two pixels
+ * up, a shadow, the ring firming to a cut of the page's ink. Nothing here is a
+ * colour, and the lift is `motion-safe:` while the shadow is not. `toneClass` is
+ * declared so the icon below can read `--tone-hue`.
  */
 const CARD_LINK_CLASS = cn(toneClass("primary"), FOCUS_RING, "group/card no-underline transition duration-200 ease-out", "hover:shadow-raised hover:ring-foreground/15 motion-safe:hover:-translate-y-0.5");
 export function CardHeader({ className, ...props }) {
     return (_jsx("div", { "data-slot": "card-header", className: cn("grid auto-rows-min items-start gap-1 px-4 [.border-b]:pb-4", className), ...props }));
 }
 /**
- * No `font-heading`, and no rung off the heading ladder. That role is the
- * editorial display face — `.editorial` hands it to the serif and drops the
- * weight to 400 — and a card is chrome, not prose: dropped into a docs page it
- * wore a serif title over a sans description and lost the weight that separated
- * the two. Rank inside a card is weight and size, the way a callout title does
- * it. The face is whatever the card inherits.
+ * No `font-heading` and no rung off the heading ladder. That role is the editorial
+ * display face, and a card is chrome: dropped into a docs page it wore a serif
+ * title over a sans description. Rank inside a card is weight and size.
  */
 export function CardTitle({ className, ...props }) {
     return (_jsx("div", { "data-slot": "card-title", className: cn("text-base leading-snug font-medium", className), ...props }));

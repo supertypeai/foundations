@@ -2,33 +2,14 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { cn } from "../cn.js";
 import { toneClass } from "../tone.js";
 import { TypographyCaption, TypographyLabel, TypographyMuted, TypographySmall, } from "../typography/paragraph.js";
-// ---------------------------------------------------------------------------
-// An inline notice: a titled paragraph that explains something the surface it sits in cannot say
-// on its own — why a row was dropped, why a payload is hidden, why a timeline is incomplete.
-//
-// Extracted because there were six of these hand-rolled across the relay detail sheet and the
-// contact record, each re-declaring the same border, the same muted fill, the same `text-xs
-// font-medium` title and the same `text-xs text-muted-foreground` body. Three of the six had
-// already drifted on the radius. Hand-rolled type styles are also exactly what the project's own
-// guidance forbids, and six copies is how a rule like that gets broken without anyone deciding to.
-//
-// The body is a slot, so it renders as a div in both densities. A caller passes a list, a
-// pair of paragraphs or a mono block of delivery errors, none of which may sit inside a <p>:
-// the parser closes it early and React reports a hydration error on a callout that looks fine.
-//
-// Deliberately not a shadcn Alert. Alert is a page-level, role="alert" affordance for something
-// that just happened; these are quiet, permanent explanations sitting inside a panel, and they
-// must not announce themselves to a screen reader every time a sheet opens.
-// ---------------------------------------------------------------------------
+// An inline notice explaining something the surface it sits in cannot say on its
+// own. The body is a slot and renders as a div, since a caller passes lists and
+// mono blocks that may not sit inside a <p>. Deliberately not a shadcn Alert:
+// these are permanent, and must not announce themselves every time a sheet opens.
 /**
- * No tone table of its own: the same seven `Button` and `TypographyLink` take.
- * The four hand-tuned rows this file used to carry are gone, `accent` among them
- * — it was `--primary` under another name, which is why a "tip" callout and a
- * "primary" one were indistinguishable. `muted` keeps its name and its values.
- * See ../tone.ts.
- *
- * A callout is a panel, so it tints with `--tone-veil` (5%) where a control uses
- * `--tone-wash` (10%). That is the only thing this file knows about colour.
+ * No tone table of its own: the same seven `Button` and `TypographyLink` take, in
+ * ../tone.ts. A callout is a panel, so it tints with `--tone-veil` (5%) where a
+ * control uses `--tone-wash` (10%). That is all this file knows about colour.
  */
 const BOX = "border-(color:--tone-line) bg-(--tone-veil)";
 export function Callout({ icon: Icon, title, tone = "muted", density = "compact", bodyClassName, action, children, className, }) {

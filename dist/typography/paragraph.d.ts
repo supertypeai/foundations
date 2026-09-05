@@ -49,22 +49,9 @@ declare const PROSE_LIST: {
 export declare function TypographyProseList(props: Preset<ListProps, typeof PROSE_LIST>): import("react").JSX.Element;
 /**
  * Meta beside content: timestamps, counts, bylines, the key in a key-value row.
- *
- * Always the secondary ink and never a weight — a caption is secondary because
- * it is muted, and 500 on top would have the colour and the weight arguing.
- * `sm` is the default because meta is separated from body by ink, not size;
- * the smaller rungs are a deliberate step down, not the norm.
- *
- * Leading comes from the rung, as it does for every other primitive here. Two
- * of these rungs used to pin a fixed ratio on top of the ramp, which held a
- * caption apart from the label beside it and overrode the retune an editorial
- * subtree had just made. An app that wants more air under a wrapped caption
- * moves the rung, which is where the rest of the page reads its leading from.
- *
- * `inherit` is the parenthetical inside a heading, an eyebrow or a stat. It
- * takes the size of whatever set it and resets the weight, because the only
- * reason to sit there is to be quieter than the thing you qualify — and every
- * container that sets a size for you sets a weight too.
+ * Always secondary ink and never a weight, since colour and weight both saying
+ * "secondary" is one arguing with the other. `inherit` is the parenthetical
+ * inside a heading or a stat, taking the size that set it.
  */
 declare const captionVariants: (props?: ({
     size?: "inherit" | "sm" | "xs" | "2xs" | null | undefined;
@@ -86,17 +73,9 @@ declare const BLOCK: {
 };
 export declare function TypographySmall(props: Preset<WithAs<CaptionVariants>, typeof BLOCK>): import("react").JSX.Element;
 /**
- * The label role: a form label, a column header, the key a reader scans for.
- * 500 is the only weight bump a dense surface needs below a heading.
- *
- * The rungs are the caption's, deliberately. A label and a caption are one pair
- * — the key and the value, the name and the note — and a pair that cannot be set
- * at one size is not a pair. Pinning the label to `sm` while the caption had an
- * axis is what sent a key next to an `xs` value out to `font-medium text-xs` in
- * a className, leaving the weight arguing with the rung it landed on.
- *
- * `as` is here for the same reason it is on `TypographyEyebrow`: a config panel
- * names its sections at this size, and those names are the page's outline.
+ * The label role: a form label, a column header, the key a reader scans for. The
+ * rungs are the caption's, deliberately, since a label and a caption are one pair
+ * and a pair that cannot be set at one size is not a pair.
  */
 declare const labelVariants: (props?: ({
     size?: "inherit" | "sm" | "xs" | "2xs" | null | undefined;
@@ -104,15 +83,9 @@ declare const labelVariants: (props?: ({
 export type LabelVariants = VariantProps<typeof labelVariants>;
 export declare function TypographyLabel({ className, size, as, children, ...props }: WithAs<LabelVariants>): import("react").JSX.Element;
 /**
- * A numeric readout. Size and colour ride in via className per use.
- *
- * Tabular is right in a column and wrong in a headline, so it is an axis rather
- * than a constant. Keep `tabular` anywhere a value updates in place.
- *
- * Leading is the one thing here the rung does not decide. A stat sits on the
- * body rungs, whose leading is room for the line that follows, and a value has
- * no line following it: the ratio lands as dead space arguing with the padding
- * the tile around it already sets. Pinned tight, for the reason a badge is.
+ * A numeric readout. Tabular is right in a column and wrong in a headline, so it
+ * is an axis. Leading is pinned tight: a value has no line following it, so the
+ * body ramp's ratio lands as dead space.
  */
 declare const statVariants: (props?: ({
     size?: "display" | "base" | "section" | "inherit" | "page" | "sm" | "xs" | "2xs" | "3xs" | "lg" | "xl" | "2xl" | "3xl" | "card" | "panel" | null | undefined;
@@ -141,18 +114,9 @@ type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & LinkBehavior & {
     addArrow?: boolean;
 };
 /**
- * The inline link.
- *
- * Internal and external are decided from the href, never at the call site —
- * ../href.ts holds that decision, and Button, Badge and Card make the same one.
- * `newTab` and `external` are the overrides. Call-site props apply last, so a
- * passed `target`/`rel` still wins.
- *
- * The router is `next-view-transitions`, imported rather than injected. Every
- * project on this package is a Next app and wants the same link, and a factory
- * bought router-agnosticism nobody used at the price of a component that could
- * not be imported by name. One call site ended up on the unbound version that
- * way and lost its decoration.
+ * The inline link. Internal and external are decided from the href in ../href.ts,
+ * never at the call site; `newTab` and `external` are the overrides, and call-site
+ * props apply last. The router is `next-view-transitions`, imported by name.
  */
 export declare function TypographyLink({ href, children, tone, external: leavesApp, newTab, addArrow, className, ...props }: TypographyLinkProps): import("react").JSX.Element;
 export {};

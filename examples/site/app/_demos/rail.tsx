@@ -1,4 +1,5 @@
 import { Link } from "next-view-transitions";
+import { TypographyEyebrow } from "@supertype.ai/foundations";
 import { Rail, RailLink } from "@supertype.ai/foundations/essay";
 
 /** `active` highlights, `nested` indents, `render` swaps the anchor for a
@@ -7,9 +8,9 @@ export default function RailDemo() {
   return (
     <div className="grid gap-10 sm:grid-cols-2">
       <div>
-        <p className="mb-4 text-xs uppercase text-muted-foreground">
+        <TypographyEyebrow as="p" tone="muted" className="mb-4">
           Anchors, with depth
-        </p>
+        </TypographyEyebrow>
         <Rail>
           <RailLink href="#rail">The rail</RailLink>
           <RailLink href="#contents" active>
@@ -23,9 +24,9 @@ export default function RailDemo() {
       </div>
 
       <div>
-        <p className="mb-4 text-xs uppercase text-muted-foreground">
+        <TypographyEyebrow as="p" tone="muted" className="mb-4">
           Routes, via render
-        </p>
+        </TypographyEyebrow>
         <Rail>
           <RailLink href="/blocks" render={<Link href="/blocks" />}>
             Blocks

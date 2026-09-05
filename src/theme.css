@@ -67,20 +67,18 @@
   --shadow-overlay: var(--elevation-overlay);
   --shadow-recessed: var(--elevation-recessed);
 
-  /* Additive scale off a 10px `lg` — fixed pixel offsets, so no oddball values a
-     multiplicative scale would produce. `rounded-full` stays a pill.
-
-     The container rung was +4px, the one step in the run that was not 2, and 14px
-     on a card read softer than anything else the package draws — a panel rounder
-     than the button sitting inside it. At +2 the run below the marketing sizes is
-     6 / 8 / 10 / 12, evenly spaced, and the jump to `2xl` is left to say what it
-     was always meant to: this one is a feature card, not a container. Card,
-     Accordion, and the MDX pre/img/table frames all step down together, which is
-     the point of moving the token rather than the five call sites. */
+  /* Additive scale off a 10px `lg`, fixed pixel offsets, `rounded-full` still a
+     pill. The container rung was +4px and read softer than anything else the
+     package draws. At +2 the run is 6 / 8 / 10 / 12 and the jump to `2xl` says
+     what it always meant: a feature card, not a container. */
   --radius-sm: calc(var(--radius) - 4px); /* 6px */
-  --radius-md: calc(var(--radius) - 2px); /* 8px  — inputs, menus, small controls */
+  --radius-md: calc(
+    var(--radius) - 2px
+  ); /* 8px  — inputs, menus, small controls */
   --radius-lg: var(--radius); /* 10px — buttons, default control */
-  --radius-xl: calc(var(--radius) + 2px); /* 12px — cards, panels, framed blocks */
+  --radius-xl: calc(
+    var(--radius) + 2px
+  ); /* 12px — cards, panels, framed blocks */
   --radius-2xl: calc(var(--radius) + 8px); /* 18px — marketing feature cards */
   --radius-3xl: calc(var(--radius) + 12px); /* 22px */
   --radius-4xl: calc(var(--radius) + 16px); /* 26px */
@@ -91,17 +89,11 @@
      both, so its label stays light in both. */
   --tint-foreground: hsl(0, 0%, 100%);
 
-  /* Which way a control moves under the pointer: away from the page, so it
-     deepens on latte and lifts on espresso. How far is the state's own
-     business, and hover spends 18%.
-
-     The extreme rather than `--foreground`, because mixing toward an ink that
-     already sits near the fill gives a step the size of the gap between them:
-     `--primary` moved 4.9 ΔL* on latte against 6.2 on espresso from the same
-     declaration, and read as no hover at all. Against black and white every
-     tone clears 6 ΔL* in both themes. */
+  /* Which way a control moves under the pointer: away from the page, so it deepens
+     on latte and lifts on espresso. The extreme rather than `--foreground`, which
+     sits near the fill and gave a step the size of the gap between them. Against
+     black and white every tone clears 6 ΔL* in both themes. */
   --hover-toward: hsl(0, 0%, 0%);
-
 
   /* Status, on the same three-cut rule as every other tone: the fill is a mark
      (3:1), the `-ink` is that hue used as words (4.5:1), and the `-foreground`
@@ -125,13 +117,10 @@
   /* Danger ships as an ink only: a vivid brick red harmonised toward terracotta. */
   --danger: hsl(5 72% 43%);
 
-  /* Latte-warm greens, clays and stone. Both cuts of each hue, light theme.
-     `-ink`, not `-foreground`: in this package `-foreground` is the label printed
-     on a fill and `-ink` is the hue used as words, and these are the latter —
-     `checkSignals` holds them to 4.5:1 against the page, and printing one on its
-     own fill measures about 1.2:1. They shipped under the wrong suffix for long
-     enough that a docs page believed it and rendered them as bare squares. The
-     old names are kept below as aliases; the ESLint rules flag them. */
+  /* Latte-warm greens, clays and stone, both cuts of each hue, light theme.
+     `-ink`, not `-foreground`: these are the hue used as words, held to 4.5:1
+     against the page, where printing one on its own fill measures about 1.2:1.
+     The old names are kept below as aliases and the ESLint rules flag them. */
   --terracotta: hsl(10 54% 60%);
   --terracotta-ink: hsl(10 72% 40%);
   --ochre: hsl(44 60% 42%);
@@ -176,8 +165,8 @@
      this theme's 89.3. On latte the two happen to coincide, so this is an
      alias here and a value of its own under .dark. */
   --primary-ink: var(--primary);
-  /* Three tokens, because the accent pulls opposite ways: fill, the label on it,
-     and the accent as text. Tuning any one for another sinks the third. */
+  /* Three tokens here: the fill, the label on it, and the accent as text. Tuning
+     any one for another sinks the third. */
   --secondary: hsl(14, 67%, 72%);
   --secondary-foreground: hsl(14, 69%, 14%);
   --secondary-ink: hsl(14 67% 38%);
@@ -198,12 +187,9 @@
   --border: hsl(40 15% 80%); /* #CFC8BA */
   --input: var(--border);
   --ring: hsl(133 11% 33%); /* the brand green */
-  /* A series is a fill: docs/cli.md promises every one of them clears 3:1 on the
-     page and on a card, and until `checkSignals` measured them two did not. The
-     sand was the worst in the palette at 2.18:1 — a 43° hue on a 43° ground, the
-     same colour 36 points apart in lightness. Saturation rises as it darkens, or
-     it lands as mud rather than as sand. The six stay 17.1 ΔE76 apart at their
-     closest (chart-4 against chart-6), which is where the floor sat before. */
+  /* A series is a fill, and docs/cli.md promises every one clears 3:1 on the page
+     and on a card. Two did not: the sand was worst at 2.18:1, a 43° hue on a 43°
+     ground. Saturation rises as it darkens, or it lands as mud. */
   --chart-1: hsl(133 18% 45%);
   --chart-2: hsl(14 47% 56%); /* 2.98:1 at L59 */
   --chart-3: hsl(43 45% 42%); /* 2.18:1 at 33% L60 */
@@ -287,11 +273,9 @@
   --card-foreground: hsl(43 20% 92%);
   --popover: hsl(30 8% 14%);
   --popover-foreground: hsl(43 20% 92%);
-  /* Split in two, so each cut is tuned for its own job. The fill takes a white
-     label at Lc 83.0 against latte's 89.3, and still clears 3:1 as a mark on
-     espresso (3.36:1). The ink reads as words at Lc 73.8 against latte's 79.1.
-     Both sit inside the 15 Lc the themes are held to; the single token they
-     replace sat 30 Lc adrift on both counts. */
+  /* Split in two, each cut tuned for its own job. The fill takes a white label at
+     Lc 83.0 and clears 3:1 as a mark on espresso; the ink reads as words at Lc
+     73.8. The single token they replace sat 30 Lc adrift on both counts. */
   --primary: hsl(133 34% 34%);
   --primary-foreground: var(--tint-foreground);
   --primary-ink: hsl(133 26% 76%);
@@ -309,11 +293,8 @@
   --accent: hsl(133 12% 20%);
   --accent-foreground: hsl(133 18% 78%);
   /* Overwhelmingly an ink: sixty `text-destructive` sites, no fill carrying text.
-     The light value measured 2.08:1 here — a colour, not words.
-     L67 read 4.48:1 on --muted, which is AA to two decimal places and under it
-     to three, on a surface with several hundred call sites. L68 is the smallest
-     step that clears with room to spare (4.64:1) rather than landing back on the
-     line; --background and --card, already clear, rise with it. */
+     L67 read 4.48:1 on --muted, AA to two decimal places and under it to three.
+     L68 is the smallest step that clears with room to spare (4.64:1). */
   --destructive: hsl(0 65% 68%);
   /* The ink is light here, so anything printed on it must be dark. Nothing does
      today; white would arm a 1.3:1 trap for whoever tries first. */
@@ -359,11 +340,19 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--accordion-panel-height, auto); }
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--accordion-panel-height, auto);
+    }
   }
   @keyframes accordion-up {
-    from { height: var(--accordion-panel-height, auto); }
-    to { height: 0; }
+    from {
+      height: var(--accordion-panel-height, auto);
+    }
+    to {
+      height: 0;
+    }
   }
 }

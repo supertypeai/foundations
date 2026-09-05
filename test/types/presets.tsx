@@ -1,10 +1,7 @@
 /**
- * Type-level assertions. Nothing here runs; `tsc --noEmit` is the test.
- *
- * Each `@ts-expect-error` is an assertion that the line below it does NOT
- * compile. If one of these starts compiling — a preset stops pinning its prop,
- * a required prop becomes optional — TypeScript reports the directive as unused
- * and this file fails, which is what makes it a test rather than a comment.
+ * Type-level assertions. Nothing here runs; `tsc --noEmit` is the test. Each
+ * `@ts-expect-error` asserts the line below it does not compile, so TypeScript
+ * reports the directive as unused the moment one starts to.
  */
 import {
   TypographyH1,

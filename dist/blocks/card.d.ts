@@ -4,12 +4,9 @@ import { type LinkBehavior } from "../href.js";
 export declare function Cards({ className, children, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 export declare function CardHeader({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 /**
- * No `font-heading`, and no rung off the heading ladder. That role is the
- * editorial display face — `.editorial` hands it to the serif and drops the
- * weight to 400 — and a card is chrome, not prose: dropped into a docs page it
- * wore a serif title over a sans description and lost the weight that separated
- * the two. Rank inside a card is weight and size, the way a callout title does
- * it. The face is whatever the card inherits.
+ * No `font-heading` and no rung off the heading ladder. That role is the editorial
+ * display face, and a card is chrome: dropped into a docs page it wore a serif
+ * title over a sans description. Rank inside a card is weight and size.
  */
 export declare function CardTitle({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 export declare function CardDescription({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;

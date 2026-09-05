@@ -66,12 +66,9 @@ export function resolveTokens(
   const declarations: Declaration[] = [];
   let order = 0;
 
-  // Comments are stripped first, then the statement at-rules. The lookbehind is the
-  // whole of it: matching the delimiter would consume the `;` that ends one statement,
-  // and the next one could no longer find a delimiter in front of it. That cleared only
-  // every second statement, so a `:root` under two `@import`s parsed as
-  // `@import "…"; :root`, was read as an at-rule, and its whole palette was dropped —
-  // leaving every check on it reporting a clean sheet. Zero-width, so they all go.
+  // Comments are stripped first, then the statement at-rules. The lookbehind is
+  // the whole of it: matching the delimiter would eat the `;` ending one statement,
+  // so only every second one cleared and a `:root` under two `@import`s was dropped.
   const source0 = css
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/(?<=^|[;{}])\s*@[\w-]+[^;{}]*;/g, "");
@@ -203,23 +200,10 @@ export function contrast(a: Rgb, b: Rgb): number {
 }
 
 /**
- * APCA lightness contrast (Lc), the perceptual measure WCAG 3 is built on.
- *
- * It sits beside `contrast` because the two answer different questions and an
- * ink ramp needs both. A WCAG ratio is polarity-blind: it reports the same
- * number whether the text is dark on light or light on dark, when in fact dark
- * glyphs on a bright field thin out and light glyphs on a dark field bloat. That
- * blindness is what lets a ramp be ordered by ratio and still read flat — viably
- * shipped a `--muted-foreground` measuring 72.5 Lc in light and 52.1 in dark,
- * the same verdict from `contrast` on both sides and twenty points apart to a
- * reader.
- *
- * Lc also states the term a ratio cannot: legibility is contrast times size, so
- * a floor here is what says an ink comfortable at 16px is or is not comfortable
- * on the 13px rung a dense product actually spends.
- *
- * Returned absolute. It is signed by polarity in the specification, and every
- * caller so far asks "is this legible", never "which way round is it".
+ * APCA lightness contrast (Lc), the perceptual measure WCAG 3 is built on. A WCAG
+ * ratio is polarity-blind, which lets a ramp be ordered by ratio and still read
+ * flat: viably shipped a `--muted-foreground` at 72.5 Lc in light and 52.1 in
+ * dark on the same verdict. Returned absolute.
  */
 export function lc(text: Rgb, background: Rgb): number {
   // Screen luminance on APCA's own curve, which is not WCAG's: exponent 2.4 on
@@ -356,8 +340,8 @@ const INKS_TINTED = [
  * The tertiary ink, at the 3:1 its own comment in theme.css claims for it —
  * placeholders and disabled labels, never anything load-bearing. Held here
  * rather than in `INKS` because 4.5:1 would fail a token that is correct; held
- * *somewhere* because the sentence stating the bar was the only thing enforcing
- * it, and light sits at 3.14:1 on --muted with nothing watching the gap.
+ * *somewhere* — the sentence stating the bar was the only thing enforcing it,
+ * and light sits at 3.14:1 on --muted with nothing watching the gap.
  */
 const TERTIARY = ["--subtle-foreground"];
 
@@ -378,20 +362,10 @@ const ON_SURFACE: [fill: string, label: string][] = [
 ];
 
 /**
- * Every cut a tone names, read off `TONE` instead of restated here.
- *
- * The tone rows used to be five hand-written pairs in the list above, which is
- * the arrangement the comment on `tokenCuts` warns about: a palette checked
- * against one taxonomy and declared from another drifts, and `brand` is the
- * proof. It was in `TONE` from the day the vocabulary landed and never in this
- * file, so the one tone whose tokens an app supplies was the one tone nothing
- * measured.
- *
- * Parsed rather than shared as data because `TONE` has to stay a table of
- * literal class strings — Tailwind scans this package as text and generates
- * only the classes it can read, so a row assembled from a record would style
- * nothing. Parsing the literal keeps one declaration; a second table would be
- * the drift all over again.
+ * Every cut a tone names, read off `TONE` rather than restated. `brand` is the
+ * proof of why: it was in `TONE` from the start and never in this file, so the one
+ * tone an app supplies was the one nothing measured. Parsed rather than shared as
+ * data, since `TONE` has to stay literal class strings for Tailwind to see.
  */
 const TONE_CUT = /\[--tone-(fill|ink|hue):([^\]]*)\]/g;
 
@@ -419,22 +393,10 @@ const ON_FILL: [fill: string, label: string][] = [
 ];
 
 /**
- * A tone's label on a tone's fill, resolved the way a browser resolves it.
- *
- * `checkLegibility` skips a token it cannot find, and that is right: an app that
- * declares no `--sidebar` has not failed a bar, it has declined a role. But a
- * token missing *while its siblings are present* is a different animal. The tone
- * still renders — `var(--brand-foreground,var(--primary-foreground))` simply
- * moves to the next link — so the control is painted in a pair the app never
- * chose and skipping it reads as a pass.
- *
- * That is how a bronze `--brand` shipped with a white label at 2.80:1: the fill
- * was declared, the label was not, and nothing measured the pair that actually
- * reached the screen. So this follows the chain to whichever link is really
- * there, and measures that. An app declaring a whole tone is measured on its own
- * tokens; one declaring none falls through to the package's, which are measured
- * anyway; one declaring half hears about it in the only terms that matter, the
- * two colours a reader is going to see.
+ * A tone's label on a tone's fill, resolved the way a browser resolves it. A token
+ * missing while its siblings are present still renders, falling to the next link,
+ * so the control is painted in a pair the app never chose. That is how a bronze
+ * `--brand` shipped a white label at 2.80:1.
  */
 function checkToneCuts(
   css: string,
@@ -491,12 +453,12 @@ export interface TokenCuts {
 /**
  * The cuts a token ships, read off the same three sets `checkSignals` measures.
  *
- * Exported because the alternative is every consumer keeping its own idea of
- * which tokens are pairs — the docs site did, and got the categorical hues
- * wrong, rendering `--ochre` as a lone square while its ink, the colour the
- * marker highlight is painted with, appeared nowhere. A palette checked against
- * one taxonomy and documented from another will drift, and the drift shows up as
- * a page that is quietly wrong rather than a build that fails.
+ * Exported so consumers do not each keep their own idea of which tokens are
+ * pairs — the docs site did, and got the categorical hues wrong, rendering
+ * `--ochre` as a lone square while its ink, the colour the marker highlight is
+ * painted with, appeared nowhere. A palette checked against one taxonomy and
+ * documented from another will drift, and the drift shows up as a page that is
+ * quietly wrong rather than a build that fails.
  */
 export function tokenCuts(token: string): TokenCuts {
   const fill = token.startsWith("--") ? token : `--${token}`;
@@ -508,23 +470,17 @@ export function tokenCuts(token: string): TokenCuts {
 }
 
 /**
- * A hairline is neither ink nor a mark, so neither bar fits: WCAG exempts a
- * decorative rule outright, and holding one to 3:1 would draw a box, not a
- * border. What it owes is symmetry — the same rule has to read as the same
- * weight in both themes, and it did not: the dark hairline was tuned by hand
- * (L22's 1.34:1 on --card was rejected as too faint) while the light one was
- * never measured at all and shipped under the value dark had turned down.
- *
- * 1.4:1 is that floor, set just under the pair the themes now agree on. Only
- * --background and --card: a rule inside a `muted` well sits on a surface that
- * is itself a wash, and 1.3:1 is the practical floor for that kind of well.
+ * A hairline is neither ink nor a mark, so neither bar fits. What it owes is
+ * symmetry, and it did not have it: the dark rule was tuned by hand while the
+ * light one shipped under a value dark had turned down. 1.4:1 on --background and
+ * --card only; a rule inside a `muted` well sits on a wash.
  */
 const HAIRLINES = ["--border", "--input"];
 const HAIRLINE_SURFACES = ["--background", "--card"];
 
 /**
- * The sidebar keeps its own pair, because a rule there is drawn on `--sidebar`
- * and never on the page. Measuring it against `--background` would fail a border
+ * The sidebar keeps its own pair: the rule there is drawn on `--sidebar` and
+ * never on the page. Measuring it against `--background` would fail a border
  * that is correct and pass one that is not.
  */
 const SIDEBAR_HAIRLINE: [rule: string, surface: string] = [
@@ -533,8 +489,9 @@ const SIDEBAR_HAIRLINE: [rule: string, surface: string] = [
 ];
 
 /**
- * The bar a rule owes, held apart from `checkSignals` because it is not a
- * signal: nothing here carries meaning in its hue, it only has to be seen.
+ * The bar a rule owes is kept separate from `checkSignals`: it is not a signal,
+ * just an accessibility check. Nothing here carries meaning in its hue; it only
+ * has to be seen.
  */
 export function checkHairlines(
   css: string,

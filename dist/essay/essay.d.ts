@@ -80,17 +80,10 @@ export declare function createEssay({ Reveal, Glow, }?: EssayDecorations): {
     }) => import("react").JSX.Element;
 };
 /**
- * The undecorated shell, bound once.
- *
- * The factory takes an app's motion and gradient, and an app that has neither
- * still had to call it — at module scope, passing nothing — because there was
- * no other way to reach the components. These are that call, made here, so a
- * consumer without decorations imports them by name like the rest of the
- * package. `createEssay` stays for the consumers that do decorate.
- *
- * Module scope is not incidental. The factory defines its components per call,
- * so one made during a render hands React a new type on every pass and remounts
- * everything under it.
+ * The undecorated shell, bound once, so a consumer without decorations imports
+ * these by name. `createEssay` stays for the consumers that do decorate. Module
+ * scope is not incidental: the factory defines its components per call, so one
+ * made during a render hands React a new type and remounts everything under it.
  */
 export declare const EssayHeader: ({ eyebrow, title, lede, byline, }: {
     eyebrow: ReactNode;

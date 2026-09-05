@@ -1,24 +1,13 @@
 #!/usr/bin/env node
 /**
  * Build and copy this package into a consumer's node_modules, so a change can be
- * seen in ssite or viably without cutting a tag.
- *
- * Consumers pin a git tag (see release.mjs), and that stays true in every
- * environment they deploy from: this script never touches their package.json or
- * lockfile. It overwrites the *installed copy* under node_modules, which is
- * gitignored and rebuilt by `yarn install` — so a stale sync cannot escape the
- * machine it happened on, and CI keeps installing the tag.
- *
- * A symlink (yarn link) would be the shorter route, but it puts a second React
- * on the resolution path for a package with react as a peer, and Next hits that
- * as an invalid-hook-call at runtime. Copying keeps one node_modules tree.
+ * seen without cutting a tag. It overwrites only the installed copy, which is
+ * gitignored, so a stale sync cannot escape the machine. A symlink would put a
+ * second React on the resolution path and Next hits that as an invalid-hook-call.
  *
  *   node scripts/sync.mjs                 build once, copy to every target
  *   node scripts/sync.mjs --watch         rebuild and copy on every src change
  *   node scripts/sync.mjs ../other-app    copy to a target given explicitly
- *
- * Turbopack and webpack both cache node_modules aggressively; a sync lands in
- * the running dev server only after it restarts. --watch prints the reminder.
  */
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, rmSync, watch, writeFileSync } from "node:fs";
