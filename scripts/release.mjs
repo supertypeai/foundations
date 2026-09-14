@@ -21,15 +21,20 @@ const capture = (cmd, args) =>
   execFileSync(cmd, args, { encoding: "utf8", cwd: process.cwd() }).trim();
 
 /**
- * npm, with yarn's registry out of the way. `yarn run` exports
- * `npm_config_registry` into every script it starts, and the token in ~/.npmrc is
- * scoped to registry.npmjs.org, so npm reports ENEEDAUTH for a host it has no
- * credentials for. Both npm calls below name the registry themselves.
+ * npm, with yarn's config out of the way. `yarn run` exports its own settings
+ * into every script it starts as `npm_config_*`, and npm reads those as if they
+ * were its own: `registry` points at yarn's mirror, for which the token in
+ * ~/.npmrc (scoped to registry.npmjs.org) does not apply, so npm reports
+ * ENEEDAUTH; the rest — `version_git_tag`, `argv`, ... — npm does not know and
+ * warns will be an error in its next major. None of it was meant for npm, so all
+ * of it goes. Both npm calls below name the registry themselves.
  */
 const REGISTRY = "https://registry.npmjs.org/";
 const npmEnv = () => {
   const env = { ...process.env };
-  delete env.npm_config_registry;
+  for (const key of Object.keys(env)) {
+    if (key.startsWith("npm_config_")) delete env[key];
+  }
   return env;
 };
 const npm = (args) =>
