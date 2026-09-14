@@ -6,7 +6,7 @@ import { resolveLink } from "../href.js";
  * pair by hand, five of them missing the `rel`. Pass `external` for a same-origin
  * path that is not a route, since `Link` prefetches on viewport entry.
  */
-export function Anchor({ href, external, newTab, ...props }) {
-    const { Component, props: link } = resolveLink(href, { external, newTab });
+export function Anchor({ href, external, newTab, scroll, ...props }) {
+    const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
     return _jsx(Component, { ...link, ...props });
 }

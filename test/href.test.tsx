@@ -29,6 +29,15 @@ describe("resolveLink", () => {
   it("takes the override over the scheme sniff", () => {
     expect(resolveLink("/docs", { external: true }).external).toBe(true);
   });
+
+  it("hands scroll to the router and drops it for a plain anchor", () => {
+    // A sort header rewrites the page's own URL; scrolling the reader to the top on every click
+    // reads as a reload. An anchor has no router, and an unknown attribute would land on the DOM.
+    expect(resolveLink("/posts?sort=views", { scroll: false }).props.scroll).toBe(false);
+    expect(resolveLink("/posts").props).not.toHaveProperty("scroll");
+    expect(resolveLink("https://x.dev", { scroll: false }).props).not.toHaveProperty("scroll");
+    expect(resolveLink("#top", { scroll: false }).props).not.toHaveProperty("scroll");
+  });
 });
 
 describe("a wrong href says what happened", () => {

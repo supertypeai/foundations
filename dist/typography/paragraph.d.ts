@@ -118,5 +118,5 @@ type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> & LinkBehavior & {
  * never at the call site; `newTab` and `external` are the overrides, and call-site
  * props apply last. The router is `next-view-transitions`, imported by name.
  */
-export declare function TypographyLink({ href, children, tone, external: leavesApp, newTab, addArrow, className, ...props }: TypographyLinkProps): import("react").JSX.Element;
+export declare function TypographyLink({ href, children, tone, external: leavesApp, newTab, scroll, addArrow, className, ...props }: TypographyLinkProps): import("react").JSX.Element;
 export {};

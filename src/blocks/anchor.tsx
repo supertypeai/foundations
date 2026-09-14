@@ -12,8 +12,9 @@ export function Anchor({
   href,
   external,
   newTab,
+  scroll,
   ...props
 }: Omit<ComponentProps<"a">, "href"> & LinkBehavior & { href: string }) {
-  const { Component, props: link } = resolveLink(href, { external, newTab });
+  const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
   return <Component {...link} {...props} />;
 }

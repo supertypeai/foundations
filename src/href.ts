@@ -21,6 +21,13 @@ export type LinkBehavior = {
    * `tel:` hand off to another app and have no tab to open.
    */
   newTab?: boolean;
+  /**
+   * Whether the router scrolls to the top after following the link. Off for a
+   * control that rewrites the page's own URL in place, such as a sort header or a
+   * pager under a table, where the reader is looking at the thing that changes.
+   * Dropped for a plain anchor, which has no router to tell.
+   */
+  scroll?: boolean;
 };
 
 /** `Link` requires its own href; as far as a call site here goes it is an anchor. */
@@ -28,8 +35,8 @@ type AnchorComponent = (props: ComponentProps<"a">) => ReactElement | null;
 
 export type ResolvedLink = {
   Component: AnchorComponent | "a";
-  /** Spread onto the element: the href, plus `target`/`rel` when it opens away. */
-  props: ComponentProps<"a">;
+  /** Spread onto the element: the href, `target`/`rel` when it opens away, `scroll` for the router. */
+  props: ComponentProps<"a"> & { scroll?: boolean };
   /** For a caller that renders differently for an off-site link — an arrow glyph, an icon. */
   external: boolean;
 };
@@ -61,17 +68,19 @@ function assertHref(href: string): void {
  */
 export function resolveLink(
   href: string,
-  { external, newTab }: LinkBehavior = {},
+  { external, newTab, scroll }: LinkBehavior = {},
 ): ResolvedLink {
   assertHref(href);
   const leavesApp = external ?? isExternalHref(href);
   const away = leavesApp && (newTab ?? href.startsWith("http"));
   const inPage = !leavesApp && href.startsWith("#");
+  const routed = !leavesApp && !inPage;
   return {
-    Component: leavesApp || inPage ? "a" : (Link as AnchorComponent),
+    Component: routed ? (Link as AnchorComponent) : "a",
     props: {
       href,
       ...(away ? { target: "_blank", rel: "noopener noreferrer" } : {}),
+      ...(routed && scroll !== undefined ? { scroll } : {}),
     },
     external: leavesApp,
   };

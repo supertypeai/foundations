@@ -108,6 +108,7 @@ export function Button({
   href,
   external,
   newTab,
+  scroll,
   ...props
 }: ButtonPrimitive.Props &
   ButtonLook &
@@ -135,7 +136,7 @@ export function Button({
   };
 
   if (href !== undefined) {
-    const { Component, props: link } = resolveLink(href, { external, newTab });
+    const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
     return (
       <Component
         {...marks}

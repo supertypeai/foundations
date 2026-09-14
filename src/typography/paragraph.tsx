@@ -370,6 +370,7 @@ export function TypographyLink({
   tone = "muted",
   external: leavesApp,
   newTab,
+  scroll,
   addArrow,
   className,
   ...props
@@ -382,6 +383,7 @@ export function TypographyLink({
   } = resolveLink(href, {
     external: leavesApp,
     newTab,
+    scroll,
   });
   const body = (
     <>

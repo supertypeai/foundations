@@ -100,6 +100,7 @@ export function Card({
   className,
   external,
   newTab,
+  scroll,
   title,
   description,
   icon,
@@ -152,7 +153,7 @@ export function Card({
     );
   }
 
-  const { Component, props: link } = resolveLink(href, { external, newTab });
+  const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
 
   return (
     <Component className={cn(CARD_CLASS, CARD_LINK_CLASS, className)} {...link} {...shared} {...rest}>

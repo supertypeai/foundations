@@ -45,7 +45,7 @@ export function CardContent({ className, ...props }) {
  * HTML surface. Where the href goes is ../href.ts's call, the same one Button
  * and TypographyLink make.
  */
-export function Card({ href, className, external, newTab, title, description, icon, children, ...rest }) {
+export function Card({ href, className, external, newTab, scroll, title, description, icon, children, ...rest }) {
     const header = title || description || icon ? (_jsxs(CardHeader, { children: [icon || title ? (
             // The icon sits on the title's line and is its mark; stacked, it read as a
             // decoration the title happened to follow. `gap-2` is a gap between two
@@ -60,6 +60,6 @@ export function Card({ href, className, external, newTab, title, description, ic
     if (!href) {
         return (_jsx("div", { className: cn(CARD_CLASS, className), ...shared, ...rest, children: body }));
     }
-    const { Component, props: link } = resolveLink(href, { external, newTab });
+    const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
     return (_jsx(Component, { className: cn(CARD_CLASS, CARD_LINK_CLASS, className), ...link, ...shared, ...rest, children: body }));
 }

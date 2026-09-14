@@ -34,8 +34,20 @@ export declare const DISCLOSURE: {
      * lines on the page, not a panel sitting on it. `my-6` is the block's own room.
      */
     readonly group: "my-6 flex flex-col";
-    /** One row and its panel. A rule after the last would be a floor under the group. */
-    readonly item: "not-last:border-b not-last:border-border";
+    /**
+     * One row and its panel. A rule after the last would be a floor under the group,
+     * except when the group is one row: a lone rule under a line of text reads as an
+     * underline, not a control. That row takes a muted wash instead — the one place
+     * this look allows a fill, because with no neighbour to sit between there is no
+     * list for a hairline to belong to, and the wash is what says it can be pressed.
+     * It is `--muted` and not a tone wash because the contrast check already holds
+     * `--muted-foreground` legible on it, and that is the ink the row and panel use.
+     *
+     * `group/disclosure-item` is named so `row` and `panel` can widen their right
+     * edge under the wash; it is distinct from `<details>`' `group/disclosure`,
+     * which carries open state and exists on one engine only.
+     */
+    readonly item: "group/disclosure-item border-border not-last:border-b only:rounded-md only:bg-muted";
     /**
      * The summary line, its mark, and what both do when the row opens — one string,
      * since no call site has ever wanted the row without its open state.
@@ -43,11 +55,13 @@ export declare const DISCLOSURE: {
      * `pl-4` sets the label 14px clear of the 2px mark. The radius is the focus
      * ring's, which is drawn on a full-width row and wants its corners: there is no
      * hover surface here to round, because hover moves the ink and nothing else. A
-     * full-width wash is the boxed idiom this look exists to avoid.
+     * full-width wash is the boxed idiom this look exists to avoid; the lone row's
+     * is `item`'s (see there), and the row borrows its radius and a `pr-4` so the
+     * ring and the chevron sit inside it.
      */
     readonly row: string;
     /** The body, hung off the label's left edge rather than the mark's. */
-    readonly panel: "pb-4 pl-4 pr-1 text-sm text-muted-foreground";
+    readonly panel: "pb-4 pl-4 pr-1 text-sm text-muted-foreground group-only/disclosure-item:pr-4";
 };
 /**
  * The one glyph, inline rather than imported — one path is not a dependency — and

@@ -22,7 +22,7 @@ export declare function buttonVariants(props?: Parameters<typeof button>[0]): st
  * off-site. `render` remains for an element that is genuinely neither, a
  * `<label>` or a menu item.
  */
-export declare function Button({ className, variant, tone, size, icon, pill, render, nativeButton, href, external, newTab, ...props }: ButtonPrimitive.Props & ButtonLook & LinkBehavior & {
+export declare function Button({ className, variant, tone, size, icon, pill, render, nativeButton, href, external, newTab, scroll, ...props }: ButtonPrimitive.Props & ButtonLook & LinkBehavior & {
     href?: string;
     /**
      * The one anchor attribute `href` cannot express: a download is a link that

@@ -201,11 +201,12 @@ const linkClass = (tone, className) => cn(tone ? cn(toneClass(tone), "text-(colo
  * never at the call site; `newTab` and `external` are the overrides, and call-site
  * props apply last. The router is `next-view-transitions`, imported by name.
  */
-export function TypographyLink({ href, children, tone = "muted", external: leavesApp, newTab, addArrow, className, ...props }) {
+export function TypographyLink({ href, children, tone = "muted", external: leavesApp, newTab, scroll, addArrow, className, ...props }) {
     const style = linkClass(tone, className);
     const { Component, props: link, external, } = resolveLink(href, {
         external: leavesApp,
         newTab,
+        scroll,
     });
     const body = (_jsxs(_Fragment, { children: [children, addArrow && (_jsx("svg", { "aria-hidden": "true", className: "ml-1 inline size-3.5 align-middle", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7" }) }))] }));
     return (_jsx(Component, { className: style, ...link, ...props, children: body }));

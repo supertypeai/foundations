@@ -77,7 +77,7 @@ export function buttonVariants(props = {}) {
  * off-site. `render` remains for an element that is genuinely neither, a
  * `<label>` or a menu item.
  */
-export function Button({ className, variant, tone, size, icon, pill, render, nativeButton, href, external, newTab, ...props }) {
+export function Button({ className, variant, tone, size, icon, pill, render, nativeButton, href, external, newTab, scroll, ...props }) {
     const resolved = tone ?? impliedTone(variant);
     const children = trimLabels(props.children);
     const classes = cn(button({ variant, tone: resolved, size, icon, pill, className }));
@@ -89,7 +89,7 @@ export function Button({ className, variant, tone, size, icon, pill, render, nat
         "data-tone": resolved,
     };
     if (href !== undefined) {
-        const { Component, props: link } = resolveLink(href, { external, newTab });
+        const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
         return (_jsx(Component, { ...marks, ...link, className: classes, ...props, children: children }));
     }
     // `render.type !== "button"`: a plain <button/> still goes through the primitive, which

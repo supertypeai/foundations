@@ -40,7 +40,7 @@ export function badgeVariants(props = {}) {
  * Cloned rather than run through a `useRender` hook, which would make every badge
  * in the tree a client component to serve the one call site rendering an anchor.
  */
-export function Badge({ className, variant, tone, size, pill, render, href, external, newTab, ...props }) {
+export function Badge({ className, variant, tone, size, pill, render, href, external, newTab, scroll, ...props }) {
     const resolved = tone ?? impliedTone(variant);
     const classes = cn(badge({ variant, tone: resolved, size, pill, className }));
     const marks = {
@@ -49,7 +49,7 @@ export function Badge({ className, variant, tone, size, pill, render, href, exte
         "data-tone": resolved,
     };
     if (href !== undefined) {
-        const { Component, props: link } = resolveLink(href, { external, newTab });
+        const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
         return (_jsx(Component, { ...marks, ...link, className: classes, ...props }));
     }
     const as = renderAs(render, classes, { ...marks, ...props });

@@ -23,7 +23,7 @@ type CardShorthand = {
  * HTML surface. Where the href goes is ../href.ts's call, the same one Button
  * and TypographyLink make.
  */
-export declare function Card({ href, className, external, newTab, title, description, icon, children, ...rest }: CardShorthand & LinkBehavior & {
+export declare function Card({ href, className, external, newTab, scroll, title, description, icon, children, ...rest }: CardShorthand & LinkBehavior & {
     href?: string;
     children?: ReactNode;
 } & Omit<ComponentProps<"a">, keyof CardShorthand | keyof LinkBehavior | "href" | "children">): import("react").JSX.Element;

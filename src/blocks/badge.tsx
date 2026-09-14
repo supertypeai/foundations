@@ -68,6 +68,7 @@ export function Badge({
   href,
   external,
   newTab,
+  scroll,
   ...props
 }: ComponentProps<"span"> &
   BadgeLook &
@@ -86,7 +87,7 @@ export function Badge({
   };
 
   if (href !== undefined) {
-    const { Component, props: link } = resolveLink(href, { external, newTab });
+    const { Component, props: link } = resolveLink(href, { external, newTab, scroll });
     return (
       <Component
         {...marks}

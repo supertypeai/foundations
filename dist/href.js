@@ -31,16 +31,18 @@ function assertHref(href) {
  * `#section` through the router asks for a navigation and a view transition to
  * reach a place the browser can already scroll to.
  */
-export function resolveLink(href, { external, newTab } = {}) {
+export function resolveLink(href, { external, newTab, scroll } = {}) {
     assertHref(href);
     const leavesApp = external ?? isExternalHref(href);
     const away = leavesApp && (newTab ?? href.startsWith("http"));
     const inPage = !leavesApp && href.startsWith("#");
+    const routed = !leavesApp && !inPage;
     return {
-        Component: leavesApp || inPage ? "a" : Link,
+        Component: routed ? Link : "a",
         props: {
             href,
             ...(away ? { target: "_blank", rel: "noopener noreferrer" } : {}),
+            ...(routed && scroll !== undefined ? { scroll } : {}),
         },
         external: leavesApp,
     };
