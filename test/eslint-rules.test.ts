@@ -84,6 +84,29 @@ describe("the rules themselves", () => {
     }
   });
 
+  /**
+   * The fill-as-ink rules ended on a space, so `text-primary/70` read as legal while
+   * measuring under the solid form it was barring. One consumer carried three of
+   * those in config modules beside the six solid ones.
+   */
+  it("catches a fill used as ink in its solid and alpha forms, and leaves the ink cut alone", () => {
+    const fills = [...messageWith("fill token used as ink"), ...messageWith("surface token, not an ink")];
+    expect(patterns(fills).length).toBeGreaterThan(0);
+    const hits = (cls: string) => patterns(fills).some((p) => new RegExp(p).test(cls));
+    for (const cls of [
+      "text-primary",
+      "bg-primary/10 text-primary ring-primary/20",
+      "text-primary/70",
+      " hover:text-success/80",
+      "text-muted/50",
+    ]) {
+      expect(hits(cls), cls).toBe(true);
+    }
+    for (const cls of ["text-primary-ink", "text-primary-ink/70", "text-muted-foreground", "bg-primary"]) {
+      expect(hits(cls), cls).toBe(false);
+    }
+  });
+
   it("matches a bare anchor in a render prop, on the components that take href", () => {
     const [{ selector, message }] = designRules().filter((r) =>
       r.selector.includes('JSXAttribute[name.name="render"]'),

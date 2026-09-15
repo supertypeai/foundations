@@ -55,14 +55,16 @@ function themeOverrideRules() {
 /**
  * `--muted` is a fill at L92%, so `text-muted` lands at ~1.1:1. Invisible, and
  * it shipped at 17 sites. `text-background` stays legal: inverse ink is a real
- * role.
+ * role. Both patterns end on `\x2f` as well as a space: alpha on a fill used as
+ * ink only lowers a ratio that already fails, and `text-primary\x2f70` shipped
+ * past the solid form at three sites.
  */
 function surfaceAsInkRules() {
     return [
-        ...rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| )/", "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card."),
+        ...rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(muted|card|popover|input)($| |\\x2f)/", "That is a surface token, not an ink — as text it has no defined contrast (text-muted measures ~1.1:1 on a light page). Use text-muted-foreground for secondary ink, text-subtle-foreground for tertiary, or text-card-foreground on a card."),
         // Three fills that read under the tertiary ink in dark (2.77:1, 3.36:1,
         // 3.79:1, against 6.75:1). `warn` and `info` stay out, bright enough to read.
-        ...rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(primary|secondary|success)($| )/", "That is a fill token used as ink. A fill's lightness is chosen to hold a label printed on it, so against the page it reads under the tertiary ink in dark (primary 3.36:1, secondary 2.77:1, success 3.79:1). Each ships an `-ink` cut checked at 4.5:1 against the page. Add `-ink`."),
+        ...rule("/(^| )(dark:|hover:|focus:|group-hover:)*text-(primary|secondary|success)($| |\\x2f)/", "That is a fill token used as ink. A fill's lightness is chosen to hold a label printed on it, so against the page it reads under the tertiary ink in dark (primary 3.36:1, secondary 2.77:1, success 3.79:1). Each ships an `-ink` cut checked at 4.5:1 against the page. Add `-ink`."),
     ];
 }
 /** `-foreground` is the label printed on a fill, `-ink` the hue as words. The old
