@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, type ReactElement } from "react";
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 
 import { cn } from "../cn.js";
 
@@ -21,4 +21,11 @@ export function renderAs(
     ...props,
     className: cn(classes, className),
   } as Record<string, unknown>);
+}
+
+/** What the caller's element already holds, for a component deciding its own label. */
+export function ownChildren(render: unknown): ReactNode {
+  return isValidElement(render)
+    ? (render.props as { children?: ReactNode }).children
+    : undefined;
 }

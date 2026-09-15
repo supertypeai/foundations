@@ -3,7 +3,7 @@ import { isValidElement } from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva } from "class-variance-authority";
 import { cn } from "../cn.js";
-import { renderAs } from "./render-as.js";
+import { ownChildren, renderAs } from "./render-as.js";
 import { resolveLink } from "../href.js";
 import { FOCUS_RING } from "./focus.js";
 import { INK_ON_FILL, TONE, TONE_SURFACE, impliedTone } from "../tone.js";
@@ -79,7 +79,9 @@ export function buttonVariants(props = {}) {
  */
 export function Button({ className, variant, tone, size, icon, pill, render, nativeButton, href, external, newTab, scroll, ...props }) {
     const resolved = tone ?? impliedTone(variant);
-    const children = trimLabels(props.children);
+    // A label given on the button wins; one already on the `render` element stands.
+    // Spelling `children: undefined` into the clone would erase the second.
+    const children = trimLabels(props.children ?? ownChildren(render));
     const classes = cn(button({ variant, tone: resolved, size, icon, pill, className }));
     // The resolved axes, stamped: a child can style off its parent's tone, and a
     // test can assert the ramp without asserting a class string.

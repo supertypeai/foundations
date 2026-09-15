@@ -17,3 +17,9 @@ export function renderAs(render, classes, props) {
         className: cn(classes, className),
     });
 }
+/** What the caller's element already holds, for a component deciding its own label. */
+export function ownChildren(render) {
+    return isValidElement(render)
+        ? render.props.children
+        : undefined;
+}

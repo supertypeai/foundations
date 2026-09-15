@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+import { type ReactElement, type ReactNode } from "react";
 /**
  * The component's classes and data marks put onto an element the caller supplies,
  * so a badge or a button can BE a link rather than wrap one. Shared because Button
@@ -6,3 +6,5 @@ import { type ReactElement } from "react";
  * element, which is the caller's signal to render its own tag.
  */
 export declare function renderAs(render: unknown, classes: string, props: Record<string, unknown>): ReactElement | null;
+/** What the caller's element already holds, for a component deciding its own label. */
+export declare function ownChildren(render: unknown): ReactNode;
