@@ -190,13 +190,16 @@ name your own rung.
 
 ```tsx
 <TypographyEyebrow>Case study</TypographyEyebrow>              {/* tone="heading" */}
+<TypographyEyebrow tone="brand">Case study</TypographyEyebrow>
 <TypographyEyebrow tone="label">Monthly revenue</TypographyEyebrow>
 <TypographyEyebrow tone="muted">Awaiting review</TypographyEyebrow>
 <TypographyEyebrow tone="subtle" size="3xs">Source</TypographyEyebrow>
 ```
 
 `heading` (default) is primary ink at semibold, for an eyebrow that names the
-section under it. `label` is the inverse, for a stat card where the figure is the
+section under it. `brand` is the same rung in the app's identity hue
+(`--brand-ink`, falling back to `--primary-ink`), for a kicker that ties the
+section to the brand rather than to the page. `label` is the inverse, for a stat card where the figure is the
 headline and the label should stay quiet. `muted` is the dense product default,
 a micro-label over a group of controls. `subtle` is a rung quieter again, for a
 column head or a rail marker the reader takes in on the way past.

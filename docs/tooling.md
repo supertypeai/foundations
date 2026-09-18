@@ -95,11 +95,26 @@ import { designRules } from "@supertype.ai/foundations/eslint";
 rules: {
   "no-restricted-syntax": [
     "error",
-    ...designRules({ accents: "the brand tints", weights: true,
-                     ramp: "text-xs 12 / text-sm 13 / …" }),
+    ...designRules({
+      // Named in the messages, since they differ per app.
+      accents: "the brand tints",
+      ramp: "text-xs 12 / text-sm 13 / …",
+      // The rules that ship off, each switched on once its sweep is done.
+      weights: true,
+      axis: true,
+      pairing: true,
+      leading: true,
+      tone: true,
+      inlineStyle: true,
+    }),
   ],
 }
 ```
+
+Every option is a boolean or a string, documented on `DesignRuleOptions` in the
+package's types, which is also what an editor shows on hover. Leaving one out
+means its default: on for the rules that forbid something wrong on every
+surface, off for `weights` and the five named below.
 
 Flat config replaces a rule's options rather than merging them, so two entries
 covering overlapping files leave only the last one's rules standing. Spreading
@@ -125,8 +140,10 @@ in the message, the size ramp, and `weights`, which holds a file to three weight
 editorial surface. The token and surface rules take no arguments, since what they
 forbid should not vary per app.
 
-Four rules ship off. `axis`, `pairing` and `leading` each name a sweep an app
-finishes before switching one on. `inlineStyle` flags a literal colour inside a
+Five rules ship off. `axis`, `pairing`, `leading` and `tone` each name a sweep an
+app finishes before switching one on: `tone` is the colour twin of `axis`, a fill
+or ink class on a `Button` or `Badge` that already paints both from `variant` ×
+`tone`, and one consumer carried 73 of those. `inlineStyle` flags a literal colour inside a
 `style` object, the one place no className rule can see, and stays off for a
 different reason: a card rendered by Satori has to state its colours literally,
 since `next/og` resolves no custom properties. Turn it on for the directories
@@ -138,8 +155,9 @@ size in any unit, a type style hand-written on a `<p>` or a heading, a rung
 passed as a class to a primitive that owns a size prop, a deprecated
 `-foreground` spelling, a `dark:` override of a token, a surface token printed as
 ink, a `size-` class on a mark inside a control that sizes its own, a vertical
-margin nudging an inline mark into line, and `render={<a href>}` on a component
-that takes `href`.
+margin nudging an inline mark into line, `render={<a href>}` on a component
+that takes `href`, and with `tone: true`, a fill or ink class on a `Button` or
+`Badge` that already paints both from `variant` × `tone`.
 
 The rules live in the package because keeping a copy in each app did not work.
 The colour rules were kept in step by hand and the typography rules never made it

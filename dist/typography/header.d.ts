@@ -37,7 +37,7 @@ export declare function TypographyH3({ className, variant, children, ...props }:
 /** The card / panel title: 14px in the product, 20 on an editorial surface. */
 export declare function TypographyH4({ className, children, ...props }: React.ComponentProps<"h4">): import("react").JSX.Element;
 declare const eyebrowVariants: (props?: ({
-    tone?: "muted" | "label" | "heading" | "subtle" | null | undefined;
+    tone?: "muted" | "brand" | "label" | "heading" | "subtle" | null | undefined;
     size?: "sm" | "xs" | "2xs" | "3xs" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**

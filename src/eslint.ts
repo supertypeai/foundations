@@ -257,6 +257,13 @@ export interface DesignRuleOptions extends ColourOptions, TypographyOptions {
   /** Off for a surface that sets its own type ramp. Colour still applies: a
    *  deprecated token name is wrong on every surface. */
   typography?: boolean;
+  /**
+   * Flag a fill or ink class on a `Button` or `Badge`, which paint both from
+   * `variant` × `tone`. Off by default for the same reason as `axis`: it fails
+   * until the consumer has swept its call sites, and one of them carried 73.
+   * A colour rule rather than a type one, so `typography: false` leaves it on.
+   */
+  tone?: boolean;
 }
 
 /**
@@ -273,6 +280,29 @@ function markSizeRules(): RestrictedSyntax[] {
         "Button and TabsTrigger size their own icons off the text rung, so this class is inert. Remove the size- token. A control that genuinely needs a bigger mark says so on the control: className=\"[&_svg]:size-5\".",
     },
   ];
+}
+
+/**
+ * A fill or ink class on a component that paints both from `variant` × `tone`.
+ * Every pair those two axes can produce is a token pair `checkSignals` measures;
+ * a `bg-` or `text-` in the className replaces one half of it with a value
+ * nothing measured. `bg-primary text-background` on a Badge shipped at 3.36:1
+ * in dark this way, on a page whose own tokens all clear. Both node kinds, as
+ * the size-axis rule: a conditional class list is where the override hides.
+ * Opt-in like that rule too, since a consumer that never looked has a sweep to
+ * do first; the sweep is the point, and the option is what makes it finishable.
+ * Only the value's colour forms — `text-xs` is a rung and `text-left` a layout,
+ * and both stay legal here.
+ */
+const INK_OR_FILL = `(bg|text)-(${TOKEN}|[a-z]+-ink|danger|tint|transparent|current|inherit)($| |\\x2f)`;
+const INK_OR_FILL_ARBITRARY = "(bg|text)-(\\(|\\[color:)";
+
+function toneAxisRules(): RestrictedSyntax[] {
+  return ["Literal[value", "TemplateElement[value.raw"].map((node) => ({
+    selector: `JSXOpeningElement[name.name=/^(Button|Badge)$/] JSXAttribute[name.name="className"] ${node}=/(^| )${VARIANTS}(${INK_OR_FILL}|${INK_OR_FILL_ARBITRARY})/]`,
+    message:
+      "Button and Badge paint their fill and ink from `variant` × `tone`, and every pair those axes produce is measured by checkSignals; a colour class here swaps one half for a value nothing measured. Pass `variant=` for how much ink (solid, soft, outline, ghost) and `tone=` for which hue (primary, brand, muted, success, warn, destructive). A hue the tones do not name is a token to add to theme.css, not a class.",
+  }));
 }
 
 /**
@@ -295,6 +325,7 @@ export function designRules({
   accents,
   inlineStyle,
   typography = true,
+  tone = false,
   ...type
 }: DesignRuleOptions = {}): RestrictedSyntax[] {
   return [
@@ -306,5 +337,6 @@ export function designRules({
     ...renamedTokenRules(),
     ...markSizeRules(),
     ...markAlignRules(),
+    ...(tone ? toneAxisRules() : []),
   ];
 }

@@ -44,6 +44,13 @@ export interface DesignRuleOptions extends ColourOptions, TypographyOptions {
     /** Off for a surface that sets its own type ramp. Colour still applies: a
      *  deprecated token name is wrong on every surface. */
     typography?: boolean;
+    /**
+     * Flag a fill or ink class on a `Button` or `Badge`, which paint both from
+     * `variant` × `tone`. Off by default for the same reason as `axis`: it fails
+     * until the consumer has swept its call sites, and one of them carried 73.
+     * A colour rule rather than a type one, so `typography: false` leaves it on.
+     */
+    tone?: boolean;
 }
-export declare function designRules({ accents, inlineStyle, typography, ...type }?: DesignRuleOptions): RestrictedSyntax[];
+export declare function designRules({ accents, inlineStyle, typography, tone, ...type }?: DesignRuleOptions): RestrictedSyntax[];
 export {};

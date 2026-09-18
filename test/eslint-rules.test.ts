@@ -77,7 +77,10 @@ describe("the rules themselves", () => {
   it("restricts the solid dark: form and leaves an alpha scrim alone", () => {
     // `dark:bg-destructive/20` against a `/10` is the same token at a different
     // density, so the patterns must not match a value carrying an alpha suffix.
-    const dark = designRules().filter((r) => r.selector.includes("dark:"));
+    // By message, not by `dark:` in the selector: every rule that takes a
+    // variant prefix carries that, and the tone-axis one matches an alpha on
+    // purpose, since `dark:hover:bg-success/30` on a Button is a hand-rolled wash.
+    const dark = messageWith("`dark:` override");
     expect(dark.length).toBeGreaterThan(0);
     for (const pattern of patterns(dark)) {
       expect(new RegExp(pattern).test(" dark:bg-destructive/20"), pattern).toBe(false);
@@ -103,6 +106,47 @@ describe("the rules themselves", () => {
       expect(hits(cls), cls).toBe(true);
     }
     for (const cls of ["text-primary-ink", "text-primary-ink/70", "text-muted-foreground", "bg-primary"]) {
+      expect(hits(cls), cls).toBe(false);
+    }
+  });
+
+  /**
+   * `checkSignals` measures every fill/ink pair `variant` × `tone` can produce,
+   * and a `bg-`/`text-` in a Button or Badge className swaps one half out for a
+   * value it never saw. `bg-primary text-background` on a Badge shipped at 3.36:1
+   * in dark on a page whose tokens all clear; the same shape was at nine more
+   * sites in that consumer and 73 in its sibling once something looked.
+   */
+  it("catches a fill or ink class on a component that paints from its tone axis", () => {
+    // Off until asked for, like `axis`: a consumer that never looked has a sweep
+    // to finish first. And a colour rule, so `typography: false` does not lose it.
+    expect(messageWith("variant` × `tone")).toHaveLength(0);
+    expect(messageWith("variant` × `tone", { tone: true, typography: false }).length).toBeGreaterThan(0);
+    const axis = messageWith("variant` × `tone", { tone: true });
+    expect(axis.length).toBeGreaterThan(0);
+    for (const { selector } of axis) {
+      const components = /name\.name=\/\^\((.*?)\)\$\//.exec(selector)?.[1];
+      expect(components, selector).toBeTruthy();
+      const match = new RegExp(`^(${components})$`);
+      for (const name of ["Button", "Badge"]) expect(match.test(name), name).toBe(true);
+      // A div paints nothing from a tone; a Card takes one but its ink is the card's.
+      for (const name of ["div", "Card", "span"]) expect(match.test(name), name).toBe(false);
+    }
+    const hits = (cls: string) => patterns(axis).some((p) => new RegExp(p).test(cls));
+    for (const cls of [
+      "shrink-0 bg-primary text-background",
+      "bg-warn text-tint-foreground",
+      "text-muted-foreground hover:text-foreground",
+      "hover:bg-success/10",
+      "text-brand-ink",
+      "bg-transparent",
+      "text-(color:--ink)",
+      "bg-[color:var(--x)]",
+    ]) {
+      expect(hits(cls), cls).toBe(true);
+    }
+    // The rung, the alignment and the layout forms of the same two prefixes.
+    for (const cls of ["text-xs font-semibold", "text-left", "text-2xl", "bg-clip-text", "bg-cover", "w-full gap-1.5"]) {
       expect(hits(cls), cls).toBe(false);
     }
   });

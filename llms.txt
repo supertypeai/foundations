@@ -92,7 +92,7 @@ silently. Full reference: https://github.com/supertypeai/foundations
 - `TypographyMuted`, `TypographyProse`, `TypographyProseList` are presets. The
   prop each one pins is dropped from its type, so passing it fails to compile.
 - `TypographyCaption`, `TypographyLabel`, `TypographySmall`: `size?: "sm" | "xs" | "2xs" | "inherit"`, `as?`.
-- `TypographyEyebrow`: `tone?: "heading" | "label" | "muted" | "subtle"`, `size?: "sm" | "xs" | "2xs" | "3xs"`, `as?`. Each tone carries the rung it is usually set at and `size` overrides it, so omitting it changes nothing. Use `muted` for the uppercase micro-label over a group of controls, and `subtle` for a column head or rail marker read on the way past.
+- `TypographyEyebrow`: `tone?: "heading" | "brand" | "label" | "muted" | "subtle"`, `size?: "sm" | "xs" | "2xs" | "3xs"`, `as?`. Each tone carries the rung it is usually set at and `size` overrides it, so omitting it changes nothing. Use `brand` for a kicker in the identity hue, `muted` for the uppercase micro-label over a group of controls, and `subtle` for a column head or rail marker read on the way past.
 - `TypographyStat`: `size?: "inherit" | "3xs" | "2xs" | "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "card" | "panel" | "section" | "page" | "display"`, `figures?: "tabular" | "proportional"`, `tone?: "default" | "muted"`.
 - `TypographyLink`: `href` (required), `tone?: Tone` (default `muted`), `addArrow?`, `newTab?`. The `href` decides whether the link is internal or external.
 - `TypographyHighlight`: `tone?: HighlightTone`, one of `"primary" | "success" | "ochre" | "terracotta" | "sage" | "fig"`, plus `seed?: number`.
@@ -151,6 +151,7 @@ Code samples and commit messages should stay conventional. This is about prose.
 - Importing `Card`, `Callout` or `Button` from `@supertype.ai/foundations`. They live in `@supertype.ai/foundations/blocks`.
 - `<Button variant="destructive">` or `variant="secondary"`: those are tones. Write `variant="soft" tone="destructive"`, `variant="solid" tone="secondary"`.
 - `<Button size="icon-sm">`: one size ladder. Write `size="sm" icon`.
+- `<Badge className="bg-primary text-background">` or `<Button variant="ghost" className="text-muted-foreground">`: a fill or ink written past the tone axis, which is the one pair nothing measures. Write `variant="solid" tone="brand"`, `variant="ghost" tone="muted"`. Lint enforces this on `Button` and `Badge` once a consumer passes `designRules({ tone: true })`.
 - `<Badge variant="warning">` or `variant="supertype"`: tones, and misspelled ones. Write `variant="outline" tone="warn"` and `variant="solid" tone="brand"`.
 - `tone="neutral"`, `tone="foreground"` or `tone="accent"`: all three were replaced when the tone lists merged. Write `tone="muted"` for the first two, `tone="primary"` for the third.
 - Hand-styling an `<a>` or `<Link>` to look like a button. Write `<Button href="/x">` instead.

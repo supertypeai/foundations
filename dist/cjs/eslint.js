@@ -159,6 +159,26 @@ function markSizeRules() {
     ];
 }
 /**
+ * A fill or ink class on a component that paints both from `variant` × `tone`.
+ * Every pair those two axes can produce is a token pair `checkSignals` measures;
+ * a `bg-` or `text-` in the className replaces one half of it with a value
+ * nothing measured. `bg-primary text-background` on a Badge shipped at 3.36:1
+ * in dark this way, on a page whose own tokens all clear. Both node kinds, as
+ * the size-axis rule: a conditional class list is where the override hides.
+ * Opt-in like that rule too, since a consumer that never looked has a sweep to
+ * do first; the sweep is the point, and the option is what makes it finishable.
+ * Only the value's colour forms — `text-xs` is a rung and `text-left` a layout,
+ * and both stay legal here.
+ */
+const INK_OR_FILL = `(bg|text)-(${TOKEN}|[a-z]+-ink|danger|tint|transparent|current|inherit)($| |\\x2f)`;
+const INK_OR_FILL_ARBITRARY = "(bg|text)-(\\(|\\[color:)";
+function toneAxisRules() {
+    return ["Literal[value", "TemplateElement[value.raw"].map((node) => ({
+        selector: `JSXOpeningElement[name.name=/^(Button|Badge)$/] JSXAttribute[name.name="className"] ${node}=/(^| )${VARIANTS}(${INK_OR_FILL}|${INK_OR_FILL_ARBITRARY})/]`,
+        message: "Button and Badge paint their fill and ink from `variant` × `tone`, and every pair those axes produce is measured by checkSignals; a colour class here swaps one half for a value nothing measured. Pass `variant=` for how much ink (solid, soft, outline, ghost) and `tone=` for which hue (primary, brand, muted, success, warn, destructive). A hue the tones do not name is a token to add to theme.css, not a class.",
+    }));
+}
+/**
  * A vertical margin holding a mark into line with the words beside it. The pixel
  * fits one pairing of mark size and rung and misses every other; one consumer
  * carried 84 across 27 files. `inline(?![-\w])` keeps `inline-flex` out, where a
@@ -169,7 +189,7 @@ const MARGIN_TOP = "-?mt-[\\d.]+(?![\\w-])";
 function markAlignRules() {
     return rule(`/(^| )${MARGIN_TOP}[^\\n]*${INLINE}|${INLINE}[^\\n]*(^| )${MARGIN_TOP}/`, "A vertical margin on an inline mark is a nudge that fits one rung and no other. Use `align-middle` for a mark inside a run of words, `ON_FIRST_LINE` for a mark beside a block of text, and `CAP_TRIM` on the text of a single-line row.");
 }
-function designRules({ accents, inlineStyle, typography = true, ...type } = {}) {
+function designRules({ accents, inlineStyle, typography = true, tone = false, ...type } = {}) {
     return [
         ...colourRules({ accents, inlineStyle }),
         ...(typography ? typographyRules(type) : []),
@@ -179,5 +199,6 @@ function designRules({ accents, inlineStyle, typography = true, ...type } = {}) 
         ...renamedTokenRules(),
         ...markSizeRules(),
         ...markAlignRules(),
+        ...(tone ? toneAxisRules() : []),
     ];
 }

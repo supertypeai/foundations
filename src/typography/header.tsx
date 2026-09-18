@@ -139,6 +139,12 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
      *  shape at 400. */
     tone: {
       heading: "text-xs font-semibold text-[color:var(--ink,var(--foreground))]",
+      /** The heading rung in the app's identity hue: a kicker that ties the
+       *  section to the brand rather than to the page. The same fallback chain
+       *  as the `brand` tone, so an app with no identity hue gets the principal
+       *  one. Not `--ink`: a hue is a statement, and a surface does not restate it. */
+      brand:
+        "text-xs font-semibold text-[color:var(--brand-ink,var(--primary-ink,var(--primary)))]",
       /** Stat cards invert it: the figure is the headline, so the label yields. */
       label: "text-2xs font-medium text-accent-foreground",
       /** The dense product default: a micro-label over a group of controls,

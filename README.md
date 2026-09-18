@@ -279,7 +279,7 @@ package.
 | `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                                 | [Essay](docs/essay.md)                       |
 | `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                             | [Tooling](docs/tooling.md#seo-and-og-images) |
 | `@supertype.ai/foundations/og`                                        | `ogCard`, `OG_SIZE` — an element for `next/og`                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype.ai/foundations/eslint`                                    | the design rules as ESLint selectors                                              | [Tooling](docs/tooling.md#lint-rules)        |
+| `@supertype.ai/foundations/eslint`                                    | the design rules as ESLint selectors; five ship off until an app has swept for them | [Tooling](docs/tooling.md#lint-rules)        |
 | `@supertype.ai/foundations/rehype`                                    | `rehypeProseCode` — **build-time only**                                           | [In MDX](docs/blocks.md#in-mdx)              |
 | `@supertype.ai/foundations/contrast`                                  | token resolution + legibility checks, build-time only                             | [Tooling](docs/tooling.md#contrast-checks)   |
 | `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                                   | [Tokens and theming](#tokens-and-theming)    |
