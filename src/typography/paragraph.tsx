@@ -134,9 +134,14 @@ export function TypographyProseList(
  * Always secondary ink and never a weight, since colour and weight both saying
  * "secondary" is one arguing with the other. `inherit` is the parenthetical
  * inside a heading or a stat, taking the size that set it.
+ *
+ * A mark set directly beside the words is sized off the rung, the way Button
+ * sizes its own: a 12px glyph beside 11px meta paints 11px of ink against an
+ * 8px cap band and hangs over the baseline however it is centred. Direct child
+ * only, so a control nested in the caption keeps its own mark.
  */
 const captionVariants = cva(
-  "text-[color:var(--ink-muted,var(--muted-foreground))]",
+  "text-[color:var(--ink-muted,var(--muted-foreground))] [&>svg]:shrink-0 [&>svg]:icon-inline",
   {
     variants: {
       size: {

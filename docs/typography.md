@@ -210,6 +210,20 @@ rung stands; the prop only changes things where it is passed.
 
 ## Text beside a mark
 
+Two things can be wrong: the mark's size and its seat. Size first, since a
+wrong one hides the other. Lucide draws its ink across 22 of its 24 grid units,
+so a 12px mark paints 11px of ink, and beside an eleven pixel caption that is
+11px against an 8px cap band: it clears the cap top by a pixel and the baseline
+by two, and reads as hanging low however it is centred. `TypographyCaption`
+sizes a direct-child `svg` itself, to a 0.8em box that lands the ink at the
+cap height of whatever rung the caption is set at, with a lift of 0.035em for
+the fraction of a pixel the line box seats it low. A `size-` class on that mark
+is inert, and lint flags it. Beside words that no caption wraps, the `icon-inline`
+utility is the same box for the mark to take itself. A mark standing alone, in a
+tile or a button's slot, has no band to answer to and keeps a fixed size.
+
+The seat is the other half, and it is what the rest of this section covers.
+
 ```tsx
 <div className="flex min-h-3.5 items-center gap-1">
   <TypographyEyebrow tone="label" className={CAP_TRIM}>

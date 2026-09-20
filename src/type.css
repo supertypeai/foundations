@@ -89,8 +89,9 @@
 /* A glyph set beside words, sized and seated so it belongs to the line. Lucide
    draws its ink across 22 of its 24 grid units, so a 0.8em box puts that ink at
    1.02 times the cap height of the rung beside it, and the 0.035em lift corrects
-   the line box's own bias (0.31px low at 11px, 0.50px at 13px). A glyph standing
-   alone has no band to answer to and keeps a fixed size. */
+   the line box's own bias (0.31px low at 11px, 0.50px at 13px). The caption
+   applies it to a direct-child svg; a glyph standing alone has no band to answer
+   to and keeps a fixed size. */
 @utility icon-inline {
   width: 0.8em;
   height: 0.8em;

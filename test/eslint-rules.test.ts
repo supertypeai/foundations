@@ -295,6 +295,26 @@ describe("the rules themselves", () => {
   });
 
   /**
+   * A size on a mark a component already sizes. The caption's version stops at a
+   * direct child, since a control nested in the caption keeps its own mark.
+   */
+  it("catches a hand size on a mark inside a caption, and reaches no deeper", () => {
+    const inert = messageWith("so this class is inert");
+    const caption = inert.filter((r) => r.selector.includes("TypographyCaption"));
+    expect(caption).toHaveLength(1);
+    expect(caption[0]!.selector).toMatch(/TypographyCaption\)\$\/\] > JSXElement > JSXOpeningElement >/);
+    for (const pattern of patterns(inert)) {
+      const re = new RegExp(pattern);
+      for (const cls of ["size-3", "size-3.5 shrink-0", "mt-px size-3"]) {
+        expect(re.test(cls), `${cls} in ${pattern}`).toBe(true);
+      }
+      for (const cls of ["shrink-0", "text-sm", "min-size-3"]) {
+        expect(re.test(cls), `${cls} in ${pattern}`).toBe(false);
+      }
+    }
+  });
+
+  /**
    * The nudge the alignment primitives replace. `CAP_TRIM` and `ON_FIRST_LINE`
    * shipped in 0.2 with nothing pointing at them, and one consumer carried 84
    * hand-tuned margins that never heard about either.

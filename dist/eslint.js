@@ -146,12 +146,18 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
  * A `size-` class on a mark inside a control that sizes its own. `Button` and
  * `TabsTrigger` beat it with a descendant selector, so the class is inert. The
  * second `JSXElement` step is what keeps this off the control's own box.
+ * `TypographyCaption` sizes only a direct child, so its rule stops there.
  */
+const SIZE_TOKEN = 'JSXAttribute[name.name="className"] Literal[value=/(^| )size-[\\d.]+($| )/]';
 function markSizeRules() {
     return [
         {
-            selector: 'JSXElement[openingElement.name.name=/^(Button|TabsTrigger)$/] JSXElement JSXAttribute[name.name="className"] Literal[value=/(^| )size-[\\d.]+($| )/]',
+            selector: `JSXElement[openingElement.name.name=/^(Button|TabsTrigger)$/] JSXElement ${SIZE_TOKEN}`,
             message: "Button and TabsTrigger size their own icons off the text rung, so this class is inert. Remove the size- token. A control that genuinely needs a bigger mark says so on the control: className=\"[&_svg]:size-5\".",
+        },
+        {
+            selector: `JSXElement[openingElement.name.name=/^(TypographyCaption)$/] > JSXElement > JSXOpeningElement > ${SIZE_TOKEN}`,
+            message: "TypographyCaption sizes a mark set beside its words off the text rung, so this class is inert. Remove the size- token; a mark that must stand at a fixed size belongs outside the caption.",
         },
     ];
 }

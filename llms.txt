@@ -99,6 +99,7 @@ silently. Full reference: https://github.com/supertypeai/foundations
 - `Card`: `href`, `title`, `description`, `icon`, `external`. An `href` makes the whole card a link.
 - `Anchor`: `href` (required), plus `external`/`newTab`.
 - `Tone` is the semantic colour vocabulary shared by `Button`, `Badge`, `Callout`, `TypographyLink` and `TabsList`: `"muted" | "primary" | "secondary" | "brand" | "success" | "warn" | "destructive"`, defaulting to `muted` everywhere except a solid `Button`.
+- **A mark beside meta is sized by the caption.** `TypographyCaption` sets a direct-child `svg` to `icon-inline`: a box of 0.8em, which puts Lucide's ink at the cap height of the rung, lifted the fraction of a pixel the line box seats it low. A `size-` class on that mark is inert, and lint says so. A mark beside words the caption does not wrap takes `icon-inline` itself. A mark standing alone, in a tile or a button slot, keeps a fixed size.
 - **`CAP_TRIM` centres a mark on the letters.** `items-center` centres line boxes, which reserve room for ascenders and descenders the string may not use. Put `CAP_TRIM` on the text element, never on the row.
 - **`ON_FIRST_LINE` is the same fix from the mark's side.** For rows where a mark names the first line, use `items-start` and `ON_FIRST_LINE` so the mark sits in a wrapper one line tall.
 - **`align-middle` is the third case: a mark inside a run of words.** An inline icon sits on the baseline, so its box hangs below the letters. `align-middle` centres it on the baseline plus half an x-height, read from the font at whatever size the run is set in. Never a top margin: that is a pixel that fits one rung and no other, and lint flags it.
@@ -161,6 +162,7 @@ Code samples and commit messages should stay conventional. This is about prose.
 - Writing the style layer out by hand. `@import "@supertype.ai/foundations";` after `@import "tailwindcss";` is the whole of it.
 - Using `Accordion` for a static FAQ. `Disclosure` is the browser-native version.
 - Adding a second `@custom-variant dark`. `tokens.css` already binds it.
+- `<TypographyCaption><Icons.Clock className="size-3" /> 44d ago</TypographyCaption>`: a 12px mark beside 11px meta paints 11px of ink against an 8px cap band and hangs over the baseline however it is centred. The caption sizes the mark; drop the class.
 - `-mt-0.5` on an inline icon to bring it into line. Write `align-middle`, or `ON_FIRST_LINE` when the mark sits beside a block rather than inside a sentence.
 - `text-[10rem]` for a display ornament. The ramp goes to `text-9xl`; past that, name the size in CSS so something else can share it.
 
