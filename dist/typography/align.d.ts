@@ -2,6 +2,7 @@
  * Lining a mark up with the words beside it, where `items-center` centres line
  * boxes holding leading the string may not use. `CAP_TRIM` shrinks the text to its
  * ink; `ON_FIRST_LINE` grows the mark to one line. Never both on one row.
+ * `ON_BASELINE` lines up words at two sizes on one row.
  */
 /**
  * The optical box: cap top to baseline, leading removed. It goes on the text
@@ -16,3 +17,11 @@ export declare const CAP_TRIM = "[text-box:trim-both_cap_alphabetic] pb-[0.35em]
  * mark would stretch the glyph. `1lh` resolves against inherited leading.
  */
 export declare const ON_FIRST_LINE = "flex h-[1lh] shrink-0 items-center";
+/**
+ * Words at two rungs on one row. Centred line boxes put their baselines 1 to 2px
+ * apart; the baseline is exact. Marks have no baseline, so an icon, image, empty
+ * box or sized box, or a box that starts with one, stays centred. A baseline
+ * group sits at the top of a taller line, so when a mark outgrows the words, the
+ * words go in an inner span carrying this and the row keeps centring.
+ */
+export declare const ON_BASELINE = "items-baseline [&>:is(svg,img,:empty,[class*=size-])]:self-center [&>:has(>:is(svg,img,:empty,[class*=size-]):first-child)]:self-center";
