@@ -77,4 +77,15 @@ describe("tabs attribute styling", () => {
     expect(root).toContain('data-orientation="horizontal"');
     expect(root).toContain("data-[orientation=horizontal]:flex-col");
   });
+
+  /** Tabs with no panels are a picker: the strip alone, in whatever toolbar holds it. */
+  it("renders a picker as the strip alone, at the size asked for", () => {
+    const html = render(
+      <TabGroup size="sm" value="clicks" tabs={[{ value: "clicks", label: "Clicks" }, { value: "ctr", label: "CTR" }]} />,
+    );
+    expect(html).not.toContain('data-slot="tabs-content"');
+    expect(html).toContain('data-size="sm"');
+    expect(html).toContain("h-7");
+    expect(orphans(html, { optional: false }).filter((n) => n !== "icon")).toEqual([]);
+  });
 });

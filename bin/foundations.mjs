@@ -972,23 +972,30 @@ const upgrade = (appRoot, { dryRun, force, paths }) => {
   const rel = (line) => line.split(appRoot + sep).join("");
 
   let moved = 0;
+  let checks = 0;
   let left = 0;
+  // `where  why` as a finding: the place as its title, the reason under it.
+  const at = (kind) => (line) => {
+    const [where, ...why] = rel(line).split("  ");
+    return finding(kind, where, why.join("  "));
+  };
   for (const migration of MIGRATIONS) {
     const result = migration.run({ files, ts, write: !dryRun });
     moved += result.moved.length;
+    checks += result.checks.length;
     left += result.left.length;
+    const plain = result.moved.filter((line) => !result.checks.includes(line));
     const findings = [
       finding(
         "ok",
         result.moved.length
           ? `${result.moved.length} ${dryRun ? "to move" : "moved"}`
           : "nothing to move",
-        dryRun ? result.moved.map(rel).join("\n    ") || null : null,
+        dryRun ? plain.map(rel).join("\n    ") || null : null,
       ),
-      ...result.left.map((line) => {
-        const [where, ...why] = rel(line).split("  ");
-        return finding("warn", where, why.join("  "));
-      }),
+      // Moved, and listed either way: each names what to look at afterwards.
+      ...result.checks.map(at("warn")),
+      ...result.left.map(at("error")),
     ];
     report([[`${migration.version} · ${migration.title}`, findings]]);
   }
@@ -998,7 +1005,8 @@ const upgrade = (appRoot, { dryRun, force, paths }) => {
     : moved
       ? "Now run your lint: designRules names anything left, and git diff shows what moved."
       : "Nothing changed.";
-  console.log(`\n${left ? `${left} left for hand editing. ` : ""}${next}\n`);
+  const tally = [checks && `${checks} to check`, left && `${left} left for hand editing`].filter(Boolean).join(", ");
+  console.log(`\n${tally ? `${tally}. ` : ""}${next}\n`);
   return 0;
 };
 

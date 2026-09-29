@@ -37,6 +37,17 @@ export default function TabsDemo() {
           { value: "venue", label: "Venue", content: "Icons are optional." },
         ]}
       />
+
+      {/* No content: a picker, the strip alone, compact for a toolbar. */}
+      <TabGroup
+        size="sm"
+        defaultValue="30d"
+        tabs={[
+          { value: "7d", label: "7d" },
+          { value: "30d", label: "30d" },
+          { value: "90d", label: "90d" },
+        ]}
+      />
     </div>
   );
 }

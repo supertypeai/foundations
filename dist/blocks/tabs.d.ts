@@ -11,11 +11,12 @@ import { type Tone } from "../tone.js";
  */
 declare const tabsListVariants: (props?: ({
     variant?: "line" | "default" | null | undefined;
+    size?: "sm" | "md" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
-/** One tab, whole: what it is called, what marks it, and what it shows. */
-export type TabItem = {
+/** One tab, whole: what it is called, what marks it, and what it shows, if anything. */
+export type TabItem<V extends string = string> = {
     /** Stable across a relabel — it is what `defaultValue` and `onValueChange` speak. */
-    value: string;
+    value: V;
     label: ReactNode;
     /**
      * An element, sized by its slot and inked by the trigger. An element and not a component:
@@ -23,21 +24,26 @@ export type TabItem = {
      * server page crosses the RSC boundary as a function, which React refuses.
      */
     icon?: ReactNode;
-    content: ReactNode;
+    /** The panel. A strip whose tabs have none is a picker: the strip alone, driving state. */
+    content?: ReactNode;
 };
 /**
  * Tabs, as data, and the one way to make them. The parts above are its insides,
  * not exported: every hand-composed strip turned out to be this one with a wrapper
- * in `content`, re-adding the icon, the handler and the stable value by hand.
+ * in `content`, re-adding the icon, the handler and the stable value by hand. With
+ * no `content` on any tab it is a picker, the strip alone, driving state through
+ * `value` and `onValueChange`: a chart's metric, a date range.
  */
-export declare function TabGroup({ tabs, defaultValue, value, onValueChange, variant, tone, iconPosition, className, }: {
-    tabs: readonly TabItem[];
+export declare function TabGroup<V extends string = string>({ tabs, defaultValue, value, onValueChange, variant, size, tone, iconPosition, className, }: {
+    /** The values' own type flows to `value` and `onValueChange`, so a picker can drive a union. */
+    tabs: readonly TabItem<V>[];
     /** Defaults to the first tab, since a picker with nothing picked is not a state. */
-    defaultValue?: string;
+    defaultValue?: V;
     /** Pass with `onValueChange` to drive it from outside. */
-    value?: string;
-    onValueChange?: (value: string) => void;
+    value?: V;
+    onValueChange?: (value: V) => void;
     variant?: VariantProps<typeof tabsListVariants>["variant"];
+    size?: VariantProps<typeof tabsListVariants>["size"];
     tone?: Tone;
     iconPosition?: "inline-start" | "inline-end";
     className?: string;

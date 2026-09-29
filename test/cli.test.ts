@@ -756,6 +756,22 @@ export const A = () => (
     expect(run(["upgrade", "--dry-run"], app).out).toMatch(/src\/a\.tsx:11\s+inline glyph, but/);
   });
 
+  /** sectors' shadcn CardTitle took a mark it has no prop for: a role is a name imported from the package. */
+  it("leaves an app's own component of a role's name alone", () => {
+    const own = `import { CardTitle } from "@/components/ui/card";
+
+export const Period = () => (
+  <CardTitle className="flex items-center gap-2">
+    <CalendarIcon className="size-4" />
+    Trailing 12 Months
+  </CardTitle>
+);
+`;
+    const app = makeApp({ typescript: true, files: { "src/period.tsx": own } });
+    run(["upgrade", "--force"], app);
+    expect(source(app, "src/period.tsx")).toBe(own);
+  });
+
   /** The two roles that only pinned a prop become the prop, and only the package's. */
   it("renames the roles 0.4 folded into a prop", () => {
     const files = {
@@ -770,6 +786,10 @@ export const Terms = () => (
     </TypographyProseList>
   </>
 );
+`,
+      "src/typed.tsx": `import { TypographySmall } from "@supertype.ai/foundations";
+
+export const Hint = (props: React.ComponentProps<typeof TypographySmall>) => <TypographySmall {...props} />;
 `,
       "src/aliased.tsx": `import { TypographySmall as Small } from "@supertype.ai/foundations";
 
@@ -795,10 +815,272 @@ export const Terms = () => (
   </>
 );
 `);
+    // A props type that named the old role names the new one, so the import can go.
+    expect(source(app, "src/typed.tsx")).toBe(`import { TypographyCaption } from "@supertype.ai/foundations";
+
+export const Hint = (props: React.ComponentProps<typeof TypographyCaption>) => <TypographyCaption as="p" {...props} />;
+`);
     expect(source(app, "src/aliased.tsx")).toBe(files["src/aliased.tsx"]);
     expect(source(app, "src/own.tsx")).toBe(files["src/own.tsx"]);
-    expect(out).toContain("2 moved");
+    expect(out).toContain("4 moved");
     expect(out).toMatch(/src\/aliased\.tsx:1\s+TypographySmall is imported as Small/);
+  });
+
+  /** viably's FAQ and inbox folds, and ssite's specimen: the shapes 0.4's removals were written in. */
+  it("moves an accordion, literal tabs and a surface's ink to the one way each", () => {
+    const files = {
+      "src/faq.tsx": `import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@supertype.ai/foundations/blocks";
+
+export const Faq = ({ items }: { items: { q: string; a: string }[] }) => (
+  <Accordion className="mt-10 w-full">
+    {items.map(({ q, a }) => (
+      <AccordionItem key={q} value={q}>
+        <AccordionTrigger>{q}</AccordionTrigger>
+        <AccordionContent className="leading-relaxed">
+          {a}
+        </AccordionContent>
+      </AccordionItem>
+    ))}
+  </Accordion>
+);
+
+export const Folds = ({ label }: { label: string }) => (
+  <Accordion multiple className="my-0">
+    <AccordionItem value="basis" className="border-b-0">
+      <AccordionTrigger className="text-xs">Basis</AccordionTrigger>
+      <AccordionContent>Three lines</AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="history">
+      <AccordionTrigger className="text-xs">{label}</AccordionTrigger>
+      <AccordionContent>Older</AccordionContent>
+    </AccordionItem>
+  </Accordion>
+);
+
+export const Controlled = ({ open }: { open: string[] }) => <Accordion value={open}>x</Accordion>;
+
+export const Opened = () => (
+  <Accordion defaultValue={["b"]}>
+    <AccordionItem value="a">
+      <AccordionTrigger>A</AccordionTrigger>
+      <AccordionContent>One</AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="b">
+      <AccordionTrigger>B</AccordionTrigger>
+      <AccordionContent>Two</AccordionContent>
+    </AccordionItem>
+  </Accordion>
+);
+
+export const Runtime = ({ first }: { first: string[] }) => (
+  <Accordion defaultValue={first}>
+    <AccordionItem value="a">
+      <AccordionTrigger>A</AccordionTrigger>
+      <AccordionContent>One</AccordionContent>
+    </AccordionItem>
+  </Accordion>
+);
+`,
+      "src/specimen.tsx": `import { Tabs, TabsContent, TabsList, TabsTrigger } from "@supertype.ai/foundations/blocks";
+
+export function Specimen({ code, filename }: { code: string; filename: string }) {
+  return (
+    <Tabs defaultValue="preview">
+      <TabsList variant="line">
+        <TabsTrigger value="preview">Rendered</TabsTrigger>
+        <TabsTrigger value="code">{filename}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="preview">
+        <div className="p-6">Preview</div>
+      </TabsContent>
+      <TabsContent value="code">
+        <pre>{code}</pre>
+      </TabsContent>
+    </Tabs>
+  );
+}
+`,
+      "src/panel.tsx": `import { cn, INK_ON_POPOVER, INK_ON_SIDEBAR } from "@supertype.ai/foundations";
+
+export const Panel = () => <div className={cn("bg-popover p-4", INK_ON_POPOVER)}>Menu</div>;
+export const Rail = () => <aside className={INK_ON_SIDEBAR}>Nav</aside>;
+export const Styled = () => <div className={\`bg-popover \${INK_ON_POPOVER}\`} style={{ gap: 4 }}>x</div>;
+`,
+    };
+    const app = makeApp({ typescript: true, files });
+    const { out } = run(["upgrade", "--force"], app);
+
+    expect(source(app, "src/faq.tsx")).toBe(`import { DisclosureGroup, Disclosure, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@supertype.ai/foundations/blocks";
+
+export const Faq = ({ items }: { items: { q: string; a: string }[] }) => (
+  <DisclosureGroup type="single" className="mt-10 w-full">
+    {items.map(({ q, a }) => (
+      <Disclosure key={q} title={q}><div className="leading-relaxed">
+          {a}
+        </div></Disclosure>
+    ))}
+  </DisclosureGroup>
+);
+
+export const Folds = ({ label }: { label: string }) => (
+  <DisclosureGroup className="my-0">
+    <Disclosure className="border-b-0" title={<span className="text-xs">Basis</span>}>Three lines</Disclosure>
+    <Disclosure title={<span className="text-xs">{label}</span>}>Older</Disclosure>
+  </DisclosureGroup>
+);
+
+export const Controlled = ({ open }: { open: string[] }) => <Accordion value={open}>x</Accordion>;
+
+export const Opened = () => (
+  <DisclosureGroup type="single">
+    <Disclosure title="A">One</Disclosure>
+    <Disclosure open title="B">Two</Disclosure>
+  </DisclosureGroup>
+);
+
+export const Runtime = ({ first }: { first: string[] }) => (
+  <Accordion defaultValue={first}>
+    <AccordionItem value="a">
+      <AccordionTrigger>A</AccordionTrigger>
+      <AccordionContent>One</AccordionContent>
+    </AccordionItem>
+  </Accordion>
+);
+`);
+    expect(out).toMatch(/src\/faq\.tsx:29\s+Accordion with value=\{open\}/);
+
+    expect(source(app, "src/specimen.tsx")).toBe(`import { TabGroup } from "@supertype.ai/foundations/blocks";
+
+export function Specimen({ code, filename }: { code: string; filename: string }) {
+  return (
+    <TabGroup
+      defaultValue="preview"
+      variant="line"
+      tabs={[
+        { value: "preview", label: "Rendered", content: <div className="p-6">Preview</div> },
+        { value: "code", label: filename, content: <pre>{code}</pre> },
+      ]}
+    />
+  );
+}
+`);
+
+    expect(source(app, "src/panel.tsx")).toBe(`import { cn, INK_ON_POPOVER, inkOnSurfaceStyle } from "@supertype.ai/foundations";
+
+export const Panel = () => <div className={cn("bg-popover p-4")} style={inkOnSurfaceStyle("--popover-foreground")}>Menu</div>;
+export const Rail = () => <aside style={inkOnSurfaceStyle("--sidebar-foreground")}>Nav</aside>;
+export const Styled = () => <div className={\`bg-popover \${INK_ON_POPOVER}\`} style={{ gap: 4 }}>x</div>;
+`);
+    expect(out).toMatch(/src\/panel\.tsx:5\s+INK_ON_POPOVER on an element with a style of its own/);
+
+    // A second run finds nothing more to move.
+    expect(run(["upgrade", "--dry-run"], app).out).not.toMatch(/\d+ to move/);
+  });
+
+  /** viably's chart toggles and card-boxed strips, sectors' header-wrapped ones. */
+  it("moves a picker, a looped strip, a boxed strip and a compact one to TabGroup", () => {
+    const files = {
+      "src/strips.tsx": `import { Tabs, TabsContent, TabsList, TabsTrigger } from "@supertype.ai/foundations/blocks";
+
+export const Metric = ({ metric, setMetric, offered }: any) => (
+  <Tabs value={metric} onValueChange={(value) => setMetric(value)}>
+    <TabsList className="h-7">
+      {offered.map((m: any) => (
+        <TabsTrigger key={m.key} value={m.key} className="px-2 text-xs tabular-nums">
+          {m.label}
+        </TabsTrigger>
+      ))}
+    </TabsList>
+  </Tabs>
+);
+
+export const Boxed = () => (
+  <Tabs defaultValue="a">
+    <div className="rounded-lg border p-4">
+      <TabsList className="mb-3 h-7">
+        <TabsTrigger value="a" className="text-xs px-2">A</TabsTrigger>
+        <TabsTrigger value="b" className="text-xs px-2">B</TabsTrigger>
+      </TabsList>
+      <TabsContent value="a"><One /></TabsContent>
+      <TabsContent value="b"><Two /></TabsContent>
+    </div>
+  </Tabs>
+);
+
+export const Held = () => (
+  <Tabs defaultValue="a">
+    <div className="flex items-center md:justify-between">
+      <TabsList variant="line">
+        <TabsTrigger value="a">A</TabsTrigger>
+      </TabsList>
+    </div>
+    <TabsContent value="a"><One /></TabsContent>
+  </Tabs>
+);
+
+export const Guarded = ({ more, data }: any) => (
+  <Tabs defaultValue="a">
+    <TabsList>
+      <TabsTrigger value="a">A</TabsTrigger>
+      {more && <TabsTrigger value="b">B</TabsTrigger>}
+    </TabsList>
+    <TabsContent value="a"><One /></TabsContent>
+    {data && (
+      <TabsContent value="b"><Two /></TabsContent>
+    )}
+  </Tabs>
+);
+`,
+    };
+    const app = makeApp({ typescript: true, files });
+    const { out } = run(["upgrade", "--force"], app);
+    expect(source(app, "src/strips.tsx")).toBe(`import { TabGroup } from "@supertype.ai/foundations/blocks";
+
+export const Metric = ({ metric, setMetric, offered }: any) => (
+  <TabGroup
+    value={metric}
+    onValueChange={(value) => setMetric(value)}
+    size="sm"
+    tabs={offered.map((m: any) => ({ value: m.key, label: <span className="tabular-nums">{m.label}</span> }))}
+  />
+);
+
+export const Boxed = () => (
+  <div className="rounded-lg border p-4">
+    <TabGroup
+      defaultValue="a"
+      size="sm"
+      tabs={[
+        { value: "a", label: "A", content: <One /> },
+        { value: "b", label: "B", content: <Two /> },
+      ]}
+    />
+  </div>
+);
+
+export const Held = () => (
+  <TabGroup
+    defaultValue="a"
+    variant="line"
+    tabs={[
+      { value: "a", label: "A", content: <One /> },
+    ]}
+  />
+);
+
+export const Guarded = ({ more, data }: any) => (
+  <TabGroup
+    defaultValue="a"
+    tabs={[
+      { value: "a", label: "A", content: <One /> },
+      ...(more ? [{ value: "b", label: "B", content: data && <Two /> }] : []),
+    ]}
+  />
+);
+`);
+    // A move with something to look at is listed on a real run too, not only a dry one.
+    expect(out).toMatch(/strips\.tsx:16\s+Tabs → TabGroup: TabGroup sets pt-2 .*the strip's bottom margin is now TabGroup's pt-2/);
+    expect(out).toContain("3 to check");
   });
 
   // A clean tree is what lets git diff show exactly what upgrade changed.

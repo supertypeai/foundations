@@ -7,7 +7,7 @@ import { TextAs } from "../typography/as.js";
 import { GLYPH } from "../typography/align.js";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }) {
-    return (_jsx("div", { className: cn("my-6 grid gap-4 sm:grid-cols-2", className), ...props, children: children }));
+    return (_jsx("div", { className: cn("grid gap-4 sm:grid-cols-2", className), ...props, children: children }));
 }
 /**
  * `ring-1` not `border`: a ring draws outside the box, so a card sits flush in a

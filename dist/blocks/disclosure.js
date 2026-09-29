@@ -42,8 +42,8 @@ export function DisclosureGroup({ className, children, type = "multiple", defaul
         });
     });
     // A rule between rows and nothing around them: the group is a set of lines on
-    // the page, not a panel sitting on it. `my-6` is the block's own room.
-    return (_jsx("div", { className: cn(toneClass(tone), "my-6 flex flex-col", className), ...props, children: items }));
+    // the page, not a panel sitting on it. Its room is its container's to give.
+    return (_jsx("div", { className: cn(toneClass(tone), "flex flex-col", className), ...props, children: items }));
 }
 /**
  * `<details name>` must match across siblings, server and client, and builds — a

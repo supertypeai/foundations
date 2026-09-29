@@ -68,9 +68,9 @@ export function DisclosureGroup({
   });
 
   // A rule between rows and nothing around them: the group is a set of lines on
-  // the page, not a panel sitting on it. `my-6` is the block's own room.
+  // the page, not a panel sitting on it. Its room is its container's to give.
   return (
-    <div className={cn(toneClass(tone), "my-6 flex flex-col", className)} {...props}>
+    <div className={cn(toneClass(tone), "flex flex-col", className)} {...props}>
       {items}
     </div>
   );

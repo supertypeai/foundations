@@ -365,6 +365,20 @@ group inks that mark, and only it:
 <DisclosureGroup tone="brand">…</DisclosureGroup>
 ```
 
+A row whose open state the app keeps, persisted or driven from elsewhere, is still
+a `Disclosure`: `<details>` takes `open` and reports `onToggle` natively, so it
+needs no prop of the package's and no client boundary of its own:
+
+```tsx
+<Disclosure
+  title="Deals"
+  open={open.includes("deals")}
+  onToggle={(e) => setOpen("deals", e.currentTarget.open)}
+>
+  …
+</Disclosure>
+```
+
 ## Tabs
 
 ```tsx
@@ -381,6 +395,25 @@ group inks that mark, and only it:
 `TabGroup` is the one way to make tabs. Everything the package and both apps do
 with tabs is this shape, including a preview/code switcher, which is `TabGroup`
 with a wrapper in each `content`. The parts it is built from are not exported.
+Build the tabs with `.map` when they are data, and put anything that frames the
+strip and its panels (a card, a border) around the `TabGroup`.
+
+With no `content` on any tab it is a **picker**: the strip alone, driving state
+through `value` and `onValueChange`.
+A chart's metric or a date range is this:
+
+```tsx
+<TabGroup
+  size="sm"
+  value={metric}
+  onValueChange={setMetric}
+  tabs={metrics.map((m) => ({ value: m.key, label: m.label }))}
+/>
+```
+
+`size` is `md` (default) beside interface copy and `sm` in a toolbar or over a
+chart: a 28px rail and 12px labels, stated once rather than as classes on the list
+and every trigger.
 
 It takes a `variant`: `default` draws a boxed segmented track, `line`
 drops the surface and marks the active tab with an underline. Each variant states

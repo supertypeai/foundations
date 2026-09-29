@@ -242,7 +242,7 @@ export default function BlocksPage() {
       <Section
         id="tabs"
         title="Tabs"
-        note="TabGroup takes the tabs as data, which is the shape to reach for. Its variant picks the box: default renders a boxed segmented track, line drops the surface and underlines the active tab, as in the preview and code switcher on this page. Its tone inks the marker alone, which on line means the underline and the active tab's icon."
+        note="TabGroup takes the tabs as data, which is the shape to reach for. Its variant picks the box: default renders a boxed segmented track, line drops the surface and underlines the active tab, as in the preview and code switcher on this page. Its tone inks the marker alone, which on line means the underline and the active tab's icon. With no content on any tab it is a picker, the strip alone; size sm is the compact strip for a toolbar or a chart."
       >
         <Demo source="app/_demos/tabs.tsx">
           <TabsDemo />

@@ -125,11 +125,19 @@ export default function UpgradingPage() {
         <TypographyList variant="prose" className="mt-4">
           <li>{code("TypographySmall")}: {code("TypographyCaption")}, {code('as="small"')} for small print or {code('as="p"')} for a note. upgrade writes {code('as="p"')}, which keeps the block the old one rendered.</li>
           <li>{code("TypographyProseList")}: {code('<TypographyList variant="prose">')}. upgrade renames it.</li>
-          <li>{code("Accordion")} and its three parts: {code("DisclosureGroup")} and {code("Disclosure")}, which now animate open and closed where the browser supports it.</li>
-          <li>{code("Tabs")}, {code("TabsList")}, {code("TabsTrigger")} and {code("TabsContent")}: {code("TabGroup")}, with a wrapper in a tab&apos;s {code("content")} for anything around the panel.</li>
+          <li>{code("Accordion")} and its three parts: {code("DisclosureGroup")} and {code("Disclosure")}, which now animate open and closed where the browser supports it. upgrade moves them, a literal {code("defaultValue")} included. Open state the app keeps is {code("open")} and {code("onToggle")} on each {code("Disclosure")}, which {code("<details>")} supports natively.</li>
+          <li>{code("Tabs")}, {code("TabsList")}, {code("TabsTrigger")} and {code("TabsContent")}: {code("TabGroup")}, built with {code(".map")} when the tabs are data. From 0.4.1 a strip with no panels is a {code("TabGroup")} picker and a compact one is {code('size="sm"')}. upgrade moves them.</li>
           <li>{code("DISCLOSURE")}: {code("Disclosure")}, whose surfaces are its own.</li>
-          <li>{code("INK_ON_CARD")}, {code("INK_ON_POPOVER")} and {code("INK_ON_SIDEBAR")}: {code('style={inkOnSurfaceStyle("--card-foreground")}')}, and the same for any surface.</li>
+          <li>{code("INK_ON_CARD")}, {code("INK_ON_POPOVER")} and {code("INK_ON_SIDEBAR")}: {code('style={inkOnSurfaceStyle("--card-foreground")}')}, and the same for any surface. upgrade moves one in a className.</li>
         </TypographyList>
+
+        <TypographyProse className="mt-6">
+          upgrade marks each thing it could not move with a ✖ and the reason,
+          and each move worth a second look with a !: a panel&apos;s spacing
+          under {code("TabGroup")}, a glyph&apos;s colour. Take 0.4.1 or later,
+          whose upgrade moves the accordions, tabs and inks that 0.4.0&apos;s
+          left to you.
+        </TypographyProse>
 
         <TypographyProse className="mt-6">
           What looks different on purpose: a {code("TypographyLink")} with no{" "}

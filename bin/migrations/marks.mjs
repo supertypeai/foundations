@@ -1,4 +1,4 @@
-import { PKG, apply, migrate } from "./source.mjs";
+import { BLOCKS, PKG, apply, bindingOf, importEdits, listRemovals, migrate } from "./source.mjs";
 
 /**
  * 0.4: a glyph beside words goes in their `mark`. Three passes, each on the
@@ -41,6 +41,11 @@ function passes(ts) {
   const tagOf = (el, sf) => (ts.isJsxElement(el) ? el.openingElement : el).tagName.getText(sf);
   const attrs = (open) => open.attributes.properties;
   const classAttr = (open) => attrs(open).find((p) => ts.isJsxAttribute(p) && p.name.getText() === "className");
+  /** A text role of the package's: the name, imported from it. An app's own `CardTitle` is not one. */
+  const isRole = (el, sf) => {
+    const name = tagOf(el, sf);
+    return ROLE.test(name) && [PKG, BLOCKS].includes(bindingOf(ts, sf, name));
+  };
   const hasMark = (open) => attrs(open).some((p) => ts.isJsxAttribute(p) && /^mark(End)?$/.test(p.name.getText()));
 
   /** Every string literal in a className, plain or inside `cn(…)`; null for one it cannot read. */
@@ -80,16 +85,11 @@ function passes(ts) {
     const edits = lits.filter((l) => !(empty(l) && calls.has(l.parent))).map((l) => retext(l, sf, next.get(l)));
     for (const call of calls) {
       const args = [...call.arguments];
-      const last = args.findLastIndex((a) => !empty(a));
-      if (last === -1) {
-        // Nothing left to call with. The whole class, when the call was all of it.
-        if (call === attr.initializer.expression) return [drop];
-        edits.push(...args.map((a) => retext(a, sf, "")));
-        continue;
-      }
-      // An emptied argument goes up to the next one; a trailing run goes from the last kept.
-      args.forEach((a, i) => i < last && empty(a) && edits.push([a.getStart(sf), args[i + 1].getStart(sf), ""]));
-      if (last < args.length - 1) edits.push([args[last].getEnd(), args.at(-1).getEnd(), ""]);
+      const removals = listRemovals(args, empty, sf);
+      if (removals) edits.push(...removals);
+      // Nothing left to call with: the whole class, when the call was all of it.
+      else if (call === attr.initializer.expression) return [drop];
+      else edits.push(...args.map((a) => retext(a, sf, "")));
     }
     return edits;
   };
@@ -155,7 +155,7 @@ function passes(ts) {
   function role(src, sf, { where, note }) {
     const edits = [];
     const visit = (node) => {
-      if (ts.isJsxElement(node) && ROLE.test(tagOf(node, sf)) && !hasMark(node.openingElement)) {
+      if (ts.isJsxElement(node) && isRole(node, sf) && !hasMark(node.openingElement)) {
         const kids = meaningful(node.children);
         const first = kids.length > 1 ? glyphChild(kids[0], sf) : null;
         const last = kids.length > (first ? 2 : 1) ? glyphChild(kids[kids.length - 1], sf) : null;
@@ -215,7 +215,7 @@ function passes(ts) {
         const [glyph, role] = kids;
         if (/\bflex\b/.test(rowText) && !/flex-col/.test(rowText) && glyph && role &&
             ts.isJsxSelfClosingElement(glyph) && isGlyph(glyph.tagName.getText(sf)) &&
-            ts.isJsxElement(role) && ROLE.test(tagOf(role, sf)) && !hasMark(role.openingElement)) {
+            ts.isJsxElement(role) && isRole(role, sf) && !hasMark(role.openingElement)) {
           const clean = cleanGlyph(glyph, sf);
           const roleLits = literals(classAttr(role.openingElement));
           if (!clean || roleLits === null) { note(`${where(node)}  class not readable`); return ts.forEachChild(node, visit); }
@@ -244,7 +244,7 @@ function passes(ts) {
             }
           }
           edits.push(...local);
-          note(`${where(node)}  sibling glyph into mark (check its colour: it no longer inherits the row's)`, true);
+          note(`${where(node)}  sibling glyph into mark: check its colour, which it no longer inherits from the row`, "check");
         }
       }
       ts.forEachChild(node, visit);
@@ -258,7 +258,8 @@ function passes(ts) {
    * the slot. The file imports `Mark` when this used it.
    */
   function inline(src, sf, { where, note }) {
-    const taken = markTaken(sf);
+    const bound = bindingOf(ts, sf, "Mark");
+    const taken = bound && bound !== PKG ? (bound === "a declaration" ? bound : `an import from ${bound}`) : null;
     const edits = [];
     const visit = (node) => {
       if (ts.isJsxSelfClosingElement(node)) {
@@ -283,58 +284,7 @@ function passes(ts) {
       ts.forEachChild(node, visit);
     };
     visit(sf);
-    return edits.length ? [...edits, ...importMark(src, sf)] : edits;
-  }
-
-  /** Where `Mark` already names something other than ours, or null when it is free. */
-  function markTaken(sf) {
-    for (const st of sf.statements) {
-      if (ts.isImportDeclaration(st)) {
-        const bindings = st.importClause?.namedBindings;
-        const named = bindings && ts.isNamedImports(bindings) ? bindings.elements : [];
-        const from = st.moduleSpecifier.text;
-        if (named.some((n) => n.name.text === "Mark") && from !== PKG) return `an import from ${from}`;
-        if (st.importClause?.name?.text === "Mark") return `an import from ${from}`;
-      } else if ((ts.isFunctionDeclaration(st) || ts.isClassDeclaration(st)) && st.name?.text === "Mark") {
-        return "a declaration";
-      } else if (ts.isVariableStatement(st) && st.declarationList.declarations.some((d) => d.name.getText(sf) === "Mark")) {
-        return "a declaration";
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Edits importing `Mark`, in the file's own style: into its import from the
-   * package when it has one, otherwise after its last import, or after its
-   * directives ("use client") when it has none.
-   */
-  function importMark(src, sf) {
-    const imports = sf.statements.filter(ts.isImportDeclaration);
-    const ours = imports.find((i) => i.moduleSpecifier.text === PKG && !i.importClause?.isTypeOnly &&
-      i.importClause?.namedBindings && ts.isNamedImports(i.importClause.namedBindings));
-    if (ours) {
-      const elements = ours.importClause.namedBindings.elements;
-      if (elements.some((n) => n.name.text === "Mark")) return [];
-      const first = elements[0];
-      if (!first) return [[ours.importClause.namedBindings.getStart(sf) + 1, ours.importClause.namedBindings.getStart(sf) + 1, " Mark "]];
-      const lineStart = src.lastIndexOf("\n", first.getStart(sf)) + 1;
-      const indent = src.slice(lineStart, first.getStart(sf));
-      const multiline = /^\s*$/.test(indent);
-      return [[first.getStart(sf), first.getStart(sf), multiline ? `Mark,\n${indent}` : "Mark, "]];
-    }
-    const directives = [];
-    for (const st of sf.statements) {
-      if (!ts.isExpressionStatement(st) || !ts.isStringLiteral(st.expression)) break;
-      directives.push(st);
-    }
-    const after = imports.at(-1) ?? directives.at(-1);
-    // Quotes and semicolons as the file writes them: statements that end in one when it does.
-    const q = (imports.at(-1)?.moduleSpecifier ?? directives.at(-1)?.expression)?.getText(sf)[0] ?? '"';
-    const sample = sf.statements.find((st) => ts.isImportDeclaration(st) || ts.isExpressionStatement(st) || ts.isVariableStatement(st));
-    const semi = !sample || sample.getText(sf).endsWith(";") ? ";" : "";
-    const line = `import { Mark } from ${q}${PKG}${q}${semi}`;
-    return after ? [[after.getEnd(), after.getEnd(), `\n${line}`]] : [[0, 0, `${line}\n\n`]];
+    return edits.length ? [...edits, ...importEdits(ts, src, sf, ["Mark"], PKG)] : edits;
   }
 
   return [role, sibling, inline];

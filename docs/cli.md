@@ -149,15 +149,25 @@ file it moves nothing in is not written at all. An import it needs goes into you
 existing import from the package, or after your last import (after
 `"use client"` when there is none), in your file's quotes and semicolons. It
 writes only when git has no uncommitted changes to tracked files, so `git diff`
-shows exactly what it did and is the undo; `--force` writes anyway. What it
-cannot move safely it lists by file and line, the line as the file had it, with
-the reason: a name it would import already taken is one. Paths are relative to
-the app, and one that does not exist stops it before anything is read. Run your
-lint after it: `designRules` names what is left.
+shows exactly what it did and is the undo; `--force` writes anyway. Paths are
+relative to the app, and one that does not exist stops it before anything is
+read.
+
+It reports by file and line, the line as the file had it, in three kinds:
+
+| mark | meaning                                                                                                   |
+| ---- | --------------------------------------------------------------------------------------------------------- |
+| ✔    | moved. A dry run lists each move; a real run counts them                                                  |
+| !    | moved, with something to look at afterwards, such as a glyph's colour or a panel's spacing. Listed on every run |
+| ✖    | not moved, with the reason: a shape it will not guess at, or a name it would import already taken. Yours to do |
+
+Run the compiler and your lint after it: a removed name that is still imported
+fails to resolve, and `designRules` names a glyph that is not yet a mark.
 
 | release | what it moves                                                                                                                                                  |
 | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0.4     | a glyph first or last inside a text role into `mark`/`markEnd`; a glyph beside a text role in a flex row into that role's `mark`, unwrapping a row left with nothing else in it and moving its contents back to the row's indent; an inline glyph nudged with `align-middle` or a top margin into `<Mark>` |
+| 0.4     | `TypographySmall` to `TypographyCaption as="p"` and `TypographyProseList` to `TypographyList variant="prose"`; an `Accordion` of trigger-and-content items to `DisclosureGroup` and `Disclosure`, a literal `defaultValue` becoming `open`; a `Tabs` strip, written out or built with `.map`, with or without panels, to `TabGroup`, a compact strip's classes becoming `size="sm"`; an `INK_ON_*` in a className to `style={inkOnSurfaceStyle(…)}`; the imports of each. Only names imported from the package are touched |
 
 ## Options
 

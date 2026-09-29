@@ -16,7 +16,7 @@ import {
   TypographyCaption,
   TypographyHighlight,
 } from "../../dist/index.js";
-import { Badge, Button, Callout, Card } from "../../dist/blocks/index.js";
+import { Badge, Button, Callout, Card, TabGroup } from "../../dist/blocks/index.js";
 
 export const pinned = (
   <>
@@ -118,5 +118,15 @@ export const oneToneVocabulary = (
     <Card href="/x" title="yes" />
     {/* @ts-expect-error an href is a string; a UrlObject is the router's shape, not this one */}
     <Button href={{ pathname: "/x" }}>no</Button>
+  </>
+);
+
+/** A picker's values keep their type, so a setter for a union takes them as they are. */
+declare const setMetric: (metric: "clicks" | "ctr") => void;
+export const typedPicker = (
+  <>
+    <TabGroup value="clicks" onValueChange={setMetric} tabs={[{ value: "clicks", label: "Clicks" }, { value: "ctr", label: "CTR" }]} />
+    {/* @ts-expect-error "impressions" is not one of the values the setter takes */}
+    <TabGroup onValueChange={setMetric} tabs={[{ value: "impressions", label: "Impressions" }]} />
   </>
 );

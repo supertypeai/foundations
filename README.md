@@ -402,8 +402,8 @@ Every removal is a second way to do something 0.4 does one way.
 | `inline` + `align-middle` or `-mt-*` on an icon | `<Mark>` around it, or the words' `mark` |
 | `TypographySmall` | `TypographyCaption`: `as="small"` for small print, `as="p"` for a note. `upgrade` writes `as="p"`, which keeps the block the old one rendered |
 | `TypographyProseList` | `TypographyList variant="prose"` |
-| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `DisclosureGroup` and `Disclosure`, which now animate open and closed |
-| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `TabGroup`, with a wrapper in a tab's `content` for anything around the panel |
+| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `DisclosureGroup` and `Disclosure`, which now animate open and closed. A literal `defaultValue` becomes `open` on those rows; state the app keeps is `open` and `onToggle` on each `Disclosure` |
+| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `TabGroup`, built with `.map` when the tabs are data. A strip with no panels is a `TabGroup` picker (from 0.4.1); a compact one is `size="sm"`; a frame around the strip and panels goes around the `TabGroup` |
 | `DISCLOSURE` | `Disclosure`; the surfaces are its own |
 | `INK_ON_CARD`, `INK_ON_POPOVER`, `INK_ON_SIDEBAR` | `style={inkOnSurfaceStyle("--card-foreground")}`, and the same for any surface |
 | the `accordion-down` and `accordion-up` keyframes | nothing: `Disclosure` animates `::details-content` |
@@ -418,6 +418,14 @@ Every removal is a second way to do something 0.4 does one way.
 - `<Mark>`, the slot on its own, for a glyph inside a sentence or in words no
   role renders.
 - `truncate` on every text role. With a mark it cuts the words, never the mark.
+- From 0.4.1, `TabGroup` with no `content` on any tab is a picker, the strip
+  alone driving state, and `size="sm"` is the compact strip for a toolbar or a
+  chart.
+- From 0.4.1, no block gives itself a margin. `Cards`, `Steps`,
+  `DisclosureGroup` and `TabGroup` dropped their `my-6`: in prose `ProseFlow`
+  spaces them, and elsewhere the layout holding them does, as it already did for
+  every other block. One that sat bare in a page gets its space from a `gap`
+  or a `space-y-*` on its container.
 
 ### Changed
 
@@ -443,25 +451,38 @@ Every removal is a second way to do something 0.4 does one way.
 
 ### How to upgrade
 
+`upgrade` does most of this. Take 0.4.1 or later, whose `upgrade` also moves the
+accordions, tabs and surface inks that 0.4.0's left to you.
+
 1. Bump the package and run `npx foundations doctor`. Its Source check counts
    the files still written for 0.3.
-2. Fix what the compiler names: every import of a removed name fails to
-   resolve, and the table above says what replaces it. `upgrade` renames
-   `TypographySmall` and `TypographyProseList` for you.
-3. Run `npx foundations upgrade --dry-run` to see what moves, then
-   `npx foundations upgrade` to move it. It needs a clean git tree, so the diff
-   shows exactly what it did. It moves a glyph first or last inside a text role
-   into `mark`/`markEnd`, a glyph beside a text role in a flex row into that
-   role's `mark` (unwrapping the row when nothing else is left in it), and an
-   inline glyph nudged with `align-middle` or a top margin into `<Mark>`, which
-   it imports, and renames the two roles that became props. It writes only the files it moved something in, and lists what it
-   leaves. [The CLI docs](docs/cli.md#upgrade) have the rest.
-4. Run lint and fix what it names. Then look for three things it cannot see:
-   a glyph that took its colour from the row it left (give it the colour), words
-   that were separated by a flex gap and now need a `{" "}`, centred or
-   right-aligned words, where an inline `<Mark>` keeps the glyph with them, and an
-   avatar or anything else taller than the line, which is not a mark: the words
-   centre on it with `CAP_TRIM`.
+2. On a clean git tree, run `npx foundations upgrade --dry-run` to see what
+   moves, then `npx foundations upgrade` to move it. It reads your `.tsx` and
+   `.jsx`, writes only the files it moves something in, and the diff is exactly
+   what it did. It moves:
+   - a glyph first or last inside a text role into `mark`/`markEnd`, a glyph
+     beside a text role in a flex row into that role's `mark`, and an inline
+     glyph nudged with `align-middle` or a top margin into `<Mark>`;
+   - `TypographySmall` and `TypographyProseList` to the props they pinned;
+   - an `Accordion` of trigger-and-content items to `DisclosureGroup` and
+     `Disclosure`, a literal `defaultValue` included;
+   - a `Tabs` strip, written out or built with `.map`, with or without panels, to
+     `TabGroup`, its compact classes to `size="sm"` and a box around it to a box
+     around the `TabGroup`;
+   - an `INK_ON_*` in a className to `style={inkOnSurfaceStyle(…)}`;
+   - and the imports that go with each.
+3. Do what it marks ✖ by hand: each line names the file, the line and why it
+   could not move the code (an accordion whose open state the app keeps, a strip
+   beside other controls in one row, an attribute it has no place for). Look at
+   what it marks !: those moved, and each says what to check, such as a glyph's
+   colour or a panel's spacing.
+4. Run the compiler and your lint. Both name anything still left: an import of
+   a removed name fails to resolve, and `designRules` flags a glyph that is not
+   yet a mark.
+5. Look at the pages. No tool sees these: words that a flex gap used to separate
+   and now need a `{" "}`, centred or right-aligned words, where an inline
+   `<Mark>` keeps the glyph with them, and an avatar or anything else taller
+   than the line, which is not a mark: the words centre on it with `CAP_TRIM`.
 
 ## Upgrading to 0.2
 

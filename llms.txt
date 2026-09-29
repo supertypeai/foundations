@@ -61,6 +61,7 @@ silently. Full reference: https://github.com/supertypeai/foundations
 | the same statement as one item in a footer row | `BuiltWithFoundations` | `/blocks` |
 | an FAQ, accordion or collapsible | `Disclosure`, `DisclosureGroup` | `/blocks` |
 | tabbed content | `TabGroup` (client) | `/blocks` |
+| a segmented picker driving state | `TabGroup` with no `content`, `size="sm"` in a toolbar | `/blocks` |
 | a long-form article page | `EssayHeader` + `EssayLayout` + `EssaySection` | `/essay` |
 | an article whose body is prose or MDX | `EssayHeader` + `ReadingLayout`, the body in `ProseFlow` | `/essay`, root |
 | a post meta row (date, read time, tags) | `PostMetaRow` and friends | `/essay` |
@@ -111,7 +112,8 @@ silently. Full reference: https://github.com/supertypeai/foundations
 - `Callout`: `tone?: Tone`, `density?: "compact" | "editorial"`, `title`, `icon`, `action`.
 - `Bulletin`: `variant?: "card" | "line"` (default `card`), `accent`, `eyebrow`, `headline`, `lede`, `points`, `action`, `footnote`, `children`, `className`.
 - `DisclosureGroup`: `type?: "multiple" | "single"`, `defaultValue` (matches the title string).
-- `TabGroup`: `tabs: readonly TabItem[]` (`{ value, label, icon?, content }`), `defaultValue?`, `value?`, `onValueChange?`, `variant?: "default" | "line"`, `tone?: Tone` (default `primary`), `iconPosition?: "inline-start" | "inline-end"`.
+- `TabGroup`: `tabs: readonly TabItem[]` (`{ value, label, icon?, content? }`), `defaultValue?`, `value?`, `onValueChange?`, `variant?: "default" | "line"`, `size?: "md" | "sm"` (default `md`), `tone?: Tone` (default `primary`), `iconPosition?: "inline-start" | "inline-end"`. With no `content` on any tab it is a picker: the strip alone. Build `tabs` with `.map` when they are data; put a frame around the whole `TabGroup`.
+- `Disclosure`: `title`, plus every `<details>` prop. A row the app keeps open or closed takes `open` and `onToggle`, natively.
 
 ## Writing copy
 

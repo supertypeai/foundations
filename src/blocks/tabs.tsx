@@ -46,7 +46,7 @@ const tabsListVariants = cva(
     variants: {
       variant: {
         /** The boxed track: one fixed-height rail, segments splitting it evenly. */
-        default: cn(SEGMENT.track, "h-8 justify-center"),
+        default: cn(SEGMENT.track, "justify-center"),
         /**
          * A strip of labels over a rule. Free to wrap, so no fixed height — and `pb-2` is
          * the marker's own room (6px offset plus its 2px), so the list's box contains
@@ -55,9 +55,19 @@ const tabsListVariants = cva(
          */
         line: "flex-wrap justify-start gap-x-1 gap-y-3 rounded-none border-0 bg-transparent pb-2",
       },
+      /**
+       * Button's two lower rungs: `md` beside interface copy, `sm` in a toolbar or over a
+       * chart. The rail's height is the boxed variant's; a line strip has none to set.
+       */
+      size: { md: "", sm: "" },
     },
+    compoundVariants: [
+      { variant: "default", size: "md", className: "h-8" },
+      { variant: "default", size: "sm", className: "h-7" },
+    ],
     defaultVariants: {
       variant: "default",
+      size: "md",
     },
   }
 )
@@ -102,6 +112,7 @@ const tabsIndicatorVariants = cva(
 function TabsList({
   className,
   variant = "default",
+  size = "md",
   tone = "primary",
   children,
   ...props
@@ -111,10 +122,11 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       data-variant={variant}
+      data-size={size}
       className={cn(
         "relative",
         toneClass(tone),
-        tabsListVariants({ variant }),
+        tabsListVariants({ variant, size }),
         className
       )}
       {...props}
@@ -139,13 +151,14 @@ function TabsTrigger({ className, children, ...props }: TabsPrimitive.Tab.Props)
         // Ink only — the surface and the underline belong to the indicator. The radius is
         // for the hover wash, and matches the marker that wash previews.
         "rounded-sm text-muted-foreground hover:text-foreground data-active:text-foreground",
-        "px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
+        "px-1.5 py-0.5 text-sm group-data-[size=sm]/tabs-list:px-2 group-data-[size=sm]/tabs-list:text-xs whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
         // An icon sits inside the label's gap, so the padding on that side comes off.
         // `TabGroup` writes the `data-icon` these two read.
         "has-data-[icon=inline-start]:pl-1 has-data-[icon=inline-end]:pr-1",
         // Filling the track is the boxed variant's business; a line tab is as wide as its
-        // label. The variant is read off the list's `data-variant` rather than taken as a
-        // prop, so it is stated once on the list and not on every trigger.
+        // label. The variant and size are read off the list's `data-variant` and `data-size`
+        // rather than taken as props, so each is stated once on the list and not on every
+        // trigger.
         // Selectors are spelled out, never interpolated: Tailwind's scanner cannot see an
         // interpolated class and would compile nothing.
         "group-data-[variant=default]/tabs-list:h-full group-data-[variant=default]/tabs-list:flex-1 group-data-[variant=default]/tabs-list:justify-center",
@@ -172,10 +185,10 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
   )
 }
 
-/** One tab, whole: what it is called, what marks it, and what it shows. */
-export type TabItem = {
+/** One tab, whole: what it is called, what marks it, and what it shows, if anything. */
+export type TabItem<V extends string = string> = {
   /** Stable across a relabel — it is what `defaultValue` and `onValueChange` speak. */
-  value: string
+  value: V
   label: ReactNode
   /**
    * An element, sized by its slot and inked by the trigger. An element and not a component:
@@ -183,7 +196,8 @@ export type TabItem = {
    * server page crosses the RSC boundary as a function, which React refuses.
    */
   icon?: ReactNode
-  content: ReactNode
+  /** The panel. A strip whose tabs have none is a picker: the strip alone, driving state. */
+  content?: ReactNode
 }
 
 /**
@@ -210,40 +224,46 @@ function TabIconSlot({
 /**
  * Tabs, as data, and the one way to make them. The parts above are its insides,
  * not exported: every hand-composed strip turned out to be this one with a wrapper
- * in `content`, re-adding the icon, the handler and the stable value by hand.
+ * in `content`, re-adding the icon, the handler and the stable value by hand. With
+ * no `content` on any tab it is a picker, the strip alone, driving state through
+ * `value` and `onValueChange`: a chart's metric, a date range.
  */
-export function TabGroup({
+export function TabGroup<V extends string = string>({
   tabs,
   defaultValue,
   value,
   onValueChange,
   variant,
+  size,
   tone,
   iconPosition = "inline-start",
   className,
 }: {
-  tabs: readonly TabItem[]
+  /** The values' own type flows to `value` and `onValueChange`, so a picker can drive a union. */
+  tabs: readonly TabItem<V>[]
   /** Defaults to the first tab, since a picker with nothing picked is not a state. */
-  defaultValue?: string
+  defaultValue?: V
   /** Pass with `onValueChange` to drive it from outside. */
-  value?: string
-  onValueChange?: (value: string) => void
+  value?: V
+  onValueChange?: (value: V) => void
   variant?: VariantProps<typeof tabsListVariants>["variant"]
+  size?: VariantProps<typeof tabsListVariants>["size"]
   tone?: Tone
   iconPosition?: "inline-start" | "inline-end"
   className?: string
 }) {
+  const panels = tabs.filter((tab) => tab.content !== undefined)
   return (
     // The handler is adapted rather than wrapped when absent: an arrow declared
     // unconditionally is a function crossing the server boundary on every page that
-    // renders tabs without one.
+    // renders tabs without one. Its room is its container's to give, as every block's is.
     <Tabs
       defaultValue={defaultValue ?? tabs[0]?.value}
       value={value}
-      onValueChange={onValueChange && ((next) => onValueChange(String(next)))}
-      className={cn("my-6", className)}
+      onValueChange={onValueChange && ((next) => onValueChange(String(next) as V))}
+      className={className}
     >
-      <TabsList variant={variant} tone={tone}>
+      <TabsList variant={variant} size={size} tone={tone}>
         {tabs.map(({ value: tabValue, label, icon }) => (
           <TabsTrigger key={tabValue} value={tabValue}>
             {icon && iconPosition === "inline-start" && (
@@ -256,7 +276,7 @@ export function TabGroup({
           </TabsTrigger>
         ))}
       </TabsList>
-      {tabs.map(({ value: tabValue, content }) => (
+      {panels.map(({ value: tabValue, content }) => (
         <TabsContent key={tabValue} value={tabValue} className="pt-2 text-muted-foreground">
           {content}
         </TabsContent>
@@ -264,4 +284,3 @@ export function TabGroup({
     </Tabs>
   )
 }
-

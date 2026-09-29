@@ -17,7 +17,7 @@ export function Steps({ className, children, tone = "primary", ...props }) {
     return (_jsx("ol", { className: cn(toneClass(tone), 
         // `list-none` restates preflight, for a consumer whose prose styles reach
         // `ol` — a marker beside the counter would number every step twice.
-        "my-6 list-none [counter-reset:prose-step]", className), ...props, children: children }));
+        "list-none [counter-reset:prose-step]", className), ...props, children: children }));
 }
 /**
  * One step: a numeral, the spine, and the copy, at 0, 28 and 40px.

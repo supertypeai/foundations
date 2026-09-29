@@ -63,7 +63,7 @@ export function Demo({
   return (
     <TabGroup
       variant="line"
-      className="mt-4 mb-0"
+      className="mt-4"
       tabs={[
         {
           value: "preview",

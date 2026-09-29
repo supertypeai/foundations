@@ -10,7 +10,7 @@ import { GLYPH } from "../typography/align.js";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }: ComponentProps<"div">) {
   return (
-    <div className={cn("my-6 grid gap-4 sm:grid-cols-2", className)} {...props}>
+    <div className={cn("grid gap-4 sm:grid-cols-2", className)} {...props}>
       {children}
     </div>
   );
