@@ -36,6 +36,7 @@ export default defineConfig({
 });`;
 
 const MDX_ARTICLE = `// app/notes/[slug]/page.tsx — the article shell around compiled MDX
+import { ProseFlow } from "@supertype.ai/foundations";
 import { extractHeadings, readingTime, EssayHeader, ReadingLayout,
          PostMetaRow, PostDate, ReadTime, TagPills,
          MetaDot } from "@supertype.ai/foundations/essay";
@@ -52,7 +53,7 @@ const minutes = readingTime(source);        // words / 200, rounded up
     <MetaDot />
     <TagPills tags={frontmatter.tags} />
   </PostMetaRow>
-  {content}
+  <ProseFlow>{content}</ProseFlow>
 </ReadingLayout>`;
 
 const SECTIONS = [
@@ -124,7 +125,7 @@ export default function RecipesPage() {
       <Section
         id="docs-page"
         title="Docs page"
-        note="Steps, a callout, a prose list and an FAQ, all of it static. The FAQ uses Disclosure, which works before hydration. Switch to Accordion for animation or managed selection."
+        note="Steps, a callout, a prose list and an FAQ, all of it static. ProseFlow spaces the body, so no block states a margin. The FAQ uses Disclosure, which works before hydration. Switch to Accordion for animation or managed selection."
       >
         <Demo source="app/_recipes/docs-page.tsx" className="p-0">
           <DocsPage />
@@ -174,6 +175,17 @@ export default function RecipesPage() {
         <div className="mt-4">
           <Code code={MDX_ARTICLE} />
         </div>
+
+        <TypographyProse className="mt-6">
+          The map sets no margins, so the content goes inside{" "}
+          <TypographyInlineCode>ProseFlow</TypographyInlineCode>, which spaces
+          each block. A heading with an id links to itself. Your MDX pipeline
+          supplies the ids, through{" "}
+          <TypographyInlineCode>rehype-slug</TypographyInlineCode> or
+          fumadocs. Leave out{" "}
+          <TypographyInlineCode>rehype-autolink-headings</TypographyInlineCode>,
+          because its anchor would nest inside the heading&apos;s own.
+        </TypographyProse>
 
         <TypographyProse className="mt-6">
           You can see an example of MDX-rendered content in the{" "}

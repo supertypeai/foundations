@@ -38,6 +38,13 @@
     /* 680, not 600: Ubuntu Sans steps 500 to 600 by 9.3% where Geist stepped 11.9%,
        and panel titles stopped separating from the labels inside them. */
     --heading-weight: 680;
+
+    /* The reading rhythm, read by `.prose-flow` and the essay shell alike, so a
+       post and an essay cannot drift apart. `--flow-section` is the break before
+       a section heading or a rule. */
+    --flow-space: 1.5rem;
+    --flow-lead: 1rem;
+    --flow-section: 4rem;
   }
 
   /* Headline serif over sans body copy. Body stays sans — Average's 0.456 x-height

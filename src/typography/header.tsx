@@ -45,7 +45,7 @@ export function TypographyH1({
   );
 }
 
-const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em] first:mt-0`, {
+const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em]`, {
   variants: {
     variant: {
       /** The section heading: 18px in the product, 30 on an editorial surface. */

@@ -63,7 +63,7 @@ silently. Full reference: https://github.com/supertypeai/foundations
 | an animated accordion | `Accordion` (client) | `/blocks` |
 | tabbed content | `TabGroup` when the tabs are data, `Tabs` to compose by hand (client) | `/blocks` |
 | a long-form article page | `EssayHeader` + `EssayLayout` + `EssaySection` | `/essay` |
-| an article whose body is prose or MDX | `EssayHeader` + `ReadingLayout` | `/essay` |
+| an article whose body is prose or MDX | `EssayHeader` + `ReadingLayout`, the body in `ProseFlow` | `/essay`, root |
 | a post meta row (date, read time, tags) | `PostMetaRow` and friends | `/essay` |
 | a table of contents | `TableOfContents`, `ReadingRail` | `/essay` |
 | page metadata and JSON-LD | `createSeo` | `/seo` |
@@ -74,7 +74,7 @@ silently. Full reference: https://github.com/supertypeai/foundations
 
 | import | exports |
 |---|---|
-| `@supertype.ai/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyProseList`, `TypographyCaption`, `TypographySmall`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `headingClass`, `headingFace`, `eyebrowClass`, `toneClass`, `impliedTone`, `resolveLink`, `isExternalHref`, `CAP_TRIM`, `ON_FIRST_LINE`, `ON_BASELINE`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `Tone`, `HighlightTone`, `LinkBehavior`, `ResolvedLink` |
+| `@supertype.ai/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyProseList`, `TypographyCaption`, `TypographySmall`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `ProseFlow`, `headingClass`, `headingFace`, `eyebrowClass`, `toneClass`, `impliedTone`, `resolveLink`, `isExternalHref`, `CAP_TRIM`, `ON_FIRST_LINE`, `ON_BASELINE`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `Tone`, `HighlightTone`, `LinkBehavior`, `ResolvedLink` |
 | `@supertype.ai/foundations/blocks` | `Anchor`, `Cards`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `Callout`, `Button`, `buttonVariants`, `Badge`, `badgeVariants`, `Steps`, `Step`, `Disclosure`, `DisclosureGroup`, `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`, `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `TabGroup`, `SEGMENT`, `DISCLOSURE`, `Bulletin`, `Ribbon`, `EDITORIAL_INKS`, `Colophon`, `BuiltWithFoundations`, `FoundationsMark`, `FOUNDATIONS_URL`. Types: `ButtonLook`, `BadgeLook`, `TabItem`, `BulletinProps`, `BulletinPoint`, `RibbonHue`, `ColophonProps` |
 | `@supertype.ai/foundations/mdx` | `proseMdxComponents` |
 | `@supertype.ai/foundations/essay` | `createEssay`, `EssayHeader`, `EssayLayout`, `EssaySection`, `EssayPullQuote`, `EssayFigure`, `EssayMovements`, `EssayDocument`, `EssayColumns`, `EssayAside`, `EssayBody`, `ReadingLayout`, `TableOfContents`, `ReadingRail`, `ReadingProgressBar`, `Rail`, `RailLink`, `PostMetaRow`, `PostDate`, `ReadTime`, `TagPills`, `MetaDot`, `formatPostDate`, `extractHeadings`, `readingTime`, `createSlugger`, `useReadingProgress`, `useScrollSpy`. Types: `TocHeading`, `EssayDecorations`, `EssayIndexEntry`, `EssayDocSection`, `EssayMovement`, `PostDateFormat` |

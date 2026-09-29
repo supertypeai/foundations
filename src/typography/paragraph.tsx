@@ -89,7 +89,7 @@ export function TypographyProse(props: Preset<ParagraphProps, typeof PROSE>) {
  */
 const listClass = (variant: ParagraphVariants["variant"], ordered?: boolean) =>
   cn(
-    "my-4 flex flex-col gap-1 pl-6 [&>li]:pl-1.5",
+    "flex flex-col gap-1 pl-6 [&>li]:pl-1.5",
     ordered ? "list-decimal" : "list-disc",
     pVariants({ variant, tone: "muted" }),
   );

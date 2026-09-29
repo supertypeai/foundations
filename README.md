@@ -6,7 +6,9 @@
 
 [The foundations philosophy](https://supertypeai.github.io/foundations/philosophy/) explains the reasoning in more detail, but the short version is simple: this is a reusable design system for typography primitives, content blocks, the long-form essay shell, token and theme CSS, and the build-time tooling that keeps the baseline consistent. That includes SEO, OG cards, lint rules, and contrast checks.
 
-It is used in Supertype projects like [Viably work operating system](https://viably.app) and [supertype.ai](https://supertype.ai), and it is MIT-licensed for any Next.js 15+ app built on Tailwind and Shadcn.
+It is used in software graduating from the Supertype Incubator, so projects like [Viably work operating system](https://viably.app), [Supertype.ai](https://supertype.ai), and [Sectors Financial Data Platform](https://sectors.app) all use the MIT-licensed Foundations as the design system.
+
+It is designed thoroughly around the principles of reusability, consistency, and maintainability, ensuring that all projects built with Foundations have a solid (albeit slightly opinionated) typographic and styling foundation while sticking to best practices and design guidelines consistent with Next.JS 15+ and Tailwind 4+.
 
 ```sh
 yarn add @supertype.ai/foundations
@@ -271,19 +273,19 @@ package.
 
 ## Entry points
 
-| import                                                                | contains                                                                          | docs                                         |
-| --------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------- |
-| `@supertype.ai/foundations`                                           | all typography primitives, `cn`                                                   | [Typography](docs/typography.md)             |
-| `@supertype.ai/foundations/blocks`                                    | `Button`, `Badge`, `Card`, `Callout`, `Steps`, `TabGroup`, `Accordion`, `SEGMENT` | [Blocks](docs/blocks.md)                     |
-| `@supertype.ai/foundations/mdx`                                       | `proseMdxComponents` — the MDX element map                                        | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                                 | [Essay](docs/essay.md)                       |
-| `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                             | [Tooling](docs/tooling.md#seo-and-og-images) |
-| `@supertype.ai/foundations/og`                                        | `ogCard`, `OG_SIZE` — an element for `next/og`                                    | [Tooling](docs/tooling.md#seo-and-og-images) |
+| import                                                                | contains                                                                            | docs                                         |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------- |
+| `@supertype.ai/foundations`                                           | all typography primitives, `cn`                                                     | [Typography](docs/typography.md)             |
+| `@supertype.ai/foundations/blocks`                                    | `Button`, `Badge`, `Card`, `Callout`, `Steps`, `TabGroup`, `Accordion`, `SEGMENT`   | [Blocks](docs/blocks.md)                     |
+| `@supertype.ai/foundations/mdx`                                       | `proseMdxComponents` — the MDX element map                                          | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                                   | [Essay](docs/essay.md)                       |
+| `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                               | [Tooling](docs/tooling.md#seo-and-og-images) |
+| `@supertype.ai/foundations/og`                                        | `ogCard`, `OG_SIZE` — an element for `next/og`                                      | [Tooling](docs/tooling.md#seo-and-og-images) |
 | `@supertype.ai/foundations/eslint`                                    | the design rules as ESLint selectors; five ship off until an app has swept for them | [Tooling](docs/tooling.md#lint-rules)        |
-| `@supertype.ai/foundations/rehype`                                    | `rehypeProseCode` — **build-time only**                                           | [In MDX](docs/blocks.md#in-mdx)              |
-| `@supertype.ai/foundations/contrast`                                  | token resolution + legibility checks, build-time only                             | [Tooling](docs/tooling.md#contrast-checks)   |
-| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                                   | [Tokens and theming](#tokens-and-theming)    |
-| `foundations` (bin)                                                   | `init` and `doctor`                                                               | [The CLI](docs/cli.md)                       |
+| `@supertype.ai/foundations/rehype`                                    | `rehypeProseCode` — **build-time only**                                             | [In MDX](docs/blocks.md#in-mdx)              |
+| `@supertype.ai/foundations/contrast`                                  | token resolution + legibility checks, build-time only                               | [Tooling](docs/tooling.md#contrast-checks)   |
+| `./tokens.css` `./theme.css` `./type.css` `./prose.css` `./shiki.css` | the style layer                                                                     | [Tokens and theming](#tokens-and-theming)    |
+| `foundations` (bin)                                                   | `init` and `doctor`                                                                 | [The CLI](docs/cli.md)                       |
 
 ---
 

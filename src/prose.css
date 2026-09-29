@@ -10,3 +10,30 @@
   font-size: 0.85em;
   color: var(--foreground);
 }
+
+/* Space between blocks belongs to the container holding them, never to a block.
+   A heading with a margin of its own pushes away whatever sits above it in a card
+   or a grid too. `.prose-flow` spaces its direct children by what they follow,
+   the same contract as Tailwind Typography's `.prose`, and nothing outside it moves.
+
+   Zero specificity inside the components layer, so a utility on a child always
+   wins, and the rules below settle among themselves by source order. The
+   `--flow-*` tokens live in type.css. A subhead's gap is in em so it grows with
+   the ladder under `.editorial`. */
+@layer components {
+  :where(.prose-flow > * + *, .prose-flow blockquote > * + *) {
+    margin-top: var(--flow-space);
+  }
+  :where(.prose-flow > * + h2) {
+    margin-top: var(--flow-section);
+  }
+  :where(.prose-flow > * + :is(h3, h4)) {
+    margin-top: 1.5em;
+  }
+  :where(.prose-flow > :is(h2, h3, h4) + *) {
+    margin-top: var(--flow-lead);
+  }
+  :where(.prose-flow > * + hr, .prose-flow > hr + *) {
+    margin-top: var(--flow-section);
+  }
+}

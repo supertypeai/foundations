@@ -8,6 +8,7 @@ import { WithToc } from "../_components/toc";
 import { Code } from "../_components/code";
 import Headings from "../_demos/headings";
 import Body from "../_demos/body";
+import ProseFlowDemo from "../_demos/prose-flow";
 import Meta from "../_demos/meta";
 import Stats from "../_demos/stats";
 import Links from "../_demos/links";
@@ -18,6 +19,7 @@ export const metadata: Metadata = pageMetadata("typography");
 const SECTIONS = [
   { id: "headings", label: "Headings" },
   { id: "body", label: "Body copy" },
+  { id: "spacing", label: "Spacing" },
   { id: "meta", label: "Meta and labels" },
   { id: "stats", label: "Stats, code, highlight" },
   { id: "links", label: "Links" },
@@ -67,6 +69,25 @@ export default function TypographyPage() {
       >
         <Demo source="app/_demos/body.tsx">
           <Body />
+        </Demo>
+      </Section>
+
+      <Section
+        id="spacing"
+        title="Spacing"
+        note={
+          <>
+            Headings, paragraphs and lists carry no margin, so they sit anywhere without pushing
+            their neighbours away. The container sets the space. Use{" "}
+            <TypographyInlineCode>ProseFlow</TypographyInlineCode> around a run of reading copy,
+            such as an MDX body, and a flex or grid <TypographyInlineCode>gap</TypographyInlineCode>{" "}
+            everywhere else. Tailwind Typography&apos;s{" "}
+            <TypographyInlineCode>.prose</TypographyInlineCode> uses the same approach.
+          </>
+        }
+      >
+        <Demo source="app/_demos/prose-flow.tsx">
+          <ProseFlowDemo />
         </Demo>
       </Section>
 

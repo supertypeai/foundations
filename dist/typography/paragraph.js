@@ -55,7 +55,7 @@ export function TypographyProse(props) {
  * `prose` lands two rungs above the sentence introducing it. Tone stays pinned
  * to `muted`.
  */
-const listClass = (variant, ordered) => cn("my-4 flex flex-col gap-1 pl-6 [&>li]:pl-1.5", ordered ? "list-decimal" : "list-disc", pVariants({ variant, tone: "muted" }));
+const listClass = (variant, ordered) => cn("flex flex-col gap-1 pl-6 [&>li]:pl-1.5", ordered ? "list-decimal" : "list-disc", pVariants({ variant, tone: "muted" }));
 export function TypographyList({ className, children, ordered, variant, ...props }) {
     const List = ordered ? "ol" : "ul";
     return (_jsx(List, { className: cn(listClass(variant, ordered), className), ...props, children: children }));

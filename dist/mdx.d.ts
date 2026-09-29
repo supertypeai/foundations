@@ -24,6 +24,9 @@ declare function MdxTab({ children }: {
  * map binds them; retune in CSS by moving the `--text-*` rung, or with
  * `.editorial` over the subtree.
  *
+ * No element here carries a margin. The body goes inside `ProseFlow`, which
+ * spaces each block by the one before it.
+ *
  * A constant rather than a factory: the router and the image component are the
  * package's now, so there is nothing left for a consumer to inject.
  */
@@ -38,15 +41,15 @@ export declare const proseMdxComponents: {
     Steps: typeof Steps;
     Step: typeof Step;
     h1: (props: ComponentProps<"h1">) => import("react").JSX.Element;
-    h2: (props: ComponentProps<"h2">) => import("react").JSX.Element;
-    h3: (props: ComponentProps<"h3">) => import("react").JSX.Element;
-    h4: (props: ComponentProps<"h4">) => import("react").JSX.Element;
+    h2: ({ children, ...props }: ComponentProps<"h2">) => import("react").JSX.Element;
+    h3: ({ children, ...props }: ComponentProps<"h2">) => import("react").JSX.Element;
+    h4: ({ children, ...props }: ComponentProps<"h2">) => import("react").JSX.Element;
     p: (props: ComponentProps<"p">) => import("react").JSX.Element;
     ul: (props: ComponentProps<"ul">) => import("react").JSX.Element;
     ol: (props: ComponentProps<"ol">) => import("react").JSX.Element;
     li: (props: ComponentProps<"li">) => import("react").JSX.Element;
     blockquote: ({ className, ...props }: ComponentProps<"blockquote">) => import("react").JSX.Element;
-    a: ({ href, children }: ComponentProps<"a">) => import("react").JSX.Element;
+    a: ({ href, children, ...props }: ComponentProps<"a">) => import("react").JSX.Element;
     /**
      * The frame only — never set `color`, or it beats shiki's token spans.
      * `tabIndex` keeps a horizontally scrolling block reachable by keyboard.

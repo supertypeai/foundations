@@ -143,12 +143,17 @@ export function createEssay({
           </EssayAside>
         }
       >
-        <EssayBody className="flex flex-col gap-16">{children}</EssayBody>
+        <EssayBody className="flex flex-col gap-(--flow-section)">
+          {children}
+        </EssayBody>
       </EssayColumns>
     );
   }
 
-  /** The heading carries the anchor, offset so it lands under the sticky nav. */
+  /**
+   * The heading carries the anchor, offset so it lands under the sticky nav. The
+   * section is a `prose-flow`, so its body keeps the same rhythm as an MDX post.
+   */
   function EssaySection({
     id,
     heading,
@@ -160,7 +165,7 @@ export function createEssay({
   }) {
     return (
       <section id={id} className="scroll-mt-24">
-        <Reveal className="flex flex-col gap-5">
+        <Reveal className="prose-flow">
           <TypographyH2 className="text-balance">
             {heading}
           </TypographyH2>

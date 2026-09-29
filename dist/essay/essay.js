@@ -35,11 +35,14 @@ export function createEssay({ Reveal = PlainReveal, Glow = NoGlow, } = {}) {
     }
     /** The reading column, with the sticky index sitting in its left margin. */
     function EssayLayout({ index, children, }) {
-        return (_jsx(EssayColumns, { className: "pb-16 sm:pb-24", aside: _jsx(EssayAside, { children: _jsx(TableOfContents, { sections: index }) }), children: _jsx(EssayBody, { className: "flex flex-col gap-16", children: children }) }));
+        return (_jsx(EssayColumns, { className: "pb-16 sm:pb-24", aside: _jsx(EssayAside, { children: _jsx(TableOfContents, { sections: index }) }), children: _jsx(EssayBody, { className: "flex flex-col gap-(--flow-section)", children: children }) }));
     }
-    /** The heading carries the anchor, offset so it lands under the sticky nav. */
+    /**
+     * The heading carries the anchor, offset so it lands under the sticky nav. The
+     * section is a `prose-flow`, so its body keeps the same rhythm as an MDX post.
+     */
     function EssaySection({ id, heading, children, }) {
-        return (_jsx("section", { id: id, className: "scroll-mt-24", children: _jsxs(Reveal, { className: "flex flex-col gap-5", children: [_jsx(TypographyH2, { className: "text-balance", children: heading }), children] }) }));
+        return (_jsx("section", { id: id, className: "scroll-mt-24", children: _jsxs(Reveal, { className: "prose-flow", children: [_jsx(TypographyH2, { className: "text-balance", children: heading }), children] }) }));
     }
     /**
      * One per essay: a page with three has decided nothing. The face and a rung

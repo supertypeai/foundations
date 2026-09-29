@@ -673,6 +673,24 @@ MDX-rendered elements take no options. No call site exists to make the choice.
 Retune them in CSS by moving the `--text-*` rung they sit on, or scope
 `.editorial` over the subtree to move the whole ladder.
 
+None of them carries a margin. Render the body inside `ProseFlow` and it spaces
+each block by the one before it: `--flow-space` between blocks, `--flow-section`
+above an h2 or a rule, `--flow-lead` under a heading. It is the contract Tailwind
+Typography's `.prose` keeps, at zero specificity, so a utility on any child still
+wins. `EssaySection` and `EssayLayout` read the same tokens, so a post and an
+essay keep one rhythm.
+
+```tsx
+<ReadingLayout headings={headings}>
+  <ProseFlow>
+    <Body />
+  </ProseFlow>
+</ReadingLayout>
+```
+
+Headings with an id link to themselves. Use `rehype-slug` for the ids and leave
+out `rehype-autolink-headings`, whose anchor would nest inside the heading's own.
+
 For code fences, add the Shiki plugin at build time:
 
 ```ts

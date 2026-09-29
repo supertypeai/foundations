@@ -1,4 +1,9 @@
-import { Children, type ComponentProps, type ReactNode } from "react";
+import {
+  Children,
+  type ComponentProps,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 
 import {
   TypographyH1,
@@ -44,10 +49,38 @@ function MdxTab({ children }: { value?: string; children: ReactNode }) {
 }
 
 /**
+ * A heading with an id links to itself, so a reader can copy a section's address.
+ * The anchor keeps the heading's ink: routed through `a` below, it painted every
+ * heading as a body link. `rehype-slug` supplies the ids. Drop
+ * `rehype-autolink-headings`, whose anchor would nest inside this one.
+ */
+function selfLinked(Heading: ComponentType<ComponentProps<"h2">>) {
+  return function SelfLinked({ children, ...props }: ComponentProps<"h2">) {
+    return (
+      <Heading {...props}>
+        {props.id ? (
+          <a
+            href={`#${props.id}`}
+            className="decoration-border decoration-1 underline-offset-4 hover:underline"
+          >
+            {children}
+          </a>
+        ) : (
+          children
+        )}
+      </Heading>
+    );
+  };
+}
+
+/**
  * Rendered from markdown syntax, so there is no call site and no knob — a knob
  * here is one every project turns differently. Headings carry variants and this
  * map binds them; retune in CSS by moving the `--text-*` rung, or with
  * `.editorial` over the subtree.
+ *
+ * No element here carries a margin. The body goes inside `ProseFlow`, which
+ * spaces each block by the one before it.
  *
  * A constant rather than a factory: the router and the image component are the
  * package's now, so there is nothing left for a consumer to inject.
@@ -70,9 +103,9 @@ export const proseMdxComponents = {
   h1: (props: ComponentProps<"h1">) => (
     <TypographyH1 variant="display" {...props} />
   ),
-  h2: (props: ComponentProps<"h2">) => <TypographyH2 {...props} />,
-  h3: (props: ComponentProps<"h3">) => <TypographyH3 {...props} />,
-  h4: (props: ComponentProps<"h4">) => <TypographyH4 {...props} />,
+  h2: selfLinked(TypographyH2),
+  h3: selfLinked(TypographyH3),
+  h4: selfLinked(TypographyH4),
   p: (props: ComponentProps<"p">) => <TypographyProse {...props} />,
   ul: (props: ComponentProps<"ul">) => <TypographyProseList {...props} />,
   ol: (props: ComponentProps<"ol">) => (
@@ -86,14 +119,18 @@ export const proseMdxComponents = {
   blockquote: ({ className, ...props }: ComponentProps<"blockquote">) => (
     <blockquote
       className={cn(
-        "my-6 border-l-[3px] border-border pl-5 text-lg italic leading-relaxed text-foreground",
+        "border-l-[3px] border-border pl-5 text-lg italic leading-relaxed text-foreground",
         className,
       )}
       {...props}
     />
   ),
-  a: ({ href = "", children }: ComponentProps<"a">) => (
-    <TypographyLink href={href}>{children}</TypographyLink>
+  // The rest of the props carry what remark-gfm's footnotes link by: the id a
+  // backref points at, `data-footnote-ref`, and the backref's aria-label.
+  a: ({ href = "", children, ...props }: ComponentProps<"a">) => (
+    <TypographyLink href={href} {...props}>
+      {children}
+    </TypographyLink>
   ),
   /**
    * The frame only — never set `color`, or it beats shiki's token spans.
@@ -103,7 +140,7 @@ export const proseMdxComponents = {
     <pre
       tabIndex={0}
       className={cn(
-        "my-6 overflow-x-auto rounded-xl border border-border p-4 text-sm leading-relaxed",
+        "overflow-x-auto rounded-xl border border-border p-4 text-sm leading-relaxed",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
@@ -118,7 +155,7 @@ export const proseMdxComponents = {
   height,
   ...props
 }: ComponentProps<"img">) => {
-  const className = "my-6 h-auto max-w-full rounded-xl border border-border";
+  const className = "h-auto max-w-full rounded-xl border border-border";
   // `next/image` needs a real src and intrinsic dimensions, which a markdown
   // `![](…)` lacks unless a remark plugin measured them. The plain `<img>` is
   // the fallback for when it did not.
@@ -149,12 +186,12 @@ export const proseMdxComponents = {
   );
 },
 
-hr: () => <hr className="my-12 border-border" />,
+hr: () => <hr className="border-border" />,
   strong: (props: ComponentProps<"strong">) => (
     <strong className="font-semibold text-foreground" {...props} />
   ),
   table: (props: ComponentProps<"table">) => (
-    <div className="mt-6 overflow-x-auto rounded-xl border border-border">
+    <div className="overflow-x-auto rounded-xl border border-border">
       <table className="w-full border-collapse text-sm" {...props} />
     </div>
   ),

@@ -30,7 +30,7 @@ const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
 export function TypographyH1({ className, variant, children, ...props }) {
     return (_jsx("h1", { className: cn(h1Variants({ variant }), className), ...props, children: children }));
 }
-const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em] first:mt-0`, {
+const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em]`, {
     variants: {
         variant: {
             /** The section heading: 18px in the product, 30 on an editorial surface. */
