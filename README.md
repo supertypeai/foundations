@@ -67,19 +67,16 @@ yarn add @supertype.ai/foundations
 Peers are **Tailwind 4+**, React 19+, Next 15+, `next-view-transitions` 0.3+ and
 `@base-ui/react` 1.4+.
 
-**Tailwind v4 is required, not preferred.** `tokens.css` declares
-`@custom-variant` and `@theme inline`, and the `@source` line below is v4-only
+`tokens.css` declares
+`@custom-variant` and `@theme inline`, and the `@source` line below is **Tailwind-v4**
 syntax; on v3 they are parse errors. If you are still on v3, run
-[`npx @tailwindcss/upgrade`](https://tailwindcss.com/docs/upgrade-guide) first —
-`foundations init` will tell you so rather than writing a block your build
-cannot parse.
+[`npx @tailwindcss/upgrade`](https://tailwindcss.com/docs/upgrade-guide) first.
+`foundations init` will warn you when you are using an out-of-date Tailwind version.
 
 <details>
 <summary>Installing from a git tag instead</summary>
 
-Every release is tagged and published, so a commit can be installed directly
-when you want to try an unreleased fix. Pin a tag rather than `#main`: an
-untagged git dependency resolves to a different commit on a fresh install.
+Every release is tagged and published, so a commit can be installed directly as well. An untagged git dependency resolves to a different commit on a fresh install.
 
 ```jsonc
 // package.json
@@ -392,21 +389,21 @@ a pixel at any rung, leading or zoom.
 
 Every removal is a second way to do something 0.4 does one way.
 
-| 0.3 | 0.4 |
-| --- | --- |
-| `ON_FIRST_LINE` wrapper beside a block of text | the words' `mark` prop, or `<Marked mark title>` for a title with lines under it |
-| `ON_BASELINE` on a row | `items-baseline` for words at two sizes; an icon in the row goes in the words' `mark` or a `<Mark>` |
-| `icon-inline` utility | nothing: a glyph in a mark is one em of the words |
-| `TypographyCaption` sizing a direct-child `svg` | pass the icon as `mark` or `markEnd`; a loose one renders at Lucide's 24px |
-| `CAP_TRIM` on a label so `items-center` meets an icon | the label's `mark`; `CAP_TRIM` stays for text centred in its own box or beside an object taller than the line |
-| `inline` + `align-middle` or `-mt-*` on an icon | `<Mark>` around it, or the words' `mark` |
-| `TypographySmall` | `TypographyCaption`: `as="small"` for small print, `as="p"` for a note. `upgrade` writes `as="p"`, which keeps the block the old one rendered |
-| `TypographyProseList` | `TypographyList variant="prose"` |
-| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `DisclosureGroup` and `Disclosure`, which now animate open and closed. A literal `defaultValue` becomes `open` on those rows; state the app keeps is `open` and `onToggle` on each `Disclosure` |
-| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `TabGroup`, built with `.map` when the tabs are data. A strip with no panels is a `TabGroup` picker (from 0.4.1); a compact one is `size="sm"`; a frame around the strip and panels goes around the `TabGroup` |
-| `DISCLOSURE` | `Disclosure`; the surfaces are its own |
-| `INK_ON_CARD`, `INK_ON_POPOVER`, `INK_ON_SIDEBAR` | `style={inkOnSurfaceStyle("--card-foreground")}`, and the same for any surface |
-| the `accordion-down` and `accordion-up` keyframes | nothing: `Disclosure` animates `::details-content` |
+| 0.3                                                                  | 0.4                                                                                                                                                                                                            |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ON_FIRST_LINE` wrapper beside a block of text                       | the words' `mark` prop, or `<Marked mark title>` for a title with lines under it                                                                                                                               |
+| `ON_BASELINE` on a row                                               | `items-baseline` for words at two sizes; an icon in the row goes in the words' `mark` or a `<Mark>`                                                                                                            |
+| `icon-inline` utility                                                | nothing: a glyph in a mark is one em of the words                                                                                                                                                              |
+| `TypographyCaption` sizing a direct-child `svg`                      | pass the icon as `mark` or `markEnd`; a loose one renders at Lucide's 24px                                                                                                                                     |
+| `CAP_TRIM` on a label so `items-center` meets an icon                | the label's `mark`; `CAP_TRIM` stays for text centred in its own box or beside an object taller than the line                                                                                                  |
+| `inline` + `align-middle` or `-mt-*` on an icon                      | `<Mark>` around it, or the words' `mark`                                                                                                                                                                       |
+| `TypographySmall`                                                    | `TypographyCaption`: `as="small"` for small print, `as="p"` for a note. `upgrade` writes `as="p"`, which keeps the block the old one rendered                                                                  |
+| `TypographyProseList`                                                | `TypographyList variant="prose"`                                                                                                                                                                               |
+| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `DisclosureGroup` and `Disclosure`, which now animate open and closed. A literal `defaultValue` becomes `open` on those rows; state the app keeps is `open` and `onToggle` on each `Disclosure`                |
+| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`                     | `TabGroup`, built with `.map` when the tabs are data. A strip with no panels is a `TabGroup` picker (from 0.4.1); a compact one is `size="sm"`; a frame around the strip and panels goes around the `TabGroup` |
+| `DISCLOSURE`                                                         | `Disclosure`; the surfaces are its own                                                                                                                                                                         |
+| `INK_ON_CARD`, `INK_ON_POPOVER`, `INK_ON_SIDEBAR`                    | `style={inkOnSurfaceStyle("--card-foreground")}`, and the same for any surface                                                                                                                                 |
+| the `accordion-down` and `accordion-up` keyframes                    | nothing: `Disclosure` animates `::details-content`                                                                                                                                                             |
 
 ### New
 
