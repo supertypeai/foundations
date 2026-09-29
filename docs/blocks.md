@@ -433,7 +433,12 @@ to paint. Labels stay `--foreground` either way — a label is read, not signall
   tone="brand"
   defaultValue="speakers"
   tabs={[
-    { value: "gallery", label: "Gallery", icon: <Award />, content: <Overview /> },
+    {
+      value: "gallery",
+      label: "Gallery",
+      icon: <Award />,
+      content: <Overview />,
+    },
     {
       value: "speakers",
       label: "Speakers",
@@ -452,6 +457,22 @@ from a server page is a function crossing the RSC boundary, and React refuses th
 
 `value` is stable across a relabel, which is the whole reason it exists — it is
 what `defaultValue` and `onValueChange` speak.
+
+The values' own type flows through `TabGroup<V>` to `defaultValue`, `value` and
+`onValueChange`, so a picker can drive a union without a cast. Type the items
+as `TabItem<Range>` and `onValueChange` receives a `Range`:
+
+```tsx
+type Range = "7d" | "30d" | "90d";
+const [range, setRange] = useState<Range>("30d");
+
+<TabGroup
+  size="sm"
+  value={range}
+  onValueChange={setRange}
+  tabs={ranges.map((r): TabItem<Range> => ({ value: r, label: r }))}
+/>;
+```
 
 An MDX author writes `<Tabs items={[…]}>` with a `<Tab>` per panel, paired by
 position. That shape belongs to the MDX map, not the component API.

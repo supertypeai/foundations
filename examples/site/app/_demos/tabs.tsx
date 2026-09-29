@@ -1,10 +1,21 @@
 "use client";
 
-import { TabGroup } from "@supertype.ai/foundations/blocks";
+import { useState } from "react";
+
+import { TabGroup, type TabItem } from "@supertype.ai/foundations/blocks";
 
 import { Icons } from "../_components/icons";
 
+type Range = "7d" | "30d" | "90d";
+
+const RANGES: readonly TabItem<Range>[] = [
+  { value: "7d", label: "7d" },
+  { value: "30d", label: "30d" },
+  { value: "90d", label: "90d" },
+];
+
 export default function TabsDemo() {
+  const [range, setRange] = useState<Range>("30d");
   return (
     <div className="space-y-8">
       {/* default: the boxed segmented track. */}
@@ -38,15 +49,12 @@ export default function TabsDemo() {
         ]}
       />
 
-      {/* No content: a picker, the strip alone, compact for a toolbar. */}
+      {/* No content: a picker, compact for a toolbar. The values' type flows to setRange, so no cast. */}
       <TabGroup
         size="sm"
-        defaultValue="30d"
-        tabs={[
-          { value: "7d", label: "7d" },
-          { value: "30d", label: "30d" },
-          { value: "90d", label: "90d" },
-        ]}
+        value={range}
+        onValueChange={setRange}
+        tabs={RANGES}
       />
     </div>
   );
