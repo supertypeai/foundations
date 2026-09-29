@@ -1,6 +1,8 @@
 "use client";
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { cn } from "../cn.js";
+import { CAP_TRIM } from "../typography/align.js";
+import { TypographyEyebrow } from "../typography/header.js";
 import { Rail, RailLink } from "./rail.js";
 import { useReadingProgress, useScrollSpy } from "./scroll.js";
 /**
@@ -27,5 +29,5 @@ export function ReadingRail({ headings, className, }) {
     const active = useScrollSpy(headings.map((h) => h.id));
     if (headings.length === 0)
         return null;
-    return (_jsxs("nav", { "aria-label": "On this page", className: cn("flex flex-col gap-4", className), children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx(ProgressDonut, { progress: progress }), _jsx("p", { className: "text-xs font-medium uppercase tracking-widest text-muted-foreground", children: "On this page" })] }), _jsx(Rail, { children: headings.map(({ id, label, depth }) => (_jsx(RailLink, { href: `#${id}`, active: active === id, nested: depth === 3, children: label }, id))) })] }));
+    return (_jsxs("nav", { "aria-label": "On this page", className: cn("flex flex-col gap-4", className), children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx(ProgressDonut, { progress: progress }), _jsx(TypographyEyebrow, { as: "p", tone: "muted", size: "xs", className: cn(CAP_TRIM, "tracking-widest"), children: "On this page" })] }), _jsx(Rail, { children: headings.map(({ id, label, depth }) => (_jsx(RailLink, { href: `#${id}`, active: active === id, nested: depth === 3, children: label }, id))) })] }));
 }

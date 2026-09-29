@@ -22,11 +22,10 @@ silently. Full reference: https://github.com/supertypeai/foundations
    `border-border`. No hex values, no `bg-zinc-800`, no `dark:` overrides that
    swap one token for another.
 5. **Paint a surface, hand down its ink.** Any element that gets a background
-   needs `INK_ON_FILL` (a tone fill) or one of `INK_ON_CARD`, `INK_ON_POPOVER`,
-   `INK_ON_SIDEBAR` (a tinted surface), or the text inside it keeps the page's ink
-   and fails contrast silently. Tailwind only generates a class it can read as
-   text, so a built string styles nothing. For a surface without a constant, spread
-   `inkOnSurfaceStyle(token)` into `style`.
+   needs `INK_ON_FILL` (a tone fill) or `style={inkOnSurfaceStyle("--card-foreground")}`
+   (any other surface: `--card`, `--popover`, `--sidebar` or your own), or the text
+   inside it keeps the page's ink and fails contrast silently. `Card` and
+   `Bulletin` already do it for the card.
 6. **Write the words like a person would.** See Writing copy below. It applies
    to every string a reader sees and to the comments you leave behind.
 
@@ -41,10 +40,11 @@ silently. Full reference: https://github.com/supertypeai/foundations
 | interface copy, 13px | `TypographyP` | root |
 | the same, secondary ink | `TypographyMuted` | root |
 | reading copy, 18px | `TypographyProse` | root |
-| a bulleted or numbered list | `TypographyList`, `TypographyProseList` | root |
+| a bulleted or numbered list | `TypographyList`, `variant="prose"` beside reading copy | root |
 | a timestamp, count or value | `TypographyCaption` | root |
+| an icon, checkbox or dot beside words | the words' `mark` or `markEnd`, `Marked` for lines under them, `Mark` inside a sentence | root |
 | a form label or column header | `TypographyLabel` | root |
-| small print as a block | `TypographySmall` | root |
+| small print | `TypographyCaption as="small"`, with `block` on its own line | root |
 | a number or metric | `TypographyStat` | root |
 | inline code | `TypographyInlineCode` | root |
 | a link | `TypographyLink` | root |
@@ -59,9 +59,8 @@ silently. Full reference: https://github.com/supertypeai/foundations
 | an announcement, release note or credits panel | `Bulletin` | `/blocks` |
 | a compact statement block for a page, section, or footer | `Colophon` | `/blocks` |
 | the same statement as one item in a footer row | `BuiltWithFoundations` | `/blocks` |
-| an FAQ or collapsible, no JS | `Disclosure`, `DisclosureGroup` | `/blocks` |
-| an animated accordion | `Accordion` (client) | `/blocks` |
-| tabbed content | `TabGroup` when the tabs are data, `Tabs` to compose by hand (client) | `/blocks` |
+| an FAQ, accordion or collapsible | `Disclosure`, `DisclosureGroup` | `/blocks` |
+| tabbed content | `TabGroup` (client) | `/blocks` |
 | a long-form article page | `EssayHeader` + `EssayLayout` + `EssaySection` | `/essay` |
 | an article whose body is prose or MDX | `EssayHeader` + `ReadingLayout`, the body in `ProseFlow` | `/essay`, root |
 | a post meta row (date, read time, tags) | `PostMetaRow` and friends | `/essay` |
@@ -74,8 +73,8 @@ silently. Full reference: https://github.com/supertypeai/foundations
 
 | import | exports |
 |---|---|
-| `@supertype.ai/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyProseList`, `TypographyCaption`, `TypographySmall`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `ProseFlow`, `headingClass`, `headingFace`, `eyebrowClass`, `toneClass`, `impliedTone`, `resolveLink`, `isExternalHref`, `CAP_TRIM`, `ON_FIRST_LINE`, `ON_BASELINE`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `Tone`, `HighlightTone`, `LinkBehavior`, `ResolvedLink` |
-| `@supertype.ai/foundations/blocks` | `Anchor`, `Cards`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `Callout`, `Button`, `buttonVariants`, `Badge`, `badgeVariants`, `Steps`, `Step`, `Disclosure`, `DisclosureGroup`, `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`, `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `TabGroup`, `SEGMENT`, `DISCLOSURE`, `Bulletin`, `Ribbon`, `EDITORIAL_INKS`, `Colophon`, `BuiltWithFoundations`, `FoundationsMark`, `FOUNDATIONS_URL`. Types: `ButtonLook`, `BadgeLook`, `TabItem`, `BulletinProps`, `BulletinPoint`, `RibbonHue`, `ColophonProps` |
+| `@supertype.ai/foundations` | `cn`, `TypographyH1`, `TypographyH2`, `TypographyH3`, `TypographyH4`, `TypographyEyebrow`, `TypographyP`, `TypographyMuted`, `TypographyProse`, `TypographyList`, `TypographyCaption`, `TypographyLabel`, `TypographyStat`, `TypographyInlineCode`, `TypographyLink`, `TypographyHighlight`, `ProseFlow`, `headingClass`, `headingFace`, `eyebrowClass`, `toneClass`, `impliedTone`, `resolveLink`, `isExternalHref`, `CAP_TRIM`, `Mark`, `Marked`. Types: `TypographyTag`, `ParagraphVariants`, `ListProps`, `CaptionVariants`, `LabelVariants`, `StatVariants`, `Tone`, `HighlightTone`, `LinkBehavior`, `ResolvedLink` |
+| `@supertype.ai/foundations/blocks` | `Anchor`, `Cards`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `Callout`, `Button`, `buttonVariants`, `Badge`, `badgeVariants`, `Steps`, `Step`, `Disclosure`, `DisclosureGroup`, `TabGroup`, `SEGMENT`, `Bulletin`, `Ribbon`, `EDITORIAL_INKS`, `Colophon`, `BuiltWithFoundations`, `FoundationsMark`, `FOUNDATIONS_URL`. Types: `ButtonLook`, `BadgeLook`, `TabItem`, `BulletinProps`, `BulletinPoint`, `RibbonHue`, `ColophonProps` |
 | `@supertype.ai/foundations/mdx` | `proseMdxComponents` |
 | `@supertype.ai/foundations/essay` | `createEssay`, `EssayHeader`, `EssayLayout`, `EssaySection`, `EssayPullQuote`, `EssayFigure`, `EssayMovements`, `EssayDocument`, `EssayColumns`, `EssayAside`, `EssayBody`, `ReadingLayout`, `TableOfContents`, `ReadingRail`, `ReadingProgressBar`, `Rail`, `RailLink`, `PostMetaRow`, `PostDate`, `ReadTime`, `TagPills`, `MetaDot`, `formatPostDate`, `extractHeadings`, `readingTime`, `createSlugger`, `useReadingProgress`, `useScrollSpy`. Types: `TocHeading`, `EssayDecorations`, `EssayIndexEntry`, `EssayDocSection`, `EssayMovement`, `PostDateFormat` |
 | `@supertype.ai/foundations/seo` | `createSeo`. Types: `SeoConfig`, `ArticleAuthor`, `ArticleOptions`, `PageMetadata` |
@@ -89,29 +88,30 @@ silently. Full reference: https://github.com/supertypeai/foundations
 - `TypographyH1`, `TypographyH3`: `variant?: "default" | "display"`.
 - `TypographyH2`: `variant?`, plus `divider?: boolean` for a rule underneath.
 - `TypographyP`: `variant?: "ui" | "prose"` (default `ui`), `tone?: "default" | "muted"`.
-- `TypographyMuted`, `TypographyProse`, `TypographyProseList` are presets. The
-  prop each one pins is dropped from its type, so passing it fails to compile.
-- `TypographyCaption`, `TypographyLabel`, `TypographySmall`: `size?: "sm" | "xs" | "2xs" | "inherit"`, `as?`.
+- `TypographyMuted` and `TypographyProse` are presets of `TypographyP`. The prop
+  each one pins is dropped from its type, so passing it fails to compile.
+- `TypographyList`: `variant?: "ui" | "prose"` (default `ui`), `ordered?`.
+- `TypographyCaption`, `TypographyLabel`: `size?: "sm" | "xs" | "2xs" | "inherit"`, `as?`. The component is the look and `as` the element: `span` beside a subject, `p` for a note on its own line, `small` for small print.
+- **Caption or muted copy.** `TypographyMuted` is the content said quietly (a sentence explaining a setting). `TypographyCaption` is words about something else (a timestamp, count, byline, the value beside a key, small print). Same rung and ink at the caption's default size; pick by role.
 - `TypographyEyebrow`: `tone?: "heading" | "brand" | "label" | "muted" | "subtle"`, `size?: "sm" | "xs" | "2xs" | "3xs"`, `as?`. Each tone carries the rung it is usually set at and `size` overrides it, so omitting it changes nothing. Use `brand` for a kicker in the identity hue, `muted` for the uppercase micro-label over a group of controls, and `subtle` for a column head or rail marker read on the way past.
 - `TypographyStat`: `size?: "inherit" | "3xs" | "2xs" | "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "card" | "panel" | "section" | "page" | "display"`, `figures?: "tabular" | "proportional"`, `tone?: "default" | "muted"`.
-- `TypographyLink`: `href` (required), `tone?: Tone` (default `muted`), `addArrow?`, `newTab?`. The `href` decides whether the link is internal or external.
+- `TypographyLink`: `href` (required), `tone?: Tone` (none takes the ink around it), `addArrow?`, `newTab?`. The `href` decides whether the link is internal or external.
 - `TypographyHighlight`: `tone?: HighlightTone`, one of `"primary" | "success" | "ochre" | "terracotta" | "sage" | "fig"`, plus `seed?: number`.
 - `Card`: `href`, `title`, `description`, `icon`, `external`. An `href` makes the whole card a link.
 - `Anchor`: `href` (required), plus `external`/`newTab`.
-- `Tone` is the semantic colour vocabulary shared by `Button`, `Badge`, `Callout`, `TypographyLink` and `TabsList`: `"muted" | "primary" | "secondary" | "brand" | "success" | "warn" | "destructive"`, defaulting to `muted` everywhere except a solid `Button`.
-- **A mark beside meta is sized by the caption.** `TypographyCaption` sets a direct-child `svg` to `icon-inline`: a box of 0.8em, which puts Lucide's ink at the cap height of the rung, lifted the fraction of a pixel the line box seats it low. A `size-` class on that mark is inert, and lint says so. A mark beside words the caption does not wrap takes `icon-inline` itself. A mark standing alone, in a tile or a button slot, keeps a fixed size.
-- **`CAP_TRIM` centres a mark on the letters.** `items-center` centres line boxes, which reserve room for ascenders and descenders the string may not use. Put `CAP_TRIM` on the text element, never on the row.
-- **`ON_FIRST_LINE` is the same fix from the mark's side.** For rows where a mark names the first line, use `items-start` and `ON_FIRST_LINE` so the mark sits in a wrapper one line tall.
-- **`ON_BASELINE` lines up words at two sizes.** `items-center` centres each run's line box, so a caption beside a label sits a pixel or two off it. Put `ON_BASELINE` on the row in place of `items-center`: the words share a baseline and icons stay centred. When an icon or avatar is taller than the words, keep `items-center` and put the words in an inner span carrying `ON_BASELINE`.
-- **`align-middle` is the third case: a mark inside a run of words.** An inline icon sits on the baseline, so its box hangs below the letters. `align-middle` centres it on the baseline plus half an x-height, read from the font at whatever size the run is set in. Never a top margin: that is a pixel that fits one rung and no other, and lint flags it.
-- **Ink is handed down by whatever paints.** `toneClass(tone)` is a palette and sets no ink. A filled surface adds `INK_ON_FILL`; a tinted one adds `INK_ON_CARD`, `INK_ON_POPOVER` or `INK_ON_SIDEBAR`. If a surface does not declare them, spread `inkOnSurfaceStyle(token)` into `style` instead of building a class.
+- `Tone` is the semantic colour vocabulary shared by `Button`, `Badge`, `Callout`, `TypographyLink`, `TabGroup` and `DisclosureGroup`: `"muted" | "primary" | "secondary" | "brand" | "success" | "warn" | "destructive"`. Unstated, a solid `Button` or `Badge` is `primary` and a quieter one `muted`, and a `TypographyLink` takes the ink around it.
+- **A mark goes in the words' `mark` prop.** An icon, checkbox, dot or tick beside words: `<TypographyLabel mark={<Icons.Clock />}>…</TypographyLabel>`, or `markEnd` after them. Every text role takes both, headings included. A bare glyph, a direct child of the slot, is sized to one em of the words, and every mark is seated on the middle of the first line's capitals, at any rung, leading or zoom; a checkbox or dot keeps its own size. Give the glyph no size class and the row no alignment class. A mark is no taller than the line: an avatar or a progress ring is an object, and the words centre on it in an `items-center` row with `CAP_TRIM` on them. A leading mark starts the line and the words fill the rest; an end mark follows the words, and `justify-between` sends it to the edge. The row is a grid unless you name another display; `gap-x-` changes the space; the `truncate` prop cuts the words, never the mark.
+- **`Marked` puts the lines under a title in its words' column.** `<Marked mark={<Icon />} title={<TypographyLabel>Title</TypographyLabel>}><TypographyCaption>Body</TypographyCaption></Marked>`. The title takes the mark; without one, `Marked` is a plain stack.
+- **`<Mark>` is the slot on its own**, for a glyph inside a sentence or in words no role renders (a code line, a menu item): `Open the <Mark><Icons.Settings /></Mark> menu`. It reads the size of the words around it.
+- **Controls own their glyphs.** `Button`, `Badge` and a `TabGroup` tab size an icon to one em of their label and centre it on the letters. Pass it as a direct child, with no class.
+- **`CAP_TRIM` centres a line of text on something**: in a box of its own, such as an avatar's initials or a date in a cell, or beside an object taller than the line, such as an avatar. It is not for glyphs.
+- **Ink is handed down by whatever paints.** `toneClass(tone)` is a palette and sets no ink. A filled surface adds `INK_ON_FILL`; any other spreads `inkOnSurfaceStyle(token)` into `style`, the one way for every surface.
 - `Button`: `variant?: "solid" | "soft" | "outline" | "ghost" | "link"` (default `solid`), `tone?: Tone`, `size?: "xs" | "sm" | "md" | "lg" | "xl"` (default `md`), `icon?: boolean`, `pill?: boolean`, `href` to make it a link, `render` for an element that is neither a button nor a link.
 - `Badge`: `variant?: "solid" | "soft" | "outline" | "ghost"` (default `solid`), `tone?: Tone`, `size?: "xs" | "sm"` (default `sm`), `pill?: boolean`, `href` for a badge that leads somewhere.
 - `Callout`: `tone?: Tone`, `density?: "compact" | "editorial"`, `title`, `icon`, `action`.
 - `Bulletin`: `variant?: "card" | "line"` (default `card`), `accent`, `eyebrow`, `headline`, `lede`, `points`, `action`, `footnote`, `children`, `className`.
 - `DisclosureGroup`: `type?: "multiple" | "single"`, `defaultValue` (matches the title string).
-- `TabsList`: `variant?: "default" | "line"`, `tone?: Tone` (default `primary`).
-- `TabGroup`: `tabs: readonly TabItem[]` (`{ value, label, icon?, content }`), `defaultValue?`, `value?`, `onValueChange?`, `variant?`, `tone?`, `iconPosition?: "inline-start" | "inline-end"`.
+- `TabGroup`: `tabs: readonly TabItem[]` (`{ value, label, icon?, content }`), `defaultValue?`, `value?`, `onValueChange?`, `variant?: "default" | "line"`, `tone?: Tone` (default `primary`), `iconPosition?: "inline-start" | "inline-end"`.
 
 ## Writing copy
 
@@ -161,11 +161,11 @@ Code samples and commit messages should stay conventional. This is about prose.
 - `<TypographyMuted tone="default">`: a type error. Use `TypographyP`.
 - Binding fonts with `font.className` instead of `font.variable`.
 - Writing the style layer out by hand. `@import "@supertype.ai/foundations";` after `@import "tailwindcss";` is the whole of it.
-- Using `Accordion` for a static FAQ. `Disclosure` is the browser-native version.
 - Adding a second `@custom-variant dark`. `tokens.css` already binds it.
-- `<TypographyCaption><Icons.Clock className="size-3" /> 44d ago</TypographyCaption>`: a 12px mark beside 11px meta paints 11px of ink against an 8px cap band and hangs over the baseline however it is centred. The caption sizes the mark; drop the class.
-- `-mt-0.5` on an inline icon to bring it into line. Write `align-middle`, or `ON_FIRST_LINE` when the mark sits beside a block rather than inside a sentence.
-- `<div className="flex items-center gap-2"><span>WhatsApp</span><TypographyStat size="2xs">+62…</TypographyStat></div>`: the number rides a pixel or two high. Use `ON_BASELINE` in place of `items-center`.
+- `<TypographyCaption className="flex items-center gap-1"><Icons.Clock className="size-3" /> 44d ago</TypographyCaption>`, or an icon in a wrapper beside the words: a glyph centred on a line box, or pushed down a pixel, is right at one rung and wrong at the rest. Write `<TypographyCaption mark={<Icons.Clock />}>44d ago</TypographyCaption>`.
+- `<Icons.Check className="inline h-4 w-4 align-middle" />` or `-mt-0.5` on an inline icon. Pass it as the words' `mark`, or wrap it in `<Mark>` inside a sentence.
+- `<Badge><Icons.Mail className="size-3" />CC</Badge>`: the badge sizes its glyph. Drop the class.
+- `<div className="flex items-center gap-2"><span>WhatsApp</span><TypographyStat size="2xs">+62…</TypographyStat></div>`: words at two sizes line up on their baseline. Write `items-baseline`.
 - `text-[10rem]` for a display ornament. The ramp goes to `text-9xl`; past that, name the size in CSS so something else can share it.
 
 Run `npx foundations doctor` in the app to check the font binding, the style layer and the dark variant.
@@ -178,6 +178,19 @@ Two classes change how everything renders, and both go on `<html>` or a subtree:
   the OS setting leaves it alone.
 - `.editorial` gives the heading role to the serif at weight 400 and retunes the
   whole heading ladder against an 18px body, instead of the product's 13px.
+
+## Upgrading from 0.3
+
+`ON_FIRST_LINE`, `ON_BASELINE`, `icon-inline` and the caption's sizing of a loose
+`svg` are gone; a glyph beside words goes in their `mark`. Each second way to do
+one thing is gone too: `TypographySmall` is `TypographyCaption` (`as="small"` for
+small print, `as="p"` for a note), `TypographyProseList` is
+`TypographyList variant="prose"`, `Accordion` is `Disclosure`, the `Tabs` parts
+are `TabGroup`, and `INK_ON_CARD`, `INK_ON_POPOVER` and `INK_ON_SIDEBAR` are
+`inkOnSurfaceStyle`. The README section "Upgrading to
+0.4" maps each removal to its replacement.
+`npx foundations upgrade --dry-run` lists what moves and `npx foundations upgrade`
+moves it (on a clean git tree, in `.tsx` and `.jsx`); lint names the rest.
 
 ## Docs
 

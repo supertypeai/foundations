@@ -14,7 +14,6 @@ import ButtonsDemo from "../_demos/buttons";
 import BadgesDemo from "../_demos/badges";
 import StepsDemo from "../_demos/steps";
 import TabsDemo from "../_demos/tabs";
-import AccordionDemo from "../_demos/accordion";
 import DisclosureDemo from "../_demos/disclosure";
 import ColophonDemo from "../_demos/colophon";
 import RailDemo from "../_demos/rail";
@@ -44,7 +43,6 @@ const GROUPS = [
       { id: "badge", label: "Badge" },
       { id: "steps", label: "Steps" },
       { id: "disclosure", label: "Disclosure" },
-      { id: "accordion", label: "Accordion" },
       { id: "tabs", label: "Tabs" },
       { id: "bulletin", label: "Bulletin" },
     ],
@@ -146,7 +144,7 @@ export default function BlocksPage() {
         id="content"
         title="Content"
         from="@supertype.ai/foundations/blocks"
-        note="Components that sit inside prose. Tabs and Accordion are client components built on Base UI. The rest render on the server."
+        note="Components that sit inside prose. Tabs are a client component built on Base UI. The rest render on the server."
       />
 
       <Section
@@ -234,20 +232,10 @@ export default function BlocksPage() {
       <Section
         id="disclosure"
         title="Disclosure"
-        note="Expandable content built on the native <details> element: no JavaScript, correct before hydration. Set a shared name to make a group single-open, which the browser handles for you."
+        note="The one way to show and hide a row, built on the native <details> element: no JavaScript, correct before hydration, and animated where the browser supports it. Set type to single to make a group single-open, which the browser handles for you."
       >
         <Demo source="app/_demos/disclosure.tsx">
           <DisclosureDemo />
-        </Demo>
-      </Section>
-
-      <Section
-        id="accordion"
-        title="Accordion"
-        note="Use Accordion for animated transitions or controlled selection, and Disclosure everywhere else, since it is lighter. The open and close keyframes live in theme.css; skip that import and panels snap open."
-      >
-        <Demo source="app/_demos/accordion.tsx">
-          <AccordionDemo />
         </Demo>
       </Section>
 

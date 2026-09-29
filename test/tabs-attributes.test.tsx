@@ -1,16 +1,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import {
-  TabGroup,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  // The module, not the barrel: `blocks/index.js` reaches Card, which reaches
-  // next-view-transitions and a bare `next/link` that plain Node cannot resolve. The
-  // NOTE in src/index.ts is about exactly this.
-} from "../dist/blocks/tabs.js";
+// The module, not the barrel: `blocks/index.js` reaches Card, which reaches
+// next-view-transitions and a bare `next/link` that plain Node cannot resolve. The
+// NOTE in src/index.ts is about exactly this.
+import { TabGroup } from "../dist/blocks/tabs.js";
 
 /**
  * A Tailwind variant naming an attribute nothing sets is silent: the class
@@ -20,15 +14,15 @@ import {
  */
 const render = (ui: React.ReactNode) => renderToStaticMarkup(ui);
 
-const composed = () =>
+/** The plain strip: the boxed variant, no icons. */
+const plain = () =>
   render(
-    <Tabs value="one">
-      <TabsList>
-        <TabsTrigger value="one">One</TabsTrigger>
-        <TabsTrigger value="two">Two</TabsTrigger>
-      </TabsList>
-      <TabsContent value="one">Panel</TabsContent>
-    </Tabs>,
+    <TabGroup
+      tabs={[
+        { value: "one", label: "One", content: "Panel" },
+        { value: "two", label: "Two", content: "Panel" },
+      ]}
+    />,
   );
 
 /** The `line` variant and an icon, so the marker and `data-icon` selectors are in scope. */
@@ -69,18 +63,17 @@ const orphans = (html: string, { optional = true } = {}) =>
 
 describe("tabs attribute styling", () => {
   it("only selects on data attributes the primitive emits", () => {
-    expect(orphans(composed())).toEqual([]);
+    expect(orphans(plain())).toEqual([]);
   });
 
   it("still only selects on emitted attributes once a variant and an icon are in play", () => {
-    // `TabGroup` is the case that supplies `data-icon` and `data-variant`, neither of
-    // which the composed strip above can see. Nothing is treated as optional here, so
+    // The icon supplies `data-icon`, which the plain strip above cannot show. Nothing is treated as optional here, so
     // this is also what asserts `has-data-[icon=...]` has something to match.
     expect(orphans(grouped(), { optional: false })).toEqual([]);
   });
 
   it("stacks the panel below the tab strip", () => {
-    const [root] = composed().match(/<div[^>]*data-slot="tabs"[^>]*>/) ?? [];
+    const [root] = plain().match(/<div[^>]*data-slot="tabs"[^>]*>/) ?? [];
     expect(root).toContain('data-orientation="horizontal"');
     expect(root).toContain("data-[orientation=horizontal]:flex-col");
   });

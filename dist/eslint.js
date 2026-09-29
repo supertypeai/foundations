@@ -111,8 +111,8 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
             ? [
                 // Both node kinds: a conditional class list is where a stray rung hides.
                 ...["Literal[value", "TemplateElement[value.raw"].map((node) => ({
-                    selector: `JSXOpeningElement[name.name=/^Typography(Small|Caption|Stat|Eyebrow)$/] JSXAttribute[name.name="className"] ${node}=/(^| )text-(3xs|2xs|xs|sm|base|lg|xl|[2-9]xl|h[1-4])( |$)/]`,
-                    message: "This primitive owns its size: pass the axis (TypographySmall/Caption size=, TypographyStat size=, TypographyEyebrow tone=) rather than a text-* class, which takes the size and drops the leading and ladder that come with the rung.",
+                    selector: `JSXOpeningElement[name.name=/^Typography(Caption|Label|Stat|Eyebrow)$/] JSXAttribute[name.name="className"] ${node}=/(^| )text-(3xs|2xs|xs|sm|base|lg|xl|[2-9]xl|h[1-4])( |$)/]`,
+                    message: "This primitive owns its size: pass the axis (TypographyCaption/Label size=, TypographyStat size=, TypographyEyebrow tone=) rather than a text-* class, which takes the size and drops the leading and ladder that come with the rung.",
                 })),
             ]
             : []),
@@ -132,8 +132,8 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
         ...(pairing
             ? [
                 {
-                    selector: 'JSXElement:has(>JSXOpeningElement[name.name="TypographyP"]) ~ JSXElement > JSXOpeningElement[name.name="TypographyProseList"]',
-                    message: 'A ui paragraph over a prose list splits one passage across two rungs. Promote the paragraph with TypographyProse, or drop the list to the paragraph\'s rung with TypographyList variant="ui".',
+                    selector: 'JSXElement:has(>JSXOpeningElement[name.name="TypographyP"]) ~ JSXElement > JSXOpeningElement[name.name="TypographyList"]:has(> JSXAttribute[name.name="variant"][value.value="prose"])',
+                    message: 'A ui paragraph over a prose list splits one passage across two rungs. Promote the paragraph with TypographyProse, or drop the list to the paragraph\'s rung by removing variant="prose".',
                 },
             ]
             : []),
@@ -143,21 +143,34 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
     ];
 }
 /**
- * A `size-` class on a mark inside a control that sizes its own. `Button` and
- * `TabsTrigger` beat it with a descendant selector, so the class is inert. The
- * second `JSXElement` step is what keeps this off the control's own box.
- * `TypographyCaption` sizes only a direct child, so its rule stops there.
+ * One size for a glyph: one em of the words, set by the slot it is a direct child
+ * of. `Button`, `Badge`, `<Mark>` and the `mark` props are such slots, and the text roles
+ * are where a glyph goes into one. Direct children only, as the slot sizes only
+ * those; a mark built of several parts sizes its own.
  */
-const SIZE_TOKEN = 'JSXAttribute[name.name="className"] Literal[value=/(^| )size-[\\d.]+($| )/]';
+const SIZE_TOKEN = 'JSXAttribute[name.name="className"] Literal[value=/(^| )(size|h|w)-[\\d.]+($| )/]';
+/* The text roles: every component rendered by `TextAs`, which test/mark.test.tsx checks. */
+const TEXT_ROLE = "/^(Typography(P|Muted|Prose|Caption|Label|Eyebrow|H[1-4])|CardTitle)$/";
+const ICON = ':matches([openingElement.name.object.name="Icons"], [openingElement.name.name=/Icon$/])';
+/** A glyph that is a direct child of `slot`, bare, `cond && <Icon />` or in a ternary. */
+const glyphIn = (slot) => [
+    `${slot} > JSXElement${ICON}`,
+    `${slot} > JSXExpressionContainer > JSXElement${ICON}`,
+    `${slot} > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression) > JSXElement${ICON}`,
+].join(", ");
 function markSizeRules() {
+    const sized = [
+        'JSXElement[openingElement.name.name=/^(Button|Badge|Mark)$/]',
+        "JSXAttribute[name.name=/^mark(End)?$/]",
+    ];
     return [
         {
-            selector: `JSXElement[openingElement.name.name=/^(Button|TabsTrigger)$/] JSXElement ${SIZE_TOKEN}`,
-            message: "Button and TabsTrigger size their own icons off the text rung, so this class is inert. Remove the size- token. A control that genuinely needs a bigger mark says so on the control: className=\"[&_svg]:size-5\".",
+            selector: `:matches(${sized.map(glyphIn).join(", ")}) > JSXOpeningElement ${SIZE_TOKEN}`,
+            message: "A glyph in a mark, Mark, Button or Badge is one em of the words beside it, so this class is inert. Remove the size- token; a bigger glyph is a bigger rung.",
         },
         {
-            selector: `JSXElement[openingElement.name.name=/^(TypographyCaption)$/] > JSXElement > JSXOpeningElement > ${SIZE_TOKEN}`,
-            message: "TypographyCaption sizes a mark set beside its words off the text rung, so this class is inert. Remove the size- token; a mark that must stand at a fixed size belongs outside the caption.",
+            selector: `:matches(${glyphIn(`JSXElement[openingElement.name.name=${TEXT_ROLE}]`)})`,
+            message: "A glyph beside the words is their mark. Pass it as `mark` (or `markEnd` after them): the role sizes it to one em, seats it on the capitals and owns the row's alignment, so drop any `items-` class. Inside a sentence, wrap it in `<Mark>`.",
         },
     ];
 }
@@ -182,15 +195,15 @@ function toneAxisRules() {
     }));
 }
 /**
- * A vertical margin holding a mark into line with the words beside it. The pixel
- * fits one pairing of mark size and rung and misses every other; one consumer
- * carried 84 across 27 files. `inline(?![-\w])` keeps `inline-flex` out, where a
- * top margin is ordinary spacing.
+ * A glyph held into line by hand: a top margin or `align-middle` beside `inline`.
+ * Either fits one pairing of glyph and rung. `inline(?![-\w])` keeps `inline-flex`
+ * out, where a top margin is ordinary spacing; a table cell's `align-middle`
+ * carries no `inline`.
  */
 const INLINE = "inline(?![-\\w])";
-const MARGIN_TOP = "-?mt-[\\d.]+(?![\\w-])";
+const NUDGE = "(-?mt-[\\d.]+|align-middle)(?![\\w-])";
 function markAlignRules() {
-    return rule(`/(^| )${MARGIN_TOP}[^\\n]*${INLINE}|${INLINE}[^\\n]*(^| )${MARGIN_TOP}/`, "A vertical margin on an inline mark is a nudge that fits one rung and no other. Use `align-middle` for a mark inside a run of words, `ON_FIRST_LINE` for a mark beside a block of text, and `CAP_TRIM` on the text of a single-line row.");
+    return rule(`/(^| )${NUDGE}[^\\n]*${INLINE}|${INLINE}[^\\n]*(^| )${NUDGE}/`, "A glyph nudged into line with a margin or `align-middle` fits one rung and no other. Pass it as the words' `mark`, or wrap it in `<Mark>` inside a sentence.");
 }
 export function designRules({ accents, inlineStyle, typography = true, tone = false, ...type } = {}) {
     return [

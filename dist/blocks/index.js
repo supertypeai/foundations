@@ -1,13 +1,11 @@
 export { Cards, Card, CardHeader, CardTitle, CardDescription, CardContent, } from "./card.js";
-export { Disclosure, DisclosureGroup } from "./accordion.js";
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent, } from "./interactive-accordion.js";
+export { Disclosure, DisclosureGroup } from "./disclosure.js";
 export { Anchor } from "./anchor.js";
 export { Callout } from "./callout.js";
 export { Button, buttonVariants } from "./button.js";
 export { Badge, badgeVariants } from "./badge.js";
-export { Tabs, TabsList, TabsTrigger, TabsContent, TabGroup, } from "./tabs.js";
+export { TabGroup } from "./tabs.js";
 export { SEGMENT } from "./segment.js";
-export { DISCLOSURE } from "./disclosure.js";
 export { Steps, Step } from "./steps.js";
 export { Bulletin, Ribbon, EDITORIAL_INKS, } from "./bulletin.js";
 export { Colophon, BuiltWithFoundations, FoundationsMark, FOUNDATIONS_URL, } from "./colophon.js";

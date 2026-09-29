@@ -3,12 +3,12 @@ import { Children, } from "react";
 import { TypographyH1, TypographyH2, TypographyH3, TypographyH4, } from "./typography/header.js";
 import { cn } from "./cn.js";
 import Image from "next/image";
-import { Disclosure, DisclosureGroup } from "./blocks/accordion.js";
+import { Disclosure, DisclosureGroup } from "./blocks/disclosure.js";
 import { Callout } from "./blocks/callout.js";
 import { Card, Cards } from "./blocks/card.js";
 import { Step, Steps } from "./blocks/steps.js";
 import { TabGroup } from "./blocks/tabs.js";
-import { TypographyProse, TypographyProseList, TypographyLink, } from "./typography/paragraph.js";
+import { TypographyProse, TypographyList, TypographyLink, } from "./typography/paragraph.js";
 /**
  * The tab shape an MDX author writes, and the only place in the package that
  * speaks it. Children pair with `items` by position, since a caller writing
@@ -68,8 +68,8 @@ export const proseMdxComponents = {
     h3: selfLinked(TypographyH3),
     h4: selfLinked(TypographyH4),
     p: (props) => _jsx(TypographyProse, { ...props }),
-    ul: (props) => _jsx(TypographyProseList, { ...props }),
-    ol: (props) => (_jsx(TypographyProseList, { ordered: true, ...props })),
+    ul: (props) => _jsx(TypographyList, { variant: "prose", ...props }),
+    ol: (props) => (_jsx(TypographyList, { variant: "prose", ordered: true, ...props })),
     li: (props) => (_jsx("li", { className: "[&>ul]:mt-2 [&>ol]:mt-2", ...props })),
     // No quotemark glyph: a markdown `>` block is already marked as a quote by
     // its rule and its indent, and a mark on top of that reads as decoration.

@@ -1,4 +1,17 @@
-import { ArrowRight, Award, Copy, Database, Mic, Star } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  CalendarDays,
+  CheckCircle,
+  ChevronDown,
+  Clock,
+  Copy,
+  Database,
+  Mail,
+  Mic,
+  Settings,
+  Star,
+} from "lucide-react";
 
 /**
  * Lucide as a named map, so a demo writes `<Icons.Mic />`. The package ships no
@@ -7,8 +20,14 @@ import { ArrowRight, Award, Copy, Database, Mic, Star } from "lucide-react";
 export const Icons = {
   ArrowRight,
   Award,
+  CalendarDays,
+  CheckCircle,
+  ChevronDown,
+  Clock,
   Copy,
   Database,
+  Mail,
   Mic,
+  Settings,
   Star,
 };

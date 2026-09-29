@@ -9,7 +9,6 @@ import {
   TypographyLabel,
   TypographyMuted,
   TypographyProse,
-  TypographySmall,
   TypographyStat,
 } from "../dist/index.js";
 import { Button } from "../dist/blocks/index.js";
@@ -23,7 +22,7 @@ const OWNS_ITS_LEADING: [string, () => React.ReactElement, boolean][] = [
   ["heading", () => <TypographyH2>h</TypographyH2>, false],
   ["interface copy", () => <TypographyMuted>p</TypographyMuted>, false],
   ["caption", () => <TypographyCaption>c</TypographyCaption>, false],
-  ["small print", () => <TypographySmall>s</TypographySmall>, false],
+  ["small print", () => <TypographyCaption as="p">s</TypographyCaption>, false],
   ["label", () => <TypographyLabel>l</TypographyLabel>, false],
   ["reading copy", () => <TypographyProse>r</TypographyProse>, true],
   ["a value", () => <TypographyStat>1</TypographyStat>, true],
@@ -81,25 +80,5 @@ describe("leading ownership", () => {
     const markup = renderToStaticMarkup(<Button size="sm">Revoke</Button>);
     expect(markup).toContain('data-slot="label"');
     expect(markup).toContain("text-box");
-  });
-
-  /**
-   * The mark's size is the caption's, as its ink is. Two files of a consumer had
-   * fixed a 12px glyph beside 11px meta by hand nine times over, and each time
-   * the pixel fit one rung: the icon painted 11px of ink against an 8px cap band
-   * and overhung the baseline whatever centred it. A direct child only, so a
-   * control set inside the caption still sizes its own.
-   */
-  it("sizes a caption's mark off the rung, and only a direct child", () => {
-    const markup = renderToStaticMarkup(
-      <TypographyCaption size="2xs">
-        <svg /> 44d ago overdue
-      </TypographyCaption>,
-    );
-    expect(markup).toContain("[&amp;&gt;svg]:icon-inline");
-    expect(markup).not.toContain("[&amp;_svg]:icon-inline");
-    // The label is the caption's pair for the rung, not for the mark: a column
-    // header's sort glyph is a control with a size of its own.
-    expect(renderToStaticMarkup(<TypographyLabel>Owner</TypographyLabel>)).not.toContain("icon-inline");
   });
 });

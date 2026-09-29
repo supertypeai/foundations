@@ -36,26 +36,25 @@ a separate prop so you can pick a size without committing to a border.
 
 ## Body copy
 
-| component             | renders                                                                   |
-| --------------------- | ------------------------------------------------------------------------- |
-| `TypographyP`         | `variant?: "ui" \| "prose"` (default `ui`), `tone?: "default" \| "muted"` |
-| `TypographyMuted`     | `TypographyP` with `tone` pinned to `muted`                               |
-| `TypographyProse`     | `TypographyP` at reading size, muted                                      |
-| `TypographyList`      | `variant?: "ui" \| "prose"`, `ordered?: boolean`                          |
-| `TypographyProseList` | `TypographyList` with `variant` pinned to `prose`                         |
+| component         | renders                                                                   |
+| ----------------- | ------------------------------------------------------------------------- |
+| `TypographyP`     | `variant?: "ui" \| "prose"` (default `ui`), `tone?: "default" \| "muted"` |
+| `TypographyMuted` | `TypographyP` with `tone` pinned to `muted`                               |
+| `TypographyProse` | `TypographyP` at reading size, muted                                      |
+| `TypographyList`  | `variant?: "ui" \| "prose"` (default `ui`), `ordered?: boolean`           |
 
 ```tsx
 <TypographyP>Interface copy, 13px.</TypographyP>
 <TypographyMuted>The same size, secondary ink.</TypographyMuted>
 <TypographyProse>Reading copy — 18px, relaxed leading, balanced wrapping.</TypographyProse>
 
-<TypographyList variant="ui">
+<TypographyList>
   <li>A list inside a tier card, at the same size as the copy beside it.</li>
 </TypographyList>
 
-<TypographyProseList ordered>
+<TypographyList variant="prose" ordered>
   <li>Reading-size, numbered.</li>
-</TypographyProseList>
+</TypographyList>
 ```
 
 The pinned props are removed from the type, so `<TypographyMuted tone="default">`
@@ -65,19 +64,32 @@ will not compile. Use `TypographyP` when you need to set the tone yourself.
 
 | component           | props                                              | use                                              |
 | ------------------- | -------------------------------------------------- | ------------------------------------------------ |
-| `TypographyCaption` | `size?: "sm" \| "xs" \| "2xs" \| "inherit"`, `as?` | timestamps, counts, the value in a key/value row |
-| `TypographySmall`   | same, `as` pinned to `p`                           | small print as a block                           |
+| `TypographyCaption` | `size?: "sm" \| "xs" \| "2xs" \| "inherit"`, `as?` | timestamps, counts, bylines, the value in a key/value row, small print |
 | `TypographyLabel`   | `size?: "sm" \| "xs" \| "2xs" \| "inherit"`, `as?` | form labels, column headers, the key             |
 
 ```tsx
 <TypographyLabel as="p" size="xs">Workspace</TypographyLabel>
 <TypographyCaption size="xs">Updated 3 minutes ago</TypographyCaption>
-<TypographySmall>Rates exclude tax.</TypographySmall>
+<TypographyCaption as="small" className="block">Rates exclude tax.</TypographyCaption>
 ```
 
 Labels and captions share one size scale. They usually appear together as a key
 and its value, and the two should be set at the same size. Use `inherit` inside
 a heading or a chip when the container already picks the size.
+
+The component is the look and `as` is the element, chosen by what the words are:
+the default `span` beside their subject, `p` for a note on a line of its own,
+`small` for small print (a disclaimer, terms, a copyright line). `<small>` is
+inline, so give it `block` when it stands on its own line.
+
+**Caption or muted copy.** `TypographyMuted` and a `TypographyCaption` at its
+default size are set in the same rung and ink, and they are different roles. Muted
+copy is the content, said quietly: a sentence explaining a setting, an empty
+state's second line. A caption is about something else: when it happened, how
+many, who wrote it, the value beside a key, the terms under a price. Ask whether
+the words are the content or about it. The roles part where that matters: a
+caption has three rungs and states its weight, so it stays regular inside a
+label's line; muted copy has the body's rungs, `prose` included.
 
 ## Stats, code, highlight
 
@@ -208,69 +220,81 @@ Each tone carries the rung it is usually set at, and `size` overrides that where
 the surface needs another: `sm`, `xs`, `2xs`, `3xs`. Omit it and the tone's own
 rung stands; the prop only changes things where it is passed.
 
-## Text beside a mark
+## Marks
 
-Two things can be wrong: the mark's size and its seat. Size first, since a
-wrong one hides the other. Lucide draws its ink across 22 of its 24 grid units,
-so a 12px mark paints 11px of ink, and beside an eleven pixel caption that is
-11px against an 8px cap band: it clears the cap top by a pixel and the baseline
-by two, and reads as hanging low however it is centred. `TypographyCaption`
-sizes a direct-child `svg` itself, to a 0.8em box that lands the ink at the
-cap height of whatever rung the caption is set at, with a lift of 0.035em for
-the fraction of a pixel the line box seats it low. A `size-` class on that mark
-is inert, and lint flags it. Beside words that no caption wraps, the `icon-inline`
-utility is the same box for the mark to take itself. A mark standing alone, in a
-tile or a button's slot, has no band to answer to and keeps a fixed size.
-
-The seat is the other half, and it is what the rest of this section covers.
+A mark is anything set beside words to name them: an icon, a checkbox, a status
+dot, a tick on the picked row. There is one way to place one. Pass it to the words:
 
 ```tsx
-<div className="flex min-h-3.5 items-center gap-1">
-  <TypographyEyebrow tone="label" className={CAP_TRIM}>
-    Best reach
-  </TypographyEyebrow>
-  <InfoHint hint="The furthest a single post reached." />
+<TypographyLabel mark={<Icons.Clock />}>Nothing collected yet</TypographyLabel>
+<TypographyCaption markEnd={<Icons.ChevronDown />}>90 days</TypographyCaption>
+```
+
+Every text role takes `mark` and `markEnd`, headings included. The role renders
+the mark in a slot inside its own element, so the slot reads the words' own size.
+A bare glyph in it is one em, the rung the words are set at, and its centre sits
+on the middle of the first line's capitals. The slot is one cap tall and its
+baseline is its bottom edge, so it rests on the words' baseline and nothing is
+measured from the line box: leading, zoom and the browser's rounding of ascent
+and descent leave it where it is. A checkbox or a dot keeps its own size and
+takes the same seat. The slot sizes only a bare glyph, its direct child, so
+anything composed (a checkbox and its tick, a wrapper of your own) sizes itself.
+
+The two sides differ on purpose. A leading mark starts the line and the words
+fill the rest, wrapping in their own column so a second line starts under the
+first. An end mark follows the words, as an arrow follows "Configure";
+`justify-between` sends it to the row's edge instead, as a checkbox at a card's
+edge wants.
+
+The marked row is a grid unless you name another display, so `inline-flex` or
+`hidden sm:flex` still work; its alignment is the mark's, so an `items-` class
+on it does nothing. A `gap-x-` class
+changes the space beside the mark, and `truncate` cuts the words, never the mark.
+
+When lines under a title belong to it, `Marked` gives the title the mark and puts
+the lines in its words' column:
+
+```tsx
+<Marked
+  mark={<Icons.CheckCircle />}
+  title={<TypographyLabel>Discount applied</TypographyLabel>}
+  className="gap-x-3"
+>
+  <TypographyCaption as="p">20% off the first year.</TypographyCaption>
+</Marked>
+```
+
+A glyph inside a sentence, or in words no role renders (a line of code, a menu
+item's label), goes in `<Mark>`, the same slot on its own:
+
+```tsx
+<p>Open the <Mark><Icons.Settings /></Mark> settings menu.</p>
+```
+
+In a row, give the element that sets the words' size `items-baseline` and put
+the `<Mark>` in it beside them, so it reads their size from there.
+
+Controls own their glyphs by the same rule. `Button` and `Badge` size a glyph
+passed as a direct child, and `TabGroup` a tab's `icon`, to one em of the label and centre it on
+the label's letters, so it takes no class. Lint flags a size on a glyph in a
+mark, a `<Mark>` or a control as inert, a glyph passed loose into a text role, and
+a glyph held into line with a top margin or `align-middle`.
+
+Two things beside words are not marks. A glyph standing alone, an icon-only link
+or button, names no words and keeps its own size. An object taller than the
+line, an avatar or a reading-progress ring, would overflow a slot one cap tall
+into the lines around it, so the words centre on it instead, in an
+`items-center` row with `CAP_TRIM` on the words:
+
+```tsx
+<div className="flex items-center gap-2">
+  <Avatar className="size-8" />
+  <TypographyLabel className={CAP_TRIM}>Ada Lovelace</TypographyLabel>
 </div>
 ```
 
-`items-center` centres boxes, and a line box holds room for ascenders and
-descenders the string may not use. Uppercase is where that shows: an eleven pixel
-label paints an eight pixel band of ink inside a fifteen pixel box, so the icon
-beside it centres on the box and lands about a pixel under the letters.
-`CAP_TRIM` makes the element as tall as its own ink, and the row then centres
-what the reader sees.
-
-Put it on the text rather than the row; `text-box` is not inherited. The other
-half is the row floor: a trimmed label is shorter than an untrimmed one, so a
-card whose label carries no mark would make a shorter row than the cards beside
-it and lift its figure out of line. Firefox still has no `text-box`, so it keeps
-the untrimmed box, which is what every browser did before.
-
-That is the one-line case. Where the text runs on and the mark names only the
-first line of it, the row is `items-start` and the fix comes from the other side:
-
-```tsx
-<li className="flex items-start gap-2">
-  <span className={ON_FIRST_LINE}>
-    <Icons.Clock className="size-4" />
-  </span>
-  <div>
-    <TypographyLabel>Nothing collected yet</TypographyLabel>
-    <TypographyMuted>Posts appear once the first sync has run.</TypographyMuted>
-  </div>
-</li>
-```
-
-`ON_FIRST_LINE` is a wrapper one line tall with the mark centred inside it, since
-a height on the mark itself stretches the glyph. It replaces the top margin this
-shape usually carries, and the margin is worth deleting rather than tuning: 2px
-lands a 14px mark within a quarter pixel at 13px text and leaves a 16px mark over
-a pixel low, so the number is right at one pairing and quietly wrong at the rest.
-
-Two limits decide where `CAP_TRIM` goes. The trimmed box ends at the baseline, so
-descenders hang outside it and `truncate` on the same element cuts the tail off
-every g and p: a title that clips takes the pixel instead. The size of the win
-tracks how much leading there is to take. Beside an eleven pixel uppercase label
-the mark moves a whole device pixel; a thirteen pixel mixed-case label measures
-the same trimmed or not, because its ascenders already reach the top of the line
-box.
+`CAP_TRIM` does that job and one other: a line of text centred in a box of its
+own, like an avatar's initials or a date in a calendar cell. It makes the element as tall
+as its ink, so `items-center` centres what the reader sees. The trimmed box ends
+at the baseline, so it does not suit a label that clips its descenders. Firefox
+has no `text-box` yet and keeps the untrimmed box.

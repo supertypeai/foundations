@@ -1,19 +1,15 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ReactNode } from "react";
-import { cn, TypographySmall } from "@supertype.ai/foundations";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@supertype.ai/foundations/blocks";
+import { cn, TypographyCaption } from "@supertype.ai/foundations";
+import { TabGroup } from "@supertype.ai/foundations/blocks";
 import { Code } from "./code";
 import { ScrollArea } from "./scroll-area";
 
 /**
  * A preview and the source that produced it, read off disk at build time so the
- * two stay in step. The tabs come from the package.
+ * two stay in step. The tabs are the package's `TabGroup`, with the preview's
+ * frame as a wrapper in its `content`.
  *
  * Preview scaffolding lives here rather than in the demo file, so the code tab
  * reads as the component and nothing else: the scroll area for a matrix wider
@@ -65,24 +61,28 @@ export function Demo({
   );
 
   return (
-    <Tabs defaultValue="preview" className="mt-4">
-      <TabsList variant="line">
-        <TabsTrigger value="preview">Preview</TabsTrigger>
-        <TabsTrigger value="code">{source.split("/").pop()}</TabsTrigger>
-      </TabsList>
-      <TabsContent value="preview">
-        <div className={cn("rounded-lg border border-border p-6", className)}>
-          {scroll ? <ScrollArea>{preview}</ScrollArea> : preview}
-        </div>
-        {at ? (
-          <TypographySmall className="mt-2 text-muted-foreground">
-            scaled to the {at} container this block asks for
-          </TypographySmall>
-        ) : null}
-      </TabsContent>
-      <TabsContent value="code">
-        <Code code={code} />
-      </TabsContent>
-    </Tabs>
+    <TabGroup
+      variant="line"
+      className="mt-4 mb-0"
+      tabs={[
+        {
+          value: "preview",
+          label: "Preview",
+          content: (
+            <>
+              <div className={cn("rounded-lg border border-border p-6", className)}>
+                {scroll ? <ScrollArea>{preview}</ScrollArea> : preview}
+              </div>
+              {at ? (
+                <TypographyCaption as="p" className="mt-2">
+                  scaled to the {at} container this block asks for
+                </TypographyCaption>
+              ) : null}
+            </>
+          ),
+        },
+        { value: "code", label: source.split("/").pop(), content: <Code code={code} /> },
+      ]}
+    />
   );
 }

@@ -24,7 +24,11 @@ export declare function TypographyP({ className, variant, tone, as, children, ..
  * drift — `<TypographyMuted tone="default">` used to compile and un-mute it. */
 type Preset<Base, Pins> = Omit<Base, keyof Pins>;
 type ParagraphProps = WithAs<ParagraphVariants>;
-/** The UI rung in the secondary ink. */
+/**
+ * The UI rung in the secondary ink: the content, said quietly. Words about
+ * something else, a timestamp or the terms under a price, are a caption, which
+ * shares this rung and ink at its default size and parts from it everywhere else.
+ */
 declare const MUTED: {
     readonly tone: "muted";
 };
@@ -40,48 +44,21 @@ export type ListProps = ComponentProps<"ul"> & Pick<ParagraphVariants, "variant"
 };
 export declare function TypographyList({ className, children, ordered, variant, ...props }: ListProps): import("react").JSX.Element;
 /**
- * The reading rung, pinned. The name predates the axis and keeps every call site
- * that already had it; `Preset` stops one re-opening the rung it names.
- */
-declare const PROSE_LIST: {
-    readonly variant: "prose";
-};
-export declare function TypographyProseList(props: Preset<ListProps, typeof PROSE_LIST>): import("react").JSX.Element;
-/**
  * Meta beside content: timestamps, counts, bylines, the key in a key-value row.
  * Always secondary ink and never a weight, since colour and weight both saying
- * "secondary" is one arguing with the other. `inherit` is the parenthetical
- * inside a heading or a stat, taking the size that set it.
- *
- * A mark set directly beside the words is sized off the rung, the way Button
- * sizes its own: a 12px glyph beside 11px meta paints 11px of ink against an
- * 8px cap band and hangs over the baseline however it is centred. Direct child
- * only, so a control nested in the caption keeps its own mark.
+ * "secondary" is one arguing with the other. The weight is stated, so a count
+ * inside a label's line stays regular.
  */
 declare const captionVariants: (props?: ({
     size?: "inherit" | "sm" | "xs" | "2xs" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export type CaptionVariants = VariantProps<typeof captionVariants>;
 /**
- * `as` covers the one thing that genuinely differs between call sites: whether
- * the run is inline beside its subject or a block under it.
+ * `as` covers the one thing that genuinely differs between call sites, the
+ * element: a `span` beside its subject, a `p` note under it, `small` print.
  */
 export declare function TypographyCaption({ className, size, as, children, ...props }: WithAs<CaptionVariants>): import("react").JSX.Element;
-/**
- * Small print set as a block: a note under the thing it annotates, rather than
- * an aside inline with it. Same rung and same ink as the caption — small print
- * is small because it is muted, and dropping it a rung as well is what made
- * both apps hand-roll their own.
- */
-declare const BLOCK: {
-    readonly as: "p";
-};
-export declare function TypographySmall(props: Preset<WithAs<CaptionVariants>, typeof BLOCK>): import("react").JSX.Element;
-/**
- * The label role: a form label, a column header, the key a reader scans for. The
- * rungs are the caption's, deliberately, since a label and a caption are one pair
- * and a pair that cannot be set at one size is not a pair.
- */
+/** The label role: a form label, a column header, the key a reader scans for. */
 declare const labelVariants: (props?: ({
     size?: "inherit" | "sm" | "xs" | "2xs" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;

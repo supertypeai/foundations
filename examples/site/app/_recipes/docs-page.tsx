@@ -4,7 +4,7 @@ import {
   TypographyH1,
   TypographyH2,
   TypographyProse,
-  TypographyProseList,
+  TypographyList,
   TypographyInlineCode,
   TypographyLink,
   TypographyCaption,
@@ -69,11 +69,11 @@ export default function DocsPage() {
 
         <TypographyH2 divider>What you get</TypographyH2>
 
-        <TypographyProseList>
+        <TypographyList variant="prose">
           <li>Row-level inserts, updates and deletes, in commit order.</li>
           <li>Schema changes as DDL events, ahead of the rows using them.</li>
           <li>A resumable position, so a restart picks up where it stopped.</li>
-        </TypographyProseList>
+        </TypographyList>
 
         <TypographyH2 divider>Common questions</TypographyH2>
 

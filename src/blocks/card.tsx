@@ -4,6 +4,8 @@ import { cn } from "../cn.js";
 import { FOCUS_RING } from "./focus.js";
 import { INK_ON_CARD, toneClass } from "../tone.js";
 import { resolveLink, type LinkBehavior } from "../href.js";
+import { TextAs, type WithAs } from "../typography/as.js";
+import { GLYPH } from "../typography/align.js";
 
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }: ComponentProps<"div">) {
@@ -52,9 +54,10 @@ export function CardHeader({ className, ...props }: ComponentProps<"div">) {
  * display face, and a card is chrome: dropped into a docs page it wore a serif
  * title over a sans description. Rank inside a card is weight and size.
  */
-export function CardTitle({ className, ...props }: ComponentProps<"div">) {
+export function CardTitle({ className, ...props }: Omit<WithAs, "as">) {
   return (
-    <div
+    <TextAs
+      as="div"
       data-slot="card-title"
       className={cn("text-base leading-snug font-medium", className)}
       {...props}
@@ -115,19 +118,19 @@ export function Card({
     title || description || icon ? (
       <CardHeader>
         {icon || title ? (
-          // The icon sits on the title's line and is its mark; stacked, it read as a
-          // decoration the title happened to follow. `gap-2` is a gap between two
-          // objects, not the header's `gap-1` between two lines.
-          <div className="flex items-center gap-2">
-            {icon ? (
-              // Sized here, not at the call site, so two cards cannot disagree about how
-              // big an icon is. On a link card it takes the tone as the card lifts.
-              <span className="shrink-0 text-muted-foreground transition-colors group-hover/card:text-(color:--tone-hue) [&_svg]:size-4 [&_svg]:shrink-0">
-                {icon}
-              </span>
-            ) : null}
-            {title ? <CardTitle>{title}</CardTitle> : null}
-          </div>
+          // The icon is the title's mark, one em of the title. The wrapper carries the
+          // ink the card lifts into, so it sizes the glyph as the slot would have.
+          <CardTitle
+            mark={
+              icon ? (
+                <span className={cn("flex text-muted-foreground transition-colors group-hover/card:text-(color:--tone-hue)", GLYPH)}>
+                  {icon}
+                </span>
+              ) : null
+            }
+          >
+            {title}
+          </CardTitle>
         ) : null}
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>

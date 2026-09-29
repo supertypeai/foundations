@@ -7,9 +7,6 @@ export {
   toneClass,
   impliedTone,
   INK_ON_FILL,
-  INK_ON_CARD,
-  INK_ON_POPOVER,
-  INK_ON_SIDEBAR,
   inkOnSurfaceStyle,
   type Tone,
 } from "./tone.js";

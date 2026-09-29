@@ -4,6 +4,14 @@
 
 # Working on the package
 
+## Elegance in Simplicity
+
+Use a 'less is more' approach when writing code and designing components. Focus on clarity, maintainability, and simplicity rather than an additive-centric mindset.
+
+Whenever refactoring, aim to simplify from a design perspective, removing unnecessary complexity and focusing on the core functionality and purpose of Foundations as a design layer. Celebrate consolidating and removing code to eliminate redundancy and low-variance patterns.
+
+To the consumer app, there should be one obvious way to accomplish something using the Foundations design system. Developers reach for that path more consistently and predictably (importing the right modules from `@supertype.ai/foundations`) when we as the core designers and maintainers of the package enforce that approach in the way we structure and design the API.
+
 ## Local iteration
 
 Consumers pin a git tag, which is right for anything that ships and wrong for the

@@ -43,12 +43,16 @@ This package includes a CLI that writes the CSS for you and checks the rest:
 ```sh
 npx @supertype.ai/foundations init      # edits your CSS entry, prints the rest
 npx @supertype.ai/foundations doctor    # checks this app against everything below
+npx @supertype.ai/foundations upgrade   # after a version bump, moves source the release changed
 ```
 
 `init` edits one file: the CSS entry that imports Tailwind. It adds any missing
 imports and reorders the existing ones if needed. Run it with `--dry-run` first
 to preview the patch. It also prints the font bindings and the `llms.txt` snippet
 your coding agent should read.
+
+`upgrade` is for later: after bumping the package, it rewrites source written for
+an older version and lists what it leaves. It writes only on a clean git tree.
 
 The steps performed by `init` are listed below. See [the CLI](docs/cli.md) for
 the full list of checks and details.
@@ -129,8 +133,8 @@ the repo root, `../node_modules` is not where it lives.
 **`theme.css` is required.** `tokens.css` names the colour roles, and
 `theme.css` gives them values. Without it, the colour utilities cannot be
 resolved, so the page renders unpainted without an obvious error. It also
-carries `--secondary-ink`, `--subtle-foreground`, the four earth tones used
-for marker highlights, and the `accordion-down` and `accordion-up` keyframes.
+carries `--secondary-ink`, `--subtle-foreground` and the four earth tones used
+for marker highlights.
 Skip it only if you declare every role yourself; `foundations doctor` fails if
 neither path is true.
 
@@ -276,7 +280,7 @@ package.
 | import                                                                | contains                                                                            | docs                                         |
 | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------- |
 | `@supertype.ai/foundations`                                           | all typography primitives, `cn`                                                     | [Typography](docs/typography.md)             |
-| `@supertype.ai/foundations/blocks`                                    | `Button`, `Badge`, `Card`, `Callout`, `Steps`, `TabGroup`, `Accordion`, `SEGMENT`   | [Blocks](docs/blocks.md)                     |
+| `@supertype.ai/foundations/blocks`                                    | `Button`, `Badge`, `Card`, `Callout`, `Steps`, `TabGroup`, `Disclosure`, `SEGMENT`  | [Blocks](docs/blocks.md)                     |
 | `@supertype.ai/foundations/mdx`                                       | `proseMdxComponents` — the MDX element map                                          | [In MDX](docs/blocks.md#in-mdx)              |
 | `@supertype.ai/foundations/essay`                                     | the long-form shell, TOC, reading rail, post meta                                   | [Essay](docs/essay.md)                       |
 | `@supertype.ai/foundations/seo`                                       | `createSeo(...)` — metadata + JSON-LD                                               | [Tooling](docs/tooling.md#seo-and-og-images) |
@@ -354,8 +358,9 @@ surfaces set body at different sizes: 13px in the product, 18px on `.editorial`.
    by hand can have variants.
 3. **Use the platform first, and a library only where it falls short.**
    `Disclosure` is a `<details>`/`<summary>` pair: no JavaScript, correct before
-   hydration, and available to an MDX author. `Accordion` and `Tabs` use Base UI,
-   since animation and managed selection are beyond what the platform gives you.
+   hydration, available to an MDX author, and animated by CSS where the browser
+   can. `TabGroup` uses Base UI, since managed selection is beyond what the
+   platform gives you.
 4. **No brand colours.** Structural tokens only, with brand colours left to the
    app.
 5. **Put structure in CSS rather than the component map.** A host framework can
@@ -364,6 +369,99 @@ surfaces set body at different sizes: 13px in the product, 18px on `.editorial`.
    this.
 
 ---
+
+## Upgrading to 0.4
+
+0.4 has one way to put an icon, checkbox or dot beside words, and removes the
+five it replaces. Each of those centred a glyph on the line box or nudged it by a
+measured fraction, so each was right at some rungs and off by up to 1.4px at
+others. The new slot seats every mark on the middle of the capitals, within half
+a pixel at any rung, leading or zoom.
+
+```tsx
+// before
+<TypographyCaption className="flex items-center gap-1">
+  <Icons.Clock className="size-3" /> 44d ago
+</TypographyCaption>
+
+// after
+<TypographyCaption mark={<Icons.Clock />}>44d ago</TypographyCaption>
+```
+
+### Removed
+
+Every removal is a second way to do something 0.4 does one way.
+
+| 0.3 | 0.4 |
+| --- | --- |
+| `ON_FIRST_LINE` wrapper beside a block of text | the words' `mark` prop, or `<Marked mark title>` for a title with lines under it |
+| `ON_BASELINE` on a row | `items-baseline` for words at two sizes; an icon in the row goes in the words' `mark` or a `<Mark>` |
+| `icon-inline` utility | nothing: a glyph in a mark is one em of the words |
+| `TypographyCaption` sizing a direct-child `svg` | pass the icon as `mark` or `markEnd`; a loose one renders at Lucide's 24px |
+| `CAP_TRIM` on a label so `items-center` meets an icon | the label's `mark`; `CAP_TRIM` stays for text centred in its own box or beside an object taller than the line |
+| `inline` + `align-middle` or `-mt-*` on an icon | `<Mark>` around it, or the words' `mark` |
+| `TypographySmall` | `TypographyCaption`: `as="small"` for small print, `as="p"` for a note. `upgrade` writes `as="p"`, which keeps the block the old one rendered |
+| `TypographyProseList` | `TypographyList variant="prose"` |
+| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `DisclosureGroup` and `Disclosure`, which now animate open and closed |
+| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `TabGroup`, with a wrapper in a tab's `content` for anything around the panel |
+| `DISCLOSURE` | `Disclosure`; the surfaces are its own |
+| `INK_ON_CARD`, `INK_ON_POPOVER`, `INK_ON_SIDEBAR` | `style={inkOnSurfaceStyle("--card-foreground")}`, and the same for any surface |
+| the `accordion-down` and `accordion-up` keyframes | nothing: `Disclosure` animates `::details-content` |
+
+### New
+
+- `mark` and `markEnd` on every text role, headings and `CardTitle` included. A
+  leading mark starts the line; an end mark follows the words, and
+  `justify-between` sends it to the edge.
+- `<Marked mark={…} title={<TypographyLabel>…</TypographyLabel>}>lines</Marked>`
+  for a title and the lines under it.
+- `<Mark>`, the slot on its own, for a glyph inside a sentence or in words no
+  role renders.
+- `truncate` on every text role. With a mark it cuts the words, never the mark.
+
+### Changed
+
+- A glyph beside words is one em of them. Meta icons in a caption grow from
+  0.8em to 1em; an icon that carried a bigger size class shrinks to 1em.
+- `Button`, `Badge` and a `TabGroup` tab size a glyph to one em of the label, by
+  the rule every mark uses: a bare glyph, a direct child. `Button` used to reach
+  a glyph at any depth; one you wrap in an element of your own now keeps the
+  size you give it. `Badge size="xs"` no longer forces a 12px icon into a 10px
+  label.
+- `Badge` trims its label as `Button` does, and both keep adjacent words as one
+  label, so `{count} to act on` no longer splits around the gap.
+- `TypographyCaption` states its regular weight, so a count inside a label's
+  line stays regular.
+- `TypographyLink` with no `tone` takes the ink around it. It defaulted to
+  `muted`, which is the same ink on a page and failed contrast on a filled
+  surface. Its `addArrow` glyph is a mark, one em of the link.
+- `Disclosure` animates open and closed where the browser supports
+  `::details-content` and `interpolate-size`, and opens at once elsewhere.
+- The design lint (`designRules`) flags a loose icon in a text role, a size class
+  on a glyph in a mark, a `<Mark>` or a control, and a glyph held into line with
+  a top margin or `align-middle`.
+
+### How to upgrade
+
+1. Bump the package and run `npx foundations doctor`. Its Source check counts
+   the files still written for 0.3.
+2. Fix what the compiler names: every import of a removed name fails to
+   resolve, and the table above says what replaces it. `upgrade` renames
+   `TypographySmall` and `TypographyProseList` for you.
+3. Run `npx foundations upgrade --dry-run` to see what moves, then
+   `npx foundations upgrade` to move it. It needs a clean git tree, so the diff
+   shows exactly what it did. It moves a glyph first or last inside a text role
+   into `mark`/`markEnd`, a glyph beside a text role in a flex row into that
+   role's `mark` (unwrapping the row when nothing else is left in it), and an
+   inline glyph nudged with `align-middle` or a top margin into `<Mark>`, which
+   it imports, and renames the two roles that became props. It writes only the files it moved something in, and lists what it
+   leaves. [The CLI docs](docs/cli.md#upgrade) have the rest.
+4. Run lint and fix what it names. Then look for three things it cannot see:
+   a glyph that took its colour from the row it left (give it the colour), words
+   that were separated by a flex gap and now need a `{" "}`, centred or
+   right-aligned words, where an inline `<Mark>` keeps the glyph with them, and an
+   avatar or anything else taller than the line, which is not a mark: the words
+   centre on it with `CAP_TRIM`.
 
 ## Upgrading to 0.2
 

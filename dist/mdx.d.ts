@@ -1,5 +1,5 @@
 import { type ComponentProps, type ReactNode } from "react";
-import { Disclosure, DisclosureGroup } from "./blocks/accordion.js";
+import { Disclosure, DisclosureGroup } from "./blocks/disclosure.js";
 import { Callout } from "./blocks/callout.js";
 import { Card, Cards } from "./blocks/card.js";
 import { Step, Steps } from "./blocks/steps.js";

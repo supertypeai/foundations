@@ -8,7 +8,6 @@ import {
   TypographyH2,
   TypographyMuted,
   TypographyProse,
-  TypographyProseList,
   TypographyP,
   TypographyList,
   TypographyLink,
@@ -26,8 +25,6 @@ export const pinned = (
     <TypographyMuted tone="default">no</TypographyMuted>
     {/* @ts-expect-error tone is pinned to "muted" */}
     <TypographyProse tone="default">no</TypographyProse>
-    {/* @ts-expect-error variant is pinned to "prose" */}
-    <TypographyProseList variant="ui">no</TypographyProseList>
 
     {/* The unpinned components still take the axis. */}
     <TypographyP tone="muted" variant="prose">yes</TypographyP>

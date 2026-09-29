@@ -9,7 +9,7 @@ import { TypographyLabel, TypographyMuted, } from "../typography/paragraph.js";
  * accessibility tree and out of copied text, since the list already carries the
  * count and hearing it twice is worse than not seeing it once.
  *
- * `tone` inks the numerals and nothing else, the contract `TabsList` and
+ * `tone` inks the numerals and nothing else, the contract `TabGroup` and
  * `DisclosureGroup` both state: the rail is a hairline like every other rule in
  * the package, and the copy stays on the page's ink ladder.
  */

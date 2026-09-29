@@ -6,14 +6,20 @@
  * bound with `.className` renders the wrong face. The checks read what to expect
  * from the installed package rather than hardcoding it.
  *
- *   npx foundations doctor          check this app against the contract
- *   npx foundations init            write the CSS block, print the font binding
- *   npx foundations init --dry-run  show the patch without writing it
+ *   npx foundations doctor              check this app against the contract
+ *   npx foundations init                write the CSS block, print the font binding
+ *   npx foundations init --dry-run      show the patch without writing it
+ *   npx foundations upgrade             move source written for an older version
+ *   npx foundations upgrade --dry-run   list what it would move
  *   npx foundations doctor --cwd ../other-app
  */
-import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, lstatSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { MIGRATIONS } from "./migrations/index.mjs";
 
 const PKG_NAME = "@supertype.ai/foundations";
 
@@ -443,7 +449,7 @@ const checkInstall = (appRoot) => {
   }
 
   for (const [peer, range] of Object.entries(pkgJson.peerDependencies ?? {})) {
-    const soft = peer === "@base-ui/react"; // Only Accordion and Tabs need it.
+    const soft = peer === "@base-ui/react"; // Only TabGroup needs it.
     const at = resolveDep(appRoot, peer);
     const meta = at ? readJson(join(at, "package.json")) : null;
     if (!meta) {
@@ -452,7 +458,7 @@ const checkInstall = (appRoot) => {
           soft ? "warn" : "error",
           `${peer} is not installed`,
           `peer range ${range}`,
-          soft ? "Only Accordion and Tabs need it. Install it before you import either." : `yarn add ${peer}`,
+          soft ? "Only TabGroup needs it. Install it before you import it." : `yarn add ${peer}`,
         ),
       );
     } else if (!satisfiesMin(meta.version, range)) {
@@ -729,22 +735,45 @@ const serif = Average({ variable: "--font-average", weight: "400", subsets: ["la
 // .variable, never .className
 <html className={\`\${sans.variable} \${mono.variable} \${serif.variable} font-sans\`}>`;
 
+/** Every `.tsx` and `.jsx` under the app that is not build output. */
+const sourcesUnder = (dir) => walk(dir, [".tsx", ".jsx"], 12);
+
+/** Source still in a shape a migration replaces, one finding per migration. Read-only: `upgrade` moves it. */
+const checkSource = (appRoot) => {
+  const sources = sourcesUnder(appRoot).map((file) => [file, read(file) ?? ""]);
+  return MIGRATIONS.flatMap((m) => {
+    const stale = sources.filter(([, src]) => m.stale(src)).map(([file]) => file);
+    const n = stale.length;
+    if (!n) return [];
+    return [
+      finding(
+        "warn",
+        `${n} file${n > 1 ? "s" : ""} still written for an older version`,
+        `${relative(appRoot, stale[0])}${n > 1 ? ` and ${n - 1} more` : ""}: since ${m.version}, ${m.title}.`,
+        "npx foundations upgrade",
+      ),
+    ];
+  });
+};
+
 const doctor = async (appRoot) => {
   // Asked once, because it decides what the rest of the report can mean.
   const major = tailwindOf(appRoot, findCssEntry(appRoot));
   const install = checkInstall(appRoot);
   const styles = checkStyles(appRoot, major);
   const fonts = checkFonts(appRoot);
+  const source = checkSource(appRoot);
   // On v3 the cascade never assembles, so measuring the colours it did not
   // produce would fill the report with failures that all have one cause.
   const contrast = major !== null && major < 4 ? [] : await checkContrast(appRoot);
-  const all = [...install, ...styles, ...fonts, ...contrast];
+  const all = [...install, ...styles, ...fonts, ...source, ...contrast];
 
   console.log(`\n${bold(PKG_NAME)} ${dim(`doctor · ${appRoot}`)}`);
   report([
     ["Install", install],
     ["Styles", styles],
     ["Fonts", fonts],
+    ["Source", source],
     ["Contrast", contrast],
   ]);
 
@@ -877,16 +906,114 @@ const legacy = (appRoot, cssFile, { live, rel, lines, present, anchorIn, dryRun 
   );
 };
 
+/* ---------------------------------------------------------------- upgrade */
+
+/**
+ * Uncommitted changes to tracked files, or null outside a git repository. An
+ * untracked file cannot blur the diff of the files upgrade edits, so it stays out.
+ */
+const uncommitted = (appRoot) => {
+  try {
+    return execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], {
+      cwd: appRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Runs every migration this package carries over the app's source. A migration
+ * ships in the release that removed what it replaces, and each is a no-op on
+ * migrated code, so nothing needs to know the version the app came from. It
+ * writes only on a clean git tree, so `git diff` is the undo.
+ */
+const upgrade = (appRoot, { dryRun, force, paths }) => {
+  console.log(`\n${bold(PKG_NAME)} ${dim(`upgrade · v${pkgJson.version} · ${appRoot}`)}`);
+  const fail = (title, detail, fix) => {
+    report([["Upgrade", [finding("error", title, detail, fix)]]]);
+    console.log("");
+    return 1;
+  };
+
+  const targets = paths.map((p) => resolve(appRoot, p));
+  const missing = targets.find((p) => !existsSync(p));
+  if (missing) {
+    return fail(
+      `${relative(appRoot, missing)} does not exist`,
+      "upgrade takes files and directories, relative to the app.",
+      "check the path, or run it with none for the whole app",
+    );
+  }
+  if (!resolveDep(appRoot, "typescript")) {
+    return fail(
+      "TypeScript is not installed here",
+      "upgrade reads your source with the app's own TypeScript, and found none.",
+      "install typescript, or pass --cwd for the app that has it",
+    );
+  }
+  if (!dryRun && !force) {
+    const dirty = uncommitted(appRoot);
+    if (dirty !== "") {
+      return fail(
+        dirty === null ? "this app is not in a git repository" : "this app has uncommitted changes",
+        "upgrade rewrites source, and a clean tree is what lets git diff show exactly what it changed.",
+        "commit or stash first · --dry-run to preview · --force to write anyway",
+      );
+    }
+  }
+
+  const ts = createRequire(join(appRoot, "package.json"))("typescript");
+  const files = targets.length
+    ? targets.flatMap((p) => (statSync(p).isDirectory() ? sourcesUnder(p) : [p]))
+    : sourcesUnder(appRoot);
+  const rel = (line) => line.split(appRoot + sep).join("");
+
+  let moved = 0;
+  let left = 0;
+  for (const migration of MIGRATIONS) {
+    const result = migration.run({ files, ts, write: !dryRun });
+    moved += result.moved.length;
+    left += result.left.length;
+    const findings = [
+      finding(
+        "ok",
+        result.moved.length
+          ? `${result.moved.length} ${dryRun ? "to move" : "moved"}`
+          : "nothing to move",
+        dryRun ? result.moved.map(rel).join("\n    ") || null : null,
+      ),
+      ...result.left.map((line) => {
+        const [where, ...why] = rel(line).split("  ");
+        return finding("warn", where, why.join("  "));
+      }),
+    ];
+    report([[`${migration.version} · ${migration.title}`, findings]]);
+  }
+
+  const next = dryRun
+    ? "Dry run: nothing written. Run it again without --dry-run to apply."
+    : moved
+      ? "Now run your lint: designRules names anything left, and git diff shows what moved."
+      : "Nothing changed.";
+  console.log(`\n${left ? `${left} left for hand editing. ` : ""}${next}\n`);
+  return 0;
+};
+
 const usage = () => {
   console.log(`
 ${bold(PKG_NAME)} ${dim(`v${pkgJson.version}`)}
 
   ${bold("foundations doctor")}    check this app against the package's contract
   ${bold("foundations init")}      add and reorder the CSS imports, print the rest
+  ${bold("foundations upgrade")}   move source written for an older version [paths…]
 
 Options
   --cwd <dir>    run against another app instead of the current directory
-  --dry-run      init only: show the patch without writing it
+  --dry-run      init, upgrade: show what would change without writing it
+  --force        upgrade: write even with uncommitted changes
 `);
 };
 
@@ -895,7 +1022,8 @@ Options
 const args = process.argv.slice(2);
 /** Flags that take a value, so the value is not mistaken for the command. */
 const VALUED = new Set(["--cwd"]);
-const command = args.find((a, i) => !a.startsWith("--") && !VALUED.has(args[i - 1])) ?? "help";
+const positional = args.filter((a, i) => !a.startsWith("--") && !VALUED.has(args[i - 1]));
+const command = positional[0] ?? "help";
 const flag = (name) => args.includes(`--${name}`);
 const value = (name) => {
   const at = args.indexOf(`--${name}`);
@@ -922,6 +1050,8 @@ switch (command) {
     process.exit(await doctor(appRoot));
   case "init":
     process.exit(init(appRoot, { dryRun: flag("dry-run") }));
+  case "upgrade":
+    process.exit(upgrade(appRoot, { dryRun: flag("dry-run"), force: flag("force"), paths: positional.slice(1) }));
   default:
     console.error(`unknown command: ${command}`);
     usage();

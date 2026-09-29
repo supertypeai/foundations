@@ -7,8 +7,8 @@
 Content blocks from `@supertype.ai/foundations/blocks`, plus the MDX map that makes
 them available in markdown.
 
-`Tabs` and `Accordion` are client components (Base UI); everything else renders
-on the server.
+`TabGroup` is a client component (Base UI); everything else renders on the
+server.
 
 ## Card
 
@@ -23,7 +23,7 @@ compose the slots yourself when you need more.
   href="/notes/streaming-pipelines"
   title="Build a streaming pipeline"
   description="Kafka in, warehouse out, four parts."
-  icon={<DatabaseIcon className="size-4" />}
+  icon={<DatabaseIcon />}
 />;
 
 {
@@ -124,14 +124,13 @@ matters and whose values always travel together is one argument.
 a filled `Button` does and tints at 5%, so the words inside it still sit on the
 page and still want the page's ink.
 
-So the ink is handed down by whatever actually paints. Fill a surface and add
-`INK_ON_FILL`; tint a neutral one and add `INK_ON_CARD`, `INK_ON_POPOVER` or
-`INK_ON_SIDEBAR`. They are constants rather than a function of the token because
-Tailwind generates only the classes it can read as text in the package, so a
-class assembled at runtime resolves to nothing at all. A surface the package does
-not name takes `inkOnSurfaceStyle(token)`, spread into `style`.
-Both set `--ink` and `--ink-muted`, which every type primitive reads with the
-page as its fallback:
+So the ink is handed down by whatever actually paints. Fill a surface with a tone
+and add `INK_ON_FILL`; paint any other, `--card`, `--popover`, `--sidebar` or one
+of your own, and spread `inkOnSurfaceStyle(token)` into `style`. It is properties
+rather than a class because Tailwind generates only the classes it can read as
+text in the package, so a class assembled at runtime resolves to nothing at all.
+`Card` and `Bulletin` already do it for the card. Both set `--ink` and
+`--ink-muted`, which every type primitive reads with the page as its fallback:
 
 ```tsx
 <div className={cn(toneClass("brand"), INK_ON_FILL, "bg-(--tone-fill) p-4")}>
@@ -233,7 +232,8 @@ through `render`. Its own links are `#hash` anchors, which want no router.
 
 `compact` is the product form, with a 12px title over 12px body. `editorial` is
 the docs form: body copy at reading size and a 3px accent rail, so the surface
-around it can stay quiet.
+around it can stay quiet. The icon is the title's [mark](typography.md#marks), or
+the body's first line's when there is no title.
 
 This is a permanent explanation inside a panel, not a shadcn `Alert`, and it
 should not announce itself to a screen reader every time a sheet opens.
@@ -261,6 +261,11 @@ should not announce itself to a screen reader every time a sheet opens.
 | `external` | `boolean` — override the scheme sniff                           | from the href                           |
 | `newTab`   | `boolean` — override the target                                 | on for an `http(s)` href                |
 | `render`   | `ReactElement` — an element that is neither a button nor a link | a `<button>`                            |
+
+A glyph passed as a direct child is one em of the label and centres on its
+letters, so it takes no class; a size class on it is inert and lint says so. One
+you wrap in an element of your own keeps the size you give it. `Badge` does the
+same, and so does a `TabGroup` tab's `icon`.
 
 **Variant is how much ink the button spends; tone is what the ink means.** They
 are independent, and that separation is what makes the API useful. A list that
@@ -328,10 +333,11 @@ viably's was a copy of the old button list, `link` variant and all.
 Two rungs, not five: `sm` is the label beside a title, `xs` the figure beside a
 toolbar control.
 
-## Disclosure and Accordion
+## Disclosure
 
-**`Disclosure` / `DisclosureGroup`** — a `<details>`/`<summary>` pair. No
-JavaScript, correct before hydration, and available to an MDX author:
+**`Disclosure` / `DisclosureGroup`**, a `<details>`/`<summary>` pair: the one way
+to show and hide a row. No JavaScript, correct before hydration, and available to
+an MDX author:
 
 ```tsx
 <DisclosureGroup type="single" defaultValue="Retries">
@@ -344,45 +350,20 @@ JavaScript, correct before hydration, and available to an MDX author:
 `name` attribute browsers implement natively, so it costs no state.
 `defaultValue` matches on the title string.
 
-**`Accordion`** — Base UI, animated, client-side:
+The panel opens and closes on a 200ms ease where the browser supports
+`::details-content` and `interpolate-size`, and opens at once where it does not.
+That was the whole case for a second, client-side accordion, so there is no
+longer one.
 
-```tsx
-"use client";
-<Accordion>
-  <AccordionItem value="a">
-    <AccordionTrigger>What counts as a seat?</AccordionTrigger>
-    <AccordionContent>
-      Anyone who signs in during the billing period.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>;
-```
-
-It needs `theme.css` for its open and close keyframes.
-
-Both wear one look, from `DISCLOSURE` in `blocks/disclosure.tsx`, so a row opened
-in an MDX FAQ and a row opened in a client panel are visibly the same control. It
-is `Tabs`' `line` variant turned on its side: no box and no fill, a hairline
-between rows, and one 2px mark in `--tone-hue` drawing itself down the open row.
-Ink carries the state the way a tab label does — muted at rest, `--foreground`
-open — and hover moves the ink and nothing else.
-
-`tone` on either root inks that mark, and only it:
+It is the tab strip's `line` variant turned on its side: no box and no fill, a
+hairline between rows, and one 2px mark in `--tone-hue` drawing itself down the
+open row. Ink carries the state the way a tab label does, muted at rest and
+`--foreground` open, and hover moves the ink and nothing else. `tone` on the
+group inks that mark, and only it:
 
 ```tsx
 <DisclosureGroup tone="brand">…</DisclosureGroup>
-<Accordion tone="brand">…</Accordion>
 ```
-
-The two engines report "open" differently — `<details>` writes `open` on itself,
-Base UI writes `aria-expanded` on the trigger — so `DISCLOSURE.row` spells out
-both selectors. The one that does not apply matches nothing, which is why there
-is one set of classes rather than two that drift. The cost is one class the
-constant cannot supply for itself: `<details>` carries its state on the ancestor,
-so `Disclosure` marks it `group/disclosure`.
-
-`DISCLOSURE` is four strings — `group`, `item`, `row`, `panel` — and `row` already
-carries its own open state, since no call site has wanted one without the other.
 
 ## Tabs
 
@@ -397,10 +378,11 @@ carries its own open state, since no call site has wanted one without the other.
 />;
 ```
 
-`TabGroup` is the component. Everything the package and both apps do with tabs is
-this shape, including the cases that look like they want composing by hand.
+`TabGroup` is the one way to make tabs. Everything the package and both apps do
+with tabs is this shape, including a preview/code switcher, which is `TabGroup`
+with a wrapper in each `content`. The parts it is built from are not exported.
 
-`TabsList` takes a `variant`: `default` draws a boxed segmented track, `line`
+It takes a `variant`: `default` draws a boxed segmented track, `line`
 drops the surface and marks the active tab with an underline. Each variant states
 its own box — a `line` strip wraps and its tabs are as wide as their labels;
 boxed segments split one fixed-height rail evenly — so neither needs correcting
@@ -418,7 +400,7 @@ to paint. Labels stay `--foreground` either way — a label is read, not signall
   tone="brand"
   defaultValue="speakers"
   tabs={[
-    { value: "gallery", label: "Gallery", icon: Award, content: <Overview /> },
+    { value: "gallery", label: "Gallery", icon: <Award />, content: <Overview /> },
     {
       value: "speakers",
       label: "Speakers",
@@ -429,7 +411,7 @@ to paint. Labels stay `--foreground` either way — a label is read, not signall
 />
 ```
 
-`icon` is an element — `<Award />`, `<PriceChip />` — sized at `size-4`, seated in the
+`icon` is an element — `<Award />`, `<PriceChip />` — one em of the label, seated in the
 label's own gap, and taking the tone when its tab is active. An element rather than a
 component because `TabGroup` is a client component: a component reference handed to it
 from a server page is a function crossing the RSC boundary, and React refuses that. `iconPosition` moves it to `"inline-end"`. Pass `value` with
@@ -440,27 +422,6 @@ what `defaultValue` and `onValueChange` speak.
 
 An MDX author writes `<Tabs items={[…]}>` with a `<Tab>` per panel, paired by
 position. That shape belongs to the MDX map, not the component API.
-
-### Composing by hand
-
-`Tabs`, `TabsList`, `TabsTrigger` and `TabsContent` are the parts `TabGroup` is
-built from. Nothing in this repo or in the apps needs one today — the
-preview/code switchers that look like they do are `TabGroup` with a wrapper in
-`content` — so if you are reaching for these, check that first.
-
-```tsx
-<Tabs defaultValue="people">
-  <TabsList variant="line">
-    <TabsTrigger value="people">People</TabsTrigger>
-    <TabsTrigger value="revenue">Revenue</TabsTrigger>
-  </TabsList>
-  <TabsContent value="people">…</TabsContent>
-  <TabsContent value="revenue">…</TabsContent>
-</Tabs>
-```
-
-It renders exactly what the `TabGroup` above it does. The purpose is simple: it is a
-lower rung, not a second way.
 
 ## Steps
 
@@ -617,7 +578,7 @@ mark beside its own wording, and `FOUNDATIONS_URL` is the bare href for a
 ## SEGMENT
 
 The segmented picker as a set of class strings, for building your own control
-that needs to match `TabsList`:
+that needs to match `TabGroup`'s boxed strip:
 
 ```tsx
 import { SEGMENT } from "@supertype.ai/foundations/blocks";
@@ -629,7 +590,7 @@ import { SEGMENT } from "@supertype.ai/foundations/blocks";
 The keys are `track`, `item`, `active`, `idle` and `activeSurface`. There used to be a
 sixth, `dataActiveSurface`, which was `activeSurface` respelled with `data-active:`
 prefixes for an engine that marked its own trigger — one surface with two spellings,
-changeable by half. `Tabs` draws its marker as an element now, so both engines wear
+changeable by half. `TabGroup` draws its marker as an element now, so both wear
 `activeSurface` itself.
 
 `track` carries `shadow-recessed`, the system's one inward shadow, over `bg-background`

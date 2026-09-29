@@ -3,6 +3,8 @@ import { cn } from "../cn.js";
 import { FOCUS_RING } from "./focus.js";
 import { INK_ON_CARD, toneClass } from "../tone.js";
 import { resolveLink } from "../href.js";
+import { TextAs } from "../typography/as.js";
+import { GLYPH } from "../typography/align.js";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export function Cards({ className, children, ...props }) {
     return (_jsx("div", { className: cn("my-6 grid gap-4 sm:grid-cols-2", className), ...props, children: children }));
@@ -31,7 +33,7 @@ export function CardHeader({ className, ...props }) {
  * title over a sans description. Rank inside a card is weight and size.
  */
 export function CardTitle({ className, ...props }) {
-    return (_jsx("div", { "data-slot": "card-title", className: cn("text-base leading-snug font-medium", className), ...props }));
+    return (_jsx(TextAs, { as: "div", "data-slot": "card-title", className: cn("text-base leading-snug font-medium", className), ...props }));
 }
 export function CardDescription({ className, ...props }) {
     return (_jsx("div", { "data-slot": "card-description", className: cn("text-sm text-muted-foreground", className), ...props }));
@@ -47,13 +49,9 @@ export function CardContent({ className, ...props }) {
  */
 export function Card({ href, className, external, newTab, scroll, title, description, icon, children, ...rest }) {
     const header = title || description || icon ? (_jsxs(CardHeader, { children: [icon || title ? (
-            // The icon sits on the title's line and is its mark; stacked, it read as a
-            // decoration the title happened to follow. `gap-2` is a gap between two
-            // objects, not the header's `gap-1` between two lines.
-            _jsxs("div", { className: "flex items-center gap-2", children: [icon ? (
-                    // Sized here, not at the call site, so two cards cannot disagree about how
-                    // big an icon is. On a link card it takes the tone as the card lifts.
-                    _jsx("span", { className: "shrink-0 text-muted-foreground transition-colors group-hover/card:text-(color:--tone-hue) [&_svg]:size-4 [&_svg]:shrink-0", children: icon })) : null, title ? _jsx(CardTitle, { children: title }) : null] })) : null, description ? _jsx(CardDescription, { children: description }) : null] })) : null;
+            // The icon is the title's mark, one em of the title. The wrapper carries the
+            // ink the card lifts into, so it sizes the glyph as the slot would have.
+            _jsx(CardTitle, { mark: icon ? (_jsx("span", { className: cn("flex text-muted-foreground transition-colors group-hover/card:text-(color:--tone-hue)", GLYPH), children: icon })) : null, children: title })) : null, description ? _jsx(CardDescription, { children: description }) : null] })) : null;
     // Bare children compose; children under a shorthand header are body copy.
     const body = header ? (_jsxs(_Fragment, { children: [header, children ? _jsx(CardContent, { children: children }) : null] })) : (children);
     const shared = { "data-slot": "card" };

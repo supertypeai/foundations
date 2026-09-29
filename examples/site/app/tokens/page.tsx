@@ -117,12 +117,14 @@ export default function TokensPage() {
           <TypographyInlineCode>
             bg-(--tone-fill) text-(color:--tone-ink)
           </TypographyInlineCode>{" "}
-          whatever the tone is. Five components take the prop:{" "}
+          whatever the tone is. Seven components take the prop:{" "}
           <TypographyInlineCode>Button</TypographyInlineCode>,{" "}
           <TypographyInlineCode>Badge</TypographyInlineCode>,{" "}
           <TypographyInlineCode>Callout</TypographyInlineCode>,{" "}
-          <TypographyInlineCode>TypographyLink</TypographyInlineCode> and{" "}
-          <TypographyInlineCode>TabsList</TypographyInlineCode>.
+          <TypographyInlineCode>TypographyLink</TypographyInlineCode>,{" "}
+          <TypographyInlineCode>TabGroup</TypographyInlineCode>,{" "}
+          <TypographyInlineCode>DisclosureGroup</TypographyInlineCode> and{" "}
+          <TypographyInlineCode>Steps</TypographyInlineCode>.
         </TypographyProse>
         <div className="mt-4">
           <Code
@@ -154,7 +156,7 @@ export default function TokensPage() {
       <Section
         id="editorial"
         title="Editorial inks"
-        note="Defined in theme.css alone. Skip that import and the marker tones, the secondary link colour and the accordion keyframes resolve to nothing, silently. Two cuts each, the same shape as the status hues above: the fill is a mark, the ink is the same hue as words. The suffix is -ink; these eight shipped under -foreground until the rename, and the old spelling still resolves, so the lint rules are what retire it."
+        note="Defined in theme.css alone. Skip that import and the marker tones and the secondary link colour resolve to nothing, silently. Two cuts each, the same shape as the status hues above: the fill is a mark, the ink is the same hue as words. The suffix is -ink; these eight shipped under -foreground until the rename, and the old spelling still resolves, so the lint rules are what retire it."
       >
         <TokenGrid tokens={EDITORIAL} />
         <TypographyProse className="mt-6">

@@ -13,14 +13,14 @@ import {
 } from "./typography/header.js";
 import { cn } from "./cn.js";
 import Image from "next/image";
-import { Disclosure, DisclosureGroup } from "./blocks/accordion.js";
+import { Disclosure, DisclosureGroup } from "./blocks/disclosure.js";
 import { Callout } from "./blocks/callout.js";
 import { Card, Cards } from "./blocks/card.js";
 import { Step, Steps } from "./blocks/steps.js";
 import { TabGroup } from "./blocks/tabs.js";
 import {
   TypographyProse,
-  TypographyProseList,
+  TypographyList,
   TypographyLink,
 } from "./typography/paragraph.js";
 
@@ -107,9 +107,9 @@ export const proseMdxComponents = {
   h3: selfLinked(TypographyH3),
   h4: selfLinked(TypographyH4),
   p: (props: ComponentProps<"p">) => <TypographyProse {...props} />,
-  ul: (props: ComponentProps<"ul">) => <TypographyProseList {...props} />,
+  ul: (props: ComponentProps<"ul">) => <TypographyList variant="prose" {...props} />,
   ol: (props: ComponentProps<"ol">) => (
-    <TypographyProseList ordered {...(props as ComponentProps<"ul">)} />
+    <TypographyList variant="prose" ordered {...(props as ComponentProps<"ul">)} />
   ),
   li: (props: ComponentProps<"li">) => (
     <li className="[&>ul]:mt-2 [&>ol]:mt-2" {...props} />

@@ -8,6 +8,7 @@ import { cn } from "../cn.js"
 import { toneClass, type Tone } from "../tone.js"
 import { SEGMENT } from "./segment.js"
 import { trimLabels } from "./trim-labels.js"
+import { GLYPH } from "../typography/align.js"
 
 function Tabs({
   className,
@@ -138,15 +139,13 @@ function TabsTrigger({ className, children, ...props }: TabsPrimitive.Tab.Props)
         // Ink only — the surface and the underline belong to the indicator. The radius is
         // for the hover wash, and matches the marker that wash previews.
         "rounded-sm text-muted-foreground hover:text-foreground data-active:text-foreground",
-        // The mark is sized off `text-sm`, the same rung Button's `md` sets it from, and
-        // both paths agree: a tab composed by hand and one `TabGroup` builds get one size.
-        "px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-3.5",
+        "px-1.5 py-0.5 text-sm whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
         // An icon sits inside the label's gap, so the padding on that side comes off.
         // `TabGroup` writes the `data-icon` these two read.
         "has-data-[icon=inline-start]:pl-1 has-data-[icon=inline-end]:pr-1",
         // Filling the track is the boxed variant's business; a line tab is as wide as its
         // label. The variant is read off the list's `data-variant` rather than taken as a
-        // prop, so a caller states it once on `TabsList` and not on every trigger.
+        // prop, so it is stated once on the list and not on every trigger.
         // Selectors are spelled out, never interpolated: Tailwind's scanner cannot see an
         // interpolated class and would compile nothing.
         "group-data-[variant=default]/tabs-list:h-full group-data-[variant=default]/tabs-list:flex-1 group-data-[variant=default]/tabs-list:justify-center",
@@ -179,7 +178,7 @@ export type TabItem = {
   value: string
   label: ReactNode
   /**
-   * An element, sized and inked by the trigger. An element and not a component:
+   * An element, sized by its slot and inked by the trigger. An element and not a component:
    * `TabGroup` is a client component, so a component reference handed to it from a
    * server page crosses the RSC boundary as a function, which React refuses.
    */
@@ -187,7 +186,10 @@ export type TabItem = {
   content: ReactNode
 }
 
-/** `data-icon` is the hook the trigger's padding and tone selectors read. */
+/**
+ * The icon's seat, one em of the label as in Button. `data-icon` is the hook the
+ * trigger's padding and tone selectors read.
+ */
 function TabIconSlot({
   icon,
   position,
@@ -198,7 +200,7 @@ function TabIconSlot({
   return (
     <span
       data-icon={position}
-      className="flex items-center transition-colors [&_svg]:size-3.5 [&_svg]:shrink-0"
+      className={cn("flex items-center transition-colors", GLYPH)}
     >
       {icon}
     </span>
@@ -206,9 +208,9 @@ function TabIconSlot({
 }
 
 /**
- * The declarative shorthand, tabs as data. `TabGroup` is to `Tabs` what
- * `DisclosureGroup` is to `Accordion`: the shape to reach for, since an app that
- * rebuilds it re-adds the icon, the handler and the stable value by hand.
+ * Tabs, as data, and the one way to make them. The parts above are its insides,
+ * not exported: every hand-composed strip turned out to be this one with a wrapper
+ * in `content`, re-adding the icon, the handler and the stable value by hand.
  */
 export function TabGroup({
   tabs,
@@ -263,4 +265,3 @@ export function TabGroup({
   )
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }

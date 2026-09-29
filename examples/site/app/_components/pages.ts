@@ -49,7 +49,7 @@ export const PAGES: PageCopy[] = [
     slug: "blocks",
     title: "Blocks",
     description:
-      "Cards, callouts, steps, tabs, accordions, rails, and reading aids, each rendered live beside the code behind it.",
+      "Cards, callouts, steps, tabs, disclosures, rails, and reading aids, each rendered live beside the code behind it.",
   },
   {
     slug: "tokens",
@@ -63,6 +63,12 @@ export const PAGES: PageCopy[] = [
     nav: "Essay",
     description:
       "The long-form layout: essay headers, pull quotes, figures, columns, and a table of contents wired to a scroll spy.",
+  },
+  {
+    slug: "upgrading",
+    title: "Upgrading",
+    description:
+      "What each release changes in your code, and npx foundations upgrade, which moves most of it for you on a clean git tree.",
   },
   {
     slug: "agents",

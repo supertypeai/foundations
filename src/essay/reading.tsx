@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "../cn.js";
+import { CAP_TRIM } from "../typography/align.js";
+import { TypographyEyebrow } from "../typography/header.js";
 import { Rail, RailLink } from "./rail.js";
 import { useReadingProgress, useScrollSpy } from "./scroll.js";
 import type { TocHeading } from "./toc.js";
@@ -81,11 +83,12 @@ export function ReadingRail({
       aria-label="On this page"
       className={cn("flex flex-col gap-4", className)}
     >
+      {/* The ring is taller than the line, so it is an object, not a mark: the words centre on it, trimmed to their ink. */}
       <div className="flex items-center gap-3">
         <ProgressDonut progress={progress} />
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <TypographyEyebrow as="p" tone="muted" size="xs" className={cn(CAP_TRIM, "tracking-widest")}>
           On this page
-        </p>
+        </TypographyEyebrow>
       </div>
 
       <Rail>

@@ -1,7 +1,7 @@
 /**
  * The focus ring, stated once.
  *
- * It was five copies — Button, Badge, Accordion, `SEGMENT.item`, and Card, which
+ * It was five copies — Button, Badge, the disclosure row, `SEGMENT.item`, and Card, which
  * added the fifth while its own comment observed that the other four existed.
  * Retuning the width or the ink was a find-and-replace across five files with no
  * compiler help if one was missed.

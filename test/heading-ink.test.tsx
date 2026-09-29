@@ -39,7 +39,7 @@ describe("a heading keeps its ink alongside its rung", () => {
       expect(
         rendered,
         `${name} lost its ink: it will inherit whatever painted above it, so ` +
-          "INK_ON_CARD and friends do nothing for it",
+          "a surface's ink contract does nothing for it",
       ).toContain(INK);
     });
   }

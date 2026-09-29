@@ -75,22 +75,16 @@ export const INK_ON_FILL =
   "[--ink:var(--tone-ink)] [--ink-muted:var(--tone-ink)]";
 
 /**
- * The same contract for a surface the tones do not name. Stated one constant at a
- * time because Tailwind reads this file as text: a class assembled at runtime was
- * never generated, and styles nothing with no error. See `inkOnSurfaceStyle` for
- * a surface the package does not name.
+ * The same contract on the card, for `Card` and `Bulletin`. Internal: an app
+ * states it with `inkOnSurfaceStyle`, the one way for every surface.
  */
 export const INK_ON_CARD =
   "[--ink:var(--card-foreground)] [--ink-muted:var(--muted-foreground)]";
-export const INK_ON_POPOVER =
-  "[--ink:var(--popover-foreground)] [--ink-muted:var(--muted-foreground)]";
-export const INK_ON_SIDEBAR =
-  "[--ink:var(--sidebar-foreground)] [--ink-muted:var(--muted-foreground)]";
 
 /**
- * The escape hatch, for an app painting a surface of its own. Properties rather
- * than a class, since a class returned from here would need a scanner that never
- * saw it. It replaces a version that returned a class string and did.
+ * The ink contract for any surface an app paints, `--card`, `--popover`,
+ * `--sidebar` or its own. Properties rather than a class, since a class returned
+ * from here would need a scanner that never saw it.
  */
 export const inkOnSurfaceStyle = (
   ink: string,

@@ -130,11 +130,7 @@ export function ToneAliases() {
             <TypographyLabel as="p" className="text-muted-foreground line-through">
               tone=&quot;{reached}&quot;
             </TypographyLabel>
-            <TypographyLabel as="p" className="text-(color:--tone-hue)">
-              <Icons.ArrowRight
-                aria-hidden
-                className="mr-1 inline size-3 align-baseline text-muted-foreground"
-              />
+            <TypographyLabel as="p" className="text-(color:--tone-hue)" mark={<Icons.ArrowRight aria-hidden className="text-muted-foreground" />}>
               tone=&quot;{use}&quot;
             </TypographyLabel>
           </div>

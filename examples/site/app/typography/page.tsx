@@ -12,6 +12,7 @@ import ProseFlowDemo from "../_demos/prose-flow";
 import Meta from "../_demos/meta";
 import Stats from "../_demos/stats";
 import Links from "../_demos/links";
+import Marks from "../_demos/marks";
 import { pageMetadata } from "../_components/seo";
 
 export const metadata: Metadata = pageMetadata("typography");
@@ -23,6 +24,7 @@ const SECTIONS = [
   { id: "meta", label: "Meta and labels" },
   { id: "stats", label: "Stats, code, highlight" },
   { id: "links", label: "Links" },
+  { id: "marks", label: "Marks" },
   { id: "your-own", label: "Your own element" },
 ];
 
@@ -118,6 +120,16 @@ export default function TypographyPage() {
       >
         <Demo source="app/_demos/links.tsx">
           <Links />
+        </Demo>
+      </Section>
+
+      <Section
+        id="marks"
+        title="Marks"
+        note="An icon, checkbox or dot beside words goes in their mark or markEnd prop. The role sizes a glyph to one em of the words and seats every mark on the middle of the first line's capitals, at any size or zoom. Marked puts lines under a title in its column, Mark places a glyph inside a sentence, and controls size their own. An avatar, taller than the line, is not a mark: the words centre on it with CAP_TRIM."
+      >
+        <Demo source="app/_demos/marks.tsx">
+          <Marks />
         </Demo>
       </Section>
 

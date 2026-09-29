@@ -6,6 +6,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../cn.js";
 import { toneClass, type Tone } from "../tone.js";
 import { TextAs, type WithAs } from "./as.js";
+import { Mark } from "./mark.js";
 
 /** The body layer: two axes and no more. A paragraph picks a rung and an ink; a
  * caption is always secondary ink and picks a size. `lead` was a third rung a
@@ -65,7 +66,11 @@ type Preset<Base, Pins> = Omit<Base, keyof Pins>;
 
 type ParagraphProps = WithAs<ParagraphVariants>;
 
-/** The UI rung in the secondary ink. */
+/**
+ * The UI rung in the secondary ink: the content, said quietly. Words about
+ * something else, a timestamp or the terms under a price, are a caption, which
+ * shares this rung and ink at its default size and parts from it everywhere else.
+ */
 const MUTED = { tone: "muted" } as const satisfies ParagraphVariants;
 export function TypographyMuted(props: Preset<ParagraphProps, typeof MUTED>) {
   return <TypographyP {...props} {...MUTED} />;
@@ -82,10 +87,8 @@ export function TypographyProse(props: Preset<ParagraphProps, typeof PROSE>) {
 
 /**
  * A list, on the same rung axis as the paragraph beside it, composed from
- * `pVariants` so it cannot drift from the copy above it. `variant` is here for
- * the cases where a tier card sets its paragraphs in `ui`, while a list pinned to
- * `prose` lands two rungs above the sentence introducing it. Tone stays pinned
- * to `muted`.
+ * `pVariants` so it cannot drift from the copy above it: `variant="prose"` beside
+ * reading copy, `ui` (the default) in a tier card. Tone stays pinned to `muted`.
  */
 const listClass = (variant: ParagraphVariants["variant"], ordered?: boolean) =>
   cn(
@@ -116,50 +119,34 @@ export function TypographyList({
 }
 
 /**
- * The reading rung, pinned. The name predates the axis and keeps every call site
- * that already had it; `Preset` stops one re-opening the rung it names.
+ * The rungs a caption and a label are set at, one ladder, since a label and a
+ * caption are one pair and a pair that cannot be set at one size is not a pair.
+ * `inherit` takes the size already set: the parenthetical inside a heading or a
+ * stat, a label inside a chip.
  */
-const PROSE_LIST = { variant: "prose" } as const satisfies Pick<
-  ParagraphVariants,
-  "variant"
->;
-export function TypographyProseList(
-  props: Preset<ListProps, typeof PROSE_LIST>,
-) {
-  return <TypographyList {...props} {...PROSE_LIST} />;
-}
+const PAIR_SIZE = {
+  sm: "text-sm",
+  xs: "text-xs",
+  "2xs": "text-2xs",
+  inherit: "",
+} as const;
 
 /**
  * Meta beside content: timestamps, counts, bylines, the key in a key-value row.
  * Always secondary ink and never a weight, since colour and weight both saying
- * "secondary" is one arguing with the other. `inherit` is the parenthetical
- * inside a heading or a stat, taking the size that set it.
- *
- * A mark set directly beside the words is sized off the rung, the way Button
- * sizes its own: a 12px glyph beside 11px meta paints 11px of ink against an
- * 8px cap band and hangs over the baseline however it is centred. Direct child
- * only, so a control nested in the caption keeps its own mark.
+ * "secondary" is one arguing with the other. The weight is stated, so a count
+ * inside a label's line stays regular.
  */
 const captionVariants = cva(
-  "text-[color:var(--ink-muted,var(--muted-foreground))] [&>svg]:shrink-0 [&>svg]:icon-inline",
-  {
-    variants: {
-      size: {
-        sm: "text-sm",
-        xs: "text-xs",
-        "2xs": "text-2xs",
-        inherit: "font-normal",
-      },
-    },
-    defaultVariants: { size: "sm" },
-  },
+  "font-normal text-[color:var(--ink-muted,var(--muted-foreground))]",
+  { variants: { size: PAIR_SIZE }, defaultVariants: { size: "sm" } },
 );
 
 export type CaptionVariants = VariantProps<typeof captionVariants>;
 
 /**
- * `as` covers the one thing that genuinely differs between call sites: whether
- * the run is inline beside its subject or a block under it.
+ * `as` covers the one thing that genuinely differs between call sites, the
+ * element: a `span` beside its subject, a `p` note under it, `small` print.
  */
 export function TypographyCaption({
   className,
@@ -179,38 +166,10 @@ export function TypographyCaption({
   );
 }
 
-/**
- * Small print set as a block: a note under the thing it annotates, rather than
- * an aside inline with it. Same rung and same ink as the caption — small print
- * is small because it is muted, and dropping it a rung as well is what made
- * both apps hand-roll their own.
- */
-const BLOCK = { as: "p" } as const satisfies Pick<WithAs, "as">;
-export function TypographySmall(
-  props: Preset<WithAs<CaptionVariants>, typeof BLOCK>,
-) {
-  return <TypographyCaption {...props} {...BLOCK} />;
-}
-
-/**
- * The label role: a form label, a column header, the key a reader scans for. The
- * rungs are the caption's, deliberately, since a label and a caption are one pair
- * and a pair that cannot be set at one size is not a pair.
- */
+/** The label role: a form label, a column header, the key a reader scans for. */
 const labelVariants = cva(
   "font-medium text-[color:var(--ink,var(--foreground))]",
-  {
-    variants: {
-      size: {
-        sm: "text-sm",
-        xs: "text-xs",
-        "2xs": "text-2xs",
-        /** Inside a heading or a chip, where the container has already set one. */
-        inherit: "",
-      },
-    },
-    defaultVariants: { size: "sm" },
-  },
+  { variants: { size: PAIR_SIZE }, defaultVariants: { size: "sm" } },
 );
 
 export type LabelVariants = VariantProps<typeof labelVariants>;
@@ -328,9 +287,10 @@ export function TypographyInlineCode({
 }
 
 /**
- * A statement about the surface, not the link: `muted` inside a paragraph,
- * `primary` when the link is the main thing on the line, `secondary` for a note
- * beneath a hero. The other four come free from ../tone.ts.
+ * A statement about the surface, not the link: none inside a paragraph, where
+ * the link takes the ink around it, `primary` when the link is the main thing on
+ * the line, `secondary` for a note beneath a hero. The rest come free from
+ * ../tone.ts.
  */
 const INHERITED_INK = "text-[color:var(--ink,var(--foreground))]";
 
@@ -372,7 +332,7 @@ type TypographyLinkProps = Omit<ComponentProps<"a">, "href"> &
 export function TypographyLink({
   href,
   children,
-  tone = "muted",
+  tone,
   external: leavesApp,
   newTab,
   scroll,
@@ -394,20 +354,21 @@ export function TypographyLink({
     <>
       {children}
       {addArrow && (
-        <svg
-          aria-hidden="true"
-          className="ml-1 inline size-3.5 align-middle"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path
-            d={external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7"}
-          />
-        </svg>
+        <Mark className="ml-1">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path
+              d={external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7"}
+            />
+          </svg>
+        </Mark>
       )}
     </>
   );

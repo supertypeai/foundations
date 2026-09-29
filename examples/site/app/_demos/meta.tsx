@@ -2,7 +2,6 @@ import {
   TypographyEyebrow,
   TypographyLabel,
   TypographyCaption,
-  TypographySmall,
 } from "@supertype.ai/foundations";
 
 export default function Meta() {
@@ -30,7 +29,7 @@ export default function Meta() {
         <TypographyCaption size="xs">Updated 3 minutes ago</TypographyCaption>
       </div>
 
-      <TypographySmall>Rates exclude tax.</TypographySmall>
+      <TypographyCaption as="small" className="block">Rates exclude tax.</TypographyCaption>
     </div>
   );
 }

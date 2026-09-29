@@ -2,10 +2,12 @@ import type { ComponentProps, ReactElement } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "../cn.js";
-import { renderAs } from "./render-as.js";
+import { ownChildren, renderAs } from "./render-as.js";
 import { resolveLink, type LinkBehavior } from "../href.js";
 import { FOCUS_RING } from "./focus.js";
 import { INK_ON_FILL, TONE, TONE_SURFACE, impliedTone } from "../tone.js";
+import { GLYPH } from "../typography/align.js";
+import { trimLabels } from "./trim-labels.js";
 
 // A label that is not a control. Same two axes as Button, spelled the same way:
 // `variant` for how much ink, `tone` for what it means. The apps' own lists had
@@ -18,7 +20,7 @@ const badge = cva(
     "overflow-hidden border border-transparent font-medium whitespace-nowrap",
     cn("transition focus-visible:border-ring", FOCUS_RING),
     "aria-invalid:border-destructive aria-invalid:ring-destructive/20",
-    "[&>svg]:pointer-events-none [&>svg]:size-3!",
+    GLYPH,
     TONE_SURFACE,
   ),
   {
@@ -80,6 +82,8 @@ export function Badge({
   }) {
   const resolved = tone ?? impliedTone(variant);
   const classes = cn(badge({ variant, tone: resolved, size, pill, className }));
+  // Trimmed like Button's, so a glyph beside the label centres on its letters.
+  const children = trimLabels(props.children ?? ownChildren(render));
   const marks = {
     "data-slot": "badge",
     "data-variant": variant ?? "solid",
@@ -94,12 +98,13 @@ export function Badge({
         {...link}
         className={classes}
         {...(props as ComponentProps<"a">)}
+        children={children}
       />
     );
   }
 
-  const as = renderAs(render, classes, { ...marks, ...props });
+  const as = renderAs(render, classes, { ...marks, ...props, children });
   if (as) return as;
 
-  return <span {...marks} className={classes} {...props} />;
+  return <span {...marks} className={classes} {...props} children={children} />;
 }

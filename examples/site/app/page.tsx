@@ -101,6 +101,13 @@ npx foundations doctor    # checks the wiring`}
         </div>
 
         <TypographyProse className="mt-3">
+          After a version bump,{" "}
+          <TypographyInlineCode>npx foundations upgrade</TypographyInlineCode>{" "}
+          moves the code the release changed. <TypographyLink href="/upgrading">Upgrading</TypographyLink>{" "}
+          lists what each release changes.
+        </TypographyProse>
+
+        <TypographyProse className="mt-3">
           Every release is tagged and published, so you can pin a specific
           commit ahead of the next release.
         </TypographyProse>

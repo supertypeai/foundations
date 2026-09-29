@@ -4,7 +4,7 @@ import {
   TypographyInlineCode,
   TypographyLink,
   TypographyProse,
-  TypographyProseList,
+  TypographyList,
 } from "@supertype.ai/foundations";
 import {
   EssayFigure,
@@ -121,7 +121,7 @@ export default function PhilosophyPage() {
         </EssaySection>
 
         <EssaySection id="quiet-failures" heading="Two commands set up the CSS">
-          <TypographyProseList>
+          <TypographyList variant="prose">
             <li>
               <TypographyInlineCode>npx foundations init</TypographyInlineCode>{" "}
               writes the CSS block and reorders the imports you already have.
@@ -134,7 +134,7 @@ export default function PhilosophyPage() {
               then exits non-zero on a problem, so it can sit in CI next to your
               tests.
             </li>
-          </TypographyProseList>
+          </TypographyList>
           <TypographyProse>
             Three things have to be right before a component renders the way it
             should: the CSS imports in cascade order, the{" "}
@@ -197,11 +197,11 @@ export default function PhilosophyPage() {
             <TypographyInlineCode>&lt;summary&gt;</TypographyInlineCode>. No
             JavaScript, correct before hydration, keyboard-accessible because
             the browser handles that part. It works from a markdown file too,
-            where you have no call site to pass props to.{" "}
-            <TypographyInlineCode>Accordion</TypographyInlineCode> and{" "}
-            <TypographyInlineCode>Tabs</TypographyInlineCode> use Base UI, which
-            leaves the keyboard handling, focus management and ARIA attributes
-            to a team that maintains them full time.
+            where you have no call site to pass props to, and it animates in
+            CSS where the browser can.{" "}
+            <TypographyInlineCode>TabGroup</TypographyInlineCode> uses Base UI,
+            which leaves the keyboard handling, focus management and ARIA
+            attributes to a team that maintains them full time.
           </TypographyProse>
           <TypographyProse>
             Structure lives in CSS. A host framework can swap its own element in
@@ -253,7 +253,7 @@ export default function PhilosophyPage() {
             rules travel with the components they protect.
           </TypographyProse>
 
-          <TypographyProseList>
+          <TypographyList variant="prose">
             <li>
               <strong>Colour.</strong> The raw palette (
               <TypographyInlineCode>bg-zinc-800</TypographyInlineCode>), solid
@@ -274,12 +274,8 @@ export default function PhilosophyPage() {
             </li>
             <li>
               <strong>Marks.</strong> A vertical margin nudging an icon into
-              line with the words beside it. Three classes replace it:{" "}
-              <TypographyInlineCode>align-middle</TypographyInlineCode> inside a
-              sentence,{" "}
-              <TypographyInlineCode>ON_FIRST_LINE</TypographyInlineCode> beside
-              a block, <TypographyInlineCode>CAP_TRIM</TypographyInlineCode> on
-              a single-line row.
+              line with the words beside it. A glyph beside words goes in
+              their <TypographyInlineCode>mark</TypographyInlineCode> prop.
             </li>
             <li>
               <strong>Tokens.</strong> A deprecated{" "}
@@ -298,7 +294,7 @@ export default function PhilosophyPage() {
               <TypographyInlineCode>rel</TypographyInlineCode> and the view
               transition together.
             </li>
-          </TypographyProseList>
+          </TypographyList>
 
           <TypographyProse>
             Four rules ship off by default.{" "}

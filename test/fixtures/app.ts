@@ -29,6 +29,8 @@ export type FixtureOptions = {
   nestedReact?: boolean;
   /** Extra files, keyed by path relative to the app root. */
   files?: Record<string, string>;
+  /** Link this repo's TypeScript in, as an app with its own would have it. */
+  typescript?: boolean;
 };
 
 export const DEFAULT_CSS = `@import "tailwindcss";
@@ -142,6 +144,10 @@ export function makeApp(options: FixtureOptions = {}): string {
   }
 
   for (const [rel, body] of Object.entries(options.files ?? {})) write(root, rel, body);
+
+  if (options.typescript) {
+    symlinkSync(fileURLToPath(new URL("../../node_modules/typescript", import.meta.url)), join(root, "node_modules/typescript"), "dir");
+  }
 
   return root;
 }

@@ -4,6 +4,7 @@ import { cva } from "class-variance-authority";
 import { cn } from "../cn.js";
 import { toneClass } from "../tone.js";
 import { TextAs } from "./as.js";
+import { Mark } from "./mark.js";
 /** The body layer: two axes and no more. A paragraph picks a rung and an ink; a
  * caption is always secondary ink and picks a size. `lead` was a third rung a
  * breakpoint away from `prose`, and its standfirst role is now the eyebrow's. */
@@ -35,7 +36,11 @@ const pVariants = cva("", {
 export function TypographyP({ className, variant, tone, as = "p", children, ...props }) {
     return (_jsx(TextAs, { as: as, className: cn(pVariants({ variant, tone }), className), ...props, children: children }));
 }
-/** The UI rung in the secondary ink. */
+/**
+ * The UI rung in the secondary ink: the content, said quietly. Words about
+ * something else, a timestamp or the terms under a price, are a caption, which
+ * shares this rung and ink at its default size and parts from it everywhere else.
+ */
 const MUTED = { tone: "muted" };
 export function TypographyMuted(props) {
     return _jsx(TypographyP, { ...props, ...MUTED });
@@ -50,10 +55,8 @@ export function TypographyProse(props) {
 }
 /**
  * A list, on the same rung axis as the paragraph beside it, composed from
- * `pVariants` so it cannot drift from the copy above it. `variant` is here for
- * the cases where a tier card sets its paragraphs in `ui`, while a list pinned to
- * `prose` lands two rungs above the sentence introducing it. Tone stays pinned
- * to `muted`.
+ * `pVariants` so it cannot drift from the copy above it: `variant="prose"` beside
+ * reading copy, `ui` (the default) in a tier card. Tone stays pinned to `muted`.
  */
 const listClass = (variant, ordered) => cn("flex flex-col gap-1 pl-6 [&>li]:pl-1.5", ordered ? "list-decimal" : "list-disc", pVariants({ variant, tone: "muted" }));
 export function TypographyList({ className, children, ordered, variant, ...props }) {
@@ -61,69 +64,33 @@ export function TypographyList({ className, children, ordered, variant, ...props
     return (_jsx(List, { className: cn(listClass(variant, ordered), className), ...props, children: children }));
 }
 /**
- * The reading rung, pinned. The name predates the axis and keeps every call site
- * that already had it; `Preset` stops one re-opening the rung it names.
+ * The rungs a caption and a label are set at, one ladder, since a label and a
+ * caption are one pair and a pair that cannot be set at one size is not a pair.
+ * `inherit` takes the size already set: the parenthetical inside a heading or a
+ * stat, a label inside a chip.
  */
-const PROSE_LIST = { variant: "prose" };
-export function TypographyProseList(props) {
-    return _jsx(TypographyList, { ...props, ...PROSE_LIST });
-}
+const PAIR_SIZE = {
+    sm: "text-sm",
+    xs: "text-xs",
+    "2xs": "text-2xs",
+    inherit: "",
+};
 /**
  * Meta beside content: timestamps, counts, bylines, the key in a key-value row.
  * Always secondary ink and never a weight, since colour and weight both saying
- * "secondary" is one arguing with the other. `inherit` is the parenthetical
- * inside a heading or a stat, taking the size that set it.
- *
- * A mark set directly beside the words is sized off the rung, the way Button
- * sizes its own: a 12px glyph beside 11px meta paints 11px of ink against an
- * 8px cap band and hangs over the baseline however it is centred. Direct child
- * only, so a control nested in the caption keeps its own mark.
+ * "secondary" is one arguing with the other. The weight is stated, so a count
+ * inside a label's line stays regular.
  */
-const captionVariants = cva("text-[color:var(--ink-muted,var(--muted-foreground))] [&>svg]:shrink-0 [&>svg]:icon-inline", {
-    variants: {
-        size: {
-            sm: "text-sm",
-            xs: "text-xs",
-            "2xs": "text-2xs",
-            inherit: "font-normal",
-        },
-    },
-    defaultVariants: { size: "sm" },
-});
+const captionVariants = cva("font-normal text-[color:var(--ink-muted,var(--muted-foreground))]", { variants: { size: PAIR_SIZE }, defaultVariants: { size: "sm" } });
 /**
- * `as` covers the one thing that genuinely differs between call sites: whether
- * the run is inline beside its subject or a block under it.
+ * `as` covers the one thing that genuinely differs between call sites, the
+ * element: a `span` beside its subject, a `p` note under it, `small` print.
  */
 export function TypographyCaption({ className, size, as, children, ...props }) {
     return (_jsx(TextAs, { as: as, className: cn(captionVariants({ size }), className), ...props, children: children }));
 }
-/**
- * Small print set as a block: a note under the thing it annotates, rather than
- * an aside inline with it. Same rung and same ink as the caption — small print
- * is small because it is muted, and dropping it a rung as well is what made
- * both apps hand-roll their own.
- */
-const BLOCK = { as: "p" };
-export function TypographySmall(props) {
-    return _jsx(TypographyCaption, { ...props, ...BLOCK });
-}
-/**
- * The label role: a form label, a column header, the key a reader scans for. The
- * rungs are the caption's, deliberately, since a label and a caption are one pair
- * and a pair that cannot be set at one size is not a pair.
- */
-const labelVariants = cva("font-medium text-[color:var(--ink,var(--foreground))]", {
-    variants: {
-        size: {
-            sm: "text-sm",
-            xs: "text-xs",
-            "2xs": "text-2xs",
-            /** Inside a heading or a chip, where the container has already set one. */
-            inherit: "",
-        },
-    },
-    defaultVariants: { size: "sm" },
-});
+/** The label role: a form label, a column header, the key a reader scans for. */
+const labelVariants = cva("font-medium text-[color:var(--ink,var(--foreground))]", { variants: { size: PAIR_SIZE }, defaultVariants: { size: "sm" } });
 export function TypographyLabel({ className, size, as, children, ...props }) {
     return (_jsx(TextAs, { as: as, className: cn(labelVariants({ size }), className), ...props, children: children }));
 }
@@ -188,9 +155,10 @@ export function TypographyInlineCode({ className, children, ...props }) {
     return (_jsx("code", { className: cn("rounded-[3px] bg-current/[0.06] px-[0.3em] py-[0.1em] font-mono text-[0.9em] text-[color:var(--ink,var(--secondary-ink))]", className), ...props, children: children }));
 }
 /**
- * A statement about the surface, not the link: `muted` inside a paragraph,
- * `primary` when the link is the main thing on the line, `secondary` for a note
- * beneath a hero. The other four come free from ../tone.ts.
+ * A statement about the surface, not the link: none inside a paragraph, where
+ * the link takes the ink around it, `primary` when the link is the main thing on
+ * the line, `secondary` for a note beneath a hero. The rest come free from
+ * ../tone.ts.
  */
 const INHERITED_INK = "text-[color:var(--ink,var(--foreground))]";
 const LINK_DECORATION = "underline decoration-dotted decoration-1 decoration-muted-foreground decoration-skip-ink-none underline-offset-2 hover:decoration-solid hover:decoration-current/70";
@@ -206,13 +174,13 @@ const linkClass = (tone, className) => cn(tone ? cn(toneClass(tone), "text-(colo
  * never at the call site; `newTab` and `external` are the overrides, and call-site
  * props apply last. The router is `next-view-transitions`, imported by name.
  */
-export function TypographyLink({ href, children, tone = "muted", external: leavesApp, newTab, scroll, addArrow, className, ...props }) {
+export function TypographyLink({ href, children, tone, external: leavesApp, newTab, scroll, addArrow, className, ...props }) {
     const style = linkClass(tone, className);
     const { Component, props: link, external, } = resolveLink(href, {
         external: leavesApp,
         newTab,
         scroll,
     });
-    const body = (_jsxs(_Fragment, { children: [children, addArrow && (_jsx("svg", { "aria-hidden": "true", className: "ml-1 inline size-3.5 align-middle", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7" }) }))] }));
+    const body = (_jsxs(_Fragment, { children: [children, addArrow && (_jsx(Mark, { className: "ml-1", children: _jsx("svg", { "aria-hidden": "true", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: external ? "M7 17 17 7M7 7h10v10" : "M5 12h14M12 5l7 7-7 7" }) }) }))] }));
     return (_jsx(Component, { className: style, ...link, ...props, children: body }));
 }

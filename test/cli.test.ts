@@ -590,3 +590,256 @@ describe("init", () => {
     expect(out).toContain("@node_modules/@supertype.ai/foundations/llms.txt");
   });
 });
+
+/** One file holding every shape 0.4 moves, and one it must leave alone. */
+const BEFORE = `import { TypographyCaption, TypographyLabel } from "@supertype.ai/foundations";
+import { Icons } from "./icons";
+
+export function Card({ late }: { late: number }) {
+  return (
+    <div>
+      <TypographyCaption className="flex items-center gap-1">
+        <Icons.Clock className="size-3" /> 44d ago
+      </TypographyCaption>
+      <div className="flex items-center gap-2">
+        <Icons.Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <TypographyLabel>Shared address</TypographyLabel>
+      </div>
+      <p>
+        Open the <Icons.Settings className="inline h-4 w-4 align-middle mr-1" /> menu.
+      </p>
+      <TypographyCaption className="flex items-center gap-1">
+        <Icons.Zap />
+        {late} <span>late</span>
+      </TypographyCaption>
+    </div>
+  );
+}
+`;
+
+const AFTER = `import { Mark, TypographyCaption, TypographyLabel } from "@supertype.ai/foundations";
+import { Icons } from "./icons";
+
+export function Card({ late }: { late: number }) {
+  return (
+    <div>
+      <TypographyCaption className="gap-x-1" mark={<Icons.Clock />}>
+        44d ago
+      </TypographyCaption>
+      <TypographyLabel className="gap-x-2" mark={<Icons.Mail className="text-muted-foreground" />}>Shared address</TypographyLabel>
+      <p>
+        Open the <Mark className="mr-1"><Icons.Settings /></Mark> menu.
+      </p>
+      <TypographyCaption className="flex items-center gap-1">
+        <Icons.Zap />
+        {late} <span>late</span>
+      </TypographyCaption>
+    </div>
+  );
+}
+`;
+
+/** A client file written without semicolons, whose import has to follow the directive. */
+const CLIENT_BEFORE = `"use client"
+
+export const Hint = () => <p>Open the <SettingsIcon className="inline size-4 align-middle" /> menu</p>
+`;
+
+const CLIENT_AFTER = `"use client"
+import { Mark } from "@supertype.ai/foundations"
+
+export const Hint = () => <p>Open the <Mark><SettingsIcon /></Mark> menu</p>
+`;
+
+/** \`Mark\` already names something here, and nothing else is ours to touch. */
+const TAKEN = `import { Mark } from "@mantine/core";
+import { cn } from "@supertype.ai/foundations";
+
+export const Note = () => (
+  <p className="">
+    See <Mark>this</Mark> <InfoIcon className="inline size-3 align-middle" />
+  </p>
+);
+`;
+
+/** Classes built with \`cn\`, and a row whose role runs over lines, so unwrapping has to dedent it. */
+const META_BEFORE = `import { cn, TypographyCaption, TypographyLabel } from "@supertype.ai/foundations";
+
+export const Meta = ({ muted, tone }: { muted: boolean; tone: string }) => (
+  <section>
+    <TypographyCaption className={cn("flex items-center", muted && "opacity-50")}>
+      <ClockIcon className={cn("size-3", tone)} />
+      44d ago
+    </TypographyCaption>
+    <TypographyCaption className={cn("flex items-center")}>
+      <ClockIcon className={cn(tone, "size-3", "shrink-0")} />
+      Due
+    </TypographyCaption>
+    <div className="flex items-center gap-2">
+      <MailIcon />
+      <TypographyLabel>
+        Shared address
+      </TypographyLabel>
+    </div>
+  </section>
+);
+`;
+
+const META_AFTER = `import { cn, TypographyCaption, TypographyLabel } from "@supertype.ai/foundations";
+
+export const Meta = ({ muted, tone }: { muted: boolean; tone: string }) => (
+  <section>
+    <TypographyCaption className={cn(muted && "opacity-50")} mark={<ClockIcon className={cn(tone)} />}>
+      44d ago
+    </TypographyCaption>
+    <TypographyCaption mark={<ClockIcon className={cn(tone)} />}>
+      Due
+    </TypographyCaption>
+    <TypographyLabel className="gap-x-2" mark={<MailIcon />}>
+      Shared address
+    </TypographyLabel>
+  </section>
+);
+`;
+
+const FILES = { "src/card.tsx": BEFORE, "src/hint.jsx": CLIENT_BEFORE, "src/note.tsx": TAKEN, "src/meta.tsx": META_BEFORE };
+
+const git = (cwd: string, ...args: string[]) =>
+  execFileSync("git", ["-c", "user.email=t@t", "-c", "user.name=t", ...args], { cwd, stdio: "ignore" });
+const source = (app: string, file = "src/card.tsx") => readFileSync(join(app, file), "utf8");
+
+describe("upgrade", () => {
+  it("moves the regular shapes, leaves the irregular ones named, and changes nothing twice", () => {
+    const app = makeApp({ typescript: true, files: FILES });
+    git(app, "init", "-q");
+    git(app, "add", "-A");
+    git(app, "commit", "-qm", "before");
+
+    const first = run(["upgrade"], app);
+    expect(first.code).toBe(0);
+    expect(source(app)).toBe(AFTER);
+    expect(source(app, "src/hint.jsx")).toBe(CLIENT_AFTER);
+    expect(source(app, "src/meta.tsx")).toBe(META_AFTER);
+    // Named, never guessed at: the other \`Mark\` stays, and so does the class nothing moved.
+    expect(source(app, "src/note.tsx")).toBe(TAKEN);
+    expect(first.out).toContain("7 moved");
+    expect(first.out).toMatch(/src\/card\.tsx:17\s+flex row holding other elements/);
+    expect(first.out).toMatch(/src\/note\.tsx:6\s+inline glyph, but `Mark` already names an import from @mantine\/core/);
+
+    git(app, "commit", "-qam", "after");
+    const second = run(["upgrade"], app);
+    expect(second.out).toContain("nothing to move");
+    expect(source(app)).toBe(AFTER);
+    expect(source(app, "src/hint.jsx")).toBe(CLIENT_AFTER);
+    expect(source(app, "src/meta.tsx")).toBe(META_AFTER);
+  });
+
+  /** A line a later pass names is the line in the file as it was, not as the earlier passes left it. */
+  it("names a line as the file had it", () => {
+    // The role pass takes line 7 out; the inline pass, after it, still names line 11.
+    const shifted = `import { Mark } from "@mantine/core";
+import { TypographyLabel } from "@supertype.ai/foundations";
+
+export const A = () => (
+  <div>
+    <TypographyLabel className="flex items-center gap-1">
+      <ClockIcon className="size-3" />
+      Due
+    </TypographyLabel>
+    <p>
+      See <InfoIcon className="inline size-3 align-middle" />
+    </p>
+  </div>
+);
+`;
+    const app = makeApp({ typescript: true, files: { "src/a.tsx": shifted } });
+    expect(run(["upgrade", "--dry-run"], app).out).toMatch(/src\/a\.tsx:11\s+inline glyph, but/);
+  });
+
+  /** The two roles that only pinned a prop become the prop, and only the package's. */
+  it("renames the roles 0.4 folded into a prop", () => {
+    const files = {
+      "src/terms.tsx": `import { TypographyCaption, TypographyProseList, TypographySmall } from "@supertype.ai/foundations";
+
+export const Terms = () => (
+  <>
+    <TypographySmall className="mt-2">Rates exclude tax.</TypographySmall>
+    <TypographyCaption>Billed monthly</TypographyCaption>
+    <TypographyProseList ordered>
+      <li>One</li>
+    </TypographyProseList>
+  </>
+);
+`,
+      "src/aliased.tsx": `import { TypographySmall as Small } from "@supertype.ai/foundations";
+
+export const A = () => <Small>Fine print</Small>;
+`,
+      "src/own.tsx": `import { TypographySmall } from "./typography";
+
+export const B = () => <TypographySmall>Ours</TypographySmall>;
+`,
+    };
+    const app = makeApp({ typescript: true, files });
+    const { out } = run(["upgrade", "--force"], app);
+
+    expect(source(app, "src/terms.tsx")).toBe(`import { TypographyCaption, TypographyList } from "@supertype.ai/foundations";
+
+export const Terms = () => (
+  <>
+    <TypographyCaption as="p" className="mt-2">Rates exclude tax.</TypographyCaption>
+    <TypographyCaption>Billed monthly</TypographyCaption>
+    <TypographyList variant="prose" ordered>
+      <li>One</li>
+    </TypographyList>
+  </>
+);
+`);
+    expect(source(app, "src/aliased.tsx")).toBe(files["src/aliased.tsx"]);
+    expect(source(app, "src/own.tsx")).toBe(files["src/own.tsx"]);
+    expect(out).toContain("2 moved");
+    expect(out).toMatch(/src\/aliased\.tsx:1\s+TypographySmall is imported as Small/);
+  });
+
+  // A clean tree is what lets git diff show exactly what upgrade changed.
+  it("writes only on a clean tree, and previews anywhere", () => {
+    const app = makeApp({ typescript: true, files: FILES });
+
+    const refused = run(["upgrade"], app);
+    expect(refused.code).toBe(1);
+    expect(refused.out).toContain("not in a git repository");
+
+    const preview = run(["upgrade", "--dry-run"], app);
+    expect(preview.code).toBe(0);
+    expect(preview.out).toContain("7 to move");
+    expect(source(app)).toBe(BEFORE);
+
+    expect(run(["upgrade", "--force"], app).code).toBe(0);
+    expect(source(app)).toBe(AFTER);
+  });
+
+  it("takes paths, and names one that is not there", () => {
+    const app = makeApp({ typescript: true, files: FILES });
+    expect(run(["upgrade", "--dry-run", "src/hint.jsx"], app).out).toContain("1 to move");
+
+    const { code, out } = run(["upgrade", "--dry-run", "src/nope"], app);
+    expect(code).toBe(1);
+    expect(out).toContain("src/nope does not exist");
+  });
+
+  it("says what is missing when the app has no TypeScript", () => {
+    const { code, out } = run(["upgrade", "--dry-run"], makeApp({ files: { "src/card.tsx": BEFORE } }));
+    expect(code).toBe(1);
+    expect(out).toContain("TypeScript is not installed here");
+  });
+
+  it("is what doctor points at, and doctor stays quiet once it has run", () => {
+    const stale = doctor(makeApp({ files: { "src/card.tsx": BEFORE } }));
+    expect(stale.out).toContain("1 file still written for an older version");
+    expect(stale.out).toContain("npx foundations upgrade");
+    expect(stale.code).toBe(0);
+
+    const current = doctor(makeApp({ files: { "src/card.tsx": AFTER.replace(/<TypographyCaption className="flex[\s\S]*?<\/TypographyCaption>\n/, "") } }));
+    expect(current.out).not.toContain("older version");
+  });
+});

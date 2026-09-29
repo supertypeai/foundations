@@ -1,6 +1,7 @@
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 
 import { cn } from "../cn.js";
+import { Mark } from "../typography/mark.js";
 import { ReadingRail } from "./reading.js";
 import type { TocHeading } from "./toc.js";
 
@@ -204,8 +205,12 @@ export function ReadTime({
   className?: string;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-1", className)}>
-      {Icon && <Icon className="size-3.5" />}
+    <span className={cn("whitespace-nowrap", className)}>
+      {Icon && (
+        <Mark className="mr-1">
+          <Icon />
+        </Mark>
+      )}
       {minutes} min read
     </span>
   );

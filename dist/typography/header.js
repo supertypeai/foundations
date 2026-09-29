@@ -27,8 +27,8 @@ const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
     },
     defaultVariants: { variant: "default" },
 });
-export function TypographyH1({ className, variant, children, ...props }) {
-    return (_jsx("h1", { className: cn(h1Variants({ variant }), className), ...props, children: children }));
+export function TypographyH1({ className, variant, ...props }) {
+    return _jsx(TextAs, { as: "h1", className: cn(h1Variants({ variant }), className), ...props });
 }
 const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em]`, {
     variants: {
@@ -48,8 +48,8 @@ export const headingClass = (variant) => h2Variants({ variant });
  * axis as `default` vs `unbordered`, which made every call site state a border
  * it had no opinion about in order to reach the size it wanted.
  */
-export function TypographyH2({ className, variant, divider, children, ...props }) {
-    return (_jsx("h2", { className: cn(h2Variants({ variant }), divider && "w-fit border-b pb-2", className), ...props, children: children }));
+export function TypographyH2({ className, variant, divider, ...props }) {
+    return (_jsx(TextAs, { as: "h2", className: cn(h2Variants({ variant }), divider && "w-fit border-b pb-2", className), ...props }));
 }
 const h3Variants = cva(HEADING_BASE, {
     variants: {
@@ -66,14 +66,14 @@ const h3Variants = cva(HEADING_BASE, {
     },
     defaultVariants: { variant: "default" },
 });
-export function TypographyH3({ className, variant, children, ...props }) {
-    return (_jsx("h3", { className: cn(h3Variants({ variant }), className), ...props, children: children }));
+export function TypographyH3({ className, variant, ...props }) {
+    return _jsx(TextAs, { as: "h3", className: cn(h3Variants({ variant }), className), ...props });
 }
 /** The card / panel title: 14px in the product, 20 on an editorial surface. */
-export function TypographyH4({ className, children, ...props }) {
-    return (_jsx("h4", { className: cn(HEADING_BASE, "text-h4", className), ...props, children: children }));
+export function TypographyH4({ className, ...props }) {
+    return _jsx(TextAs, { as: "h4", className: cn(HEADING_BASE, "text-h4", className), ...props });
 }
-const eyebrowVariants = cva("block uppercase tracking-wider", {
+const eyebrowVariants = cva("uppercase tracking-wider", {
     variants: {
         /** Ink and weight. Every tone states its ink: an eyebrow names the section
          *  under it, and one that takes its colour from its surroundings is not a
@@ -116,7 +116,7 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
  * `headingClass`. It exists so a consumer needing the class can take ours rather
  * than hand-rolling a copy that drifts from the component.
  */
-export const eyebrowClass = (tone, size) => eyebrowVariants({ tone, size });
+export const eyebrowClass = (tone, size) => cn("block", eyebrowVariants({ tone, size }));
 /**
  * An all-caps micro-label above a stat or a group of controls, and — since the
  * deck was folded into it — the standfirst that sits with a page title.
@@ -125,5 +125,7 @@ export const eyebrowClass = (tone, size) => eyebrowVariants({ tone, size });
  * heading. See `TypographyTag` in as.tsx for why the classes hold across tags.
  */
 export function TypographyEyebrow({ className, tone, size, as, children, ...props }) {
-    return (_jsx(TextAs, { as: as, className: cn(eyebrowVariants({ tone, size }), className), ...props, children: children }));
+    return (_jsx(TextAs, { as: as, 
+        // Its own line, as a span would not be; a marked eyebrow is a grid row instead.
+        display: "block", className: cn(eyebrowVariants({ tone, size }), className), ...props, children: children }));
 }

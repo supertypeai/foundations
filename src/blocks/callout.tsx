@@ -6,8 +6,8 @@ import {
   TypographyCaption,
   TypographyLabel,
   TypographyMuted,
-  TypographySmall,
 } from "../typography/paragraph.js";
+import { Marked } from "../typography/mark.js";
 
 // An inline notice explaining something the surface it sits in cannot say on its
 // own. The body is a slot and renders as a div, since a caller passes lists and
@@ -47,6 +47,12 @@ export function Callout({
   className?: string;
 }) {
   const toned = toneClass(tone);
+  const mark = Icon && <Icon className="text-(color:--tone-hue)" />;
+  const body = (
+    <TypographyMuted as="div" className={cn("leading-relaxed", bodyClassName)}>
+      {children}
+    </TypographyMuted>
+  );
 
   if (density === "editorial") {
     return (
@@ -62,27 +68,15 @@ export function Callout({
           aria-hidden
           className="absolute inset-y-0 left-0 w-[3px] bg-(--tone-line)"
         />
-        <div className="flex items-start gap-2.5">
-          {Icon && (
-            <Icon className="mt-0.5 size-4 shrink-0 text-(color:--tone-hue)" />
-          )}
-          <div className="flex min-w-0 flex-col gap-1">
-            {title && (
-              <TypographyLabel className="text-(color:--tone-hue)">
-                {title}
-              </TypographyLabel>
-            )}
-            <TypographyMuted
-              as="div"
-              className={cn("leading-relaxed", bodyClassName)}
-            >
-              {children}
-            </TypographyMuted>
-            {action && (
-              <div className="mt-1 flex items-center gap-1">{action}</div>
-            )}
-          </div>
-        </div>
+        {/* The icon names the first line: the title's, or the body's when there is none. */}
+        <Marked
+          className="gap-x-2.5 gap-y-1"
+          mark={mark}
+          title={title ? <TypographyLabel className="text-(color:--tone-hue)">{title}</TypographyLabel> : body}
+        >
+          {title && body}
+          {action && <div className="mt-1 flex items-center gap-1">{action}</div>}
+        </Marked>
       </div>
     );
   }
@@ -90,10 +84,13 @@ export function Callout({
   return (
     <div className={cn("rounded-md border p-3", toned, BOX, className)}>
       {title && (
-        <TypographySmall className="flex items-center gap-1.5 font-medium text-(color:--tone-hue)">
-          {Icon && <Icon className="size-3.5 shrink-0" />}
+        <TypographyCaption
+          as="p"
+          className="gap-x-1.5 font-medium text-(color:--tone-hue)"
+          mark={mark}
+        >
           {title}
-        </TypographySmall>
+        </TypographyCaption>
       )}
       <TypographyCaption
         as="div"

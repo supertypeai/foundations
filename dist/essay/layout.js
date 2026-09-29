@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { cn } from "../cn.js";
+import { Mark } from "../typography/mark.js";
 import { ReadingRail } from "./reading.js";
 /**
  * Three tracks with the third empty: two would push the prose off-centre the
@@ -81,7 +82,7 @@ export function PostDate({ date, format, className, }) {
  * `icon` is injected, so the package needs no icon set of its own.
  */
 export function ReadTime({ minutes, icon: Icon, className, }) {
-    return (_jsxs("span", { className: cn("inline-flex items-center gap-1", className), children: [Icon && _jsx(Icon, { className: "size-3.5" }), minutes, " min read"] }));
+    return (_jsxs("span", { className: cn("whitespace-nowrap", className), children: [Icon && (_jsx(Mark, { className: "mr-1", children: _jsx(Icon, {}) })), minutes, " min read"] }));
 }
 /** Topic tags, as quiet pills. */
 export function TagPills({ tags, className, }) {

@@ -295,32 +295,50 @@ describe("the rules themselves", () => {
   });
 
   /**
-   * A size on a mark a component already sizes. The caption's version stops at a
-   * direct child, since a control nested in the caption keeps its own mark.
+   * One way to put a glyph beside words: as their mark. A loose one in a text role
+   * is flagged, and a size on a control's glyph is inert.
    */
-  it("catches a hand size on a mark inside a caption, and reaches no deeper", () => {
+  it("points a loose glyph at `mark` and a control's glyph size at nothing", () => {
+    // The alternatives inside a rule's outer `:matches(…)`, one per slot and shape.
+    const branches = (selector: string) =>
+      /^:matches\((.*)\)(?: > JSXOpeningElement .*)?$/.exec(selector)![1]!.split(/, (?=JSX(?:Element|Attribute)\[)/);
+    // Each branch up to its glyph: which slot, and by what path.
+    const paths = (selector: string) =>
+      branches(selector).map((b) => b.slice(0, b.lastIndexOf("JSXElement:") + "JSXElement:".length));
+    // Each slot reaches its glyph three ways, and only ever as a direct child.
+    const shapes = (slot: string) => [
+      `${slot} > JSXElement:`,
+      `${slot} > JSXExpressionContainer > JSXElement:`,
+      `${slot} > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression) > JSXElement:`,
+    ];
+
+    const loose = messageWith("is their mark");
+    expect(loose).toHaveLength(1);
+    const roles = new RegExp(/name\.name=\/(.+?)\/\]/.exec(loose[0]!.selector)![1]!);
+    for (const role of ["TypographyCaption", "TypographyH3", "CardTitle"]) expect(roles.test(role), role).toBe(true);
+    for (const other of ["Button", "TypographyStat", "TypographyLink"]) expect(roles.test(other), other).toBe(false);
+    expect(paths(loose[0]!.selector)).toEqual(shapes(`JSXElement[openingElement.name.name=/${roles.source}/]`));
+
     const inert = messageWith("so this class is inert");
-    const caption = inert.filter((r) => r.selector.includes("TypographyCaption"));
-    expect(caption).toHaveLength(1);
-    expect(caption[0]!.selector).toMatch(/TypographyCaption\)\$\/\] > JSXElement > JSXOpeningElement >/);
+    expect(inert).toHaveLength(1);
+    const slots = ["JSXElement[openingElement.name.name=/^(Button|Badge|Mark)$/]", "JSXAttribute[name.name=/^mark(End)?$/]"];
+    expect(paths(inert[0]!.selector)).toEqual(slots.flatMap(shapes));
+    // Every branch ends at a glyph, so a nested control's own box, a pill button in a badge, is never read.
+    for (const branch of branches(inert[0]!.selector)) expect(branch).toContain('name.object.name="Icons"');
     for (const pattern of patterns(inert)) {
       const re = new RegExp(pattern);
-      for (const cls of ["size-3", "size-3.5 shrink-0", "mt-px size-3"]) {
-        expect(re.test(cls), `${cls} in ${pattern}`).toBe(true);
-      }
-      for (const cls of ["shrink-0", "text-sm", "min-size-3"]) {
-        expect(re.test(cls), `${cls} in ${pattern}`).toBe(false);
-      }
+      for (const cls of ["size-3", "size-3.5 shrink-0", "h-4 w-4 text-primary-ink"]) expect(re.test(cls), cls).toBe(true);
+      for (const cls of ["shrink-0", "text-sm", "min-size-3", "h-full"]) expect(re.test(cls), cls).toBe(false);
     }
   });
 
   /**
-   * The nudge the alignment primitives replace. `CAP_TRIM` and `ON_FIRST_LINE`
-   * shipped in 0.2 with nothing pointing at them, and one consumer carried 84
-   * hand-tuned margins that never heard about either.
+   * The nudge the `mark` prop replaces. The alignment helpers shipped in 0.2
+   * with nothing pointing at them, and one consumer carried 84 hand-tuned
+   * margins that never heard about them.
    */
-  it("catches a margin on an inline mark, in either order", () => {
-    const align = messageWith("nudge that fits one rung");
+  it("catches a margin or align-middle on an inline glyph, in either order", () => {
+    const align = messageWith("fits one rung and no other");
     expect(align.length).toBeGreaterThan(0);
     expect(patterns(align).length).toBeGreaterThan(0);
     for (const pattern of patterns(align)) {
@@ -330,6 +348,8 @@ describe("the rules themselves", () => {
         "inline mr-1 -mt-1",
         "inline mt-1.5",
         "h-4 w-4 lg:h-5 lg:w-5 inline -mt-1 mr-1",
+        "w-4 h-4 align-middle mr-2 inline",
+        "inline h-4 w-4 align-middle",
       ]) {
         expect(re.test(cls), `${cls} in ${pattern}`).toBe(true);
       }
@@ -339,8 +359,8 @@ describe("the rules themselves", () => {
         "mt-4 inline-flex items-center gap-1.5",
         "mt-3 inline-block",
         "mt-2 inline-grid",
-        // Neither half on its own is the mistake.
-        "inline h-4 w-4 align-middle",
+        // Neither half on its own is the mistake: a table cell centres with align-middle.
+        "p-2 align-middle whitespace-nowrap",
         "mt-4 flex items-start",
       ]) {
         expect(re.test(cls), `${cls} in ${pattern}`).toBe(false);

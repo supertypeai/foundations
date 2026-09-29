@@ -154,8 +154,9 @@ black, a hex on any colour utility including gradient stops, an arbitrary font
 size in any unit, a type style hand-written on a `<p>` or a heading, a rung
 passed as a class to a primitive that owns a size prop, a deprecated
 `-foreground` spelling, a `dark:` override of a token, a surface token printed as
-ink, a `size-` class on a mark inside a control that sizes its own, a vertical
-margin nudging an inline mark into line, `render={<a href>}` on a component
+ink, an icon passed loose into a text role instead of as its `mark`, a size
+class on a glyph inside a mark, a `<Mark>` or a control that sizes its own, a glyph held
+into line with a top margin or `align-middle`, `render={<a href>}` on a component
 that takes `href`, and with `tone: true`, a fill or ink class on a `Button` or
 `Badge` that already paints both from `variant` × `tone`.
 

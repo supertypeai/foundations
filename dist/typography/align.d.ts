@@ -1,27 +1,23 @@
 /**
- * Lining a mark up with the words beside it, where `items-center` centres line
- * boxes holding leading the string may not use. `CAP_TRIM` shrinks the text to its
- * ink; `ON_FIRST_LINE` grows the mark to one line. Never both on one row.
- * `ON_BASELINE` lines up words at two sizes on one row.
- */
-/**
- * The optical box: cap top to baseline, leading removed. It goes on the text
- * element and shortens it, so a row of trimmed text needs its own height floor.
- * The 0.35em padding and pull must stay equal and opposite, which
- * test/leading-ownership.test.tsx pins.
+ * The optical box: cap top to baseline, leading removed, for a line of text
+ * centred in a box of its own or beside an object taller than it: a control's
+ * label, an avatar's initials, the words beside an avatar or a progress ring. A
+ * glyph beside words is a mark instead. The 0.35em padding and pull must stay
+ * equal and opposite, which test/leading-ownership.test.tsx pins.
  */
 export declare const CAP_TRIM = "[text-box:trim-both_cap_alphabetic] pb-[0.35em] -mb-[0.35em]";
 /**
- * A box one line tall with the mark centred in it, for a mark belonging to the
- * first line of something taller. It goes on a wrapper, since a height on the
- * mark would stretch the glyph. `1lh` resolves against inherited leading.
+ * The one glyph size: a bare glyph is one em of the words beside it. A direct
+ * child only, so anything composed (a checkbox and its tick, a wrapper) keeps
+ * the size it gives itself. Marks, controls and slots all take this.
  */
-export declare const ON_FIRST_LINE = "flex h-[1lh] shrink-0 items-center";
+export declare const GLYPH = "[&>svg]:pointer-events-none [&>svg]:size-[1em] [&>svg]:shrink-0";
 /**
- * Words at two rungs on one row. Centred line boxes put their baselines 1 to 2px
- * apart; the baseline is exact. Marks have no baseline, so an icon, image, empty
- * box or sized box, or a box that starts with one, stays centred. A baseline
- * group sits at the top of a taller line, so when a mark outgrows the words, the
- * words go in an inner span carrying this and the row keeps centring.
+ * The mark slot: one cap tall, with its baseline at its own bottom edge. Set on a
+ * baseline, inline in a run of words or in a baseline row, it seats its centre
+ * on the middle of the capitals. The pseudo-element gives it that baseline, and
+ * the cap is read from the words around it, so it never needs their size.
+ * Nothing here is measured from the line box, so leading and zoom leave it
+ * alone. What it holds may be up to a line tall: taller overflows the line.
  */
-export declare const ON_BASELINE = "items-baseline [&>:is(svg,img,:empty,[class*=size-])]:self-center [&>:has(>:is(svg,img,:empty,[class*=size-]):first-child)]:self-center";
+export declare const MARK = "inline-flex h-[1cap] shrink-0 items-center align-baseline before:h-full before:self-baseline [&>svg]:pointer-events-none [&>svg]:size-[1em] [&>svg]:shrink-0";

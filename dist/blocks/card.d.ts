@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { type LinkBehavior } from "../href.js";
+import { type WithAs } from "../typography/as.js";
 /** Two columns from `sm` up: a pair reads as a set rather than two panels. */
 export declare function Cards({ className, children, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 export declare function CardHeader({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;
@@ -8,7 +9,7 @@ export declare function CardHeader({ className, ...props }: ComponentProps<"div"
  * display face, and a card is chrome: dropped into a docs page it wore a serif
  * title over a sans description. Rank inside a card is weight and size.
  */
-export declare function CardTitle({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;
+export declare function CardTitle({ className, ...props }: Omit<WithAs, "as">): import("react").JSX.Element;
 export declare function CardDescription({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 export declare function CardContent({ className, ...props }: ComponentProps<"div">): import("react").JSX.Element;
 type CardShorthand = {

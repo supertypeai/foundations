@@ -128,14 +128,16 @@ export function Bulletin({
                 <TypographyLabel
                   as="p"
                   size="xs"
-                  className={cn("flex items-center gap-2", ink)}
+                  className={ink}
+                  mark={
+                    mark && (
+                      <span
+                        aria-hidden
+                        className={cn("size-2 rounded-full", mark)}
+                      />
+                    )
+                  }
                 >
-                  {mark && (
-                    <span
-                      aria-hidden
-                      className={cn("size-2 rounded-full", mark)}
-                    />
-                  )}
                   {title}
                 </TypographyLabel>
                 <TypographyCaption as="p" size="xs" className="mt-1.5">

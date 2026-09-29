@@ -32,17 +32,15 @@ const h1Variants = cva(`${HEADING_BASE} tracking-tight`, {
   defaultVariants: { variant: "default" },
 });
 
+/* A heading keeps its level's tag; `mark` and `markEnd` come with the shared renderer. */
+type HeadingProps<V = unknown> = Omit<WithAs<V>, "as">;
+
 export function TypographyH1({
   className,
   variant,
-  children,
   ...props
-}: React.ComponentProps<"h1"> & VariantProps<typeof h1Variants>) {
-  return (
-    <h1 className={cn(h1Variants({ variant }), className)} {...props}>
-      {children}
-    </h1>
-  );
+}: HeadingProps<VariantProps<typeof h1Variants>>) {
+  return <TextAs as="h1" className={cn(h1Variants({ variant }), className)} {...props} />;
 }
 
 const h2Variants = cva(`${HEADING_BASE} tracking-[-0.01em]`, {
@@ -71,21 +69,18 @@ export function TypographyH2({
   className,
   variant,
   divider,
-  children,
   ...props
-}: React.ComponentProps<"h2"> &
-  VariantProps<typeof h2Variants> & { divider?: boolean }) {
+}: HeadingProps<VariantProps<typeof h2Variants> & { divider?: boolean }>) {
   return (
-    <h2
+    <TextAs
+      as="h2"
       className={cn(
         h2Variants({ variant }),
         divider && "w-fit border-b pb-2",
         className,
       )}
       {...props}
-    >
-      {children}
-    </h2>
+    />
   );
 }
 
@@ -108,30 +103,17 @@ const h3Variants = cva(HEADING_BASE, {
 export function TypographyH3({
   className,
   variant,
-  children,
   ...props
-}: React.ComponentProps<"h3"> & VariantProps<typeof h3Variants>) {
-  return (
-    <h3 className={cn(h3Variants({ variant }), className)} {...props}>
-      {children}
-    </h3>
-  );
+}: HeadingProps<VariantProps<typeof h3Variants>>) {
+  return <TextAs as="h3" className={cn(h3Variants({ variant }), className)} {...props} />;
 }
 
 /** The card / panel title: 14px in the product, 20 on an editorial surface. */
-export function TypographyH4({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"h4">) {
-  return (
-    <h4 className={cn(HEADING_BASE, "text-h4", className)} {...props}>
-      {children}
-    </h4>
-  );
+export function TypographyH4({ className, ...props }: HeadingProps) {
+  return <TextAs as="h4" className={cn(HEADING_BASE, "text-h4", className)} {...props} />;
 }
 
-const eyebrowVariants = cva("block uppercase tracking-wider", {
+const eyebrowVariants = cva("uppercase tracking-wider", {
   variants: {
     /** Ink and weight. Every tone states its ink: an eyebrow names the section
      *  under it, and one that takes its colour from its surroundings is not a
@@ -180,7 +162,7 @@ const eyebrowVariants = cva("block uppercase tracking-wider", {
 export const eyebrowClass = (
   tone?: VariantProps<typeof eyebrowVariants>["tone"],
   size?: VariantProps<typeof eyebrowVariants>["size"],
-) => eyebrowVariants({ tone, size });
+) => cn("block", eyebrowVariants({ tone, size }));
 
 /**
  * An all-caps micro-label above a stat or a group of controls, and — since the
@@ -200,6 +182,8 @@ export function TypographyEyebrow({
   return (
     <TextAs
       as={as}
+      // Its own line, as a span would not be; a marked eyebrow is a grid row instead.
+      display="block"
       className={cn(eyebrowVariants({ tone, size }), className)}
       {...props}
     >

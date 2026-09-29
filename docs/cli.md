@@ -17,6 +17,7 @@ They are all easy enough to check mechanically:
 ```sh
 npx foundations init      # add and reorder the CSS imports, print the rest
 npx foundations doctor    # check this app against what the package expects
+npx foundations upgrade   # move source written for an older version
 ```
 
 Run both from the root of your app. `yarn foundations …` works too, since the
@@ -82,7 +83,7 @@ The markers are `✔` fine, `·` optional, `!` works but degrades, `✖` broken.
 | not a symlink                     | `yarn link` gives you two copies of React (invalid hook call) and a path outside the project root that Turbopack fails on                                                      |
 | `dist/` is present                | the package ships built, so a missing `dist/` means a broken install rather than a failed compile                                                                              |
 | no nested React                   | two copies of React show up as an invalid hook call at runtime                                                                                                                 |
-| peers satisfy their ranges        | `@base-ui/react` is only a warning, since just `Accordion` and `Tabs` need it                                                                                                  |
+| peers satisfy their ranges        | `@base-ui/react` is only a warning, since just `TabGroup` needs it                                                                                                             |
 
 ### Styles
 
@@ -122,10 +123,47 @@ The variables it looks for come from the installed `type.css`, and the peer
 ranges from the installed `package.json`, so the checks stay in step with the
 package they ship with.
 
+
+### Source
+
+| check                                        | what it catches                                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| no source still in a shape a release removed | an icon nudged with `align-middle`, a loose glyph in a caption, an import of `ON_FIRST_LINE`. One warning per release, naming what it changed and the first file. It points at `upgrade` and writes nothing |
+
+## `upgrade`
+
+```sh
+npx foundations upgrade --dry-run   # list what it would move
+npx foundations upgrade             # move it
+npx foundations upgrade src/app     # only these paths
+```
+
+Moves source written for an older version to what this one expects. Run it after
+bumping the package. Each migration ships in the release that removed what it
+replaces and changes nothing on code already migrated, so `upgrade` runs all of
+them and never needs to know the version you came from.
+
+It reads your `.tsx` and `.jsx` with your app's own TypeScript and edits exact
+source ranges, so formatting you did not ask it to touch stays as it was, and a
+file it moves nothing in is not written at all. An import it needs goes into your
+existing import from the package, or after your last import (after
+`"use client"` when there is none), in your file's quotes and semicolons. It
+writes only when git has no uncommitted changes to tracked files, so `git diff`
+shows exactly what it did and is the undo; `--force` writes anyway. What it
+cannot move safely it lists by file and line, the line as the file had it, with
+the reason: a name it would import already taken is one. Paths are relative to
+the app, and one that does not exist stops it before anything is read. Run your
+lint after it: `designRules` names what is left.
+
+| release | what it moves                                                                                                                                                  |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.4     | a glyph first or last inside a text role into `mark`/`markEnd`; a glyph beside a text role in a flex row into that role's `mark`, unwrapping a row left with nothing else in it and moving its contents back to the row's indent; an inline glyph nudged with `align-middle` or a top margin into `<Mark>` |
+
 ## Options
 
 | flag          |                                                                                                    |
 | ------------- | -------------------------------------------------------------------------------------------------- |
 | `--cwd <dir>` | run against another app instead of the current directory. May be given before or after the command |
-| `--dry-run`   | `init` only: print the patch without writing it                                                    |
+| `--dry-run`   | `init`, `upgrade`: show what would change without writing it                                       |
+| `--force`     | `upgrade` only: write even with uncommitted changes                                                |
 | `NO_COLOR=1`  | plain output, which is also the default when stdout is not a TTY                                   |

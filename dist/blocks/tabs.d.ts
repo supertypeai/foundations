@@ -1,8 +1,6 @@
-import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import type { ReactNode } from "react";
 import { type VariantProps } from "class-variance-authority";
 import { type Tone } from "../tone.js";
-declare function Tabs({ className, orientation, ...props }: TabsPrimitive.Root.Props): import("react").JSX.Element;
 /**
  * Surfaces come from SEGMENT, so this and marketing/segmented-control cannot drift: a
  * reader who meets the picker on a docs page and again on the usage dashboard should not
@@ -14,24 +12,13 @@ declare function Tabs({ className, orientation, ...props }: TabsPrimitive.Root.P
 declare const tabsListVariants: (props?: ({
     variant?: "line" | "default" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
-/**
- * `tone` inks the marker, and only the marker. On `line` that is the underline and the
- * active tab's icon; the boxed track's marker is a card surface and a hairline, which
- * SEGMENT keeps deliberately flat, so a tone there would be a colour with nothing to
- * paint. The label stays `--foreground` in both: it is read, not signalled.
- */
-declare function TabsList({ className, variant, tone, children, ...props }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants> & {
-    tone?: Tone;
-}): import("react").JSX.Element;
-declare function TabsTrigger({ className, children, ...props }: TabsPrimitive.Tab.Props): import("react").JSX.Element;
-declare function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props): import("react").JSX.Element;
 /** One tab, whole: what it is called, what marks it, and what it shows. */
 export type TabItem = {
     /** Stable across a relabel — it is what `defaultValue` and `onValueChange` speak. */
     value: string;
     label: ReactNode;
     /**
-     * An element, sized and inked by the trigger. An element and not a component:
+     * An element, sized by its slot and inked by the trigger. An element and not a component:
      * `TabGroup` is a client component, so a component reference handed to it from a
      * server page crosses the RSC boundary as a function, which React refuses.
      */
@@ -39,9 +26,9 @@ export type TabItem = {
     content: ReactNode;
 };
 /**
- * The declarative shorthand, tabs as data. `TabGroup` is to `Tabs` what
- * `DisclosureGroup` is to `Accordion`: the shape to reach for, since an app that
- * rebuilds it re-adds the icon, the handler and the stable value by hand.
+ * Tabs, as data, and the one way to make them. The parts above are its insides,
+ * not exported: every hand-composed strip turned out to be this one with a wrapper
+ * in `content`, re-adding the icon, the handler and the stable value by hand.
  */
 export declare function TabGroup({ tabs, defaultValue, value, onValueChange, variant, tone, iconPosition, className, }: {
     tabs: readonly TabItem[];
@@ -55,4 +42,4 @@ export declare function TabGroup({ tabs, defaultValue, value, onValueChange, var
     iconPosition?: "inline-start" | "inline-end";
     className?: string;
 }): import("react").JSX.Element;
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export {};

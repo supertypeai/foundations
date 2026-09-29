@@ -3,7 +3,6 @@ import {
   TypographyMuted,
   TypographyProse,
   TypographyList,
-  TypographyProseList,
 } from "@supertype.ai/foundations";
 
 export default function Body() {
@@ -22,10 +21,10 @@ export default function Body() {
         <li>Use it for lists inside cards, panels and tiers.</li>
       </TypographyList>
 
-      <TypographyProseList ordered>
+      <TypographyList variant="prose" ordered>
         <li>The prose variant sets bullets at reading size.</li>
         <li>Same measure as the prose above it.</li>
-      </TypographyProseList>
+      </TypographyList>
     </div>
   );
 }
