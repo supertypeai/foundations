@@ -149,7 +149,14 @@
   --fig-foreground: var(--fig-ink);
   --cocoa-foreground: var(--cocoa-ink);
 
-  --background: hsl(43 33% 96%); /* #FAF8F3 */
+  /* Each theme's ground by name, readable outside that theme. A custom property
+     only reaches down the tree, so a page that pins a `.dark` section could not
+     paint <html> with that section's ground without copying the literal. Both
+     live here because neither flips: an alias to one resolves the same anywhere. */
+  --latte-background: hsl(43 33% 96%); /* #FAF8F3 */
+  --espresso-background: hsl(30 10% 7%);
+
+  --background: var(--latte-background);
   /* Near-black keyed to the latte hue, not a neutral #333: grey reads cold over
      surfaces hued at 40-43°, and the APCA headroom keeps three ink tiers apart. */
   --foreground: hsl(30 14% 12%);
@@ -226,6 +233,9 @@
 }
 
 .dark {
+  /* Tells the browser too, so the parts it draws (scrollbars, form controls,
+     autofill) follow the palette, including on a `.dark` section of a light page. */
+  color-scheme: dark;
   --hover-toward: hsl(0, 0%, 100%);
   /* --success does not flip: the same green clears 3:1 on espresso as on latte. */
   --success-ink: hsl(142 55% 58%);
@@ -265,7 +275,7 @@
   /* 4 points of lightness at L10 reads flat where the same 4 at L96 reads raised;
      ssite wrote `bg-card dark:bg-muted` at 109 sites before the ground dropped.
      The lift goes here: --card cannot rise without sinking terracotta's fill. */
-  --background: hsl(30 10% 7%);
+  --background: var(--espresso-background);
   --foreground: hsl(43 20% 92%);
   /* Unchanged, and now 7 points above the ground rather than 4 — what those 109
      sites were reaching for, without moving anything measured against --card. */

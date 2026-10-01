@@ -315,6 +315,19 @@ your toggle.
 editorial inks (`--secondary-ink`, `--subtle-foreground`, and the ochre,
 terracotta, sage and fig pairs) along with the elevation shadows.
 
+`.dark` also sets `color-scheme: dark`, so scrollbars, form controls and
+autofill follow the palette, including on a `.dark` section of a light page.
+Each theme's ground is available by name on `:root` as `--latte-background`
+and `--espresso-background`. Use them when something outside a `.dark` element
+needs the dark ground. The usual case is `<html>` behind a page that pins its
+content dark, which otherwise shows the light ground on overscroll:
+
+```css
+html:has(.dark[data-ground]) {
+  background-color: var(--espresso-background);
+}
+```
+
 **No brand colours in the package.** Structural tokens only, with brand colours
 left to the app. To repaint, override the raw variables after the imports rather
 than patching the utilities:

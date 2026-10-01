@@ -198,6 +198,27 @@ describe("checkLegibility", () => {
   });
 });
 
+// --background reads a named ground so a page can paint <html> with the dark one
+// from outside `.dark`. The alias has to resolve: checkLegibility skips a token it
+// cannot read, so an unresolved ground would drop every pairing against the page
+// and still pass.
+describe("the theme grounds", () => {
+  const css = [read("tokens.css"), read("theme.css")].join("\n");
+
+  it("resolve --background to the same literal in each theme", () => {
+    const light = resolveTokens(css, "light");
+    const dark = resolveTokens(css, "dark");
+    expect(light["--background"]).toBe("hsl(43 33% 96%)");
+    expect(dark["--background"]).toBe("hsl(30 10% 7%)");
+    expect(light["--espresso-background"]).toBe(dark["--background"]);
+    expect(dark["--latte-background"]).toBe(light["--background"]);
+  });
+
+  it("tell the browser which scheme .dark is", () => {
+    expect(read("theme.css")).toMatch(/\.dark \{[^}]*color-scheme: dark;/);
+  });
+});
+
 describe("checkHairlines", () => {
   it("holds the package's own rules to the same weight in both themes", () => {
     const failures = checkHairlines(read("theme.css"));
