@@ -6,7 +6,7 @@
 
 [The foundations philosophy](https://supertypeai.github.io/foundations/philosophy/) explains the reasoning in more detail, but the short version is simple: this is a reusable design system for typography primitives, content blocks, the long-form essay shell, token and theme CSS, and the build-time tooling that keeps the baseline consistent. That includes SEO, OG cards, lint rules, and contrast checks.
 
-It is used in software graduating from the Supertype Incubator, so projects like [Viably work operating system](https://viably.app), [Supertype.ai](https://supertype.ai), and [Sectors Financial Data Platform](https://sectors.app) all use the MIT-licensed Foundations as the design system.
+It is used in software graduating from the Supertype Incubator, so projects like [Viably work operating system](https://viably.app), [Supertype.ai](https://supertype.ai), and [Sectors Financial Data Platform](https://sectors.app) all use the MIT-licensed Foundations as their design system.
 
 It is designed thoroughly around the principles of reusability, consistency, and maintainability, ensuring that all projects built with Foundations have a solid (albeit slightly opinionated) typographic and styling foundation while sticking to best practices and design guidelines consistent with Next.JS 15+ and Tailwind 4+.
 
@@ -51,8 +51,8 @@ imports and reorders the existing ones if needed. Run it with `--dry-run` first
 to preview the patch. It also prints the font bindings and the `llms.txt` snippet
 your coding agent should read.
 
-`upgrade` is for later: after bumping the package, it rewrites source written for
-an older version and lists what it leaves. It writes only on a clean git tree.
+`upgrade` is for later: after bumping the Foundations package, it rewrites source written for
+an older version and lists what it leaves. Works only on a clean git tree.
 
 The steps performed by `init` are listed below. See [the CLI](docs/cli.md) for
 the full list of checks and details.
@@ -69,14 +69,13 @@ Peers are **Tailwind 4+**, React 19+, Next 15+, `next-view-transitions` 0.3+ and
 
 `tokens.css` declares
 `@custom-variant` and `@theme inline`, and the `@source` line below is **Tailwind-v4**
-syntax; on v3 they are parse errors. If you are still on v3, run
-[`npx @tailwindcss/upgrade`](https://tailwindcss.com/docs/upgrade-guide) first.
-`foundations init` will warn you when you are using an out-of-date Tailwind version.
+syntax; on v3 they are parse errors. Run
+[`npx @tailwindcss/upgrade`](https://tailwindcss.com/docs/upgrade-guide) first to upgrade your Tailwind to v4. `foundations init` will warn you when you are using an out-of-date Tailwind version.
 
 <details>
 <summary>Installing from a git tag instead</summary>
 
-Every release is tagged and published, so a commit can be installed directly as well. An untagged git dependency resolves to a different commit on a fresh install.
+Every release is tagged and published, so a commit can be installed directly as well.
 
 ```jsonc
 // package.json
@@ -94,21 +93,17 @@ Every release is tagged and published, so a commit can be installed directly as 
 ```
 
 That one line carries `tokens.css`, `theme.css`, `type.css` and `prose.css` in
-the order the cascade needs, and registers the package&rsquo;s own `@source` so
-Tailwind scans the components it ships. You do not need to work out a path or
-keep an order: Tailwind v4 resolves `@source` relative to the file that declares
-it, so the package points at its own `dist/`, correctly, wherever it happens to
-be installed.
+the order the cascade needs, and wires it up to Tailwind v4 resolution correctly.
 
-Add `@import "@supertype.ai/foundations/shiki.css";` after it only if you render
+Add `@import "@supertype.ai/foundations/shiki.css";` after the two above if you render
 code fences.
 
 <details>
 <summary>Importing the parts separately</summary>
 
-The granular entry points are still exported and still supported, for the app
-that paints every colour role itself and wants `tokens.css` without `theme.css`.
-Taking them means owning the order and the scan path yourself:
+You can also import these CSS files separately. This is useful if you want to
+set your own colour values and leave out `theme.css`. In that case, use the
+import order below and add the `@source` path so Tailwind scans the package:
 
 ```css
 /* app/globals.css */
@@ -223,7 +218,7 @@ export default function Page() {
       </Callout>
 
       <TypographyCaption as="p" className="mt-8">
-        Last reviewed March 2026
+        Last reviewed October 2026
       </TypographyCaption>
     </main>
   );
@@ -234,9 +229,9 @@ Two rules cover most of the API:
 
 - **Do not write type styles by hand.** A paragraph carrying
   `text-sm text-muted-foreground` is `<TypographyMuted>`. Using the primitives
-  keeps a size and a colour from drifting apart across a few hundred call sites.
+  keeps a size and a colour from drifting apart across the entire codebase.
 - **Retune with CSS variables, not classes.** The package owns its own
-  classnames. Change a `--text-*`, `--heading-weight`, or a colour specification in `theme.css` to retune the whole package. Read [Tokens and theming](#tokens-and-theming) for full instructions.
+  classnames. Change a `--text-*`, `--heading-weight`, or a colour specification in `theme.css` to retune the whole package. Read [Tokens and theming](#tokens-and-theming) for instructions.
 
 ---
 
@@ -251,24 +246,20 @@ with `yarn sync`.
 `/recipes` holds whole pages rather than single components: a marketing hero, a
 metrics panel, pricing tiers, a docs page, an article index, and examples of MDX-rendered pages. Each one lives in
 [`app/_recipes/`](examples/site/app/_recipes) as a complete file that imports
-only from this package, so you can paste it into your app and it compiles.
+only from this package, so you can paste it into your app.
 
 ---
 
 ## For coding agents
 
-The package includes an `llms.txt` with the public API, the rules, and the
-mistakes that do not produce an error. Point your agent at it once and it stops
-writing `text-sm text-muted-foreground` where a primitive already exists:
+The package includes an `llms.txt` with the public API, rules and usage guidance. Point your agent at it once and it stops
+writing `text-sm text-muted-foreground` where a primitive exists:
 
 ```md
 <!-- CLAUDE.md, AGENTS.md, or your agent's equivalent -->
 
 @node_modules/@supertype.ai/foundations/llms.txt
 ```
-
-`yarn build` fails if an export is missing from it, so it cannot fall behind the
-package.
 
 ---
 
@@ -292,11 +283,10 @@ package.
 
 ## Tokens and theming
 
-`tokens.css` names the structural roles and nothing else: `--background`,
+`tokens.css` names the structural roles: `--background`,
 `--foreground`, `--card`, `--muted`, `--primary`, `--border` and `--ring`, plus
 the status set. They are named for meaning rather than hue, so a project that
-renders `success` in blue still reads correctly. It holds no values, so there is
-only ever one palette in play.
+renders `success` in blue still reads correctly. It holds no values, only the roles themselves.
 
 Each status hue ships twice, on the same rule as the categorical tints:
 `--success`, `--warn` and `--info` are **fills**, held to 3:1 against the page
@@ -307,15 +297,11 @@ and a card; `--success-ink`,
 `-foreground` means throughout, and `-ink` means the hue used as words.
 `checkSignals` in `@supertype.ai/foundations/contrast` measures all of them and fails if any are below the threshold.
 
-`tokens.css` also binds the `dark:` variant to the `.dark` class. Do not skip
-that import: Tailwind v4 otherwise follows the OS setting and quietly ignores
-your toggle.
-
 `theme.css` gives those roles the latte and espresso palette, and adds the
 editorial inks (`--secondary-ink`, `--subtle-foreground`, and the ochre,
 terracotta, sage and fig pairs) along with the elevation shadows.
 
-`.dark` also sets `color-scheme: dark`, so scrollbars, form controls and
+`tokens.css` also binds the `dark:` variant to the `.dark` class which sets `color-scheme: dark` such that scrollbars, form controls and
 autofill follow the palette, including on a `.dark` section of a light page.
 Each theme's ground is available by name on `:root` as `--latte-background`
 and `--espresso-background`. Use them when something outside a `.dark` element
@@ -351,8 +337,7 @@ gives the heading role to the serif and drops the weight to 400.
 <div className="editorial">…</div>   {/* or on <html> for an editorial site */}
 ```
 
-Heading sizes are a _ratio_ to the body text under them, and the two
-surfaces set body at different sizes: 13px in the product, 18px on `.editorial`. Scope the class to whichever surfaces should be editorial, whether that is a marketing and docs section or the whole site.
+Heading sizes are a _ratio_ to the body text under them with 13px in the product, 18px on `.editorial`. Scope the class to whichever surfaces should be editorial, whether that is a marketing and docs section or the whole site.
 
 ---
 
@@ -361,16 +346,13 @@ surfaces set body at different sizes: 13px in the product, 18px on `.editorial`.
 1. **The package owns its final classnames.** Retune with CSS custom properties
    (the `--text-*`, `--heading-weight`, the colour tokens) rather than by
    patching classes. A property the package declares is read by the package; if a
-   knob turns nothing, `test/tokens-live.test.ts` fails on it; that is worse
-   than no knob at all.
+   knob turns nothing, `test/tokens-live.test.ts` fails on it.
 2. **No variant props on the MDX map.** Elements that MDX renders automatically
-   take no options. No call site exists to make the choice. Components you invoke
-   by hand can have variants.
-3. **Use the platform first, and a library only where it falls short.**
+   take no options.
+3. **Native html first, and a library only where it falls short.**
    `Disclosure` is a `<details>`/`<summary>` pair: no JavaScript, correct before
    hydration, available to an MDX author, and animated by CSS where the browser
-   can. `TabGroup` uses Base UI, since managed selection is beyond what the
-   platform gives you.
+   can. `TabGroup` uses Base UI because managed selection is beyond what native HTML offers.
 4. **No brand colours.** Structural tokens only, with brand colours left to the
    app.
 5. **Put structure in CSS rather than the component map.** A host framework can
@@ -382,11 +364,7 @@ surfaces set body at different sizes: 13px in the product, 18px on `.editorial`.
 
 ## Upgrading to 0.4
 
-0.4 has one way to put an icon, checkbox or dot beside words, and removes the
-five it replaces. Each of those centred a glyph on the line box or nudged it by a
-measured fraction, so each was right at some rungs and off by up to 1.4px at
-others. The new slot seats every mark on the middle of the capitals, within half
-a pixel at any rung, leading or zoom.
+With 0.4, there is one way to put an icon, checkbox or dot beside words.
 
 ```tsx
 // before
@@ -400,7 +378,7 @@ a pixel at any rung, leading or zoom.
 
 ### Removed
 
-Every removal is a second way to do something 0.4 does one way.
+Every removal corresponds to a feature that 0.4 replaces with the new `mark` and `markEnd` system.
 
 | 0.3                                                                  | 0.4                                                                                                                                                                                                            |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -428,9 +406,7 @@ Every removal is a second way to do something 0.4 does one way.
 - `<Mark>`, the slot on its own, for a glyph inside a sentence or in words no
   role renders.
 - `truncate` on every text role. With a mark it cuts the words, never the mark.
-- From 0.4.1, `TabGroup` with no `content` on any tab is a picker, the strip
-  alone driving state, and `size="sm"` is the compact strip for a toolbar or a
-  chart.
+- From 0.4.1, `TabGroup` with no `content` on any tab is a picker, and `size="sm"` is the compact strip for a toolbar or a chart.
 - From 0.4.1, no block gives itself a margin. `Cards`, `Steps`,
   `DisclosureGroup` and `TabGroup` dropped their `my-6`: in prose `ProseFlow`
   spaces them, and elsewhere the layout holding them does, as it already did for
@@ -461,8 +437,8 @@ Every removal is a second way to do something 0.4 does one way.
 
 ### How to upgrade
 
-`upgrade` does most of this. Take 0.4.1 or later, whose `upgrade` also moves the
-accordions, tabs and surface inks that 0.4.0's left to you.
+`upgrade` does most of this. Take 0.4.1 or later, whose `upgrade` also handles the
+accordions, tabs and surface inks automatically.
 
 1. Bump the package and run `npx foundations doctor`. Its Source check counts
    the files still written for 0.3.
@@ -486,55 +462,23 @@ accordions, tabs and surface inks that 0.4.0's left to you.
    beside other controls in one row, an attribute it has no place for). Look at
    what it marks !: those moved, and each says what to check, such as a glyph's
    colour or a panel's spacing.
-4. Run the compiler and your lint. Both name anything still left: an import of
+4. Run the compiler and your lint. Check what's left, e.g., an import of
    a removed name fails to resolve, and `designRules` flags a glyph that is not
    yet a mark.
 5. Look at the pages. No tool sees these: words that a flex gap used to separate
    and now need a `{" "}`, centred or right-aligned words, where an inline
    `<Mark>` keeps the glyph with them, and an avatar or anything else taller
-   than the line, which is not a mark: the words centre on it with `CAP_TRIM`.
-
-## Upgrading to 0.2
-
-Two entry points lost exports. Both had one function doing the work and several
-more standing beside it, and the extras are what a config got wrong.
-
-**`/eslint` is one function.** `designRules` assembles every rule, so replace
-`designConfig({ accents, weights })` with your own flat-config entry around it:
-
-```js
-{
-  files: ["app/**/*.tsx", "components/**/*.tsx"],
-  rules: {
-    "no-restricted-syntax": ["error", ...designRules({ accents: "the brand tints" })],
-  },
-}
-```
-
-`colourRules`, `typographyRules`, `linkRules`, `themeOverrideRules`,
-`surfaceAsInkRules` and `renamedTokenRules` are internal now. Spreading a subset
-was how a config came to be running four of the six sets, unaware of the other
-two, so the whole set is what the package hands out. `typography: false` still
-drops the type rules for a surface that sets its own ramp.
-
-**`/rehype` is `rehypeProseCode` and `PROSE_THEMES`.** `PROSE_LANGS` and
-`proseCodeOptions` are what that plugin is built from rather than things to pass.
-
-New in the same release: `CAP_TRIM` and `ON_FIRST_LINE` for lining a mark up with
-the words beside it. `Button` and `TabsTrigger` apply the trim to their own labels,
-so a control lines up without the call site knowing the rule. The third case needs
-no export: a mark set inside a run of words takes `align-middle`, which centres it
-on the baseline plus half an x-height at whatever size the run is set in. Reach for
-one of the three rather than a top margin, which fits one rung and misses the rest.
+   than the line (in the last case, Foundations use `CAP_TRIM` to align it).
 
 ---
 
-## In production
+## Example Sites
 
 Sites running the package:
 
 - [supertype.ai](https://supertype.ai) — Supertype, a regional-leading analytics engineering and data science consulting firm.
 - [viably.app](https://viably.app) — Viably, an observability-first business operating system and CRM for automation-obsessed teams.
+- [sectors.app](https://sectors.app) — Sectors, a financial data platform and market intelligence suite built for the Indonesia and Singapore markets.
 
 ## ![](https://assets.viably.app/app_assets/screen/usage_dark.webp)
 
@@ -544,5 +488,4 @@ MIT. Copyright © 2026 Supertype. See [LICENSE](LICENSE).
 
 Published to npm as
 [`@supertype.ai/foundations`](https://www.npmjs.com/package/@supertype.ai/foundations),
-and installable from this repository by tag. The MIT grant covers using,
-modifying and redistributing it either way.
+and installable from this repository by tag.
