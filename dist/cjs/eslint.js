@@ -147,30 +147,44 @@ function typographyRules({ weights = false, ramp = "text-3xs 10 / text-2xs 11 / 
 }
 /**
  * One size for a glyph: one em of the words, set by the slot it is a direct child
- * of. `Button`, `Badge`, `<Mark>` and the `mark` props are such slots, and the text roles
- * are where a glyph goes into one. Direct children only, as the slot sizes only
- * those; a mark built of several parts sizes its own.
+ * of, and one space beside it: the slot's gap. `Button`, `Badge`, `<Mark>`, the `mark`
+ * props and a tab's `label` and `icon` are such slots, and the text roles are where a
+ * glyph goes into one. Direct children only, as the slot sizes only those; a mark
+ * built of several parts sizes its own.
  */
-const SIZE_TOKEN = 'JSXAttribute[name.name="className"] Literal[value=/(^| )(size|h|w)-[\\d.]+($| )/]';
+const SIZE = "/(^| )(size|h|w)-[\\d.]+($| )/";
+const MARGIN = "/(^| )-?m[trblxyse]?-[\\d.]+($| )/";
 /* The text roles: every component rendered by `TextAs`, which test/mark.test.tsx checks. */
 const TEXT_ROLE = "/^(Typography(P|Muted|Prose|Caption|Label|Eyebrow|H[1-4])|CardTitle)$/";
 const ICON = ':matches([openingElement.name.object.name="Icons"], [openingElement.name.name=/Icon$/])';
-/** A glyph that is a direct child of `slot`, bare, `cond && <Icon />` or in a ternary. */
-const glyphIn = (slot) => [
-    `${slot} > JSXElement${ICON}`,
-    `${slot} > JSXExpressionContainer > JSXElement${ICON}`,
-    `${slot} > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression) > JSXElement${ICON}`,
-].join(", ");
+const SLOTS = [
+    "JSXElement[openingElement.name.name=/^(Button|Badge|Mark)$/]",
+    "JSXAttribute[name.name=/^mark(End)?$/]",
+    'JSXOpeningElement[name.name="TabGroup"] JSXAttribute[name.name="tabs"] Property[key.name=/^(label|icon)$/]',
+];
+/**
+ * What React renders nothing for, so a glyph behind it is still the slot's own child:
+ * an expression, `cond && …` and either branch of a ternary. A tab's fields are
+ * expressions already, hence the bare form.
+ */
+const THROUGH = [
+    "",
+    " > JSXExpressionContainer",
+    " > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression)",
+    " > :matches(LogicalExpression, ConditionalExpression)",
+];
+/** A glyph that is a direct child of `slot` once its fragments are spread, as `trimLabels` reads it. */
+const glyphIn = (slot) => [slot, ...THROUGH.map((hop) => `${slot}${hop} > JSXFragment`)]
+    .flatMap((parent) => THROUGH.map((hop) => `${parent}${hop} > JSXElement${ICON}`))
+    .join(", ");
+const glyphClass = (pattern, message) => classString(pattern).map((token) => ({
+    selector: `:matches(${SLOTS.map(glyphIn).join(", ")}) > JSXOpeningElement JSXAttribute[name.name="className"] ${token}`,
+    message,
+}));
 function markSizeRules() {
-    const sized = [
-        'JSXElement[openingElement.name.name=/^(Button|Badge|Mark)$/]',
-        "JSXAttribute[name.name=/^mark(End)?$/]",
-    ];
     return [
-        {
-            selector: `:matches(${sized.map(glyphIn).join(", ")}) > JSXOpeningElement ${SIZE_TOKEN}`,
-            message: "A glyph in a mark, Mark, Button or Badge is one em of the words beside it, so this class is inert. Remove the size- token; a bigger glyph is a bigger rung.",
-        },
+        ...glyphClass(SIZE, "A glyph in a mark, Mark, Button, Badge or tab is one em of the words beside it, so this class is inert. Remove the size- token; a bigger glyph is a bigger rung."),
+        ...glyphClass(MARGIN, "A glyph in a mark, Mark, Button, Badge or tab is spaced from its words by the slot's gap, and a margin adds to it. Remove the m- token. Set `gap-` on the slot to change the space, or use `ml-auto` to send the glyph to the edge."),
         {
             selector: `:matches(${glyphIn(`JSXElement[openingElement.name.name=${TEXT_ROLE}]`)})`,
             message: "A glyph beside the words is their mark. Pass it as `mark` (or `markEnd` after them): the role sizes it to one em, seats it on the capitals and owns the row's alignment, so drop any `items-` class. Inside a sentence, wrap it in `<Mark>`.",

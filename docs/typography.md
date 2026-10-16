@@ -277,8 +277,9 @@ the `<Mark>` in it beside them, so it reads their size from there.
 Controls own their glyphs by the same rule. `Button` and `Badge` size a glyph
 passed as a direct child, and `TabGroup` a tab's `icon`, to one em of the label and centre it on
 the label's letters, so it takes no class. Lint flags a size on a glyph in a
-mark, a `<Mark>` or a control as inert, a glyph passed loose into a text role, and
-a glyph held into line with a top margin or `align-middle`.
+mark, a `<Mark>` or a control as inert, a margin on one as doubling the gap, a
+glyph passed loose into a text role, and a glyph held into line with a top margin
+or `align-middle`. A fragment or a conditional around the glyph counts as nothing.
 
 Two things beside words are not marks. A glyph standing alone, an icon-only link
 or button, names no words and keeps its own size. An object taller than the

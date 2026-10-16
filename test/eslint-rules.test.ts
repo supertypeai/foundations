@@ -1,3 +1,5 @@
+import { parse, VisitorKeys } from "espree";
+import esquery from "esquery";
 import { describe, expect, it } from "vitest";
 import { designRules } from "../dist/eslint.js";
 
@@ -295,40 +297,43 @@ describe("the rules themselves", () => {
   });
 
   /**
-   * One way to put a glyph beside words: as their mark. A loose one in a text role
-   * is flagged, and a size on a control's glyph is inert.
+   * One way to put a glyph beside words: as their mark. A loose one in a text role is
+   * flagged, a size on a control's glyph is inert, and a margin on it doubles the gap.
+   * A glyph is a direct child the way React renders it, through expressions and fragments.
    */
-  it("points a loose glyph at `mark` and a control's glyph size at nothing", () => {
-    // The alternatives inside a rule's outer `:matches(…)`, one per slot and shape.
-    const branches = (selector: string) =>
-      /^:matches\((.*)\)(?: > JSXOpeningElement .*)?$/.exec(selector)![1]!.split(/, (?=JSX(?:Element|Attribute)\[)/);
-    // Each branch up to its glyph: which slot, and by what path.
-    const paths = (selector: string) =>
-      branches(selector).map((b) => b.slice(0, b.lastIndexOf("JSXElement:") + "JSXElement:".length));
-    // Each slot reaches its glyph three ways, and only ever as a direct child.
-    const shapes = (slot: string) => [
-      `${slot} > JSXElement:`,
-      `${slot} > JSXExpressionContainer > JSXElement:`,
-      `${slot} > JSXExpressionContainer > :matches(LogicalExpression, ConditionalExpression) > JSXElement:`,
-    ];
+  it("finds a glyph wherever React renders it as the slot's child, and nowhere else", () => {
+    const fired = (code: string) => {
+      const ast = parse(code, { ecmaVersion: "latest", sourceType: "module", ecmaFeatures: { jsx: true } });
+      const hit = (needle: string) =>
+        messageWith(needle).some((r) => esquery.match(ast, esquery.parse(r.selector), { visitorKeys: VisitorKeys }).length > 0);
+      return ([["inert", "so this class is inert"], ["margin", "a margin adds to it"], ["loose", "is their mark"]] as const)
+        .filter(([, needle]) => hit(needle))
+        .map(([name]) => name);
+    };
 
-    const loose = messageWith("is their mark");
-    expect(loose).toHaveLength(1);
-    const roles = new RegExp(/name\.name=\/(.+?)\/\]/.exec(loose[0]!.selector)![1]!);
-    for (const role of ["TypographyCaption", "TypographyH3", "CardTitle"]) expect(roles.test(role), role).toBe(true);
-    for (const other of ["Button", "TypographyStat", "TypographyLink"]) expect(roles.test(other), other).toBe(false);
-    expect(paths(loose[0]!.selector)).toEqual(shapes(`JSXElement[openingElement.name.name=/${roles.source}/]`));
-
-    const inert = messageWith("so this class is inert");
-    expect(inert).toHaveLength(1);
-    const slots = ["JSXElement[openingElement.name.name=/^(Button|Badge|Mark)$/]", "JSXAttribute[name.name=/^mark(End)?$/]"];
-    expect(paths(inert[0]!.selector)).toEqual(slots.flatMap(shapes));
-    // Every branch ends at a glyph, so a nested control's own box, a pill button in a badge, is never read.
-    for (const branch of branches(inert[0]!.selector)) expect(branch).toContain('name.object.name="Icons"');
-    for (const pattern of patterns(inert)) {
-      const re = new RegExp(pattern);
-      for (const cls of ["size-3", "size-3.5 shrink-0", "h-4 w-4 text-primary-ink"]) expect(re.test(cls), cls).toBe(true);
-      for (const cls of ["shrink-0", "text-sm", "min-size-3", "h-full"]) expect(re.test(cls), cls).toBe(false);
+    for (const [code, expected] of [
+      [`<Button><Icons.Lock className="size-4" />Pay</Button>`, ["inert"]],
+      [`<Button><Icons.Lock className="h-4 w-4 mr-2" />Pay</Button>`, ["inert", "margin"]],
+      [`<Badge>{label}<Icons.ArrowUpRight className="ml-0.5" /></Badge>`, ["margin"]],
+      [`<Button>{busy ? <><Icons.Loader2 className="h-4 w-4 animate-spin" />Saving</> : "Save"}</Button>`, ["inert"]],
+      [`<Button>{open && <ChevronIcon className={\`ml-2 \${open ? "rotate-180" : ""}\`} />}</Button>`, ["margin"]],
+      [`<TypographyCaption mark={<Icons.Clock className="mr-1" />}>44d ago</TypographyCaption>`, ["margin"]],
+      [`<TabGroup tabs={[{ value: "a", label: <>Pro<Icons.Crown className="w-4 h-4 ml-1" /></> }]} />`, ["inert", "margin"]],
+      [`<TabGroup tabs={ids.map((id) => ({ value: id, label: id, icon: <Icons.Users className="size-4" /> }))} />`, ["inert"]],
+      [`<TypographyCaption>{due && <><Icons.Clock />Due</>}</TypographyCaption>`, ["loose"]],
+      [`<TypographyH3><Icons.Star />Starred</TypographyH3>`, ["loose"]],
+      // What the slot leaves alone: the words' own classes and the edge push.
+      [`<Button><Icons.ChevronDown className="ml-auto opacity-50 animate-spin" />Open</Button>`, []],
+      // A glyph wrapped in an element of its own keeps the size and space it is given.
+      [`<Button><span className="mr-2"><Icons.Lock className="size-6" /></span>Pay</Button>`, []],
+      [`<Button render={<a href="/x"><Icons.Lock className="size-4" /></a>} />`, []],
+      // A label outside a tab strip is some other component's.
+      [`<Select options={[{ label: <><Icons.Tag className="size-3 mr-1" />Tag</> }]} />`, []],
+      // Not a text role, and a pill button in a badge is a box, not a glyph.
+      [`<TypographyStat><Icons.TrendingUp />3</TypographyStat>`, []],
+      [`<Badge><Button size="xs" className="h-5 ml-1">Undo</Button></Badge>`, []],
+    ] as const) {
+      expect(fired(code), code).toEqual(expected);
     }
   });
 

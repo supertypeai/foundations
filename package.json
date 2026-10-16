@@ -118,6 +118,8 @@
   "devDependencies": {
     "@base-ui/react": "^1.4.1",
     "@types/react": "^19.0.0",
+    "espree": "^10.4.0",
+    "esquery": "1.6.0",
     "next": "^16.3.4",
     "next-view-transitions": "^0.3.5",
     "react": "^19.2.8",
