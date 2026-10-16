@@ -79,7 +79,7 @@ Every release is tagged and published, so a commit can be installed directly as 
 
 ```jsonc
 // package.json
-"@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.4.3"
+"@supertype.ai/foundations": "https://github.com/supertypeai/foundations.git#v0.4.4"
 ```
 
 </details>
