@@ -1,7 +1,21 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { Children } from "react";
+import { Children, cloneElement, Fragment, isValidElement } from "react";
 import { CAP_TRIM } from "../typography/align.js";
 const isText = (child) => typeof child === "string" || typeof child === "number";
+/**
+ * A fragment's children count as the control's own, so a tab's `label: <><svg />People</>`
+ * reads like `<Button><svg />Revoke</Button>`. The fragment's key prefixes its children's.
+ */
+function flatten(children, prefix = "") {
+    return Children.toArray(children).flatMap((child) => {
+        if (!isValidElement(child))
+            return [child];
+        const key = `${prefix}${child.key}`;
+        if (child.type === Fragment)
+            return flatten(child.props.children, key);
+        return [prefix ? cloneElement(child, { key }) : child];
+    });
+}
 /**
  * Wrap a control's text so the row centres on the letters, not the line box.
  * Adjacent strings are one label: `{count} to act on` stays one run of words
@@ -19,7 +33,7 @@ export function trimLabels(children) {
         run = [];
     };
     // toArray keys every element, as map did; the labels take their own.
-    for (const child of Children.toArray(children)) {
+    for (const child of flatten(children)) {
         if (isText(child))
             run.push(child);
         else {

@@ -265,7 +265,8 @@ should not announce itself to a screen reader every time a sheet opens.
 A glyph passed as a direct child is one em of the label and centres on its
 letters, so it takes no class; a size class on it is inert and lint says so. One
 you wrap in an element of your own keeps the size you give it. `Badge` does the
-same, and so does a `TabGroup` tab's `icon`.
+same, and so does a `TabGroup` tab, whether the glyph arrives in its `icon` or in a
+fragment as its `label`. A fragment counts as direct children in all three.
 
 **Variant is how much ink the button spends; tone is what the ink means.** They
 are independent, and that separation is what makes the API useful. A list that

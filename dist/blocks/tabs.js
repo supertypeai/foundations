@@ -86,6 +86,8 @@ function TabsList({ className, variant = "default", size = "md", tone = "primary
 }
 function TabsTrigger({ className, children, ...props }) {
     return (_jsx(TabsPrimitive.Tab, { "data-slot": "tabs-trigger", className: cn(SEGMENT.item, 
+        // A glyph passed in the label instead of `icon` is still one em of it.
+        GLYPH, 
         // Ink only — the surface and the underline belong to the indicator. The radius is
         // for the hover wash, and matches the marker that wash previews.
         "rounded-sm text-muted-foreground hover:text-foreground data-active:text-foreground", "px-1.5 py-0.5 text-sm group-data-[size=sm]/tabs-list:px-2 group-data-[size=sm]/tabs-list:text-xs whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50", 

@@ -11,7 +11,7 @@ import {
   TypographyP,
 } from "../dist/index.js";
 import * as root from "../dist/index.js";
-import { Badge, Button, CardTitle } from "../dist/blocks/index.js";
+import { Badge, Button, CardTitle, TabGroup } from "../dist/blocks/index.js";
 import { designRules } from "../dist/eslint.js";
 
 const decode = (html: string) => html.replaceAll("&amp;", "&").replaceAll("&gt;", ">");
@@ -116,15 +116,23 @@ describe("a mark", () => {
     expect(renderToStaticMarkup(<TypographyP mark={<svg />}>One</TypographyP>)).toMatch(/<span class="min-w-0">One/);
   });
 
-  /** A badge's 10px label once carried a 12px glyph, forced, against a 1px border. */
+  /**
+   * A badge's 10px label once carried a 12px glyph, forced, against a 1px border. A tab's
+   * glyph written into its label rather than `icon` rendered at the icon set's own 24px,
+   * beside words left on their line box. A fragment is how a field spells children.
+   */
   it("is one em in a control too, the same rule as the slot's", () => {
     for (const html of [
       renderToStaticMarkup(<Badge size="xs"><svg />CC a reply</Badge>),
       renderToStaticMarkup(<Button size="sm"><svg />Revoke</Button>),
+      renderToStaticMarkup(<Button size="sm">{<><svg />Revoke</>}</Button>),
+      /<button[^>]*data-slot="tabs-trigger"[\s\S]*?<\/button>/.exec(
+        renderToStaticMarkup(<TabGroup tabs={[{ value: "people", label: <><svg />People</> }]} />),
+      )![0],
     ]) {
       expect(classes(html)).toContain("[&>svg]:size-[1em]");
       expect(classes(html).some((c) => /svg\]:size-\d/.test(c))).toBe(false);
-      expect(html).toContain('data-slot="label"');
+      expect(html).toMatch(/><svg><\/svg><span data-slot="label"[^>]*>[^<]+</);
     }
   });
 });

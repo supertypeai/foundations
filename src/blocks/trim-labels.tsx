@@ -1,8 +1,21 @@
-import { Children, type ReactNode } from "react";
+import { Children, cloneElement, Fragment, isValidElement, type ReactNode } from "react";
 
 import { CAP_TRIM } from "../typography/align.js";
 
 const isText = (child: ReactNode) => typeof child === "string" || typeof child === "number";
+
+/**
+ * A fragment's children count as the control's own, so a tab's `label: <><svg />People</>`
+ * reads like `<Button><svg />Revoke</Button>`. The fragment's key prefixes its children's.
+ */
+function flatten(children: ReactNode, prefix = ""): ReactNode[] {
+  return Children.toArray(children).flatMap((child) => {
+    if (!isValidElement<{ children?: ReactNode }>(child)) return [child];
+    const key = `${prefix}${child.key}`;
+    if (child.type === Fragment) return flatten(child.props.children, key);
+    return [prefix ? cloneElement(child, { key }) : child];
+  });
+}
 
 /**
  * Wrap a control's text so the row centres on the letters, not the line box.
@@ -24,7 +37,7 @@ export function trimLabels(children: ReactNode): ReactNode {
     run = [];
   };
   // toArray keys every element, as map did; the labels take their own.
-  for (const child of Children.toArray(children)) {
+  for (const child of flatten(children)) {
     if (isText(child)) run.push(child as string | number);
     else {
       flush();

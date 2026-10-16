@@ -148,6 +148,8 @@ function TabsTrigger({ className, children, ...props }: TabsPrimitive.Tab.Props)
       data-slot="tabs-trigger"
       className={cn(
         SEGMENT.item,
+        // A glyph passed in the label instead of `icon` is still one em of it.
+        GLYPH,
         // Ink only — the surface and the underline belong to the indicator. The radius is
         // for the hover wash, and matches the marker that wash previews.
         "rounded-sm text-muted-foreground hover:text-foreground data-active:text-foreground",
